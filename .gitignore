@@ -1,0 +1,9 @@
+.o
+bin/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+synthlike
+Makefile
+imgui.ini
+
