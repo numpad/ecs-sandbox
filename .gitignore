@@ -6,4 +6,5 @@ cmake_install.cmake
 synthlike
 Makefile
 imgui.ini
+compile_commands.json
 

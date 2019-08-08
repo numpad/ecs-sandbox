@@ -17,6 +17,7 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_LIBRARY_DIR})
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_LIBRARY_DIR})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_BINARY_DIR}")
 
+set (CFG_PROJECT_NAME "${CMAKE_PROJECT_NAME}")
 set (CFG_VERSION_MAJOR 0)
 set (CFG_VERSION_MINOR 1)
 set (CFG_DEBUG true)
@@ -44,20 +45,20 @@ find_package (OpenGL REQUIRED)
 find_package (glfw3 REQUIRED)
 find_package (glm REQUIRED)
 
-add_executable (synthlike "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
-target_link_libraries (synthlike
+add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
+target_link_libraries (${CMAKE_PROJECT_NAME}
                        OpenGL
                        glfw
                        dl
 )
 
 if (MSVC)
-	target_compile_options (${TARGET_NAME} PRIVATE /W4 /WX)
+	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /WX)
 else (MSVC)
-	target_compile_options (synthlike PRIVATE -Wall -Wextra -pedantic)
+	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
 endif (MSVC)
 
-install (TARGETS synthlike DESTINATION bin)
+install (TARGETS ${CMAKE_PROJECT_NAME} DESTINATION bin)
 install (FILES "${PROJECT_BINARY_DIR}/config.hpp"
          DESTINATION include)
 
