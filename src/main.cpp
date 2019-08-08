@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <FastNoise/FastNoise.h>
 #include <stb/stb_image.h>
+#include <entt/entt.hpp>
 
 #include <World.hpp>
 

@@ -4,7 +4,7 @@ project (synthlike LANGUAGES CXX)
 
 set (CMAKE_BUILD_TYPE Debug)
 
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set (PROJECT_BASE_SRC "src")
@@ -29,6 +29,7 @@ configure_file (
 include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_INCLUDE_DIR}")
 include_directories ("${PROJECT_LIBRARY_DIR}")
+include_directories ("${PROJECT_LIBRARY_DIR}/entt/single_include")
 include_directories ("${PROJECT_LIBRARY_DIR}/imgui")
 include_directories ("${PROJECT_LIBRARY_DIR}/imgui/examples")
 
