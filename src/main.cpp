@@ -75,10 +75,11 @@ bool initGL() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#if (CFG_DEBUG)
-	// TODO: fix for my window manager
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-#endif
+	#if CFG_DEBUG
+		// TODO: fix for my window manager
+		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	#endif
+	
 	/* request debug context */
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, (CFG_DEBUG ? GLFW_TRUE : GLFW_FALSE));
 	
@@ -116,6 +117,12 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 
 GLFWwindow *window = nullptr;
 int main(int, char**) {
+	
+	// disable buffering for stdout (fixes sublime text console)
+	#if CFG_DEBUG
+		setbuf(stdout, nullptr);
+	#endif
+	
 	/* init gl and window */
 	if (!initGL()) fprintf(stderr, "initGL() failed.\n");
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
@@ -134,7 +141,7 @@ int main(int, char**) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 		
-		glClearColor(0.9, 0.66, 0.63, 1);
+		glClearColor(0.631f, 0.875f, 0.902f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		world.draw();

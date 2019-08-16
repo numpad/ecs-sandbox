@@ -23,7 +23,7 @@ void World::draw() {
 		glm::vec3(-1.25f, 1.5f, -1.25f),
 		glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
-	floorShader["uColor"] = glm::vec3(0.631f, 0.875f, 0.902f);
+	floorShader["uColor"] = glm::vec3(0.9f, 0.66f, 0.63f);
 	floorShader["uModel"] = glm::mat4(1.0f);
 	floorShader["uView"] = uView;
 	floorShader["uProjection"] = uProj;
