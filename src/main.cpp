@@ -8,6 +8,7 @@
 #include <FastNoise/FastNoise.h>
 #include <stb/stb_image.h>
 #include <entt/entt.hpp>
+#include <util/sgl_shader.hpp>
 
 #include <World.hpp>
 
@@ -74,7 +75,10 @@ bool initGL() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	
+#if (CFG_DEBUG)
+	// TODO: fix for my window manager
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+#endif
 	/* request debug context */
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, (CFG_DEBUG ? GLFW_TRUE : GLFW_FALSE));
 	
@@ -82,7 +86,7 @@ bool initGL() {
 }
 
 bool initWindow(GLFWwindow **window, int width, int height) {
-	*window = glfwCreateWindow(width, height, CFG_PROJECT_NAME, nullptr, nullptr);
+	*window = glfwCreateWindow(width, height, "main", nullptr, nullptr);
 	glfwMakeContextCurrent(*window);
 	glfwSwapInterval(1);
 	glfwSetFramebufferSizeCallback(*window, onResize);
@@ -104,19 +108,24 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(glDebugOutput, nullptr);
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 	}
 	
 	return true;
 }
 
+GLFWwindow *window = nullptr;
 int main(int, char**) {
 	/* init gl and window */
 	if (!initGL()) fprintf(stderr, "initGL() failed.\n");
-	GLFWwindow *window = nullptr;
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 	
 	/* init game */
 	World world;
+	
+	entt::registry engine;
+	auto entity = engine.create();
+	engine.destroy(entity);
 	
 	/* draw loop */
 	while (!glfwWindowShouldClose(window)) {
@@ -125,7 +134,7 @@ int main(int, char**) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 		
-		glClearColor(0, 0, 0.5, 1);
+		glClearColor(0.9, 0.66, 0.63, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		world.draw();
