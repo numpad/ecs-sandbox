@@ -27,11 +27,17 @@ configure_file (
 	"${PROJECT_BINARY_DIR}/config.hpp"
 )
 include_directories ("${PROJECT_BINARY_DIR}")
+include_directories ("${PROJECT_BASE_SRC}/ecs")
 include_directories ("${PROJECT_INCLUDE_DIR}")
+include_directories ("${PROJECT_INCLUDE_DIR}/*")
 include_directories ("${PROJECT_LIBRARY_DIR}")
 include_directories ("${PROJECT_LIBRARY_DIR}/entt/single_include")
 include_directories ("${PROJECT_LIBRARY_DIR}/imgui")
 include_directories ("${PROJECT_LIBRARY_DIR}/imgui/examples")
+include_directories ("${PROJECT_LIBRARY_DIR}/assimp/include")
+include_directories ("${PROJECT_LIBRARY_DIR}/assimp/code")
+
+
 
 file (GLOB source_files
 	"${PROJECT_SOURCE_DIR}/*.cpp"
@@ -46,11 +52,21 @@ find_package (OpenGL REQUIRED)
 find_package (glfw3 REQUIRED)
 find_package (glm REQUIRED)
 
+#add_subdirectory (lib/assimp)
+set(ZLIB_LIBRARIES zlibstatic)
+set(ENABLE_BOOST_WORKAROUND ON)
+set(BUILD_STATIC_LIB ON)
+set(BUILD_ASSIMP_TOOLS  ON)
+set(ASSIMP_BUILD_STATIC_LIB ON)
+find_package (assimp REQUIRED)
+
+
 add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
 target_link_libraries (${CMAKE_PROJECT_NAME}
                        OpenGL
                        glfw
                        dl
+                       assimp
 )
 
 if (MSVC)

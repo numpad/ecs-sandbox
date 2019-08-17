@@ -7,18 +7,31 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <Grid3D.hpp>
 #include <util/sgl_shader.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <entt/entt.hpp>
+
+#include <components/CPosition.hpp>
+
+#include <RenderObject/Billboard.hpp>
 
 class World {
 	
 public:
 	World();
+	World(const World &copy) = delete;
+	
 	~World();
 	
-	void draw();
+	
+	void update();
+	void draw(glm::mat4 &uView, glm::mat4 &uProjection);
 	
 private:
-	unsigned int width, height, depth;
-	Grid3D<int> grid;
+	entt::registry registry;
+	
+	Billboard billboard;
 	
 	sgl::shader floorShader;
 	GLuint floorVAO, floorVBO, floorEBO;

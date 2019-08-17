@@ -7,8 +7,9 @@
 #include <GLFW/glfw3.h>
 #include <FastNoise/FastNoise.h>
 #include <stb/stb_image.h>
-#include <entt/entt.hpp>
 #include <util/sgl_shader.hpp>
+
+#include <entt/entt.hpp>
 
 #include <World.hpp>
 
@@ -75,6 +76,8 @@ bool initGL() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwWindowHint(GLFW_SAMPLES, 8);
+	
 	#if CFG_DEBUG
 		// TODO: fix for my window manager
 		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -100,6 +103,9 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 		glGetString(GL_VERSION),
 		glGetString(GL_SHADING_LANGUAGE_VERSION));
 	
+	//glEnable(GL_MULTISAMPLE);
+	glEnable(GL_DEPTH_TEST);
+	
 	/* check if debug enabled */
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -115,6 +121,12 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 	return true;
 }
 
+float getWindowAspectRatio(GLFWwindow *window) {
+	int iw, ih;
+	glfwGetWindowSize(window, &iw, &ih);
+	return (float)iw / (float)ih;
+}
+
 GLFWwindow *window = nullptr;
 int main(int, char**) {
 	
@@ -123,16 +135,12 @@ int main(int, char**) {
 		setbuf(stdout, nullptr);
 	#endif
 	
-	/* init gl and window */
+	// init gl and window
 	if (!initGL()) fprintf(stderr, "initGL() failed.\n");
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 	
-	/* init game */
+	// init game
 	World world;
-	
-	entt::registry engine;
-	auto entity = engine.create();
-	engine.destroy(entity);
 	
 	/* draw loop */
 	while (!glfwWindowShouldClose(window)) {
@@ -144,7 +152,33 @@ int main(int, char**) {
 		glClearColor(0.631f, 0.875f, 0.902f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		world.draw();
+		// calculate view & projection matrix
+		static float angle = 45.0f,
+			angle_vel = 0.0f,
+			angle_acc = 0.3f,
+			cam_dist = 1.5f;
+		glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
+			1.2f, glm::sin(glm::radians(angle)) * cam_dist);
+		
+		angle_vel *= 0.9f;
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			angle_vel += angle_acc;
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			angle_vel -= angle_acc;
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			cam_dist -= 0.1f;
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			cam_dist += 0.1f;
+		angle += angle_vel;
+		if (cam_dist < 0.05f) cam_dist = 0.05f;
+		
+		glm::mat4 uView = glm::lookAt(campos,
+			glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),
+			getWindowAspectRatio(window), 0.1f, 100.0f);
+		
+		world.update();
+		world.draw(uView, uProj);
 		
 		glfwSwapBuffers(window);
 	}

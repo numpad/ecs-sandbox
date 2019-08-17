@@ -3,36 +3,37 @@
 extern GLFWwindow *window;
 
 World::World()
-	: grid(3)
+	: billboard(glm::vec2(0.1f, 0.15f))
 {
 	setupFloor();
 	
+	auto entity = registry.create();
+	registry.assign<CPosition>(entity, 0.0f, 0.0f, 0.0f);
 }
 
 World::~World() {
 	destroyFloor();
+	registry.reset();
 }
 
-void World::draw() {
-	int iw, ih;
-	glfwGetWindowSize(window, &iw, &ih);
-	float aspect = (float)iw / (float)ih;
-	printf("aspect = %g\n", aspect);
-	glm::mat4 uProj = glm::perspective(glm::radians(30.0f), aspect, 0.1f, 100.0f);
-	glm::mat4 uView = glm::lookAt(
-		glm::vec3(-1.25f, 1.5f, -1.25f),
-		glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	
+void World::update() {
+	registry.view<CPosition>().each([](auto entity, auto &pos) {
+		
+	});
+}
+
+void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
 	floorShader["uColor"] = glm::vec3(0.9f, 0.66f, 0.63f);
 	floorShader["uModel"] = glm::mat4(1.0f);
 	floorShader["uView"] = uView;
-	floorShader["uProjection"] = uProj;
+	floorShader["uProjection"] = uProjection;
 	
 	floorShader.use();
 	glBindVertexArray(floorVAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	
+	billboard.draw(uView, uProjection, glm::vec3(0.0f, 2.0f, 0.0f));
 }
 
 
@@ -41,6 +42,17 @@ void World::draw() {
 ///////////////
 
 void World::setupFloor() {
+	/*
+	Assimp::Importer importer;
+	auto model_path = "res/models/floor.ply";
+	const aiScene *scene = importer.ReadFile(model_path,
+		aiProcess_Triangulate | aiProcess_FlipUVs);
+	// model should be loaded
+	assert(scene);
+	assert(!(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE));
+	assert(scene->mRootNode);
+	*/
+	
 	// loads the floor shader
 	floorShader.load("res/glsl/world/floor_vert.glsl", sgl::shader::VERTEX);
 	floorShader.load("res/glsl/world/floor_frag.glsl", sgl::shader::FRAGMENT);
