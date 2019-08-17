@@ -3,12 +3,15 @@
 extern GLFWwindow *window;
 
 World::World()
-	: billboard(glm::vec2(0.1f, 0.15f))
+	: billboard(glm::vec2(0.07f, 0.1f))
 {
 	setupFloor();
 	
+	
 	auto entity = registry.create();
-	registry.assign<CPosition>(entity, 0.0f, 0.0f, 0.0f);
+	registry.assign<CPosition>(entity, 0.3f, 0.0f, 0.0f);
+	registry.assign<CBillboard>(entity, 0.1f, 0.8f, 0.6f);
+
 }
 
 World::~World() {
@@ -23,17 +26,15 @@ void World::update() {
 }
 
 void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
-	floorShader["uColor"] = glm::vec3(0.9f, 0.66f, 0.63f);
-	floorShader["uModel"] = glm::mat4(1.0f);
-	floorShader["uView"] = uView;
-	floorShader["uProjection"] = uProjection;
+	drawFloor(uView, uProjection);
 	
-	floorShader.use();
-	glBindVertexArray(floorVAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+	// billboard render system
+	//billboard.draw(uView, uProjection, glm::vec3(0.0f, 2.0f, 0.0f),
+	//	glm::vec3(1.0f, 0.0f, 0.5f));
 	
-	billboard.draw(uView, uProjection, glm::vec3(0.0f, 2.0f, 0.0f));
+	registry.view<CPosition, CBillboard>().each([&](auto entity, auto &pos, auto &bb) {
+		billboard.draw(uView, uProjection, pos.pos, bb.color);
+	});
 }
 
 
@@ -96,4 +97,16 @@ void World::destroyFloor() {
 	glDeleteBuffers(1, &floorVBO);
 	glDeleteBuffers(1, &floorEBO);
 	floorShader.unload();
+}
+
+void World::drawFloor(glm::mat4 &uView, glm::mat4 &uProjection) {
+	floorShader["uColor"] = glm::vec3(0.9f, 0.66f, 0.63f);
+	floorShader["uModel"] = glm::mat4(1.0f);
+	floorShader["uView"] = uView;
+	floorShader["uProjection"] = uProjection;
+	
+	floorShader.use();
+	glBindVertexArray(floorVAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }

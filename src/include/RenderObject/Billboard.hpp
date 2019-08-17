@@ -14,7 +14,8 @@ public:
 	
 	~Billboard();
 	
-	void draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos);
+	void draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos,
+		glm::vec3 color);
 
 private:
 	glm::vec2 size;

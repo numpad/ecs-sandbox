@@ -13,6 +13,7 @@
 #include <entt/entt.hpp>
 
 #include <components/CPosition.hpp>
+#include <components/CBillboard.hpp>
 
 #include <RenderObject/Billboard.hpp>
 
@@ -37,5 +38,6 @@ private:
 	GLuint floorVAO, floorVBO, floorEBO;
 	void setupFloor();
 	void destroyFloor();
+	void drawFloor(glm::mat4 &uView, glm::mat4 &uProjection);
 	
 };

@@ -53,20 +53,21 @@ static float bbCylinder(glm::vec3 cam, glm::vec3 pos, glm::vec3 &outRotAxis) {
 	return glm::acos(angleCosine);
 }
 
-void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos) {
+void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos, glm::vec3 uColor) {
 	glm::vec4 campos4 = glm::inverse(uView)[3];
 	glm::vec3 campos = glm::vec3(campos4);
-	printf("%g, %g, %g\n", campos.x, campos.y, campos.z);
+
 	bbShader.use();
 	bbShader["uProjection"] = uProjection;
 	bbShader["uView"] = uView;
+	bbShader["uColor"] = uColor;
 	
 	glm::mat4 uModel = glm::mat4(1.0f);
 	//float angle = glm::dot(glm::normalize(campos - pos), glm::vec3(1.0f, 0.0f, 0.0f));
 	glm::vec3 rotAxis;
-	float angle = bbCylinder(campos, pos, rotAxis);
+	float angle = bbCylinder(campos, /* pos */ glm::vec3(0.0f), rotAxis);
+	uModel = glm::translate(uModel, glm::vec3(pos.x, pos.y + size.y * 0.5f, pos.z));
 	uModel = glm::rotate(uModel, angle, rotAxis);
-	uModel = glm::translate(uModel, glm::vec3(0.0f, size.y * 0.5f, 0.0f));
 	uModel = glm::scale(uModel, glm::vec3(size.x, size.y, 0.0f));
 	bbShader["uModel"] = uModel;
 	
