@@ -7,15 +7,28 @@ World::World()
 {
 	setupFloor();
 	
-	std::random_device rd;
-	std::mt19937 e2(rd());
-	std::uniform_real_distribution<float> rdpos(-0.45f, 0.45f), rcol(0.0f, 1.0f);
 	
+	// random device
+	std::random_device rd;
+	
+	// engines
+	std::mt19937 e2(rd());
+	//std::knuth_b e2(rd());
+    //std::default_random_engine e2(rd()) ;
+    
+    // distributions
+	std::uniform_real_distribution<float> rdpos(-0.45f, 0.45f), rcol(0.0f, 1.0f);
+	//std::normal_distribution<float> rdpos(0.0f, 0.9f), rcol(0.0f, 1.0f);
+    //std::student_t_distribution<> dist(5);
+    //std::poisson_distribution<> dist(2);
+    //std::extreme_value_distribution<> dist(0,2);
+    
 	for (int i = 0; i < 10; ++i) {
 		auto entity = registry.create();
 		registry.assign<CPosition>(entity, rdpos(e2), 0.0f, rdpos(e2));
 		registry.assign<CBillboard>(entity, rcol(e2), rcol(e2), rcol(e2));
-	}		
+		
+	}
 }
 
 World::~World() {
@@ -36,8 +49,8 @@ void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
 	//billboard.draw(uView, uProjection, glm::vec3(0.0f, 2.0f, 0.0f),
 	//	glm::vec3(1.0f, 0.0f, 0.5f));
 	
-	registry.view<CPosition, CBillboard>().each([&](auto entity, auto &pos, auto &bb) {
-		billboard.draw(uView, uProjection, pos.pos, bb.color);
+	registry.view<CPosition, CBillboard>().each([this, &uView, &uProjection](auto entity, auto &pos, auto &bb) {
+		this->billboard.draw(uView, uProjection, pos.pos, bb.color);
 	});
 }
 

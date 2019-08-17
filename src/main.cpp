@@ -76,7 +76,7 @@ bool initGL() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//glfwWindowHint(GLFW_SAMPLES, 8);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	
 	#if CFG_DEBUG
 		// TODO: fix for my window manager
@@ -103,7 +103,7 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 		glGetString(GL_VERSION),
 		glGetString(GL_SHADING_LANGUAGE_VERSION));
 	
-	//glEnable(GL_MULTISAMPLE);
+	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 	
 	/* check if debug enabled */

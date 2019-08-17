@@ -13,8 +13,8 @@
 #include <assimp/postprocess.h>
 #include <entt/entt.hpp>
 
-#include <components/CPosition.hpp>
-#include <components/CBillboard.hpp>
+#include <ecs/components.hpp>
+#include <ecs/systems.hpp>
 
 #include <RenderObject/Billboard.hpp>
 
