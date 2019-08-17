@@ -26,18 +26,16 @@ configure_file (
 	"${PROJECT_BASE_SRC}/config.hpp.in"
 	"${PROJECT_BINARY_DIR}/config.hpp"
 )
+include_directories ("${PROJECT_BASE_SRC}/")
 include_directories ("${PROJECT_BINARY_DIR}")
-include_directories ("${PROJECT_BASE_SRC}/ecs")
 include_directories ("${PROJECT_INCLUDE_DIR}")
 include_directories ("${PROJECT_INCLUDE_DIR}/*")
-include_directories ("${PROJECT_LIBRARY_DIR}")
-include_directories ("${PROJECT_LIBRARY_DIR}/entt/single_include")
-include_directories ("${PROJECT_LIBRARY_DIR}/imgui")
-include_directories ("${PROJECT_LIBRARY_DIR}/imgui/examples")
-include_directories ("${PROJECT_LIBRARY_DIR}/assimp/include")
-include_directories ("${PROJECT_LIBRARY_DIR}/assimp/code")
-
-
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/entt/single_include")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/examples")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/include")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/code")
 
 file (GLOB source_files
 	"${PROJECT_SOURCE_DIR}/*.cpp"
@@ -72,7 +70,7 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
 if (MSVC)
 	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /WX)
 else (MSVC)
-	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
+	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wno-implicit-fallthrough)
 endif (MSVC)
 
 install (TARGETS ${CMAKE_PROJECT_NAME} DESTINATION bin)
