@@ -7,11 +7,15 @@ World::World()
 {
 	setupFloor();
 	
+	std::random_device rd;
+	std::mt19937 e2(rd());
+	std::uniform_real_distribution<float> rdpos(-0.45f, 0.45f), rcol(0.0f, 1.0f);
 	
-	auto entity = registry.create();
-	registry.assign<CPosition>(entity, 0.3f, 0.0f, 0.0f);
-	registry.assign<CBillboard>(entity, 0.1f, 0.8f, 0.6f);
-
+	for (int i = 0; i < 10; ++i) {
+		auto entity = registry.create();
+		registry.assign<CPosition>(entity, rdpos(e2), 0.0f, rdpos(e2));
+		registry.assign<CBillboard>(entity, rcol(e2), rcol(e2), rcol(e2));
+	}		
 }
 
 World::~World() {
