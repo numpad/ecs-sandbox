@@ -10,9 +10,10 @@ void GravitySystem::update(entt::registry &registry) {
 		constexpr float dd = 0.5175f;
 		if (pos.pos.x < -dd || pos.pos.x > dd || pos.pos.z < -dd || pos.pos.z > dd || pos.pos.y > 0.0f)
 			vel.vel.y -= this->gravity;
-		else if (pos.pos.y < 0.0f) {
+		else if (pos.pos.y <= 0.0f) {
 			pos.pos.y = 0.0f;
 			vel.vel.y *= -0.35f;
+			if (abs(vel.vel.y) < 0.0001f) vel.vel.y = 0.0f;
 			
 			glm::vec2 xz(vel.vel.x, vel.vel.z);
 			float xzlen = glm::length(xz);

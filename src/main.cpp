@@ -105,6 +105,8 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 	
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	/* check if debug enabled */
 	GLint flags;
@@ -156,7 +158,7 @@ int main(int, char**) {
 		static float angle = 45.0f,
 			angle_vel = 0.0f,
 			angle_acc = 0.3f,
-			cam_dist = 1.5f;
+			cam_dist = 4.5f;
 		glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
 			1.2f, glm::sin(glm::radians(angle)) * cam_dist);
 		

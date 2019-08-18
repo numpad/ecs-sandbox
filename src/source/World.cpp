@@ -9,21 +9,22 @@ static entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos) {
 		rand() * 2.0f - 1.0f, 0.0f,
 		rand() * 2.0f - 1.0f)) * 0.0025f;
 	
+	glm::vec2 rsize(rand() * 0.02f + 0.065f, rand() * 0.04f + 0.07f);
+	
 	auto entity = registry.create();
 	registry.assign<CPosition>(entity, pos);
 	registry.assign<CVelocity>(entity, rdir);
-	registry.assign<CBillboard>(entity,
-		glm::vec3(rand(), rand(), rand()), glm::vec2(0.075f, 0.1f));
+	registry.assign<CBillboard>(entity, rsize);
 	registry.assign<CGravity>(entity);
 }
 
 World::World()
-	: billboard("res/images/sprites/default_soldier.png")
+	: billboard("res/images/sprites/default_soldier_s.png")
 {
 	setupFloor();
 	
 	Random rand(-0.45f, 0.45f), randHeight(0.0f, 2.0f);
-	for (int i = 0; i < 16; ++i) {
+	for (int i = 0; i < 100; ++i) {
 		spawnEntity(registry, glm::vec3(rand(), randHeight(), rand()));
 	}
 }
@@ -34,7 +35,9 @@ World::~World() {
 }
 
 void World::update() {
+	static RandomJumpSystem popcorn;
 	gravitySystem.update(registry);
+	popcorn.update(registry);
 	
 	registry.view<CPosition, CVelocity>().each([](auto entity, auto &pos, auto &vel) {
 		pos.pos += vel.vel;

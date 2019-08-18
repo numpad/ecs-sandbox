@@ -10,10 +10,10 @@ public:
 	Random();
 	
 	float operator()();
-	
+		
 private:
 	std::random_device rd;
 	std::mt19937 engine;
-	std::uniform_real_distribution<float> dist;
 	
+	std::uniform_real_distribution<float> dist;
 };

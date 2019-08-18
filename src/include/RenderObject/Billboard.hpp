@@ -16,7 +16,7 @@ public:
 	~Billboard();
 	
 	void draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos,
-		glm::vec3 color, glm::vec2 size);
+		glm::vec2 size);
 
 private:
 	Texture spriteTexture;

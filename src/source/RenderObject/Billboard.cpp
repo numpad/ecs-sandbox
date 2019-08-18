@@ -55,7 +55,7 @@ static float bbCylinder(glm::vec3 cam, glm::vec3 pos, glm::vec3 &outRotAxis) {
 }
 
 void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
-	glm::vec3 pos, glm::vec3 uColor, glm::vec2 size) {
+	glm::vec3 pos, glm::vec2 size) {
 	
 	glm::vec4 campos4 = glm::inverse(uView)[3];
 	glm::vec3 campos = glm::vec3(campos4);
@@ -63,7 +63,6 @@ void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
 	bbShader.use();
 	bbShader["uProjection"] = uProjection;
 	bbShader["uView"] = uView;
-	bbShader["uColor"] = uColor;
 	
 	glm::mat4 uModel = glm::mat4(1.0f);
 	//float angle = glm::dot(glm::normalize(campos - pos), glm::vec3(1.0f, 0.0f, 0.0f));

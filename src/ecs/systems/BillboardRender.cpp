@@ -8,7 +8,7 @@ namespace BillboardRender {
 		registry.view<CPosition, CBillboard>().each(
 			[&billboard, &uView, &uProjection](auto entity, auto &pos, auto &bb) {
 			
-			billboard.draw(uView, uProjection, pos.pos, bb.color, bb.size);
+			billboard.draw(uView, uProjection, pos.pos, bb.size);
 		});
 	}
 }
