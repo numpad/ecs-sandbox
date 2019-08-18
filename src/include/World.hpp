@@ -16,7 +16,10 @@
 #include <ecs/components.hpp>
 #include <ecs/systems.hpp>
 
+#include <Util/Random.hpp>
 #include <RenderObject/Billboard.hpp>
+
+#include <Util/Texture.hpp>
 
 class World {
 	
@@ -32,6 +35,8 @@ public:
 	
 private:
 	entt::registry registry;
+	
+	GravitySystem gravitySystem = GravitySystem(0.000981f);
 	
 	Billboard billboard;
 	

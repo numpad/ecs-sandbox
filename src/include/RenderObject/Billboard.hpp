@@ -5,20 +5,21 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <GL/gl3w.h>
 #include <util/sgl_shader.hpp>
+#include <Util/Texture.hpp>
 
 class Billboard {
 public:
 	
-	Billboard(glm::vec2 size);
+	Billboard(std::string spritepath);
 	Billboard(const Billboard &copy) = delete;
 	
 	~Billboard();
 	
 	void draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos,
-		glm::vec3 color);
+		glm::vec3 color, glm::vec2 size);
 
 private:
-	glm::vec2 size;
+	Texture spriteTexture;
 	
 	sgl::shader bbShader;
 	GLuint bbVAO, bbVBO, bbEBO;

@@ -10,4 +10,8 @@ struct CPosition {
 	{
 	}
 	
+	CPosition(glm::vec3 p)
+		: pos(p)
+	{
+	}
 };

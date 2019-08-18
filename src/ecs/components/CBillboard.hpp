@@ -4,9 +4,10 @@
 
 struct CBillboard {
 	glm::vec3 color;
+	glm::vec2 size;
 	
-	CBillboard(float r, float g, float b)
-		: color(r, g, b)
+	CBillboard(glm::vec3 color, glm::vec2 size)
+		: color(color), size(size)
 	{
 	}
 	

@@ -38,6 +38,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/code")
 
 file (GLOB source_files
+	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
 	"${PROJECT_SOURCE_DIR}/*.cpp"
 	"${PROJECT_SOURCE_DIR}/*/*.cpp"
 	"${PROJECT_LIBRARY_DIR}/*/*.cpp"

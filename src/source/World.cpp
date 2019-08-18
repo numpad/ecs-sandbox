@@ -2,32 +2,29 @@
 
 extern GLFWwindow *window;
 
+static entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos) {
+	static Random rand;
+	
+	glm::vec3 rdir = glm::normalize(glm::vec3(
+		rand() * 2.0f - 1.0f, 0.0f,
+		rand() * 2.0f - 1.0f)) * 0.0025f;
+	
+	auto entity = registry.create();
+	registry.assign<CPosition>(entity, pos);
+	registry.assign<CVelocity>(entity, rdir);
+	registry.assign<CBillboard>(entity,
+		glm::vec3(rand(), rand(), rand()), glm::vec2(0.075f, 0.1f));
+	registry.assign<CGravity>(entity);
+}
+
 World::World()
-	: billboard(glm::vec2(0.07f, 0.1f))
+	: billboard("res/images/sprites/default_soldier.png")
 {
 	setupFloor();
 	
-	
-	// random device
-	std::random_device rd;
-	
-	// engines
-	std::mt19937 e2(rd());
-	//std::knuth_b e2(rd());
-    //std::default_random_engine e2(rd()) ;
-    
-    // distributions
-	std::uniform_real_distribution<float> rdpos(-0.45f, 0.45f), rcol(0.0f, 1.0f);
-	//std::normal_distribution<float> rdpos(0.0f, 0.9f), rcol(0.0f, 1.0f);
-    //std::student_t_distribution<> dist(5);
-    //std::poisson_distribution<> dist(2);
-    //std::extreme_value_distribution<> dist(0,2);
-    
-	for (int i = 0; i < 10; ++i) {
-		auto entity = registry.create();
-		registry.assign<CPosition>(entity, rdpos(e2), 0.0f, rdpos(e2));
-		registry.assign<CBillboard>(entity, rcol(e2), rcol(e2), rcol(e2));
-		
+	Random rand(-0.45f, 0.45f), randHeight(0.0f, 2.0f);
+	for (int i = 0; i < 16; ++i) {
+		spawnEntity(registry, glm::vec3(rand(), randHeight(), rand()));
 	}
 }
 
@@ -37,21 +34,18 @@ World::~World() {
 }
 
 void World::update() {
-	registry.view<CPosition>().each([](auto entity, auto &pos) {
-		
+	gravitySystem.update(registry);
+	
+	registry.view<CPosition, CVelocity>().each([](auto entity, auto &pos, auto &vel) {
+		pos.pos += vel.vel;
 	});
 }
 
 void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
 	drawFloor(uView, uProjection);
 	
-	// billboard render system
-	//billboard.draw(uView, uProjection, glm::vec3(0.0f, 2.0f, 0.0f),
-	//	glm::vec3(1.0f, 0.0f, 0.5f));
-	
-	registry.view<CPosition, CBillboard>().each([this, &uView, &uProjection](auto entity, auto &pos, auto &bb) {
-		this->billboard.draw(uView, uProjection, pos.pos, bb.color);
-	});
+	// render systems
+	BillboardRender::draw(registry, billboard, uView, uProjection);
 }
 
 

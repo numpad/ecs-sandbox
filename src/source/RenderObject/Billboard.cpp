@@ -1,13 +1,14 @@
 #include <RenderObject/Billboard.hpp>
 
-Billboard::Billboard(glm::vec2 size)
-	: size(size)
-{
+Billboard::Billboard(std::string spritepath) {
+	if (!spriteTexture.loadImage(spritepath))
+		printf("[ERR] could not load texture '%s'\n", spritepath.c_str());
 	setupBillboard();
 }
 
 Billboard::~Billboard() {
 	destroyBillboard();
+	spriteTexture.destroy();
 }
 
 static float bbCylinder(glm::vec3 cam, glm::vec3 pos, glm::vec3 &outRotAxis) {
@@ -53,7 +54,9 @@ static float bbCylinder(glm::vec3 cam, glm::vec3 pos, glm::vec3 &outRotAxis) {
 	return glm::acos(angleCosine);
 }
 
-void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos, glm::vec3 uColor) {
+void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
+	glm::vec3 pos, glm::vec3 uColor, glm::vec2 size) {
+	
 	glm::vec4 campos4 = glm::inverse(uView)[3];
 	glm::vec3 campos = glm::vec3(campos4);
 
@@ -71,9 +74,14 @@ void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos, gl
 	uModel = glm::scale(uModel, glm::vec3(size.x, size.y, 0.0f));
 	bbShader["uModel"] = uModel;
 	
+	glActiveTexture(GL_TEXTURE0);
+	spriteTexture.bind();
+	
 	glBindVertexArray(bbVAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	
+	spriteTexture.unbind();
 }
 
 /////////////
@@ -92,10 +100,16 @@ void Billboard::setupBillboard() {
 	glGenBuffers(1, &bbEBO);
 	
 	GLfloat vertices[] = {
+		// position
 		-0.5f, -0.5f, 0.0f,
 		 0.5f, -0.5f, 0.0f,
 		-0.5f,  0.5f, 0.0f,
-		 0.5f,  0.5f, 0.0f	
+		 0.5f,  0.5f, 0.0f,
+		 // texcoords
+		 0.0f, 0.0f,
+		 1.0f, 0.0f,
+		 0.0f, 1.0f,
+		 1.0f, 1.0f
 	};
 	GLuint indices[] = {
 		0, 1, 2,
@@ -106,7 +120,9 @@ void Billboard::setupBillboard() {
 	glBindBuffer(GL_ARRAY_BUFFER, bbVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void *)(12 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bbEBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glBindVertexArray(0);
