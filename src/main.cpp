@@ -8,7 +8,9 @@
 #include <FastNoise/FastNoise.h>
 #include <stb/stb_image.h>
 #include <util/sgl_shader.hpp>
-
+#include <imgui/imgui.h>
+#include <imgui/examples/imgui_impl_glfw.h>
+#include <imgui/examples/imgui_impl_opengl3.h>
 #include <entt/entt.hpp>
 
 #include <World.hpp>
@@ -63,6 +65,40 @@ void APIENTRY glDebugOutput(GLenum source,
         case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
     } std::cout << std::endl;
     std::cout << std::endl;
+}
+
+void imguiInit(GLFWwindow *window) {
+	#if CFG_IMGUI_ENABLED
+	// init imgui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGui::StyleColorsLight();
+	// imgui glfw init
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 450");
+	#endif
+}
+void imguiBeforeFrame() {
+	#if CFG_IMGUI_ENABLED
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	#endif
+}
+void imguiRender() {
+	#if CFG_IMGUI_ENABLED
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	#endif
+}
+void imguiDestroy() {
+	#if CFG_IMGUI_ENABLED
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+	#endif
 }
 
 bool initGL() {
@@ -120,6 +156,8 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 	}
 	
+	imguiInit(*window);
+	
 	return true;
 }
 
@@ -127,6 +165,30 @@ float getWindowAspectRatio(GLFWwindow *window) {
 	int iw, ih;
 	glfwGetWindowSize(window, &iw, &ih);
 	return (float)iw / (float)ih;
+}
+
+glm::vec3 calcCamPos(GLFWwindow *window) {
+	// calculate view & projection matrix
+	static float angle = 45.0f,
+		angle_vel = 0.0f,
+		angle_acc = 0.3f,
+		cam_dist = 4.5f;
+	glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
+		1.2f, glm::sin(glm::radians(angle)) * cam_dist);
+	
+	angle_vel *= 0.9f;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		angle_vel += angle_acc;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		angle_vel -= angle_acc;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cam_dist -= 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cam_dist += 0.1f;
+	angle += angle_vel;
+	if (cam_dist < 0.05f) cam_dist = 0.05f;
+	
+	return campos;
 }
 
 GLFWwindow *window = nullptr;
@@ -147,33 +209,16 @@ int main(int, char**) {
 	/* draw loop */
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+		imguiBeforeFrame();
 		
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
-		
+	
 		glClearColor(0.631f, 0.875f, 0.902f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		// calculate view & projection matrix
-		static float angle = 45.0f,
-			angle_vel = 0.0f,
-			angle_acc = 0.3f,
-			cam_dist = 4.5f;
-		glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
-			1.2f, glm::sin(glm::radians(angle)) * cam_dist);
 		
-		angle_vel *= 0.9f;
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			angle_vel += angle_acc;
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			angle_vel -= angle_acc;
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			cam_dist -= 0.1f;
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			cam_dist += 0.1f;
-		angle += angle_vel;
-		if (cam_dist < 0.05f) cam_dist = 0.05f;
-		
+		glm::vec3 campos = calcCamPos(window);
 		glm::mat4 uView = glm::lookAt(campos,
 			glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),
@@ -182,12 +227,15 @@ int main(int, char**) {
 		world.update();
 		world.draw(uView, uProj);
 		
+		imguiRender();
+		
 		glfwSwapBuffers(window);
 	}
 
 	/* cleanup */
 	glfwDestroyWindow(window);
 	glfwTerminate();
+	imguiDestroy();
 	printf("\ncleanup complete, quitting now...\n\n");
 	return 0;
 }

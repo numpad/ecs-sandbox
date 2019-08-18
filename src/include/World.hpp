@@ -36,6 +36,7 @@ public:
 private:
 	entt::registry registry;
 	
+	BillboardRenderSystem billboardSystem;
 	GravitySystem gravitySystem = GravitySystem(0.000981f);
 	
 	Billboard billboard;

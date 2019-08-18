@@ -23,7 +23,7 @@ World::World()
 {
 	setupFloor();
 	
-	Random rand(-0.45f, 0.45f), randHeight(0.0f, 2.0f);
+	Random rand(-0.475f, 0.475f), randHeight(0.0f, 1.0f);
 	for (int i = 0; i < 100; ++i) {
 		spawnEntity(registry, glm::vec3(rand(), randHeight(), rand()));
 	}
@@ -48,7 +48,7 @@ void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
 	drawFloor(uView, uProjection);
 	
 	// render systems
-	BillboardRender::draw(registry, billboard, uView, uProjection);
+	billboardSystem.draw(registry, billboard, uView, uProjection);
 }
 
 
