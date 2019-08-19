@@ -7,6 +7,5 @@ uniform mat4 uProjection;
 layout(location = 0) in vec3 aPosition;
 
 void main() {
-	
 	gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
 }

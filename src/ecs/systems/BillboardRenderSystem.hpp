@@ -19,5 +19,9 @@ public:
 private:
 	Billboard billboardRO;
 	GLuint instanceBuffer;
+	
+	
+	std::vector<glm::mat4> aInstanceModels;
+	GLint lastMaxInstanceCount = -1;
 };
 

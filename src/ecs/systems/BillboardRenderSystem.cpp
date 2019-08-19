@@ -47,6 +47,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	if (ImGui::Begin("bbRenderSystem")) {
 		ImGui::Text("DrawMode: instanced");
 		ImGui::Checkbox("Flat billboards?", &checked);
+		ImGui::Text("#entities: %d", aInstanceModels.size());
 	}
 	if (checked) {
 		renderTarget = &zero;
@@ -55,18 +56,17 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	}
 	ImGui::End();
 	
-	std::vector<glm::mat4> uInstanceModels;
-	uInstanceModels.clear();
 	// collect model matrices
+	aInstanceModels.clear();
 	registry.view<CPosition, CBillboard>().each(
-		[this, &uView, &uProjection, renderTarget, &uInstanceModels](auto entity, auto &pos, auto &bb) {
+		[this, &uView, &uProjection, renderTarget](auto entity, auto &pos, auto &bb) {
 		
 		glm::vec3 rt;
 		if (!renderTarget)
 			rt = pos.pos;
 		else rt = *renderTarget;
 		
-		uInstanceModels.push_back(billboardRO.calcModelMatrix(uView, pos.pos, rt, bb.size));
+		this->aInstanceModels.push_back(billboardRO.calcModelMatrix(uView, pos.pos, rt, bb.size));
 	});
 	
 	
@@ -81,7 +81,16 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	
 	// load instance model matrices into array buffer
 	glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
-	glBufferData(GL_ARRAY_BUFFER, uInstanceModels.size() * sizeof(glm::mat4), &uInstanceModels[0], GL_STATIC_DRAW);
+	if (aInstanceModels.size() > lastMaxInstanceCount || lastMaxInstanceCount < 0) {
+		lastMaxInstanceCount = aInstanceModels.size();
+		glBufferData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4), &aInstanceModels[0], GL_DYNAMIC_DRAW);
+		printf("new buffer data\n");
+	} else {
+		//lastMaxInstanceCount = aInstanceModels.size();
+		glBufferSubData(GL_ARRAY_BUFFER, 0,
+			aInstanceModels.size() * sizeof(glm::mat4), &aInstanceModels[0]);
+	}
+	
 	// bind vao
 	glBindVertexArray(billboardRO.getVAO());
 	// enable instancing on vertex attrib
@@ -101,7 +110,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glActiveTexture(GL_TEXTURE0);
 	billboardRO.getTexture().bind();
 	
-	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, uInstanceModels.size());
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, aInstanceModels.size());
 	
 	glBindVertexArray(0);
 	billboardRO.getTexture().unbind();
