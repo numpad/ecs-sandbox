@@ -8,12 +8,16 @@
 
 class BillboardRenderSystem {
 public:
-	BillboardRenderSystem() = default;
+	BillboardRenderSystem();
+	~BillboardRenderSystem();
 	
-	void draw(entt::registry &, Billboard &, glm::mat4 &uView, glm::mat4 &uProj);
-
+	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
+	
+	void draw(entt::registry &, glm::mat4 &uView, glm::mat4 &uProj);
+	void drawInstanced(entt::registry &, glm::mat4 &uView, glm::mat4 &uProj);
+	
 private:
-	
-	
+	Billboard billboardRO;
+	GLuint instanceBuffer;
 };
 

@@ -16,22 +16,43 @@ static entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos) {
 	registry.assign<CVelocity>(entity, rdir);
 	registry.assign<CBillboard>(entity, rsize);
 	registry.assign<CGravity>(entity);
+	
+	return entity;
 }
 
-World::World()
-	: billboard("res/images/sprites/default_soldier_s.png")
-{
+World::World() {
 	setupFloor();
 	
 	Random rand(-0.475f, 0.475f), randHeight(0.0f, 1.0f);
-	for (int i = 0; i < 100; ++i) {
-		spawnEntity(registry, glm::vec3(rand(), randHeight(), rand()));
+	for (int i = 0; i < 15; ++i) {
+		spawnDefaultEntity(glm::vec3(rand(), randHeight(), rand()));
 	}
 }
 
 World::~World() {
 	destroyFloor();
 	registry.reset();
+}
+
+entt::entity World::getNearestEntity(glm::vec3 posNear) {
+	entt::entity nearest = entt::null;
+	
+	registry.view<CPosition>().each([this, &nearest, posNear](auto entity, auto &pos) {
+		if (nearest == entt::null) {
+			nearest = entity;
+			return;
+		}
+		
+		if (glm::distance(posNear, pos.pos) < glm::distance(posNear, this->registry.get<CPosition>(nearest).pos)) {
+			nearest = entity;
+		}
+	});
+	
+	return nearest;
+}
+
+entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
+	return spawnEntity(registry, pos);
 }
 
 void World::update() {
@@ -48,7 +69,16 @@ void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
 	drawFloor(uView, uProjection);
 	
 	// render systems
-	billboardSystem.draw(registry, billboard, uView, uProjection);
+	static bool renderInstanced = true;
+	if (ImGui::Begin("render")) {
+		ImGui::Checkbox("instancing", &renderInstanced);
+	}
+	ImGui::End();
+	
+	if (renderInstanced)
+		billboardSystem.drawInstanced(registry, uView, uProjection);
+	else
+		billboardSystem.draw(registry, uView, uProjection);
 }
 
 

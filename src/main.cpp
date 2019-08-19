@@ -12,6 +12,7 @@
 #include <imgui/examples/imgui_impl_glfw.h>
 #include <imgui/examples/imgui_impl_opengl3.h>
 #include <entt/entt.hpp>
+#include <Util/Math3d.hpp>
 
 #include <World.hpp>
 
@@ -191,6 +192,53 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 	return campos;
 }
 
+void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
+	using namespace ImGui;
+	
+	if (entity == entt::null || !registry.valid(entity)) {
+		TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "null-Entity");
+		return;
+	}
+	
+	if (registry.has<CPosition>(entity)) {
+		glm::vec3 &pos = registry.get<CPosition>(entity).pos;
+		DragFloat3("pos", &pos[0], 0.005f);
+		SameLine();
+		if (Button("X##1")) {
+			registry.remove<CPosition>(entity);
+		}
+	}
+	if (registry.has<CVelocity>(entity)) {
+		glm::vec3 &vel = registry.get<CVelocity>(entity).vel;
+		DragFloat3("velocity", &vel[0], 0.001f);
+		static glm::vec3 impulse;
+		DragFloat3("  impulse", &impulse[0], 0.001f);
+		SameLine();
+		if (Button("Apply")) {
+			vel = impulse;
+		}
+		SameLine();
+		if (Button("X##2")) {
+			registry.remove<CVelocity>(entity);
+		}
+	}
+	if (registry.has<CBillboard>(entity)) {
+		glm::vec2 &size = registry.get<CBillboard>(entity).size;
+		DragFloat2("size", &size[0], 0.001f);
+		SameLine();
+		if (Button("X##3")) {
+			registry.remove<CBillboard>(entity);
+		}
+	}
+	if (registry.has<CGravity>(entity)) {
+		Text("Gravity: enabled");
+		SameLine();
+		if (Button("X##4")) {
+			registry.remove<CGravity>(entity);
+		}
+	}
+}
+
 GLFWwindow *window = nullptr;
 int main(int, char**) {
 	
@@ -211,24 +259,69 @@ int main(int, char**) {
 		glfwPollEvents();
 		imguiBeforeFrame();
 		
+		// input
+		double mouseX, mouseY;
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+		int screenX, screenY;
+		glfwGetWindowSize(window, &screenX, &screenY);
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
 	
+		// orbit camera calculations
+		glm::vec3 camtarget(0.0f);
+		glm::vec3 campos = calcCamPos(window);
+		glm::mat4 uView = glm::lookAt(campos,
+			camtarget, glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),
+			getWindowAspectRatio(window), 0.1f, 100.0f);
+		
+		// rendering
 		glClearColor(0.631f, 0.875f, 0.902f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		
-		glm::vec3 campos = calcCamPos(window);
-		glm::mat4 uView = glm::lookAt(campos,
-			glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),
-			getWindowAspectRatio(window), 0.1f, 100.0f);
+		if (ImGui::Begin("world")) {
+			static glm::vec3 pos(0.0f, 0.2f, 0.0f);
+			static int amount = 3;
+			static float spawnvel = 0.012f;
+			static Random rng(-1.0f, 1.0f);
+			ImGui::SliderFloat3("spawnpoint", &pos[0], -0.5f, 0.5f);
+			ImGui::SliderInt("amount", &amount, 1, 500);
+			ImGui::SliderFloat("velocity", &spawnvel, 0.0f, 0.2f);
+			if (ImGui::Button("Spawn")) {
+				for (int i = 0; i < amount; ++i) {
+					entt::entity e = world.spawnDefaultEntity(pos);
+					auto &vel = world.getRegistry().get<CVelocity>(e);
+					vel.vel.x = rng();
+					vel.vel.y = rng();
+					vel.vel.z = rng();
+					vel.vel = glm::normalize(vel.vel) * spawnvel;
+				}
+			}
+			ImGui::Separator();
+			
+			auto gmp = m3d::raycastPlaneXZ(campos, glm::normalize(camtarget - campos),
+				glm::vec2((float)mouseX, (float)mouseY),
+				glm::vec2(1.0f * screenX, 1.0f * screenY), 0.0f);
+			ImGui::Text("mouse: (%g, %g, %g)", gmp.x, gmp.y, gmp.z);
+			
+			static bool pickingMode = false;
+			ImGui::Checkbox("entity picker", &pickingMode);
+			static entt::entity selected = entt::null;
+			if (pickingMode && glfwGetMouseButton(window, 0) == GLFW_PRESS) {
+				selected = world.getNearestEntity(gmp);	
+				pickingMode = false;
+			}
+			
+			// entity editor
+			imguiEntityEdit(world.getRegistry(), selected);
+		}
+		ImGui::End();
 		
 		world.update();
 		world.draw(uView, uProj);
 		
+		// present rendered
 		imguiRender();
-		
 		glfwSwapBuffers(window);
 	}
 

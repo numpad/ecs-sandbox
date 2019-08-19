@@ -29,18 +29,21 @@ public:
 	
 	~World();
 	
+	entt::entity getNearestEntity(glm::vec3 pos);
+	
+	entt::entity spawnDefaultEntity(glm::vec3 pos);
 	
 	void update();
 	void draw(glm::mat4 &uView, glm::mat4 &uProjection);
+	
+	inline entt::registry &getRegistry() { return registry; };
 	
 private:
 	entt::registry registry;
 	
 	BillboardRenderSystem billboardSystem;
 	GravitySystem gravitySystem = GravitySystem(0.000981f);
-	
-	Billboard billboard;
-	
+		
 	sgl::shader floorShader;
 	GLuint floorVAO, floorVBO, floorEBO;
 	void setupFloor();

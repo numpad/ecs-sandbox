@@ -54,20 +54,9 @@ static float bbCylinder(glm::vec3 cam, glm::vec3 pos, glm::vec3 &outRotAxis) {
 	return glm::acos(angleCosine);
 }
 
-void Billboard::lookAtCamera() {
-	
-}
-
-void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
-	glm::vec3 pos, glm::vec2 size, glm::vec3 *camtarget) {
-	
-	glm::vec3 target;
-	if (!camtarget) target = pos;
-	else target = *camtarget;
-	
-	bbShader.use();
-	bbShader["uProjection"] = uProjection;
-	bbShader["uView"] = uView;
+glm::mat4 Billboard::calcModelMatrix(glm::mat4 &uView, glm::vec3 pos,
+	glm::vec3 target, glm::vec2 size)
+{
 	
 	glm::mat4 uModel = glm::mat4(1.0f);
 	
@@ -80,7 +69,22 @@ void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
 	uModel = glm::translate(uModel, glm::vec3(pos.x, pos.y + size.y * 0.5f, pos.z));
 	uModel = glm::rotate(uModel, angle, rotAxis);
 	uModel = glm::scale(uModel, glm::vec3(size.x, size.y, 0.0f));
-	bbShader["uModel"] = uModel;
+	
+	return uModel;
+}
+
+void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
+	glm::vec3 pos, glm::vec2 size, glm::vec3 *camtarget)
+{
+	
+	glm::vec3 target;
+	if (!camtarget) target = pos;
+	else target = *camtarget;
+	
+	bbShader.use();
+	bbShader["uProjection"] = uProjection;
+	bbShader["uView"] = uView;
+	bbShader["uModel"] = calcModelMatrix(uView, pos, target, size);
 	
 	glActiveTexture(GL_TEXTURE0);
 	spriteTexture.bind();
@@ -102,6 +106,10 @@ void Billboard::setupBillboard() {
 	bbShader.compile();
 	bbShader.link();
 	
+	bbInstanceShader.load("res/glsl/2d/billboard_instance_vert.glsl", sgl::shader::VERTEX);
+	bbInstanceShader.load("res/glsl/2d/billboard_instance_frag.glsl", sgl::shader::FRAGMENT);
+	bbInstanceShader.compile();
+	bbInstanceShader.link();
 	
 	glGenVertexArrays(1, &bbVAO);
 	glGenBuffers(1, &bbVBO);
