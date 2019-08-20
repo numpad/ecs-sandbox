@@ -22,6 +22,7 @@ private:
 	
 	
 	std::vector<glm::mat4> aInstanceModels;
+	std::vector<glm::vec3> aInstanceColors;
 	GLint lastMaxInstanceCount = -1;
 };
 

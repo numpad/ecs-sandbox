@@ -6,7 +6,7 @@ static entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos) {
 	static Random rand;
 	
 	glm::vec3 rdir = glm::normalize(glm::vec3(
-		rand() * 2.0f - 1.0f, 0.0f,
+		rand() * 2.0f - 1.0f, 0.01f,
 		rand() * 2.0f - 1.0f)) * 0.0025f;
 	
 	glm::vec2 rsize(rand() * 0.02f + 0.065f, rand() * 0.04f + 0.07f);
@@ -145,7 +145,7 @@ void World::destroyFloor() {
 
 void World::drawFloor(glm::mat4 &uView, glm::mat4 &uProjection) {
 	floorShader["uColor"] = glm::vec3(0.9f, 0.66f, 0.63f);
-	floorShader["uModel"] = glm::mat4(1.0f);
+	floorShader["uModel"] = glm::scale(glm::mat4(1.0f), glm::vec3(4.0f));
 	floorShader["uView"] = uView;
 	floorShader["uProjection"] = uProjection;
 	

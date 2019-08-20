@@ -3,4 +3,4 @@
 #include <ecs/systems/BillboardRenderSystem.hpp>
 #include <ecs/systems/GravitySystem.hpp>
 #include <ecs/systems/RandomJumpSystem.hpp>
-
+#include <ecs/systems/WayfindSystem.hpp>

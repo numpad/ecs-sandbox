@@ -19,7 +19,7 @@ public:
 		glm::vec2 size);
 	
 	void draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos,
-		glm::vec2 size, glm::vec3 *camtarget = nullptr);
+		glm::vec2 size, glm::vec3 color, glm::vec3 *camtarget = nullptr);
 	
 	inline Texture &getTexture() { return spriteTexture; }
 	inline GLuint getVAO() { return bbVAO; }

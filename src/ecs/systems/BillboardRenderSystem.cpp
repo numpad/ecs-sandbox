@@ -32,7 +32,7 @@ void BillboardRenderSystem::draw(entt::registry &registry,
 	registry.view<CPosition, CBillboard>().each(
 		[this, &uView, &uProjection, renderTarget](auto entity, auto &pos, auto &bb) {
 		
-		this->billboardRO.draw(uView, uProjection, pos.pos, bb.size, renderTarget);
+		this->billboardRO.draw(uView, uProjection, pos.pos, bb.size, bb.color, renderTarget);
 	});
 }
 
@@ -47,7 +47,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	if (ImGui::Begin("bbRenderSystem")) {
 		ImGui::Text("DrawMode: instanced");
 		ImGui::Checkbox("Flat billboards?", &checked);
-		ImGui::Text("#entities: %d", aInstanceModels.size());
+		ImGui::Text("#entities: %d / %d", aInstanceModels.size(), lastMaxInstanceCount);
 	}
 	if (checked) {
 		renderTarget = &zero;
@@ -58,6 +58,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	
 	// collect model matrices
 	aInstanceModels.clear();
+	aInstanceColors.clear();
 	registry.view<CPosition, CBillboard>().each(
 		[this, &uView, &uProjection, renderTarget](auto entity, auto &pos, auto &bb) {
 		
@@ -67,6 +68,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 		else rt = *renderTarget;
 		
 		this->aInstanceModels.push_back(billboardRO.calcModelMatrix(uView, pos.pos, rt, bb.size));
+		this->aInstanceColors.push_back(bb.color);
 	});
 	
 	
@@ -79,21 +81,32 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	shader["uView"] = uView;
 	shader["uProjection"] = uProjection;
 	
-	// load instance model matrices into array buffer
-	glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
+	// resize instance data buffer
 	if (aInstanceModels.size() > lastMaxInstanceCount || lastMaxInstanceCount < 0) {
 		lastMaxInstanceCount = aInstanceModels.size();
-		glBufferData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4), &aInstanceModels[0], GL_DYNAMIC_DRAW);
+		
+		glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
+		glBufferData(GL_ARRAY_BUFFER,
+			aInstanceModels.size() * sizeof(glm::mat4)
+			+ aInstanceColors.size() * sizeof(glm::vec3),
+			nullptr, GL_DYNAMIC_DRAW);
 		printf("new buffer data\n");
-	} else {
-		//lastMaxInstanceCount = aInstanceModels.size();
-		glBufferSubData(GL_ARRAY_BUFFER, 0,
-			aInstanceModels.size() * sizeof(glm::mat4), &aInstanceModels[0]);
 	}
+	
+	//lastMaxInstanceCount = aInstanceModels.size();
+	glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
+	// fill model matrices
+	glBufferSubData(GL_ARRAY_BUFFER, 0,
+		aInstanceModels.size() * sizeof(glm::mat4), &aInstanceModels[0]);
+	// fill colors
+	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4),
+		aInstanceColors.size() * sizeof(glm::vec3), &aInstanceColors[0]);
+	
 	
 	// bind vao
 	glBindVertexArray(billboardRO.getVAO());
 	// enable instancing on vertex attrib
+	// model matrix
 	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)0);
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(1 * sizeof(glm::vec4)));
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(2 * sizeof(glm::vec4)));
@@ -106,6 +119,10 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glVertexAttribDivisor(3, 1);
 	glVertexAttribDivisor(4, 1);
 	glVertexAttribDivisor(5, 1);
+	// color
+	glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *)(aInstanceModels.size() * sizeof(glm::mat4)));
+	glEnableVertexAttribArray(6);
+	glVertexAttribDivisor(6, 1);
 	
 	glActiveTexture(GL_TEXTURE0);
 	billboardRO.getTexture().bind();

@@ -74,7 +74,7 @@ glm::mat4 Billboard::calcModelMatrix(glm::mat4 &uView, glm::vec3 pos,
 }
 
 void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
-	glm::vec3 pos, glm::vec2 size, glm::vec3 *camtarget)
+	glm::vec3 pos, glm::vec2 size, glm::vec3 color, glm::vec3 *camtarget)
 {
 	
 	glm::vec3 target;
@@ -85,6 +85,7 @@ void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
 	bbShader["uProjection"] = uProjection;
 	bbShader["uView"] = uView;
 	bbShader["uModel"] = calcModelMatrix(uView, pos, target, size);
+	bbShader["uColor"] = color;
 	
 	glActiveTexture(GL_TEXTURE0);
 	spriteTexture.bind();

@@ -226,7 +226,9 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	}
 	if (registry.has<CBillboard>(entity)) {
 		glm::vec2 &size = registry.get<CBillboard>(entity).size;
+		glm::vec3 &color = registry.get<CBillboard>(entity).color;
 		DragFloat2("size", &size[0], 0.001f);
+		ColorPicker3("tint", &color[0]);
 		SameLine();
 		if (Button("X##3")) {
 			registry.remove<CBillboard>(entity);
