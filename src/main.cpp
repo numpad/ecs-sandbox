@@ -243,6 +243,79 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	}
 }
 
+void imguiEntitySpawn(entt::registry &registry) {
+	using namespace ImGui;
+	
+	static glm::vec3 pos(0.0f);
+	static glm::vec3 vel(0.0f);
+	static glm::vec2 bbsize(0.1f, 0.07f);
+	static glm::vec3 bbcolor(1.0f);
+	static float rttforce = 0.01f;
+	static glm::vec3 rttpos(0.0f);
+	static float pressrad = 0.01f, pressforce = 0.01f;
+	static float keycontrolspeed = 0.0015f;
+	static int spawnamount = 1;
+	static float spawnposoff = 0.05f,
+				 spawnveloff = 0.02f;
+	
+	static bool haspos = false,
+				hasvel = false,
+				hasgrav = false,
+				hasbb = false,
+				hasruntt = false,
+				haspresser = false,
+				haskeyboard = false;
+	
+	if (Begin("spawn entity")) {
+		Checkbox("CPosition", &haspos);
+		Checkbox("CVelocity", &hasvel);
+		Checkbox("CGravity", &hasgrav);
+		Checkbox("CBillboard", &hasbb);
+		Checkbox("CRunToTarget", &hasruntt);
+		Checkbox("CPressAway", &haspresser);
+		Checkbox("CKeyboardController", &haskeyboard);
+		
+		if (haspos) DragFloat3("position", &pos[0], 0.001f);
+		if (hasvel) SliderFloat3("velocity", &vel[0], -0.1f, 0.1f);
+		if (hasgrav) Text("Gravity: enabled");
+		if (hasbb) {
+			SliderFloat2("bb size", &bbsize[0], 0.001f, 0.1f);
+			ColorEdit3("bb color", &bbcolor[0]);
+		}
+		if (hasruntt) {
+			DragFloat3("rtt target", &rttpos[0], 0.001f);
+			SliderFloat("rtt speed", &rttforce, 0.0f, 0.01f);
+		}
+		if (haspresser) {
+			DragFloat("press radius", &pressrad, 0.0f, 0.1f);
+			DragFloat("press force", &pressforce, 0.0f, 0.05f);
+		}
+		if (haskeyboard) {
+			DragFloat("control speed", &keycontrolspeed, 0.0005f, 0.0035f);
+		}
+		if (Button("Spawn")) {
+			for (int i = 0; i < spawnamount; ++i) {
+				auto entity = registry.create();
+				if (haspos) registry.assign<CPosition>(entity,
+					m3d::randomizeVec3(pos, spawnposoff));
+				if (hasvel) registry.assign<CVelocity>(entity,
+					m3d::randomizeVec3(vel, spawnveloff));
+				if (hasgrav) registry.assign<CGravity>(entity);
+				if (hasbb) registry.assign<CBillboard>(entity, bbsize, bbcolor);
+				if (hasruntt) registry.assign<CRunningToTarget>(entity, rttpos, rttforce);
+				if (haspresser) registry.assign<CPressAway>(entity, pressrad, pressforce);
+				if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
+			}
+		}
+		SameLine();
+		SliderInt("Amount", &spawnamount, 1, 50);
+		SliderFloat("Position Offset", &spawnposoff, 0.0f, 0.5f);
+		SliderFloat("Velocity Offset", &spawnveloff, 0.0f, 0.3f);
+		
+	}
+	End();
+}
+
 GLFWwindow *window = nullptr;
 int main(int, char**) {
 	
@@ -321,7 +394,9 @@ int main(int, char**) {
 		}
 		ImGui::End();
 		
-		world.update();
+		imguiEntitySpawn(world.getRegistry());
+		
+		world.update(campos, glm::normalize(campos - camtarget));
 		world.draw(uView, uProj);
 		
 		// present rendered

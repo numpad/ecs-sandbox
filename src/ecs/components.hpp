@@ -5,3 +5,6 @@
 #include <ecs/components/CVelocity.hpp>
 #include <ecs/components/CGravity.hpp>
 #include <ecs/components/CRunningToTarget.hpp>
+#include <ecs/components/CPressAway.hpp>
+#include <ecs/components/CJumpTimer.hpp>
+#include <ecs/components/CKeyboardControllable.hpp>

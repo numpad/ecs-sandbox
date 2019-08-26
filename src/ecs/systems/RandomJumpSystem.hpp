@@ -8,9 +8,13 @@
 class RandomJumpSystem {
 public:
 	
-	RandomJumpSystem() = default;
+	RandomJumpSystem(float chanceToJump = 0.01f)
+		: chanceToJump(chanceToJump)
+	{
+	}
 	
 	void update(entt::registry &registry);
 private:
+	float chanceToJump;
 	
 };

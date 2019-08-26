@@ -2,7 +2,7 @@
 
 extern GLFWwindow *window;
 
-static entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos) {
+entt::entity World::spawnEntity(entt::registry &registry, glm::vec3 pos) {
 	static Random rand;
 	
 	glm::vec3 rdir = glm::normalize(glm::vec3(
@@ -16,17 +16,24 @@ static entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos) {
 	registry.assign<CVelocity>(entity, rdir);
 	registry.assign<CBillboard>(entity, rsize);
 	registry.assign<CGravity>(entity);
-	
+	//registry.assign<CRunningToTarget>(entity, glm::vec3(-1.0f, 0.0f, 0.0f), 0.001f);
+	registry.assign<CPressAway>(entity, 0.045f, 0.01f);
+	registry.assign<CJumpTimer>(entity, 20);
+	if (registry.valid(this->player)) {
+		registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
+	}
 	return entity;
 }
 
-World::World() {
+World::World()
+	: charControllerSystem(window)
+{
 	setupFloor();
 	
-	Random rand(-0.475f, 0.475f), randHeight(0.0f, 1.0f);
-	for (int i = 0; i < 15; ++i) {
-		spawnDefaultEntity(glm::vec3(rand(), randHeight(), rand()));
-	}
+	this->player = spawnDefaultEntity(glm::vec3(0.0f));
+	registry.assign<CKeyboardControllable>(this->player, 0.003f);
+	registry.assign_or_replace<CBillboard>(this->player, glm::vec2(0.12f, 0.14f), glm::vec3(1.0f, 1.0f, 0.0f));
+	registry.remove<CJumpTimer>(this->player);
 }
 
 World::~World() {
@@ -55,14 +62,14 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 	return spawnEntity(registry, pos);
 }
 
-void World::update() {
-	static RandomJumpSystem popcorn;
+void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {	
 	gravitySystem.update(registry);
 	popcorn.update(registry);
-	
-	registry.view<CPosition, CVelocity>().each([](auto entity, auto &pos, auto &vel) {
-		pos.pos += vel.vel;
-	});
+	wayfindSystem.update(registry);
+	charControllerSystem.update(registry, viewPos, viewDir);
+	pressawaySystem.update(registry);
+	//billboardOrient.update(registry, ...);
+	posUpdate.update(registry);
 }
 
 void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
@@ -72,6 +79,8 @@ void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
 	static bool renderInstanced = true;
 	if (ImGui::Begin("render")) {
 		ImGui::Checkbox("instancing", &renderInstanced);
+		if (ImGui::Button("Reset"))
+			registry.reset();
 	}
 	ImGui::End();
 	

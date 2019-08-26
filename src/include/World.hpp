@@ -17,12 +17,12 @@
 #include <ecs/systems.hpp>
 
 #include <Util/Random.hpp>
+#include <Util/Math3d.hpp>
 #include <RenderObject/Billboard.hpp>
 
 #include <Util/Texture.hpp>
 
 class World {
-	
 public:
 	World();
 	World(const World &copy) = delete;
@@ -33,7 +33,7 @@ public:
 	
 	entt::entity spawnDefaultEntity(glm::vec3 pos);
 	
-	void update();
+	void update(glm::vec3 viewPos, glm::vec3 viewDir);
 	void draw(glm::mat4 &uView, glm::mat4 &uProjection);
 	
 	inline entt::registry &getRegistry() { return registry; };
@@ -41,9 +41,20 @@ public:
 private:
 	entt::registry registry;
 	
-	BillboardRenderSystem billboardSystem;
+	// entities
+	entt::entity player = entt::null;
+	entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos);
+	
+	// systems
 	GravitySystem gravitySystem = GravitySystem(0.000981f);
-		
+	RandomJumpSystem popcorn = RandomJumpSystem(0.003f);
+	WayfindSystem wayfindSystem;
+	CharacterController charControllerSystem;
+	PressAwaySystem pressawaySystem;
+	PositionUpdateSystem posUpdate;
+	//BillboardLookAtCameraSystem billboardOrientation;
+	BillboardRenderSystem billboardSystem;
+	
 	sgl::shader floorShader;
 	GLuint floorVAO, floorVBO, floorEBO;
 	void setupFloor();

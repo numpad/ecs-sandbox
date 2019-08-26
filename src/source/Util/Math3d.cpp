@@ -25,5 +25,10 @@ namespace m3d {
 		// -2 / -1 = d
 		return collision;
 	}
-
+	
+	glm::vec3 randomizeVec3(glm::vec3 v, float change) {
+		static Random rand(-1.0f, 1.0f);
+		return v + glm::vec3(rand(), rand(), rand()) * change;
+	}
+	
 }
