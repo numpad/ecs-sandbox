@@ -24,6 +24,7 @@
 
 class World {
 public:
+	
 	World();
 	World(const World &copy) = delete;
 	
@@ -34,7 +35,7 @@ public:
 	entt::entity spawnDefaultEntity(glm::vec3 pos);
 	
 	void update(glm::vec3 viewPos, glm::vec3 viewDir);
-	void draw(glm::mat4 &uView, glm::mat4 &uProjection);
+	void draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection);
 	
 	inline entt::registry &getRegistry() { return registry; };
 	

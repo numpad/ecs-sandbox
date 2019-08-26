@@ -8,3 +8,4 @@
 #include <ecs/components/CPressAway.hpp>
 #include <ecs/components/CJumpTimer.hpp>
 #include <ecs/components/CKeyboardControllable.hpp>
+#include <ecs/components/CHealth.hpp>

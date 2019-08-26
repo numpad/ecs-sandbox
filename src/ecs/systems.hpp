@@ -8,3 +8,4 @@
 #include <ecs/systems/BillboardLookAtCameraSystem.hpp>
 #include <ecs/systems/PressAwaySystem.hpp>
 #include <ecs/systems/CharacterController.hpp>
+#include <ecs/systems/CHealthbarRenderSystem.hpp>

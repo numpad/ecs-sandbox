@@ -8,5 +8,9 @@ in vec2 vTexCoord;
 out vec4 Color;
 
 void main() {
-	Color = texture(uTexture, vTexCoord) * vec4(uColor, 1.0);
+	vec4 pixel = texture(uTexture, vTexCoord);
+	if (pixel.r > 0.9 && pixel.g < 0.1 && pixel.b > 0.9)
+		pixel = vec4(uColor, pixel.a);
+	
+	Color = pixel;
 }

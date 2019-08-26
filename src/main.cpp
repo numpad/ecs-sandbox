@@ -14,6 +14,7 @@
 #include <entt/entt.hpp>
 #include <Util/Math3d.hpp>
 
+#include <Assets/AssetManager.hpp>
 #include <World.hpp>
 
 void onResize(GLFWwindow *, int width, int height) {
@@ -140,12 +141,20 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 		glGetString(GL_VERSION),
 		glGetString(GL_SHADING_LANGUAGE_VERSION));
 	
+	// msaa
 	//glEnable(GL_MULTISAMPLE);
 	//glEnable(GL_SAMPLE_SHADING);
 	//glMinSampleShading(1.0f);
+	
+	// depth test
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	
+	// blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	//glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
 	
 	/* check if debug enabled */
 	GLint flags;
@@ -241,6 +250,9 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			registry.remove<CGravity>(entity);
 		}
 	}
+	if (registry.has<CPressAway>(entity)) {
+		
+	}
 }
 
 void imguiEntitySpawn(entt::registry &registry) {
@@ -329,6 +341,7 @@ int main(int, char**) {
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 	
 	// init game
+	AssetManager assets = AssetManager("res/");
 	World world;
 	
 	/* draw loop */
@@ -358,7 +371,7 @@ int main(int, char**) {
 		
 		if (ImGui::Begin("world")) {
 			static glm::vec3 pos(0.0f, 0.2f, 0.0f);
-			static int amount = 3;
+			static int amount = 50;
 			static float spawnvel = 0.012f;
 			static Random rng(-1.0f, 1.0f);
 			ImGui::SliderFloat3("spawnpoint", &pos[0], -0.5f, 0.5f);
@@ -397,7 +410,7 @@ int main(int, char**) {
 		imguiEntitySpawn(world.getRegistry());
 		
 		world.update(campos, glm::normalize(campos - camtarget));
-		world.draw(uView, uProj);
+		world.draw(campos, uView, uProj);
 		
 		// present rendered
 		imguiRender();

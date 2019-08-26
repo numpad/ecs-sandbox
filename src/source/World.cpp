@@ -11,12 +11,13 @@ entt::entity World::spawnEntity(entt::registry &registry, glm::vec3 pos) {
 	
 	glm::vec2 rsize(rand() * 0.02f + 0.065f, rand() * 0.04f + 0.07f);
 	
+	glm::vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
+	
 	auto entity = registry.create();
 	registry.assign<CPosition>(entity, pos);
 	registry.assign<CVelocity>(entity, rdir);
-	registry.assign<CBillboard>(entity, rsize);
+	registry.assign<CBillboard>(entity, rsize, rcol);
 	registry.assign<CGravity>(entity);
-	//registry.assign<CRunningToTarget>(entity, glm::vec3(-1.0f, 0.0f, 0.0f), 0.001f);
 	registry.assign<CPressAway>(entity, 0.045f, 0.01f);
 	registry.assign<CJumpTimer>(entity, 20);
 	if (registry.valid(this->player)) {
@@ -32,7 +33,8 @@ World::World()
 	
 	this->player = spawnDefaultEntity(glm::vec3(0.0f));
 	registry.assign<CKeyboardControllable>(this->player, 0.003f);
-	registry.assign_or_replace<CBillboard>(this->player, glm::vec2(0.12f, 0.14f), glm::vec3(1.0f, 1.0f, 0.0f));
+	registry.assign_or_replace<CBillboard>(this->player,
+		glm::vec2(0.12f, 0.14f), glm::vec3(0.961f, 0.8f, 0.545f));
 	registry.remove<CJumpTimer>(this->player);
 }
 
@@ -72,7 +74,7 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 	posUpdate.update(registry);
 }
 
-void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
+void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	drawFloor(uView, uProjection);
 	
 	// render systems
@@ -84,6 +86,7 @@ void World::draw(glm::mat4 &uView, glm::mat4 &uProjection) {
 	}
 	ImGui::End();
 	
+	billboardSystem.depthSort(registry, camPos);
 	if (renderInstanced)
 		billboardSystem.drawInstanced(registry, uView, uProjection);
 	else

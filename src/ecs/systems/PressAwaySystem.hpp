@@ -3,6 +3,7 @@
 #include <ecs/components.hpp>
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 
 class PressAwaySystem {
 public:

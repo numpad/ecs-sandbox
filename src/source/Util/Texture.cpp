@@ -11,6 +11,10 @@ static GLenum channelsToEnum(int channels) {
 	return GL_RGBA;
 }
 
+Texture::~Texture() {
+	this->destroy();
+}
+
 bool Texture::loadImage(std::string path) {
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char *data = stbi_load(path.c_str(), &width, &height, &nChannels, 0);

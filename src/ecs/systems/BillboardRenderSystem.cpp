@@ -36,6 +36,16 @@ void BillboardRenderSystem::draw(entt::registry &registry,
 	});
 }
 
+void BillboardRenderSystem::depthSort(entt::registry &registry, glm::vec3 camPos) {
+	
+	registry.sort<CPosition>([camPos](const auto &lhs, const auto &rhs) {
+		float l1 = glm::length2(camPos - lhs.pos);
+		float l2 = glm::length2(camPos - rhs.pos);
+		
+		return l1 > l2;
+	});
+	
+}
 
 void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glm::mat4 &uView, glm::mat4 &uProjection) {
@@ -59,6 +69,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	// collect model matrices
 	aInstanceModels.clear();
 	aInstanceColors.clear();
+	
 	registry.view<CPosition, CBillboard>().each(
 		[this, &uView, &uProjection, renderTarget](auto entity, auto &pos, auto &bb) {
 		

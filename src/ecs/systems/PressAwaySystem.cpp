@@ -14,7 +14,7 @@ void PressAwaySystem::update(entt::registry &registry) {
 			entities.each([this, entity, &pos, &vel, &presser, &mean_vel, &count]
 				(auto other_entity, auto &other_pos, auto &other_vel, auto &other_presser) {
 					glm::vec3 toMe = pos.pos - other_pos.pos;
-					float dp = glm::length(toMe) / (presser.radius + other_presser.radius);
+					float dp = glm::length2(toMe) / glm::pow(presser.radius + other_presser.radius, 2.0f);
 					
 					if (entity != other_entity && dp <= 1.0f && dp >= 0.01f) {
 						mean_vel += glm::normalize(toMe) * (1.1f - dp) * other_presser.force;

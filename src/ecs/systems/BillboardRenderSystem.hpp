@@ -13,6 +13,8 @@ public:
 	
 	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	
+	void depthSort(entt::registry &, glm::vec3 camPos);
+	
 	void draw(entt::registry &, glm::mat4 &uView, glm::mat4 &uProj);
 	void drawInstanced(entt::registry &, glm::mat4 &uView, glm::mat4 &uProj);
 	
