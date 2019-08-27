@@ -29,6 +29,8 @@ void APIENTRY glDebugOutput(GLenum source,
                             const GLchar *message,
                             const void *userParam)
 {
+	(void)length;
+	(void)userParam;
 	
     // ignore non-significant error/warning codes
     if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return; 
@@ -104,7 +106,12 @@ void imguiDestroy() {
 }
 
 bool initGL() {
-	printf("%s version: %d.%d\n", CFG_PROJECT_NAME, CFG_VERSION_MAJOR, CFG_VERSION_MINOR);
+	#if CFG_DEBUG
+		const char *cfg_debug_state = "DEBUG";
+	#else
+		const char *cfg_debug_state = "Release build";
+	#endif
+	printf("%s version: %d.%d (%s)\n", CFG_PROJECT_NAME, CFG_VERSION_MAJOR, CFG_VERSION_MINOR, cfg_debug_state);
 	
 	if (!glfwInit()) {
 		fprintf(stderr, "glfwInit() failed.\n");
@@ -122,7 +129,9 @@ bool initGL() {
 	#endif
 	
 	/* request debug context */
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, (CFG_DEBUG ? GLFW_TRUE : GLFW_FALSE));
+	#if CFG_DEBUG
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, (CFG_DEBUG ? GLFW_TRUE : GLFW_FALSE));
+	#endif
 	
 	return true;
 }
@@ -154,9 +163,9 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-	//glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
 	
 	/* check if debug enabled */
+	#if CFG_DEBUG
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
@@ -167,6 +176,7 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 	}
+	#endif
 	
 	imguiInit(*window);
 	
@@ -186,7 +196,7 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 		angle_acc = 0.3f,
 		cam_dist = 4.5f;
 	glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
-		1.2f, glm::sin(glm::radians(angle)) * cam_dist);
+		1.5f, glm::sin(glm::radians(angle)) * cam_dist);
 	
 	angle_vel *= 0.9f;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -251,7 +261,15 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		}
 	}
 	if (registry.has<CPressAway>(entity)) {
+		float &radius = registry.get<CPressAway>(entity).radius;
+		float &force = registry.get<CPressAway>(entity).force;
 		
+		DragFloat("radius", &radius, 0.0005f);
+		DragFloat("force", &force, 0.0005f);
+		
+		if (Button("X##5")) {
+			registry.remove<CPressAway>(entity);
+		}
 	}
 }
 
@@ -345,9 +363,32 @@ int main(int, char**) {
 	World world;
 	
 	/* draw loop */
+	double msLastTime = glfwGetTime();
+	int msFrames = 0;
 	while (!glfwWindowShouldClose(window)) {
+		// poll events
 		glfwPollEvents();
 		imguiBeforeFrame();
+		
+		static const size_t pastFPSCount = 50;
+		static float pastFPS[pastFPSCount] = {0.0f};
+		static size_t pastFPSi = 0;
+		
+		// calc time
+		double msCurrentTime = glfwGetTime();
+		msFrames++;
+		if (msCurrentTime - msLastTime >= 1.0) {
+			printf("%gms / frame\n", 1000.0 / (double)msFrames);
+			pastFPSi = (pastFPSi + 1) % pastFPSCount;
+			pastFPS[pastFPSCount - pastFPSi] = 1000.0f / (float)msFrames;
+			msFrames = 0;
+			msLastTime += 1.0;
+		}
+		
+		if (ImGui::Begin("performance")) {
+			ImGui::PlotLines("ms / frame", pastFPS, pastFPSCount, (int)pastFPSCount - (int)pastFPSi, NULL, 1.0f, FLT_MAX, ImVec2(130, 80));
+		}
+		ImGui::End();
 		
 		// input
 		double mouseX, mouseY;
@@ -361,7 +402,7 @@ int main(int, char**) {
 		glm::vec3 camtarget(0.0f);
 		glm::vec3 campos = calcCamPos(window);
 		glm::mat4 uView = glm::lookAt(campos,
-			camtarget, glm::vec3(0.0f, 1.0f, 0.0f));
+			camtarget, glm::vec3(0.0f, 0.5f, 0.0f));
 		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),
 			getWindowAspectRatio(window), 0.1f, 100.0f);
 		

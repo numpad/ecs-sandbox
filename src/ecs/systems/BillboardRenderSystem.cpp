@@ -101,7 +101,10 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			aInstanceModels.size() * sizeof(glm::mat4)
 			+ aInstanceColors.size() * sizeof(glm::vec3),
 			nullptr, GL_DYNAMIC_DRAW);
+		
+		#if CFG_DEBUG
 		printf("new buffer data\n");
+		#endif
 	}
 	
 	//lastMaxInstanceCount = aInstanceModels.size();
