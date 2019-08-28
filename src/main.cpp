@@ -360,6 +360,13 @@ int main(int, char**) {
 	
 	// init game
 	AssetManager assets = AssetManager("res/");
+	assets.loadTexture("images/sprites/default_soldier.png");
+	assets.loadTexture("images/sprites/default_soldier_e.png");
+	assets.loadTexture("images/sprites/default_soldier_s.png");
+	assets.loadTexture("images/sprites/default_soldier_se.png");
+	assets.loadTexture("images/sprites/default_soldier_sw.png");
+	assets.loadTexture("images/sprites/default_soldier_w.png");
+	
 	World world;
 	
 	/* draw loop */
@@ -370,23 +377,18 @@ int main(int, char**) {
 		glfwPollEvents();
 		imguiBeforeFrame();
 		
-		static const size_t pastFPSCount = 50;
-		static float pastFPS[pastFPSCount] = {0.0f};
-		static size_t pastFPSi = 0;
-		
 		// calc time
 		double msCurrentTime = glfwGetTime();
+		static float msPerFrame = 0.0f;
 		msFrames++;
 		if (msCurrentTime - msLastTime >= 1.0) {
-			printf("%gms / frame\n", 1000.0 / (double)msFrames);
-			pastFPSi = (pastFPSi + 1) % pastFPSCount;
-			pastFPS[pastFPSCount - pastFPSi] = 1000.0f / (float)msFrames;
+			msPerFrame = 1000.0f / (float)msFrames;
 			msFrames = 0;
 			msLastTime += 1.0;
 		}
 		
 		if (ImGui::Begin("performance")) {
-			ImGui::PlotLines("ms / frame", pastFPS, pastFPSCount, (int)pastFPSCount - (int)pastFPSi, NULL, 1.0f, FLT_MAX, ImVec2(130, 80));
+			ImGui::Text("%g ms / frame", msPerFrame);
 		}
 		ImGui::End();
 		

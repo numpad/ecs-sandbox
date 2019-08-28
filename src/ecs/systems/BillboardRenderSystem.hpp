@@ -9,9 +9,9 @@
 class BillboardRenderSystem {
 public:
 	BillboardRenderSystem();
+	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	~BillboardRenderSystem();
 	
-	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	
 	void depthSort(entt::registry &, glm::vec3 camPos);
 	

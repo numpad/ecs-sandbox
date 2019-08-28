@@ -14,9 +14,9 @@ AssetManager::~AssetManager() {
 		delete iter.second;
 	}
 
-#if CFG_DEBUG
-	printf("[LOG] AssetManager: freed %d textures.", freedTextures);
-#endif
+	#if CFG_DEBUG
+		printf("[LOG] AssetManager: freed %d textures.", freedTextures);
+	#endif
 }
 
 
@@ -25,14 +25,27 @@ bool AssetManager::loadTexture(std::string path) {
 	
 	// texture already loaded
 	// todo: reload from path
-	if (texture != textures.end()) return false;
+	if (texture != textures.end()) {
+		#if CFG_DEBUG
+			printf("[LOG] AssetManager: texture already loaded... skipping '%s'\n", (base_path + path).c_str());
+		#endif
+		return false;
+	}
 	
 	Texture *tex = new Texture();
 	bool is_loaded = tex->loadImage(base_path + path);
 	
 	if (is_loaded) {
+		#if CFG_DEBUG
+			printf("[LOG] AssetManager: loaded texture '%s'\n", (base_path + path).c_str());
+		#endif
+			
 		textures.insert({path, tex});
 		return true;
+	} else {
+		#if CFG_DEBUG
+			printf("[ERR] AssetManager: failed loading texture '%s'\n", (base_path + path).c_str());
+		#endif
 	}
 	
 	return false;

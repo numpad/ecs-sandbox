@@ -63,7 +63,6 @@ glm::mat4 Billboard::calcModelMatrix(glm::mat4 &uView, glm::vec3 pos,
 	glm::vec4 campos4 = glm::inverse(uView)[3];
 	glm::vec3 campos = glm::vec3(campos4);
 	
-	//float angle = glm::dot(glm::normalize(campos - pos), glm::vec3(1.0f, 0.0f, 0.0f));
 	glm::vec3 rotAxis;
 	float angle = bbCylinder(campos, target/* pos /* glm::vec3(0.0f)*/, rotAxis);
 	uModel = glm::translate(uModel, glm::vec3(pos.x, pos.y + size.y * 0.5f, pos.z));
