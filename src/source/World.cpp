@@ -93,13 +93,22 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 		billboardSystem.draw(registry, uView, uProjection);
 	
 	using namespace glm;
-	/*
-	static sgl::shader meshShader();
-	static Mesh mesh({
-		vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(1.0f, 1.0f, 0.0f)},
-		{0, 1, 2, 2, 1, 3}, {});
 	
-	mesh.draw();*/
+	static sgl::shader meshShader("res/glsl/proto/simpleMesh_vert.glsl",
+		"res/glsl/proto/simpleMesh_frag.glsl");
+	static Mesh mesh({
+		// pos                  normal                  texcoords
+		Vertex(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 0.0f)),
+		Vertex(vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec2(1.0f, 0.0f)),
+		Vertex(vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 1.0f)),
+		Vertex(vec3(1.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec2(1.0f, 1.0f))},
+		{0, 1, 2, 2, 1, 3},
+		{assetManager.getTexture("images/textures/dungeon.png")});
+	
+	meshShader["uModel"] = glm::mat4(1.0f);
+	meshShader["uView"] = uView;
+	meshShader["uProj"] = uProjection;
+	mesh.draw(meshShader);
 }
 
 

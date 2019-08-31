@@ -359,16 +359,16 @@ int main(int, char**) {
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 	
 	// init game
-	AssetManager assets = AssetManager("res/");
-	assets.loadTexture("images/sprites/default_soldier.png");
-	assets.loadTexture("images/sprites/default_soldier_e.png");
-	assets.loadTexture("images/sprites/default_soldier_s.png");
-	assets.loadTexture("images/sprites/default_soldier_se.png");
-	assets.loadTexture("images/sprites/default_soldier_sw.png");
-	assets.loadTexture("images/sprites/default_soldier_w.png");
-	
 	
 	World world;
+	
+	AssetManager &assetManager = world.getAssetManager();
+	assetManager.loadTexture("images/sprites/default_soldier.png");
+	assetManager.loadTexture("images/sprites/default_soldier_e.png");
+	assetManager.loadTexture("images/sprites/default_soldier_s.png");
+	assetManager.loadTexture("images/sprites/default_soldier_se.png");
+	assetManager.loadTexture("images/sprites/default_soldier_sw.png");
+	assetManager.loadTexture("images/sprites/default_soldier_w.png");
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();

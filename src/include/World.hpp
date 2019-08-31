@@ -20,6 +20,7 @@
 #include <Util/Math3d.hpp>
 #include <RenderObject/Billboard.hpp>
 
+#include <Assets/AssetManager.hpp>
 #include <Assets/Texture.hpp>
 #include <Assets/Mesh.hpp>
 
@@ -31,14 +32,17 @@ public:
 	
 	~World();
 	
+	// entitites
 	entt::entity getNearestEntity(glm::vec3 pos);
-	
 	entt::entity spawnDefaultEntity(glm::vec3 pos);
 	
+	// gameloop
 	void update(glm::vec3 viewPos, glm::vec3 viewDir);
 	void draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection);
 	
-	inline entt::registry &getRegistry() { return registry; };
+	// getters
+	inline entt::registry &getRegistry() { return registry; }
+	inline AssetManager &getAssetManager() { return assetManager; }
 	
 private:
 	entt::registry registry;
@@ -62,5 +66,7 @@ private:
 	void setupFloor();
 	void destroyFloor();
 	void drawFloor(glm::mat4 &uView, glm::mat4 &uProjection);
+	
+	AssetManager assetManager = AssetManager("res/");
 	
 };

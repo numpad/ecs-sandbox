@@ -15,9 +15,11 @@ void Mesh::draw(sgl::shader &shader) {
 	GLuint iSpecular = 0;
 	GLuint iNormal = 0;
 	
+	shader.use();
+	
 	for (auto it = textures.begin(); it != textures.end(); ++it) {
 		Texture *tex = *it;
-		GLuint index = (GLuint) std::distance(textures.begin(), it);
+		GLint index = (GLuint) std::distance(textures.begin(), it);
 		
 		GLuint texIdx = 0;
 		switch (tex->getUsageType()) {
