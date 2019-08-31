@@ -121,7 +121,7 @@ bool initGL() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	
 	#if CFG_DEBUG
 		// TODO: fix for my window manager
@@ -151,7 +151,7 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 		glGetString(GL_SHADING_LANGUAGE_VERSION));
 	
 	// msaa
-	//glEnable(GL_MULTISAMPLE);
+	glEnable(GL_MULTISAMPLE);
 	//glEnable(GL_SAMPLE_SHADING);
 	//glMinSampleShading(1.0f);
 	
@@ -260,15 +260,15 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			registry.remove<CGravity>(entity);
 		}
 	}
-	if (registry.has<CPressAway>(entity)) {
-		float &radius = registry.get<CPressAway>(entity).radius;
-		float &force = registry.get<CPressAway>(entity).force;
+	if (registry.has<CSphereCollider>(entity)) {
+		float &radius = registry.get<CSphereCollider>(entity).radius;
+		float &force = registry.get<CSphereCollider>(entity).force;
 		
 		DragFloat("radius", &radius, 0.0005f);
 		DragFloat("force", &force, 0.0005f);
 		
 		if (Button("X##5")) {
-			registry.remove<CPressAway>(entity);
+			registry.remove<CSphereCollider>(entity);
 		}
 	}
 }
@@ -302,7 +302,7 @@ void imguiEntitySpawn(entt::registry &registry) {
 		Checkbox("CGravity", &hasgrav);
 		Checkbox("CBillboard", &hasbb);
 		Checkbox("CRunToTarget", &hasruntt);
-		Checkbox("CPressAway", &haspresser);
+		Checkbox("CSphereCollider", &haspresser);
 		Checkbox("CKeyboardController", &haskeyboard);
 		
 		if (haspos) DragFloat3("position", &pos[0], 0.001f);
@@ -333,7 +333,7 @@ void imguiEntitySpawn(entt::registry &registry) {
 				if (hasgrav) registry.assign<CGravity>(entity);
 				if (hasbb) registry.assign<CBillboard>(entity, bbsize, bbcolor);
 				if (hasruntt) registry.assign<CRunningToTarget>(entity, rttpos, rttforce);
-				if (haspresser) registry.assign<CPressAway>(entity, pressrad, pressforce);
+				if (haspresser) registry.assign<CSphereCollider>(entity, pressrad, pressforce);
 				if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
 			}
 		}
@@ -366,6 +366,7 @@ int main(int, char**) {
 	assets.loadTexture("images/sprites/default_soldier_se.png");
 	assets.loadTexture("images/sprites/default_soldier_sw.png");
 	assets.loadTexture("images/sprites/default_soldier_w.png");
+	
 	
 	World world;
 	

@@ -14,6 +14,10 @@ public:
 		CLAMP = GL_CLAMP_TO_EDGE
 	};
 	
+	enum class UsageType {
+		DIFFUSE, SPECULAR, NORMAL
+	};
+	
 public:
 	
 	Texture() = default;
@@ -47,11 +51,18 @@ public:
 	void setWrapMode(WrapMode s, WrapMode t);
 	void setWrapMode(WrapMode s_and_t);
 	
+	// usage type
+	void setUsageType(UsageType type);
+	UsageType getUsageType() const;
+	std::string getUsageString() const;
+	
 private:
 	
 	void create();
 	
 	int width, height, nChannels;
+	
+	UsageType usageType = UsageType::DIFFUSE;
 	
 	GLuint texture = 0;
 	GLint prevBoundTexture = 0;

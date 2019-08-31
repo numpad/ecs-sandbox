@@ -20,7 +20,8 @@
 #include <Util/Math3d.hpp>
 #include <RenderObject/Billboard.hpp>
 
-#include <Util/Texture.hpp>
+#include <Assets/Texture.hpp>
+#include <Assets/Mesh.hpp>
 
 class World {
 public:

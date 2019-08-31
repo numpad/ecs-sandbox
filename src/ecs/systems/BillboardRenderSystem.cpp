@@ -121,7 +121,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glBindVertexArray(billboardRO.getVAO());
 	// enable instancing on vertex attrib
 	// model matrix
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)0);
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(0 * sizeof(glm::vec4)));
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(1 * sizeof(glm::vec4)));
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(2 * sizeof(glm::vec4)));
 	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(3 * sizeof(glm::vec4)));
@@ -138,12 +138,18 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glEnableVertexAttribArray(6);
 	glVertexAttribDivisor(6, 1);
 	
+	// textures
 	glActiveTexture(GL_TEXTURE0);
 	billboardRO.getTexture().bind();
+	glActiveTexture(GL_TEXTURE1);
+	testtex.bind();
 	
+	// draw
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, aInstanceModels.size());
 	
+	// cleanup
 	glBindVertexArray(0);
+	testtex.unbind();
 	billboardRO.getTexture().unbind();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

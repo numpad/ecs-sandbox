@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <Util/Texture.hpp>
+#include <Assets/Texture.hpp>
 
 class AssetManager {
 public:
@@ -14,6 +14,7 @@ public:
 	~AssetManager();
 	
 	bool loadTexture(std::string path);
+	bool loadModel(std::string path);
 	
 	Texture *getTexture(std::string path);
 	
@@ -21,5 +22,5 @@ private:
 	std::string base_path;
 	
 	std::unordered_map<std::string, Texture *> textures;
-	
+	//std::unordered_map<std::string, Model *> models;
 };

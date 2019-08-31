@@ -1,9 +1,9 @@
 #pragma once
 
-struct CPressAway {
+struct CSphereCollider {
 	float radius, force;
 	
-	CPressAway(float radius, float force)
+	CSphereCollider(float radius, float force)
 		: radius(radius), force(force)
 	{
 	}

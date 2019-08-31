@@ -5,7 +5,7 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <GL/gl3w.h>
 #include <util/sgl_shader.hpp>
-#include <Util/Texture.hpp>
+#include <Assets/Texture.hpp>
 
 class Billboard {
 public:

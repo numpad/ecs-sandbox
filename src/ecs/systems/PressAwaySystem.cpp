@@ -5,7 +5,7 @@ PressAwaySystem::~PressAwaySystem() {
 }
 
 void PressAwaySystem::update(entt::registry &registry) {
-	auto entities = registry.view<const CPosition, CVelocity, const CPressAway>();
+	auto entities = registry.view<const CPosition, CVelocity, const CSphereCollider>();
 	entities.each([this, &entities]
 		(auto entity, auto &pos, auto &vel, auto &presser) {
 			

@@ -1,4 +1,4 @@
-#include <Util/Texture.hpp>
+#include <Assets/Texture.hpp>
 
 static GLenum channelsToEnum(int channels) {
 	switch (channels) {
@@ -77,6 +77,25 @@ void Texture::setWrapMode(Texture::WrapMode s_and_t) {
 	this->setWrapMode(s_and_t, s_and_t);
 }
 
+// usage type
+void Texture::setUsageType(Texture::UsageType type) {
+	this->usageType = type;
+}
+
+Texture::UsageType Texture::getUsageType() const {
+	return usageType;
+}
+
+std::string Texture::getUsageString() const {
+	switch (usageType) {
+	case Texture::UsageType::DIFFUSE: return "Diffuse";
+	case Texture::UsageType::SPECULAR: return "Specular";
+	case Texture::UsageType::NORMAL: return "Normal";
+	default: break;
+	};
+	
+	return "Diffuse";
+}
 
 /////////////
 // PRIVATE //
@@ -91,7 +110,7 @@ void Texture::create() {
 	// glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	this->setWrapMode(Texture::WrapMode::CLAMP);
 	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
 	this->unbind();

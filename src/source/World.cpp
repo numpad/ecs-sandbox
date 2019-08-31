@@ -18,8 +18,8 @@ entt::entity World::spawnEntity(entt::registry &registry, glm::vec3 pos) {
 	registry.assign<CVelocity>(entity, rdir);
 	registry.assign<CBillboard>(entity, rsize, rcol);
 	registry.assign<CGravity>(entity);
-	registry.assign<CPressAway>(entity, 0.045f, 0.01f);
-	registry.assign<CJumpTimer>(entity, 20);
+	registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
+	registry.assign<CJumpTimer>(entity, 0);
 	if (registry.valid(this->player)) {
 		registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
 	}
@@ -91,6 +91,15 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 		billboardSystem.drawInstanced(registry, uView, uProjection);
 	else
 		billboardSystem.draw(registry, uView, uProjection);
+	
+	using namespace glm;
+	/*
+	static sgl::shader meshShader();
+	static Mesh mesh({
+		vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f), vec3(1.0f, 1.0f, 0.0f)},
+		{0, 1, 2, 2, 1, 3}, {});
+	
+	mesh.draw();*/
 }
 
 
@@ -136,7 +145,7 @@ void World::setupFloor() {
 	// vbo
 	glBindBuffer(GL_ARRAY_BUFFER, floorVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
 		glEnableVertexAttribArray(0);
 	// ebo
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, floorEBO);
