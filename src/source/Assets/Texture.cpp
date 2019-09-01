@@ -11,6 +11,13 @@ static GLenum channelsToEnum(int channels) {
 	return GL_RGBA;
 }
 
+
+Texture::Texture(Texture::Flags flags)
+	: flags(flags)
+{
+	
+}
+
 Texture::~Texture() {
 	this->destroy();
 }
@@ -38,7 +45,13 @@ bool Texture::loadMemory(unsigned char *data, int width, int height, int channel
 	this->bind();
 	glTexImage2D(GL_TEXTURE_2D, 0, channelsToEnum(channels), width, height, 0,
 		channelsToEnum(channels), GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	
+	if (flags & Texture::Flags::GEN_MIPMAPS) {
+		glGenerateMipmap(GL_TEXTURE_2D);
+		#if CFG_DEBUG
+			printf("[LOG] Texture: GEN_MIPMAPS flag is set! Generating...\n");
+		#endif
+	}
 	this->unbind();
 	
 	return true;
@@ -77,6 +90,15 @@ void Texture::setWrapMode(Texture::WrapMode s_and_t) {
 	this->setWrapMode(s_and_t, s_and_t);
 }
 
+void Texture::setBorderColor(float r, float g, float b, float a) {
+	this->bind();
+	
+	float borderColor[] = {r, g, b, a};
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	
+	this->unbind();
+}
+
 // usage type
 void Texture::setUsageType(Texture::UsageType type) {
 	this->usageType = type;
@@ -110,7 +132,11 @@ void Texture::create() {
 	// glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	this->setWrapMode(Texture::WrapMode::CLAMP);
 	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	GLint minfilter = GL_NEAREST;
+	if (flags & Texture::Flags::GEN_MIPMAPS)
+		minfilter = GL_NEAREST_MIPMAP_LINEAR;
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minfilter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
 	this->unbind();

@@ -5,6 +5,7 @@ void Model::addMesh(Mesh *m) {
 }
 
 void Model::draw(sgl::shader &shader) {
+	// TODO: sort before drawing?
 	for (auto it = meshes.begin(); it != meshes.end(); ++it) {
 		Mesh *mesh = *it;
 		

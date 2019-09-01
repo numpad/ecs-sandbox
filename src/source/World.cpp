@@ -75,7 +75,7 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 }
 
 void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
-	drawFloor(uView, uProjection);
+	//drawFloor(uView, uProjection);
 	
 	// render systems
 	static bool renderInstanced = true;
@@ -86,21 +86,27 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	}
 	ImGui::End();
 	
+	// draw worlds
+	static Model *model = assetManager.getModel("res/models/world/dungeon_floor_wall1.blend");
+	static sgl::shader meshShader("res/glsl/proto/simpleMesh_vert.glsl",
+		"res/glsl/proto/simpleMesh_frag.glsl");
+	
+	meshShader["uModel"] = glm::scale(
+							glm::rotate(
+								glm::mat4(1.0f),
+							glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+							glm::vec3(1.0f));
+	meshShader["uView"] = uView;
+	meshShader["uProj"] = uProjection;
+	
+	model->draw(meshShader);	
+	
+	// draw billboards
 	billboardSystem.depthSort(registry, camPos);
 	if (renderInstanced)
 		billboardSystem.drawInstanced(registry, uView, uProjection);
 	else
 		billboardSystem.draw(registry, uView, uProjection);
-	
-	static Model *model = assetManager.getModel("res/models/world/dungeon_floor_wall1.blend");
-	static sgl::shader meshShader("res/glsl/proto/simpleMesh_vert.glsl",
-		"res/glsl/proto/simpleMesh_frag.glsl");
-	
-	meshShader["uModel"] = glm::mat4(1.0f);
-	meshShader["uView"] = uView;
-	meshShader["uProj"] = uProjection;
-	model->draw(meshShader);
-	
 	
 }
 

@@ -8,5 +8,5 @@ out vec4 Color;
 
 void main() {
 	vec4 pixel = texture(uTexDiffuse0, vTexCoords);
-	Color = pixel;
+	Color = vec4(pixel.rgb, pixel.a);
 }

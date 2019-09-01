@@ -7,7 +7,7 @@ GravitySystem::GravitySystem(float gravity)
 
 void GravitySystem::update(entt::registry &registry) {
 	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry](auto entity, auto &pos, auto &vel, auto &gravity) {
-		constexpr float dd = 2.05f;
+		constexpr float dd = 1.05f;
 		if (pos.pos.x < -dd || pos.pos.x > dd || pos.pos.z < -dd || pos.pos.z > dd || pos.pos.y > 0.0f)
 			vel.vel.y -= this->gravity;
 		else if (pos.pos.y <= 0.0f) {

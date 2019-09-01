@@ -92,9 +92,10 @@ std::vector<Texture *> AssetManager::convertAndCollectMaterialTextures(
 		for (char &c : path)
 			if (c == '\\') c = '/';
 		
-		printf(" ### PATH = '%s' ###\n", ("res/" + path).c_str());
 		Texture *texture = this->getTexture("res/" + path);
 		texture->setUsageType(usage);
+		texture->setBorderColor(0.3f, 1.0f, 0.3f);
+		texture->setWrapMode(Texture::WrapMode::BORDER);
 		textures.push_back(texture);
 	}
 	

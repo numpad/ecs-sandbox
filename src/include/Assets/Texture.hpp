@@ -11,16 +11,21 @@ public:
 	enum class WrapMode {
 		REPEAT = GL_REPEAT,
 		MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
-		CLAMP = GL_CLAMP_TO_EDGE
+		CLAMP = GL_CLAMP_TO_EDGE,
+		BORDER = GL_CLAMP_TO_BORDER
 	};
 	
 	enum class UsageType {
 		DIFFUSE, SPECULAR, NORMAL
 	};
 	
+	enum Flags {
+		NONE = 0,
+		GEN_MIPMAPS = 1
+	};
 public:
 	
-	Texture() = default;
+	Texture(Texture::Flags flags = Flags::NONE);
 	Texture(const Texture &copy) = delete;
 	~Texture();
 	
@@ -50,6 +55,7 @@ public:
 	// configuring data
 	void setWrapMode(WrapMode s, WrapMode t);
 	void setWrapMode(WrapMode s_and_t);
+	void setBorderColor(float r, float g, float b, float a = 1.0f);
 	
 	// usage type
 	void setUsageType(UsageType type);
@@ -61,6 +67,7 @@ private:
 	void create();
 	
 	int width, height, nChannels;
+	Flags flags = Flags::NONE;
 	
 	UsageType usageType = UsageType::DIFFUSE;
 	
