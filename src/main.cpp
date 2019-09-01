@@ -410,7 +410,13 @@ int main(int, char**) {
 			getWindowAspectRatio(window), 0.1f, 100.0f);
 		
 		// rendering
-		glClearColor(0.631f, 0.875f, 0.902f, 1);
+		// glClearColor(0.631f, 0.875f, 0.902f, 1); // light blue
+		static FastNoise noise;
+		noise.SetNoiseType(FastNoise::Perlin);
+		
+		float bgoff = noise.GetNoise(glfwGetTime() * 100.0f, 0.0f) * 0.03f;
+		float bgoffr = (noise.GetNoise(glfwGetTime() * 110.0f, 0.8f) * 0.5f + 0.5f) * 0.05f;
+		glClearColor(0.231f + bgoffr, 0.275f + bgoff, 0.302f + bgoff, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		if (ImGui::Begin("world")) {

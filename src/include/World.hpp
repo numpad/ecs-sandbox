@@ -6,7 +6,7 @@
 #include <random>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <Grid3D.hpp>
+#include <Grid2D.hpp>
 #include <util/sgl_shader.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -46,6 +46,10 @@ public:
 	
 private:
 	entt::registry registry;
+	
+	// grid
+	Grid2D<Model> tileGrid;
+	sgl::shader tileGridShader;
 	
 	// entities
 	entt::entity player = entt::null;

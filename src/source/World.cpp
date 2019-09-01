@@ -27,9 +27,13 @@ entt::entity World::spawnEntity(entt::registry &registry, glm::vec3 pos) {
 }
 
 World::World()
-	: charControllerSystem(window)
+	: tileGridShader{"res/glsl/proto/simpleMesh_vert.glsl", "res/glsl/proto/simpleMesh_frag.glsl"},
+	charControllerSystem(window)
 {
 	setupFloor();
+	
+	tileGrid.set(0, 0, assetManager.getModel("res/models/world/dungeon_floor.blend"));
+	tileGrid.set(1, 0, assetManager.getModel("res/models/world/dungeon_floor.blend"));
 	
 	this->player = spawnDefaultEntity(glm::vec3(0.0f));
 	registry.assign<CKeyboardControllable>(this->player, 0.003f);
@@ -87,19 +91,16 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	ImGui::End();
 	
 	// draw worlds
-	static Model *model = assetManager.getModel("res/models/world/dungeon_floor_wall1.blend");
-	static sgl::shader meshShader("res/glsl/proto/simpleMesh_vert.glsl",
-		"res/glsl/proto/simpleMesh_frag.glsl");
-	
-	meshShader["uModel"] = glm::scale(
+	tileGridShader["uView"] = uView;
+	tileGridShader["uProj"] = uProjection;
+	tileGrid.each([this](int x, int y, Model *model) {
+		tileGridShader["uModel"] = glm::translate(
 							glm::rotate(
 								glm::mat4(1.0f),
 							glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-							glm::vec3(1.0f));
-	meshShader["uView"] = uView;
-	meshShader["uProj"] = uProjection;
-	
-	model->draw(meshShader);	
+							glm::vec3(x * 2.0f, 0.0f, y * 2.0f));
+		model->draw(tileGridShader);
+	});
 	
 	// draw billboards
 	billboardSystem.depthSort(registry, camPos);

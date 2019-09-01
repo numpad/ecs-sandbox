@@ -6,24 +6,27 @@ AssetManager::~AssetManager() {
 	for (auto iter : textures) {
 		++freedTextures;
 		delete iter.second;
+		iter.second = nullptr;
 	}
 	
 	int freedModels = 0;
 	for (auto iter : models) {
 		++freedModels;
 		delete iter.second;
+		iter.second = nullptr;
 	}
 	
 	int freedMeshes = 0;
 	for (auto m : meshes) {
 		++freedMeshes;
 		delete m;
+		m = nullptr;
 	}
 	
 	#if CFG_DEBUG
-		printf("[LOG] AssetManager: freed %d textures.", freedTextures);
-		printf("[LOG] AssetManager: freed %d models.", freedModels);
-		printf("[LOG] AssetManager: freed %d meshes.", freedMeshes);
+		printf("[LOG] AssetManager: freed %d textures.\n", freedTextures);
+		printf("[LOG] AssetManager: freed %d models.\n", freedModels);
+		printf("[LOG] AssetManager: freed %d meshes.\n", freedMeshes);
 	#endif
 }
 

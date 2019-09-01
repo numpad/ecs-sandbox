@@ -5,7 +5,7 @@ void RandomJumpSystem::update(entt::registry &registry) {
 	static Random randJumpVel(0.002f, 0.01f);
 	registry.view<CPosition, CJumpTimer, CVelocity, CGravity>().each([&](auto entity, auto &pos, auto &jumper, auto &vel, auto &grav) {
 		
-		if (abs(vel.vel.y) < 0.00001f && randIfJump() < chanceToJump)
+		if (std::abs(vel.vel.y) < 0.00001f && randIfJump() < chanceToJump)
 			vel.vel.y += randJumpVel();
 		
 		// jump if running into void

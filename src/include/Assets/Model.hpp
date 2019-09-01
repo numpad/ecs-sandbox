@@ -9,7 +9,7 @@ public:
 	
 	Model() = default;
 	Model(const Model &copy) = delete;
-	~Model() = default;
+	~Model() {};
 	
 	void addMesh(Mesh *m);
 
