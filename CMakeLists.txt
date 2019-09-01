@@ -71,7 +71,7 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
 if (MSVC)
 	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /WX)
 else (MSVC)
-	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wno-implicit-fallthrough)
+	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wno-implicit-fallthrough -Wno-unused-parameter)
 endif (MSVC)
 
 install (TARGETS ${CMAKE_PROJECT_NAME} DESTINATION bin)

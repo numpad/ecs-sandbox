@@ -67,6 +67,6 @@ private:
 	void destroyFloor();
 	void drawFloor(glm::mat4 &uView, glm::mat4 &uProjection);
 	
-	AssetManager assetManager = AssetManager("res/");
+	AssetManager assetManager;
 	
 };

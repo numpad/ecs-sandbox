@@ -92,23 +92,16 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	else
 		billboardSystem.draw(registry, uView, uProjection);
 	
-	using namespace glm;
-	
+	static Model *model = assetManager.getModel("res/models/world/dungeon_floor_wall1.blend");
 	static sgl::shader meshShader("res/glsl/proto/simpleMesh_vert.glsl",
 		"res/glsl/proto/simpleMesh_frag.glsl");
-	static Mesh mesh({
-		// pos                  normal                  texcoords
-		Vertex(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 0.0f)),
-		Vertex(vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec2(1.0f, 0.0f)),
-		Vertex(vec3(0.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec2(0.0f, 1.0f)),
-		Vertex(vec3(1.0f, 1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec2(1.0f, 1.0f))},
-		{0, 1, 2, 2, 1, 3},
-		{assetManager.getTexture("images/textures/dungeon.png")});
 	
 	meshShader["uModel"] = glm::mat4(1.0f);
 	meshShader["uView"] = uView;
 	meshShader["uProj"] = uProjection;
-	mesh.draw(meshShader);
+	model->draw(meshShader);
+	
+	
 }
 
 
@@ -117,17 +110,6 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 ///////////////
 
 void World::setupFloor() {
-	/*
-	Assimp::Importer importer;
-	auto model_path = "res/models/floor.ply";
-	const aiScene *scene = importer.ReadFile(model_path,
-		aiProcess_Triangulate | aiProcess_FlipUVs);
-	// model should be loaded
-	assert(scene);
-	assert(!(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE));
-	assert(scene->mRootNode);
-	*/
-	
 	// loads the floor shader
 	floorShader.load("res/glsl/world/floor_vert.glsl", sgl::shader::VERTEX);
 	floorShader.load("res/glsl/world/floor_frag.glsl", sgl::shader::FRAGMENT);

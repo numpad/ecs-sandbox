@@ -363,12 +363,12 @@ int main(int, char**) {
 	World world;
 	
 	AssetManager &assetManager = world.getAssetManager();
-	assetManager.loadTexture("images/sprites/default_soldier.png");
-	assetManager.loadTexture("images/sprites/default_soldier_e.png");
-	assetManager.loadTexture("images/sprites/default_soldier_s.png");
-	assetManager.loadTexture("images/sprites/default_soldier_se.png");
-	assetManager.loadTexture("images/sprites/default_soldier_sw.png");
-	assetManager.loadTexture("images/sprites/default_soldier_w.png");
+	assetManager.getTexture("res/images/sprites/default_soldier.png");
+	assetManager.getTexture("res/images/sprites/default_soldier_e.png");
+	assetManager.getTexture("res/images/sprites/default_soldier_s.png");
+	assetManager.getTexture("res/images/sprites/default_soldier_se.png");
+	assetManager.getTexture("res/images/sprites/default_soldier_sw.png");
+	assetManager.getTexture("res/images/sprites/default_soldier_w.png");
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
