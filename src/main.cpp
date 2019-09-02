@@ -194,9 +194,8 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 	static float angle = 45.0f,
 		angle_vel = 0.0f,
 		angle_acc = 0.3f,
-		cam_dist = 4.5f;
-	glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
-		1.5f, glm::sin(glm::radians(angle)) * cam_dist);
+		cam_dist = 4.5f,
+		cam_y = 2.75f;
 	
 	angle_vel *= 0.9f;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -209,6 +208,9 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 		cam_dist += 0.1f;
 	angle += angle_vel;
 	if (cam_dist < 0.05f) cam_dist = 0.05f;
+	
+	glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
+		cam_y, glm::sin(glm::radians(angle)) * cam_dist);
 	
 	return campos;
 }
@@ -402,7 +404,16 @@ int main(int, char**) {
 			glfwSetWindowShouldClose(window, true);
 	
 		// orbit camera calculations
-		glm::vec3 camtarget(0.0f);
+		static glm::vec3 camtarget(0.0f);
+		const float camToTargetSpeed = 0.09f;
+		// ease camera to player or origin
+		glm::vec3 targetPos;
+		if (world.getPlayer() != entt::null && world.getRegistry().has<CPosition>(world.getPlayer())) {
+			targetPos = world.getRegistry().get<CPosition>(world.getPlayer()).pos;
+		} else { targetPos = glm::vec3(0.0f); }
+		glm::vec3 toTarget = (targetPos - camtarget) * camToTargetSpeed;
+		camtarget += toTarget;
+		
 		glm::vec3 campos = calcCamPos(window);
 		glm::mat4 uView = glm::lookAt(campos,
 			camtarget, glm::vec3(0.0f, 0.5f, 0.0f));
@@ -410,12 +421,11 @@ int main(int, char**) {
 			getWindowAspectRatio(window), 0.1f, 100.0f);
 		
 		// rendering
-		// glClearColor(0.631f, 0.875f, 0.902f, 1); // light blue
 		static FastNoise noise;
 		noise.SetNoiseType(FastNoise::Perlin);
 		
-		float bgoff = noise.GetNoise(glfwGetTime() * 100.0f, 0.0f) * 0.03f;
-		float bgoffr = (noise.GetNoise(glfwGetTime() * 110.0f, 0.8f) * 0.5f + 0.5f) * 0.05f;
+		float bgoff = noise.GetNoise(glfwGetTime() * 80.0f, 0.0f) * 0.03f;
+		float bgoffr = (noise.GetNoise(glfwGetTime() * 90.0f, 0.8f) * 0.5f + 0.5f) * 0.04f;
 		glClearColor(0.231f + bgoffr, 0.275f + bgoff, 0.302f + bgoff, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		

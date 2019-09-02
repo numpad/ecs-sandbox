@@ -44,6 +44,11 @@ public:
 	inline entt::registry &getRegistry() { return registry; }
 	inline AssetManager &getAssetManager() { return assetManager; }
 	
+	inline entt::entity getPlayer() const {
+		if (registry.valid(player))
+			return player;
+		return entt::null;
+	}
 private:
 	entt::registry registry;
 	

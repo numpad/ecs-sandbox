@@ -2,39 +2,12 @@
 
 extern GLFWwindow *window;
 
-entt::entity World::spawnEntity(entt::registry &registry, glm::vec3 pos) {
-	static Random rand;
-	
-	glm::vec3 rdir = glm::normalize(glm::vec3(
-		rand() * 2.0f - 1.0f, 0.01f,
-		rand() * 2.0f - 1.0f)) * 0.0025f;
-	
-	glm::vec2 rsize(rand() * 0.02f + 0.065f, rand() * 0.04f + 0.07f);
-	
-	glm::vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
-	
-	auto entity = registry.create();
-	registry.assign<CPosition>(entity, pos);
-	registry.assign<CVelocity>(entity, rdir);
-	registry.assign<CBillboard>(entity, rsize, rcol);
-	registry.assign<CGravity>(entity);
-	registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
-	registry.assign<CJumpTimer>(entity, 0);
-	if (registry.valid(this->player)) {
-		registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
-	}
-	return entity;
-}
-
 World::World()
-	: tileGridShader{"res/glsl/proto/simpleMesh_vert.glsl", "res/glsl/proto/simpleMesh_frag.glsl"},
-	charControllerSystem(window)
+	: charControllerSystem(window)
 {
 	setupFloor();
 	
-	tileGrid.set(0, 0, assetManager.getModel("res/models/world/dungeon_floor.blend"));
-	tileGrid.set(1, 0, assetManager.getModel("res/models/world/dungeon_floor.blend"));
-	
+	// spawn player
 	this->player = spawnDefaultEntity(glm::vec3(0.0f));
 	registry.assign<CKeyboardControllable>(this->player, 0.003f);
 	registry.assign_or_replace<CBillboard>(this->player,
@@ -65,7 +38,27 @@ entt::entity World::getNearestEntity(glm::vec3 posNear) {
 }
 
 entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
-	return spawnEntity(registry, pos);
+	static Random rand;
+	
+	glm::vec3 rdir = glm::normalize(glm::vec3(
+		rand() * 2.0f - 1.0f, 0.01f,
+		rand() * 2.0f - 1.0f)) * 0.0025f;
+	
+	glm::vec2 rsize(rand() * 0.02f + 0.065f, rand() * 0.04f + 0.07f);
+	
+	glm::vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
+	
+	auto entity = registry.create();
+	registry.assign<CPosition>(entity, pos);
+	registry.assign<CVelocity>(entity, rdir);
+	registry.assign<CBillboard>(entity, rsize, rcol);
+	registry.assign<CGravity>(entity);
+	registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
+	registry.assign<CJumpTimer>(entity, 0);
+	if (registry.valid(this->player)) {
+		registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
+	}
+	return entity;
 }
 
 void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {	
@@ -79,9 +72,6 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 }
 
 void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
-	//drawFloor(uView, uProjection);
-	
-	// render systems
 	static bool renderInstanced = true;
 	if (ImGui::Begin("render")) {
 		ImGui::Checkbox("instancing", &renderInstanced);
@@ -90,17 +80,8 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	}
 	ImGui::End();
 	
-	// draw worlds
-	tileGridShader["uView"] = uView;
-	tileGridShader["uProj"] = uProjection;
-	tileGrid.each([this](int x, int y, Model *model) {
-		tileGridShader["uModel"] = glm::translate(
-							glm::rotate(
-								glm::mat4(1.0f),
-							glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-							glm::vec3(x * 2.0f, 0.0f, y * 2.0f));
-		model->draw(tileGridShader);
-	});
+	// render systems
+	drawFloor(uView, uProjection);
 	
 	// draw billboards
 	billboardSystem.depthSort(registry, camPos);
@@ -117,59 +98,32 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 ///////////////
 
 void World::setupFloor() {
-	// loads the floor shader
-	floorShader.load("res/glsl/world/floor_vert.glsl", sgl::shader::VERTEX);
-	floorShader.load("res/glsl/world/floor_frag.glsl", sgl::shader::FRAGMENT);
-	floorShader.compile();
-	floorShader.link();
+	tileGridShader.load("res/glsl/proto/simpleMesh_vert.glsl", sgl::shader::VERTEX);
+	tileGridShader.load("res/glsl/proto/simpleMesh_frag.glsl", sgl::shader::FRAGMENT);
+	tileGridShader.compile();
+	tileGridShader.link();
 	
-	// prepare floor mesh
-	GLfloat vertices[] = {
-		-0.5f, 0.0f, -0.5f,
-		 0.5f, 0.0f, -0.5f,
-		-0.5f, 0.0f,  0.5f,
-		 0.5f, 0.0f,  0.5f
-	};
-	GLuint indices[] = {
-		0, 1, 2,
-		2, 1, 3
-	};
-	
-	glGenVertexArrays(1, &floorVAO);
-	glGenBuffers(1, &floorVBO);
-	glGenBuffers(1, &floorEBO);
-	
-	glBindVertexArray(floorVAO);
-	// vbo
-	glBindBuffer(GL_ARRAY_BUFFER, floorVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
-		glEnableVertexAttribArray(0);
-	// ebo
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, floorEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	
-	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	tileGrid.set(0, 0, assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"));
+	tileGrid.set(1, 0, assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"));
+	tileGrid.set(1, 1, assetManager.getModel("res/models/world/dungeon_floor.blend"));
 	
 }
 
 void World::destroyFloor() {
-	glDeleteVertexArrays(1, &floorVAO);
-	glDeleteBuffers(1, &floorVBO);
-	glDeleteBuffers(1, &floorEBO);
-	floorShader.unload();
+	
 }
 
 void World::drawFloor(glm::mat4 &uView, glm::mat4 &uProjection) {
-	floorShader["uColor"] = glm::vec3(0.9f, 0.66f, 0.63f);
-	floorShader["uModel"] = glm::scale(glm::mat4(1.0f), glm::vec3(4.0f));
-	floorShader["uView"] = uView;
-	floorShader["uProjection"] = uProjection;
+	// draw worlds
+	tileGridShader["uView"] = uView;
+	tileGridShader["uProj"] = uProjection;
+	tileGrid.each([this](int x, int y, Model *model) {
+		glm::mat4 uModel = glm::mat4(1.0f);
+		uModel = glm::translate(uModel, glm::vec3(x * 2.0f, 0.0f, y * 2.0f));
+		uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		
+		tileGridShader["uModel"] = uModel;
+		model->draw(tileGridShader);
+	});
 	
-	floorShader.use();
-	glBindVertexArray(floorVAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
 }
