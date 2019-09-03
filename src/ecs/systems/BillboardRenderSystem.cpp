@@ -11,33 +11,7 @@ BillboardRenderSystem::~BillboardRenderSystem() {
 	glDeleteBuffers(1, &instanceBuffer);
 }
 
-void BillboardRenderSystem::draw(entt::registry &registry,
-	glm::mat4 &uView, glm::mat4 &uProjection) {
-	
-	static glm::vec3 zero(0.0f);
-	glm::vec3 *renderTarget;
-	static bool checked = false;
-	if (ImGui::Begin("bbRenderSystem")) {
-		ImGui::Text("DrawMode: default");
-		ImGui::Checkbox("Flat billboards?", &checked);
-	}
-	if (checked) {
-		renderTarget = &zero;
-	} else {
-		renderTarget = nullptr;
-	}
-	ImGui::End();
-	
-	
-	registry.view<CPosition, CBillboard>().each(
-		[this, &uView, &uProjection, renderTarget](auto entity, auto &pos, auto &bb) {
-		
-		this->billboardRO.draw(uView, uProjection, pos.pos, bb.size, bb.color, renderTarget);
-	});
-}
-
 void BillboardRenderSystem::depthSort(entt::registry &registry, glm::vec3 camPos) {
-	
 	registry.sort<CPosition>([camPos](const auto &lhs, const auto &rhs) {
 		float l1 = glm::length2(camPos - lhs.pos);
 		float l2 = glm::length2(camPos - rhs.pos);
@@ -50,35 +24,22 @@ void BillboardRenderSystem::depthSort(entt::registry &registry, glm::vec3 camPos
 void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glm::mat4 &uView, glm::mat4 &uProjection) {
 	
-	static glm::vec3 zero(0.0f);
-	glm::vec3 *renderTarget;
-	static bool checked = false;
-	
-	if (ImGui::Begin("bbRenderSystem")) {
-		ImGui::Text("DrawMode: instanced");
-		ImGui::Checkbox("Flat billboards?", &checked);
-		ImGui::Text("#entities: %d / %d", aInstanceModels.size(), lastMaxInstanceCount);
-	}
-	if (checked) {
-		renderTarget = &zero;
-	} else {
-		renderTarget = nullptr;
-	}
-	ImGui::End();
-	
+	#if CFG_IMGUI_ENABLED
+		if (ImGui::Begin("bbRenderSystem")) {
+			ImGui::Text("DrawMode: instanced");
+			ImGui::Text("#entities: %zu / %d", aInstanceModels.size(), lastMaxInstanceCount);
+		}
+		ImGui::End();
+	#endif
+
 	// collect model matrices
 	aInstanceModels.clear();
 	aInstanceColors.clear();
 	
 	registry.view<CPosition, CBillboard>().each(
-		[this, &uView, &uProjection, renderTarget](auto entity, auto &pos, auto &bb) {
-		
-		glm::vec3 rt;
-		if (!renderTarget)
-			rt = pos.pos;
-		else rt = *renderTarget;
-		
-		this->aInstanceModels.push_back(billboardRO.calcModelMatrix(uView, pos.pos, rt, bb.size));
+		[this, &uView](auto entity, auto &pos, auto &bb) {
+
+		this->aInstanceModels.push_back(billboardRO.calcModelMatrix(uView, pos.pos, bb.size));
 		this->aInstanceColors.push_back(bb.color);
 	});
 	
@@ -93,7 +54,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	shader["uProjection"] = uProjection;
 	
 	// resize instance data buffer
-	if (aInstanceModels.size() > lastMaxInstanceCount || lastMaxInstanceCount < 0) {
+	if (aInstanceModels.size() > (size_t)lastMaxInstanceCount || lastMaxInstanceCount < 0) {
 		lastMaxInstanceCount = aInstanceModels.size();
 		
 		glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
@@ -103,7 +64,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			nullptr, GL_DYNAMIC_DRAW);
 		
 		#if CFG_DEBUG
-		printf("new buffer data\n");
+			printf("[LOG] BillboardRenderSystem: new buffer data.\n");
 		#endif
 	}
 	
@@ -142,14 +103,12 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glActiveTexture(GL_TEXTURE0);
 	billboardRO.getTexture().bind();
 	glActiveTexture(GL_TEXTURE1);
-	testtex.bind();
 	
 	// draw
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, aInstanceModels.size());
 	
 	// cleanup
 	glBindVertexArray(0);
-	testtex.unbind();
 	billboardRO.getTexture().unbind();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

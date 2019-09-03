@@ -85,23 +85,22 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 }
 
 void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
-	static bool renderInstanced = true;
-	if (ImGui::Begin("render")) {
-		ImGui::Checkbox("instancing", &renderInstanced);
-		if (ImGui::Button("Reset"))
-			registry.reset();
-	}
-	ImGui::End();
+	#if CFG_IMGUI_ENABLED
+		static bool renderInstanced = true;
+		if (ImGui::Begin("render")) {
+			ImGui::Checkbox("instancing", &renderInstanced);
+			if (ImGui::Button("Reset"))
+				registry.reset();
+		}
+		ImGui::End();
+	#endif
 	
 	// render systems
 	drawFloor(uView, uProjection);
 	
 	// draw billboards
 	billboardSystem.depthSort(registry, camPos);
-	if (renderInstanced)
-		billboardSystem.drawInstanced(registry, uView, uProjection);
-	else
-		billboardSystem.draw(registry, uView, uProjection);
+	billboardSystem.drawInstanced(registry, uView, uProjection);
 	
 }
 
@@ -140,7 +139,7 @@ void World::drawFloor(glm::mat4 &uView, glm::mat4 &uProjection) {
 	});
 	
 	// imgui tilegrid window
-	#ifdef CFG_IMGUI_ENABLED
+	#if CFG_IMGUI_ENABLED
 		using namespace ImGui;
 		static int worldpos[2] = {0};
 		static char modelpath[128] = "dungeon_floor";

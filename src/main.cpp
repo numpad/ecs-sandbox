@@ -71,37 +71,37 @@ void APIENTRY glDebugOutput(GLenum source,
     std::cout << std::endl;
 }
 
-void imguiInit(GLFWwindow *window) {
+inline void imguiInit(GLFWwindow *window) {
 	#if CFG_IMGUI_ENABLED
-	// init imgui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	ImGui::StyleColorsLight();
-	// imgui glfw init
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 450");
+		// init imgui
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO &io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		ImGui::StyleColorsLight();
+		// imgui glfw init
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 450");
 	#endif
 }
-void imguiBeforeFrame() {
+inline void imguiBeforeFrame() {
 	#if CFG_IMGUI_ENABLED
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
 	#endif
 }
-void imguiRender() {
+inline void imguiRender() {
 	#if CFG_IMGUI_ENABLED
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	#endif
 }
-void imguiDestroy() {
+inline void imguiDestroy() {
 	#if CFG_IMGUI_ENABLED
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 	#endif
 }
 
@@ -119,7 +119,7 @@ bool initGL() {
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_SAMPLES, 4);
 	
@@ -390,10 +390,12 @@ int main(int, char**) {
 			msLastTime += 1.0;
 		}
 		
-		if (ImGui::Begin("performance")) {
-			ImGui::Text("%g ms / frame", msPerFrame);
-		}
-		ImGui::End();
+		#if CFG_IMGUI_ENABLED
+			if (ImGui::Begin("performance")) {
+				ImGui::Text("%g ms / frame", msPerFrame);
+			}
+			ImGui::End();
+		#endif
 		
 		// input
 		double mouseX, mouseY;
@@ -429,45 +431,46 @@ int main(int, char**) {
 		glClearColor(0.231f + bgoffr, 0.275f + bgoff, 0.302f + bgoff, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		if (ImGui::Begin("world")) {
-			static glm::vec3 pos(0.0f, 0.2f, 0.0f);
-			static int amount = 50;
-			static float spawnvel = 0.012f;
-			static Random rng(-1.0f, 1.0f);
-			ImGui::SliderFloat3("spawnpoint", &pos[0], -0.5f, 0.5f);
-			ImGui::SliderInt("amount", &amount, 1, 500);
-			ImGui::SliderFloat("velocity", &spawnvel, 0.0f, 0.2f);
-			if (ImGui::Button("Spawn")) {
-				for (int i = 0; i < amount; ++i) {
-					entt::entity e = world.spawnDefaultEntity(pos);
-					auto &vel = world.getRegistry().get<CVelocity>(e);
-					vel.vel.x = rng();
-					vel.vel.y = rng();
-					vel.vel.z = rng();
-					vel.vel = glm::normalize(vel.vel) * spawnvel;
+		#if CFG_IMGUI_ENABLED
+			if (ImGui::Begin("world")) {
+				static glm::vec3 pos(0.0f, 0.2f, 0.0f);
+				static int amount = 50;
+				static float spawnvel = 0.012f;
+				static Random rng(-1.0f, 1.0f);
+				ImGui::SliderFloat3("spawnpoint", &pos[0], -0.5f, 0.5f);
+				ImGui::SliderInt("amount", &amount, 1, 500);
+				ImGui::SliderFloat("velocity", &spawnvel, 0.0f, 0.2f);
+				if (ImGui::Button("Spawn")) {
+					for (int i = 0; i < amount; ++i) {
+						entt::entity e = world.spawnDefaultEntity(pos);
+						auto &vel = world.getRegistry().get<CVelocity>(e);
+						vel.vel.x = rng();
+						vel.vel.y = rng();
+						vel.vel.z = rng();
+						vel.vel = glm::normalize(vel.vel) * spawnvel;
+					}
 				}
+				ImGui::Separator();
+				
+				auto gmp = m3d::raycastPlaneXZ(campos, glm::normalize(camtarget - campos),
+					glm::vec2((float)mouseX, (float)mouseY),
+					glm::vec2(1.0f * screenX, 1.0f * screenY), 0.0f);
+				ImGui::Text("mouse: (%g, %g, %g)", gmp.x, gmp.y, gmp.z);
+				
+				static bool pickingMode = false;
+				ImGui::Checkbox("entity picker", &pickingMode);
+				static entt::entity selected = entt::null;
+				if (pickingMode && glfwGetMouseButton(window, 0) == GLFW_PRESS) {
+					selected = world.getNearestEntity(gmp);	
+					pickingMode = false;
+				}
+				
+				// entity editor
+				imguiEntityEdit(world.getRegistry(), selected);
 			}
-			ImGui::Separator();
-			
-			auto gmp = m3d::raycastPlaneXZ(campos, glm::normalize(camtarget - campos),
-				glm::vec2((float)mouseX, (float)mouseY),
-				glm::vec2(1.0f * screenX, 1.0f * screenY), 0.0f);
-			ImGui::Text("mouse: (%g, %g, %g)", gmp.x, gmp.y, gmp.z);
-			
-			static bool pickingMode = false;
-			ImGui::Checkbox("entity picker", &pickingMode);
-			static entt::entity selected = entt::null;
-			if (pickingMode && glfwGetMouseButton(window, 0) == GLFW_PRESS) {
-				selected = world.getNearestEntity(gmp);	
-				pickingMode = false;
-			}
-			
-			// entity editor
-			imguiEntityEdit(world.getRegistry(), selected);
-		}
-		ImGui::End();
-		
-		imguiEntitySpawn(world.getRegistry());
+			ImGui::End();
+			imguiEntitySpawn(world.getRegistry());
+		#endif
 		
 		world.update(campos, glm::normalize(campos - camtarget));
 		world.draw(campos, uView, uProj);
