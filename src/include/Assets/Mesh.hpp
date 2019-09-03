@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <Assets/Vertex.hpp>
 #include <GL/gl3w.h>
+#include <GLFW/glfw3.h>
 #include <util/sgl_shader.hpp>
 #include <Assets/Texture.hpp>
 

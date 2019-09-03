@@ -23,6 +23,7 @@
 #include <Assets/AssetManager.hpp>
 #include <Assets/Texture.hpp>
 #include <Assets/Mesh.hpp>
+#include <Assets/Model.hpp>
 
 class World {
 public:
@@ -59,6 +60,7 @@ private:
 	// entities
 	entt::entity player = entt::null;
 	entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos);
+	entt::entity spawnPlayer(glm::vec3 pos = glm::vec3(0.0f, 0.2f, 0.0f));
 	
 	// systems
 	GravitySystem gravitySystem = GravitySystem(0.000981f);

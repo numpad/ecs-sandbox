@@ -1,19 +1,23 @@
 #include <ecs/systems/GravitySystem.hpp>
 
+static inline int tilePosRound(float v) {
+	return (v < 0.0f) ? (int)floor(floor(v) * 0.5f + 0.5f) : int(((float)int(v)) * 0.5f + 0.5f);
+}
+
 GravitySystem::GravitySystem(float gravity)
 	: gravity(gravity)
 {
 }
 
-void GravitySystem::update(entt::registry &registry) {
-	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry](auto entity, auto &pos, auto &vel, auto &gravity) {
-		constexpr float dd = 1.05f;
-		if (pos.pos.x < -dd || pos.pos.x > dd || pos.pos.z < -dd || pos.pos.z > dd || pos.pos.y > 0.0f)
+void GravitySystem::update(entt::registry &registry, const Grid2D<Model> &tileGrid) {
+	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry, &tileGrid](auto entity, auto &pos, auto &vel, auto &gravity) {
+			
+		if (tileGrid.at(tilePosRound(pos.pos.x), tilePosRound(pos.pos.z)) == nullptr || pos.pos.y > 0.0f)
 			vel.vel.y -= this->gravity;
 		else if (pos.pos.y <= 0.0f) {
 			pos.pos.y = 0.0f;
 			if (vel.vel.y < 0.0f) {
-				vel.vel.y = (-0.35f);
+				vel.vel.y = 0.0f;
 				if (abs(vel.vel.y) < 0.00001f) vel.vel.y = 0.0f;
 			}
 			

@@ -405,7 +405,7 @@ int main(int, char**) {
 	
 		// orbit camera calculations
 		static glm::vec3 camtarget(0.0f);
-		const float camToTargetSpeed = 0.09f;
+		const float camToTargetSpeed = 0.08f;
 		// ease camera to player or origin
 		glm::vec3 targetPos;
 		if (world.getPlayer() != entt::null && world.getRegistry().has<CPosition>(world.getPlayer())) {
@@ -414,7 +414,7 @@ int main(int, char**) {
 		glm::vec3 toTarget = (targetPos - camtarget) * camToTargetSpeed;
 		camtarget += toTarget;
 		
-		glm::vec3 campos = calcCamPos(window);
+		glm::vec3 campos = targetPos + calcCamPos(window);
 		glm::mat4 uView = glm::lookAt(campos,
 			camtarget, glm::vec3(0.0f, 0.5f, 0.0f));
 		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),

@@ -1,14 +1,16 @@
 #pragma once
 
+#include <Assets/Model.hpp>
 #include <entt/entt.hpp>
 #include <ecs/components.hpp>
+#include <Grid2D.hpp>
 
 class GravitySystem {
 public:
 	
 	GravitySystem(float gravity);
 	
-	void update(entt::registry &registry);
+	void update(entt::registry &registry, const Grid2D<Model> &tileGrid);
 	
 private:
 	float gravity;

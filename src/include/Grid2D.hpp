@@ -13,7 +13,7 @@ public:
 	Grid2D(const Grid2D &copy) = delete;
 	~Grid2D() = default;
 	
-	T *at(int x, int y) {
+	T *at(int x, int y) const {
 		
 		auto res = cells.find(std::make_pair(x, y));
 		if (res == cells.end()) return nullptr;

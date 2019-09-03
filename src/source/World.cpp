@@ -8,11 +8,7 @@ World::World()
 	setupFloor();
 	
 	// spawn player
-	this->player = spawnDefaultEntity(glm::vec3(0.0f));
-	registry.assign<CKeyboardControllable>(this->player, 0.003f);
-	registry.assign_or_replace<CBillboard>(this->player,
-		glm::vec2(0.12f, 0.14f), glm::vec3(0.961f, 0.8f, 0.545f));
-	registry.remove<CJumpTimer>(this->player);
+	spawnPlayer();
 }
 
 World::~World() {
@@ -61,14 +57,31 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 	return entity;
 }
 
+entt::entity World::spawnPlayer(glm::vec3 pos) {
+	this->player = spawnDefaultEntity(pos);
+	registry.assign<CKeyboardControllable>(this->player, 0.003f);
+	registry.assign_or_replace<CBillboard>(this->player,
+		glm::vec2(0.12f, 0.14f), glm::vec3(0.961f, 0.8f, 0.545f));
+	registry.remove<CJumpTimer>(this->player);
+	
+	return this->player;
+}
+
 void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {	
-	gravitySystem.update(registry);
+	gravitySystem.update(registry, tileGrid);
 	popcorn.update(registry);
 	wayfindSystem.update(registry);
 	charControllerSystem.update(registry, viewPos, viewDir);
 	pressawaySystem.update(registry);
 	//billboardOrient.update(registry, ...);
 	posUpdate.update(registry);
+	
+	#if CFG_DEBUG
+		if (!registry.valid(player)) {
+			spawnPlayer();
+			printf("[LOG] World: respawned player because debug is enabled.\n");
+		}
+	#endif
 }
 
 void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
@@ -125,5 +138,21 @@ void World::drawFloor(glm::mat4 &uView, glm::mat4 &uProjection) {
 		tileGridShader["uModel"] = uModel;
 		model->draw(tileGridShader);
 	});
+	
+	// imgui tilegrid window
+	#ifdef CFG_IMGUI_ENABLED
+		using namespace ImGui;
+		static int worldpos[2] = {0};
+		static char modelpath[128] = "dungeon_floor";
+		if (Begin("tilegrid")) {
+			InputInt2("tile pos", worldpos);
+			InputText("model", modelpath, 128);
+			if (Button("Add Tile")) {
+				tileGrid.set(worldpos[0], worldpos[1],
+					assetManager.getModel("res/models/world/" + std::string(modelpath) + ".blend"));
+			}
+		}
+		End();
+	#endif
 	
 }
