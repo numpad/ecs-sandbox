@@ -1,34 +1,32 @@
 #include <Util/Math3d.hpp>
 
+using namespace glm;
+
 namespace m3d {
 
-	glm::vec3 raycastPlaneXZ(glm::vec3 pos_world, glm::vec3 lookdir,
-		glm::vec2 screenpos_pixel, glm::vec2 screensize_pixel,
-		float plane_y_world)
-	{
-		lookdir = glm::normalize(lookdir);
-		
-		glm::vec3 up(0.0f, 1.0f, 0.0f);
-		glm::vec3 right = glm::cross(lookdir, up);
-		glm::vec3 forward = glm::cross(right, up);
-		glm::vec3 upwards = glm::cross(lookdir, right);
-		glm::vec2 screenpos = (screenpos_pixel / screensize_pixel) * 2.0f - 1.0f;
-		
-		pos_world += right * screenpos.x;
-		pos_world += upwards * screenpos.y;
-		
-		float dist = ((plane_y_world - pos_world.y) / lookdir.y);
-		glm::vec3 collision = pos_world + lookdir * dist;
-		// (x, 0, z) = (0.5, 2, 0) + d * (0, -1, 1)
-		//     0     =       2 +    d *     (-1)     | -2
-		//    -2     =              d *     (-1)     | / (-1)
-		// -2 / -1 = d
-		return collision;
-	}
-	
-	glm::vec3 randomizeVec3(glm::vec3 v, float change) {
+	vec3 randomizeVec3(vec3 v, float change) {
 		static Random rand(-1.0f, 1.0f);
-		return v + glm::vec3(rand(), rand(), rand()) * change;
+		return v + vec3(rand(), rand(), rand()) * change;
 	}
 	
+	vec3 mouseToCameraRay(const mat4 &uProjection,
+		const mat4 &uView, const vec2 ndcPoint)
+	{
+		using namespace glm;
+		
+		vec4 rayClip = vec4(ndcPoint.x, -ndcPoint.y, -1.0f, 1.0f);
+		
+		vec4 rayView = inverse(uProjection) * rayClip;
+		rayView = vec4(rayView.x, rayView.y, -1.0f, 0.0f);
+		
+		vec3 rayWorld = vec3(inverse(uView) * rayView);
+		rayWorld = normalize(rayWorld);
+		
+		return rayWorld;
+	}
+	
+	vec3 raycast(ray ray, plane plane) {
+		float t = -(dot(ray.origin, plane.normal) + plane.dist) / dot(ray.dir, plane.normal);
+		return ray.origin + ray.dir * t;
+	}
 }

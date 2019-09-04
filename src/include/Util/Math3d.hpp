@@ -3,11 +3,34 @@
 #include <glm/glm.hpp>
 #include <Util/Random.hpp>
 
+using namespace glm;
+
+// types
 namespace m3d {
 	
-	glm::vec3 raycastPlaneXZ(glm::vec3 pos_world, glm::vec3 lookdir,
-		glm::vec2 screenpos_pixel, glm::vec2 screensize_pixel,
-		float plane_y_world);
+	struct ray {
+		vec3 origin;
+		vec3 dir;
+		
+		ray(vec3 o, vec3 d) : origin(o), dir(normalize(d)) {}
+	};
 	
-	glm::vec3 randomizeVec3(glm::vec3 v, float change);
+	struct plane {
+		vec3 normal;
+		float dist;
+		
+		plane(vec3 n, float d = 0.0f) : normal(normalize(n)), dist(d) {}
+	};
+		
+}
+
+
+// util functions
+namespace m3d {
+	vec3 randomizeVec3(vec3 v, float change);
+	
+	vec3 mouseToCameraRay(const mat4 &uProjection,
+		const mat4 &uView, const vec2 ndcPoint);
+	
+	vec3 raycast(ray r, plane p);
 }

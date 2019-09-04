@@ -198,9 +198,9 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 		cam_y = 2.75f;
 	
 	angle_vel *= 0.9f;
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		angle_vel += angle_acc;
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		angle_vel -= angle_acc;
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 		cam_dist -= 0.1f;
@@ -404,7 +404,9 @@ int main(int, char**) {
 		glfwGetWindowSize(window, &screenX, &screenY);
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, true);
-	
+		glm::vec2 normalizedMouse = glm::vec2(mouseX / (float)screenX,
+			mouseY / (float)screenY) * 2.0f - 1.0f;
+		
 		// orbit camera calculations
 		static glm::vec3 camtarget(0.0f);
 		const float camToTargetSpeed = 0.08f;
@@ -422,14 +424,17 @@ int main(int, char**) {
 		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),
 			getWindowAspectRatio(window), 0.1f, 100.0f);
 		
-		// rendering
-		static FastNoise noise;
-		noise.SetNoiseType(FastNoise::Perlin);
+		// calculate player aim
+		auto worldCrosshair = world.getCrosshair();
+		auto &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;				
+		glm::vec3 mcRayDir = m3d::mouseToCameraRay(uProj, uView, normalizedMouse);
+		m3d::ray mcRay(campos, mcRayDir);
+		m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
+		crosspos = m3d::raycast(mcRay, mcFloor);
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+			world.spawnDefaultEntity(crosspos);
+		}
 		
-		float bgoff = noise.GetNoise(glfwGetTime() * 80.0f, 0.0f) * 0.03f;
-		float bgoffr = (noise.GetNoise(glfwGetTime() * 90.0f, 0.8f) * 0.5f + 0.5f) * 0.04f;
-		glClearColor(0.231f + bgoffr, 0.275f + bgoff, 0.302f + bgoff, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		#if CFG_IMGUI_ENABLED
 			if (ImGui::Begin("world")) {
@@ -452,19 +457,11 @@ int main(int, char**) {
 				}
 				ImGui::Separator();
 				
-				auto gmp = m3d::raycastPlaneXZ(campos, glm::normalize(camtarget - campos),
-					glm::vec2((float)mouseX, (float)mouseY),
-					glm::vec2(1.0f * screenX, 1.0f * screenY), 0.0f);
-				ImGui::Text("mouse: (%g, %g, %g)", gmp.x, gmp.y, gmp.z);
-				auto worldCrosshair = world.getCrosshair();
-				auto &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;
-				crosspos = gmp;
-				
 				static bool pickingMode = false;
 				ImGui::Checkbox("entity picker", &pickingMode);
 				static entt::entity selected = entt::null;
 				if (pickingMode && glfwGetMouseButton(window, 0) == GLFW_PRESS) {
-					selected = world.getNearestEntity(gmp);	
+					selected = world.getNearestEntity(crosspos);	
 					pickingMode = false;
 				}
 				
@@ -474,6 +471,10 @@ int main(int, char**) {
 			ImGui::End();
 			imguiEntitySpawn(world.getRegistry());
 		#endif
+		
+		// rendering
+		glClearColor(0.231f, 0.275f, 0.302f, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		world.update(campos, glm::normalize(campos - camtarget));
 		world.draw(campos, uView, uProj);
