@@ -9,3 +9,4 @@
 #include <ecs/components/CJumpTimer.hpp>
 #include <ecs/components/CKeyboardControllable.hpp>
 #include <ecs/components/CHealth.hpp>
+#include <ecs/components/CSpawnPoint.hpp>

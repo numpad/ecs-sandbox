@@ -198,13 +198,13 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 		cam_y = 2.75f;
 	
 	angle_vel *= 0.9f;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		angle_vel += angle_acc;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		angle_vel -= angle_acc;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 		cam_dist -= 0.1f;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		cam_dist += 0.1f;
 	angle += angle_vel;
 	if (cam_dist < 0.05f) cam_dist = 0.05f;
@@ -249,7 +249,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		glm::vec2 &size = registry.get<CBillboard>(entity).size;
 		glm::vec3 &color = registry.get<CBillboard>(entity).color;
 		DragFloat2("size", &size[0], 0.001f);
-		ColorPicker3("tint", &color[0]);
+		ColorEdit3("tint", &color[0]);
 		SameLine();
 		if (Button("X##3")) {
 			registry.remove<CBillboard>(entity);
@@ -456,6 +456,9 @@ int main(int, char**) {
 					glm::vec2((float)mouseX, (float)mouseY),
 					glm::vec2(1.0f * screenX, 1.0f * screenY), 0.0f);
 				ImGui::Text("mouse: (%g, %g, %g)", gmp.x, gmp.y, gmp.z);
+				auto worldCrosshair = world.getCrosshair();
+				auto &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;
+				crosspos = gmp;
 				
 				static bool pickingMode = false;
 				ImGui::Checkbox("entity picker", &pickingMode);

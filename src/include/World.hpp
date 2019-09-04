@@ -50,6 +50,11 @@ public:
 			return player;
 		return entt::null;
 	}
+	inline entt::entity getCrosshair() const {
+		if (registry.valid(worldCrosshair))
+			return worldCrosshair;
+		return entt::null;
+	}
 private:
 	entt::registry registry;
 	
@@ -58,7 +63,9 @@ private:
 	sgl::shader tileGridShader;
 	
 	// entities
-	entt::entity player = entt::null;
+	entt::entity player = entt::null,
+		worldCrosshair = entt::null;
+	
 	entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos);
 	entt::entity spawnPlayer(glm::vec3 pos = glm::vec3(0.0f, 0.2f, 0.0f));
 	

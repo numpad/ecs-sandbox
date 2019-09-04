@@ -54,15 +54,22 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 	if (registry.valid(this->player)) {
 		registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
 	}
+	registry.assign<CSpawnPoint>(entity, glm::vec3(0.0f, 0.5f, 0.5f));
 	return entity;
 }
 
 entt::entity World::spawnPlayer(glm::vec3 pos) {
+	if (registry.valid(player))
+		registry.destroy(this->player);
+	
 	this->player = spawnDefaultEntity(pos);
 	registry.assign<CKeyboardControllable>(this->player, 0.003f);
 	registry.assign_or_replace<CBillboard>(this->player,
 		glm::vec2(0.12f, 0.14f), glm::vec3(0.961f, 0.8f, 0.545f));
+	
 	registry.remove<CJumpTimer>(this->player);
+	
+	registry.assign_or_replace<CSpawnPoint>(this->player, glm::vec3(0.0f, 0.5f, 0.0f));
 	
 	return this->player;
 }
@@ -118,6 +125,11 @@ void World::setupFloor() {
 	tileGrid.set(0, 0, assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"));
 	tileGrid.set(1, 0, assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"));
 	tileGrid.set(1, 1, assetManager.getModel("res/models/world/dungeon_floor.blend"));
+	
+	// world pos crosshair
+	worldCrosshair = registry.create();
+	registry.assign<CPosition>(worldCrosshair, glm::vec3(0.0f));
+	registry.assign<CBillboard>(worldCrosshair, glm::vec2(0.03f, 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
 }
 

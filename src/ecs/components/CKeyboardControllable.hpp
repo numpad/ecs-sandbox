@@ -3,10 +3,10 @@
 #include <GLFW/glfw3.h>
 
 struct CKeyboardControllable {
-	int up = GLFW_KEY_UP,
-	    down = GLFW_KEY_DOWN,
-	    left = GLFW_KEY_LEFT,
-	    right = GLFW_KEY_RIGHT,
+	int up = GLFW_KEY_W,
+	    down = GLFW_KEY_S,
+	    left = GLFW_KEY_A,
+	    right = GLFW_KEY_D,
 	    jump = GLFW_KEY_SPACE;
 	
 	float speed = 0.01f;
