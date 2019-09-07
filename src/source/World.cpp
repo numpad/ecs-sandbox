@@ -20,13 +20,15 @@ entt::entity World::getNearestEntity(glm::vec3 posNear) {
 	entt::entity nearest = entt::null;
 	
 	registry.view<CPosition>().each([this, &nearest, posNear](auto entity, auto &pos) {
-		if (nearest == entt::null) {
-			nearest = entity;
-			return;
-		}
-		
-		if (glm::distance(posNear, pos.pos) < glm::distance(posNear, this->registry.get<CPosition>(nearest).pos)) {
-			nearest = entity;
+		if (entity != this->worldCrosshair) {
+			if (nearest == entt::null) {
+				nearest = entity;
+				return;
+			}
+			
+			if (glm::distance(posNear, pos.pos) < glm::distance(posNear, this->registry.get<CPosition>(nearest).pos)) {
+				nearest = entity;
+			}
 		}
 	});
 	
@@ -54,7 +56,6 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 	if (registry.valid(this->player)) {
 		registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
 	}
-	registry.assign<CSpawnPoint>(entity, glm::vec3(0.0f, 0.5f, 0.5f));
 	return entity;
 }
 
@@ -93,9 +94,7 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 
 void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	#if CFG_IMGUI_ENABLED
-		static bool renderInstanced = true;
 		if (ImGui::Begin("render")) {
-			ImGui::Checkbox("instancing", &renderInstanced);
 			if (ImGui::Button("Reset"))
 				registry.reset();
 		}
@@ -106,7 +105,15 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	drawFloor(uView, uProjection);
 	
 	// draw billboards
-	billboardSystem.depthSort(registry, camPos);
+	
+	// sort only every N ticks
+	const int maxTicksUntilSort = 60;
+	static int ticksSinceLastSort = 0;
+	if (++ticksSinceLastSort > maxTicksUntilSort) {
+		billboardSystem.depthSort(registry, camPos);
+		ticksSinceLastSort = 0;
+	}
+	
 	billboardSystem.drawInstanced(registry, uView, uProjection);
 	
 }

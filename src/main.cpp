@@ -275,7 +275,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	}
 }
 
-void imguiEntitySpawn(entt::registry &registry) {
+void imguiEntitySpawn(entt::registry &registry, bool spawn, glm::vec3 atpos) {
 	using namespace ImGui;
 	
 	static glm::vec3 pos(0.0f);
@@ -286,9 +286,10 @@ void imguiEntitySpawn(entt::registry &registry) {
 	static glm::vec3 rttpos(0.0f);
 	static float pressrad = 0.01f, pressforce = 0.01f;
 	static float keycontrolspeed = 0.0015f;
+	static glm::vec3 spawnpoint(0.0f);
+	
 	static int spawnamount = 1;
-	static float spawnposoff = 0.05f,
-				 spawnveloff = 0.02f;
+	static float spawnveloff = 0.02f;
 	
 	static bool haspos = false,
 				hasvel = false,
@@ -296,7 +297,9 @@ void imguiEntitySpawn(entt::registry &registry) {
 				hasbb = false,
 				hasruntt = false,
 				haspresser = false,
-				haskeyboard = false;
+				haskeyboard = false,
+				hasspawn = false,
+				hasjumper = false;
 	
 	if (Begin("spawn entity")) {
 		Checkbox("CPosition", &haspos);
@@ -306,30 +309,42 @@ void imguiEntitySpawn(entt::registry &registry) {
 		Checkbox("CRunToTarget", &hasruntt);
 		Checkbox("CSphereCollider", &haspresser);
 		Checkbox("CKeyboardController", &haskeyboard);
+		Checkbox("CSpawnPoint", &hasspawn);
+		Checkbox("CJumpTimer", &hasjumper);
 		
-		if (haspos) DragFloat3("position", &pos[0], 0.001f);
-		if (hasvel) SliderFloat3("velocity", &vel[0], -0.1f, 0.1f);
+		if (haspos) DragFloat3("CPosition", &pos[0], 0.001f);
+		if (hasvel) DragFloat3("CVelocity", &vel[0], 0.001f);
 		if (hasgrav) Text("Gravity: enabled");
 		if (hasbb) {
-			SliderFloat2("bb size", &bbsize[0], 0.001f, 0.1f);
-			ColorEdit3("bb color", &bbcolor[0]);
+			Text("Billboard:");
+			DragFloat2("Size", &bbsize[0], 0.001f);
+			ColorEdit3("Color", &bbcolor[0]);
 		}
 		if (hasruntt) {
-			DragFloat3("rtt target", &rttpos[0], 0.001f);
-			SliderFloat("rtt speed", &rttforce, 0.0f, 0.01f);
+			Text("RunToTarget:");
+			DragFloat3("Position", &rttpos[0], 0.001f);
+			SliderFloat("Speed", &rttforce, 0.0f, 0.01f);
 		}
 		if (haspresser) {
-			DragFloat("press radius", &pressrad, 0.0f, 0.1f);
-			DragFloat("press force", &pressforce, 0.0f, 0.05f);
+			Text("SphereCollider:");
+			DragFloat("Radius", &pressrad, 0.0f, 0.1f);
+			DragFloat("Force", &pressforce, 0.0f, 0.05f);
 		}
 		if (haskeyboard) {
 			DragFloat("control speed", &keycontrolspeed, 0.0005f, 0.0035f);
 		}
-		if (Button("Spawn")) {
+		if (hasspawn) {
+			DragFloat3("SpawnPoint", &spawnpoint[0], 0.001f);
+		}
+		if (hasjumper) {
+			
+		}
+		
+		// do spawning
+		if (spawn) {
 			for (int i = 0; i < spawnamount; ++i) {
 				auto entity = registry.create();
-				if (haspos) registry.assign<CPosition>(entity,
-					m3d::randomizeVec3(pos, spawnposoff));
+				if (haspos) registry.assign<CPosition>(entity, atpos);
 				if (hasvel) registry.assign<CVelocity>(entity,
 					m3d::randomizeVec3(vel, spawnveloff));
 				if (hasgrav) registry.assign<CGravity>(entity);
@@ -337,13 +352,12 @@ void imguiEntitySpawn(entt::registry &registry) {
 				if (hasruntt) registry.assign<CRunningToTarget>(entity, rttpos, rttforce);
 				if (haspresser) registry.assign<CSphereCollider>(entity, pressrad, pressforce);
 				if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
+				if (hasjumper) registry.assign<CJumpTimer>(entity);
 			}
 		}
-		SameLine();
+		Separator();
 		SliderInt("Amount", &spawnamount, 1, 50);
-		SliderFloat("Position Offset", &spawnposoff, 0.0f, 0.5f);
-		SliderFloat("Velocity Offset", &spawnveloff, 0.0f, 0.3f);
-		
+		SliderFloat("Velocity", &spawnveloff, 0.0f, 0.05f);
 	}
 	End();
 }
@@ -392,7 +406,12 @@ int main(int, char**) {
 		
 		#if CFG_IMGUI_ENABLED
 			if (ImGui::Begin("performance")) {
+				static bool vsync = true;
 				ImGui::Text("%g ms / frame", msPerFrame);
+				if (ImGui::Checkbox("V-Sync", &vsync)) {
+					glfwSwapInterval(vsync ? 1 : 0);
+				}
+				
 			}
 			ImGui::End();
 		#endif
@@ -426,14 +445,14 @@ int main(int, char**) {
 		
 		// calculate player aim
 		auto worldCrosshair = world.getCrosshair();
+		if (!world.getRegistry().valid(worldCrosshair))
+			printf("[ERR] main: World crosshair not valid, may segfault.\n");
 		auto &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;				
 		glm::vec3 mcRayDir = m3d::mouseToCameraRay(uProj, uView, normalizedMouse);
 		m3d::ray mcRay(campos, mcRayDir);
 		m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
 		crosspos = m3d::raycast(mcRay, mcFloor);
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-			world.spawnDefaultEntity(crosspos);
-		}
+		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 		
 		
 		#if CFG_IMGUI_ENABLED
@@ -460,7 +479,7 @@ int main(int, char**) {
 				static bool pickingMode = false;
 				ImGui::Checkbox("entity picker", &pickingMode);
 				static entt::entity selected = entt::null;
-				if (pickingMode && glfwGetMouseButton(window, 0) == GLFW_PRESS) {
+				if (pickingMode && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 					selected = world.getNearestEntity(crosspos);	
 					pickingMode = false;
 				}
@@ -469,7 +488,7 @@ int main(int, char**) {
 				imguiEntityEdit(world.getRegistry(), selected);
 			}
 			ImGui::End();
-			imguiEntitySpawn(world.getRegistry());
+			imguiEntitySpawn(world.getRegistry(), mouseRightDown, crosspos);
 		#endif
 		
 		// rendering

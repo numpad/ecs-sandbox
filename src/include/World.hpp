@@ -55,6 +55,7 @@ public:
 			return worldCrosshair;
 		return entt::null;
 	}
+	
 private:
 	entt::registry registry;
 	
