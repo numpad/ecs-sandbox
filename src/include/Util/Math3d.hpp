@@ -32,5 +32,15 @@ namespace m3d {
 	vec3 mouseToCameraRay(const mat4 &uProjection,
 		const mat4 &uView, const vec2 ndcPoint);
 	
+	// cast a ray onto a plane
 	vec3 raycast(ray r, plane p);
+	
+
+	
+	int solve_ballistic_arc(glm::vec3 proj_pos, float proj_speed, glm::vec3 target, float gravity, glm::vec3 &s0, glm::vec3 &s1);
+	 
+	float ballistic_range(float speed, float gravity, float initial_height);
+	
+	bool solve_ballistic_arc_lateral(glm::vec3 proj_pos, float lateral_speed, glm::vec3 target_pos, float max_height, glm::vec3 &fire_velocity, float &gravity);
+
 }

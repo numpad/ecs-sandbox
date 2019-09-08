@@ -29,4 +29,112 @@ namespace m3d {
 		float t = -(dot(ray.origin, plane.normal) + plane.dist) / dot(ray.dir, plane.normal);
 		return ray.origin + ray.dir * t;
 	}
+	
+	int solve_ballistic_arc(vec3 proj_pos, float proj_speed, vec3 target, float gravity, vec3 &s0, vec3 &s1) {
+
+        // Handling these cases is up to your project's coding standards
+        assert(proj_pos != target && proj_speed > 0.0f && gravity > 0.0f);
+
+        // C# requires out variables be set
+        s0 = vec3();
+        s1 = vec3();
+
+        // Derivation
+        //   (1) x = v*t*cos O
+        //   (2) y = v*t*sin O - .5*g*t^2
+        // 
+        //   (3) t = x/(cos O*v)                                        [solve t from (1)]
+        //   (4) y = v*x*sin O/(cos O * v) - .5*g*x^2/(cos^2 O*v^2)     [plug t into y=...]
+        //   (5) y = x*tan O - g*x^2/(2*v^2*cos^2 O)                    [reduce; cos/sin = tan]
+        //   (6) y = x*tan O - (g*x^2/(2*v^2))*(1+tan^2 O)              [reduce; 1+tan O = 1/cos^2 O]
+        //   (7) 0 = ((-g*x^2)/(2*v^2))*tan^2 O + x*tan O - (g*x^2)/(2*v^2) - y    [re-arrange]
+        //   Quadratic! a*p^2 + b*p + c where p = tan O
+        //
+        //   (8) let gxv = -g*x*x/(2*v*v)
+        //   (9) p = (-x +- sqrt(x*x - 4gxv*(gxv - y)))/2*gxv           [quadratic formula]
+        //   (10) p = (v^2 +- sqrt(v^4 - g(g*x^2 + 2*y*v^2)))/gx        [multiply top/bottom by -2*v*v/x; move 4*v^4/x^2 into root]
+        //   (11) O = atan(p)
+
+        vec3 diff = target - proj_pos;
+        vec3 diffXZ = vec3(diff.x, 0.0f, diff.z);
+        float groundDist = length(diffXZ);
+
+        float speed2 = proj_speed*proj_speed;
+        float speed4 = proj_speed*proj_speed*proj_speed*proj_speed;
+        float y = diff.y;
+        float x = groundDist;
+        float gx = gravity*x;
+
+        float root = speed4 - gravity*(gravity*x*x + 2.0f*y*speed2);
+
+        // No solution
+        if (root < 0.0f)
+            return 0;
+
+        root = sqrt(root);
+
+        float lowAng = atan2(speed2 - root, gx);
+        float highAng = atan2(speed2 + root, gx);
+        int numSolutions = lowAng != highAng ? 2 : 1;
+        
+        vec3 groundDir = normalize(diffXZ);
+        vec3 UP(0.0f, 1.0f, 0.0f);
+        s0 = groundDir*glm::cos(lowAng)*proj_speed + UP*glm::sin(lowAng)*proj_speed;
+        if (numSolutions > 1)
+            s1 = groundDir*glm::cos(highAng)*proj_speed + UP*glm::sin(highAng)*proj_speed;
+
+        return numSolutions;
+    }
+    
+    float ballistic_range(float speed, float gravity, float initial_height) {
+
+		// Handling these cases is up to your project's coding standards
+		assert(speed > 0.0f && gravity > 0.0f && initial_height >= 0.0f);
+
+		// Derivation
+		//   (1) x = speed * time * cos O
+		//   (2) y = initial_height + (speed * time * sin O) - (.5 * gravity*time*time)
+		//   (3) via quadratic: t = (speed*sin O)/gravity + sqrt(speed*speed*sin O + 2*gravity*initial_height)/gravity	[ignore smaller root]
+		//   (4) solution: range = x = (speed*cos O)/gravity * sqrt(speed*speed*sin O + 2*gravity*initial_height)	[plug t back into x=speed*time*cos O]
+		float angle = glm::radians(45.0f); // no air resistence, so 45 degrees provides maximum range
+		float cosp = cos(angle);
+		float sinp = sin(angle);
+
+		float range = (speed*cosp/gravity) * (speed*sinp + sqrt(speed*speed*sinp*sinp + 2.0f*gravity*initial_height));
+		return range;
+	}
+	
+	bool solve_ballistic_arc_lateral(glm::vec3 proj_pos, float lateral_speed, glm::vec3 target_pos, float max_height, glm::vec3 &fire_velocity, float &gravity) {
+	
+		// Handling these cases is up to your project's coding standards
+		assert(proj_pos != target_pos && lateral_speed > 0 && max_height > proj_pos.y);
+
+		fire_velocity = vec3();
+		gravity = 0.0f;
+
+		vec3 diff = target_pos - proj_pos;
+		vec3 diffXZ = vec3(diff.x, 0.0f, diff.z);
+		float lateralDist = length(diffXZ);
+
+		if (lateralDist == 0.0f)
+			return false;
+
+		float time = lateralDist / lateral_speed;
+
+		fire_velocity = normalize(diffXZ) * lateral_speed;
+
+		// System of equations. Hit max_height at t=.5*time. Hit target at t=time.
+		//
+		// peak = y0 + vertical_speed*halfTime + .5*gravity*halfTime^2
+		// end = y0 + vertical_speed*time + .5*gravity*time^s
+		// Wolfram Alpha: solve b = a + .5*v*t + .5*g*(.5*t)^2, c = a + vt + .5*g*t^2 for g, v
+		float a = proj_pos.y;	   // initial
+		float b = max_height;	   // peak
+		float c = target_pos.y;	 // final
+
+		gravity = -4.0f*(a - 2*b + c) / (time* time);
+		fire_velocity.y = (-(3*a - 4*b + c) / time);
+
+		return true;
+	}
 }

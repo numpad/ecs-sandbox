@@ -51,10 +51,10 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 	registry.assign<CVelocity>(entity, rdir);
 	registry.assign<CBillboard>(entity, rsize, rcol);
 	registry.assign<CGravity>(entity);
-	registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
+	//registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
 	registry.assign<CJumpTimer>(entity, 0);
 	if (registry.valid(this->player)) {
-		registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
+		//registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
 	}
 	return entity;
 }

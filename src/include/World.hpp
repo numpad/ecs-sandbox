@@ -55,6 +55,7 @@ public:
 			return worldCrosshair;
 		return entt::null;
 	}
+	inline float getGravity() const { return gravitySystem.getGravity(); };
 	
 private:
 	entt::registry registry;
@@ -67,7 +68,6 @@ private:
 	entt::entity player = entt::null,
 		worldCrosshair = entt::null;
 	
-	entt::entity spawnEntity(entt::registry &registry, glm::vec3 pos);
 	entt::entity spawnPlayer(glm::vec3 pos = glm::vec3(0.0f, 0.2f, 0.0f));
 	
 	// systems

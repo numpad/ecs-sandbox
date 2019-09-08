@@ -12,6 +12,8 @@ public:
 	
 	void update(entt::registry &registry, const Grid2D<Model> &tileGrid);
 	
+	inline float getGravity() const { return gravity; }
+	
 private:
 	float gravity;
 	

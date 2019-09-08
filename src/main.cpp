@@ -389,6 +389,7 @@ int main(int, char**) {
 	/* draw loop */
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
+	
 	while (!glfwWindowShouldClose(window)) {
 		// poll events
 		glfwPollEvents();
@@ -454,33 +455,37 @@ int main(int, char**) {
 		crosspos = m3d::raycast(mcRay, mcFloor);
 		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 		
+		static float timeout = 0.3f;
+		static double lastTime = glfwGetTime();
+		static auto rng = Random();
+		timeout = glm::max(0.0f, timeout);
+		if (glfwGetTime() - lastTime > timeout && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+			auto e = world.spawnDefaultEntity(targetPos + vec3(0.0f, 0.05f, 0.0f));
+			world.getRegistry().remove<CJumpTimer>(e);
+			glm::vec3 &color = world.getRegistry().get<CBillboard>(e).color;
+			glm::vec3 &vel = world.getRegistry().get<CVelocity>(e).vel;
+			world.getRegistry().get<CVelocity>(e).maxvel = 0.2f;
+			color.r = rng();
+			color.g = rng();
+			color.b = rng();
+			vel.y = rng() * 0.01f + 0.02f;
+			lastTime = glfwGetTime();
+			
+		}
+		
+		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+			timeout += 0.01f;
+		if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+			timeout -= 0.001f;
+		
 		
 		#if CFG_IMGUI_ENABLED
 			if (ImGui::Begin("world")) {
-				static glm::vec3 pos(0.0f, 0.2f, 0.0f);
-				static int amount = 50;
-				static float spawnvel = 0.012f;
-				static Random rng(-1.0f, 1.0f);
-				ImGui::SliderFloat3("spawnpoint", &pos[0], -0.5f, 0.5f);
-				ImGui::SliderInt("amount", &amount, 1, 500);
-				ImGui::SliderFloat("velocity", &spawnvel, 0.0f, 0.2f);
-				if (ImGui::Button("Spawn")) {
-					for (int i = 0; i < amount; ++i) {
-						entt::entity e = world.spawnDefaultEntity(pos);
-						auto &vel = world.getRegistry().get<CVelocity>(e);
-						vel.vel.x = rng();
-						vel.vel.y = rng();
-						vel.vel.z = rng();
-						vel.vel = glm::normalize(vel.vel) * spawnvel;
-					}
-				}
-				ImGui::Separator();
-				
 				static bool pickingMode = false;
-				ImGui::Checkbox("entity picker", &pickingMode);
+				ImGui::Checkbox("Entity picker (press middle mouse to select)", &pickingMode);
 				static entt::entity selected = entt::null;
-				if (pickingMode && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-					selected = world.getNearestEntity(crosspos);	
+				if (pickingMode && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+					selected = world.getNearestEntity(crosspos);
 					pickingMode = false;
 				}
 				
