@@ -15,8 +15,8 @@ struct CBillboard {
 	CBillboard(glm::vec2 size, glm::vec3 color = glm::vec3(1.0f))
 		:  size(size), color(color), texture_offset(0.0f, 0.0f, 1.0f, 1.0f)
 	{
-		float x = floor(Random(0.0f, 5.0f)());
-		float y = 11;
+		float x = floor(Random(0.0f, 6.0f)());
+		float y = 10.0f + floor(Random(0.0f, 5.0f)());
 		setSubRect(x * 16.0f, y * 16.0f, 16.0f, 16.0f, 256, 256);
 	}
 	

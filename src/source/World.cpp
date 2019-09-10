@@ -5,10 +5,14 @@ extern GLFWwindow *window;
 World::World()
 	: charControllerSystem(window)
 {
+	//auto group = registry.group<CPosition, CBillboard>();
+	
 	setupFloor();
 	
 	// spawn player
 	spawnPlayer();
+	
+	
 }
 
 World::~World() {
@@ -42,7 +46,7 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 		rand() * 2.0f - 1.0f, 0.01f,
 		rand() * 2.0f - 1.0f)) * 0.0025f;
 	
-	glm::vec2 rsize(rand() * 0.02f + 0.065f, rand() * 0.04f + 0.07f);
+	glm::vec2 rsize(rand() * 0.04f + 0.1f, rand() * 0.06f + 0.142f);
 	
 	glm::vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
 	

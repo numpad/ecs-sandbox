@@ -246,7 +246,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		DragFloat3("  impulse", &impulse[0], 0.001f);
 		SameLine();
 		if (Button("Apply")) {
-			vel = impulse;
+			vel += impulse;
 		}
 		SameLine();
 		if (Button("X##2")) {
@@ -485,7 +485,7 @@ int main(int, char**) {
 		static double lastTime = glfwGetTime();
 		static auto rng = Random();
 		timeout = glm::max(0.0f, timeout);
-		if (glfwGetTime() - lastTime > timeout && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		if (glfwGetTime() - lastTime > timeout && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && false) {
 			auto e = world.spawnDefaultEntity(targetPos + vec3(0.0f, 0.05f, 0.0f));
 			world.getRegistry().remove<CJumpTimer>(e);
 			glm::vec3 &color = world.getRegistry().get<CBillboard>(e).color;
