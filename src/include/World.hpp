@@ -78,10 +78,9 @@ private:
 	PressAwaySystem pressawaySystem;
 	PositionUpdateSystem posUpdate;
 	//BillboardLookAtCameraSystem billboardOrientation;
-	BillboardRenderSystem billboardSystem;
+	BillboardRenderSystem billboardSystem = BillboardRenderSystem(assetManager);
 	
 	sgl::shader floorShader;
-	GLuint floorVAO, floorVBO, floorEBO;
 	void setupFloor();
 	void destroyFloor();
 	void drawFloor(glm::mat4 &uView, glm::mat4 &uProjection);

@@ -14,7 +14,7 @@ void RandomJumpSystem::update(entt::registry &registry) {
 		glm::vec3 p = pos.pos;
 		
 		#define INSIDE(P, S) (((P).x >= -S && (P).x <= S) && ((P).z >= -S && (P).z <= S))
-		if (vel.vel.y < 0.01f && INSIDE(p, 1.0f) && !INSIDE(np, 1.0f)) {
+		if (vel.vel.y < 0.01f && INSIDE(p, 3.0f) && !INSIDE(np, 3.0f)) {
 			vel.vel *= glm::vec3(1.25f, 1.0f, 1.25f);
 			vel.vel.y += randJumpVel() + (randJumpVel() * 0.75f);
 		}

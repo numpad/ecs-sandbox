@@ -14,7 +14,7 @@ void GravitySystem::update(entt::registry &registry, const Grid2D<Model> &tileGr
 			
 		if (tileGrid.at(tilePosRound(pos.pos.x), tilePosRound(pos.pos.z)) == nullptr || pos.pos.y > 0.0f)
 			vel.vel.y -= this->gravity;
-		else if (pos.pos.y <= 0.0f) {
+		else if (pos.pos.y <= 0.0f && pos.pos.y >= -0.2f) {
 			pos.pos.y = 0.0f;
 			if (vel.vel.y < 0.0f) {
 				vel.vel.y = 0.0f;

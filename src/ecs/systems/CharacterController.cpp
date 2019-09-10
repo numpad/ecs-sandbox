@@ -1,10 +1,9 @@
 #include <ecs/systems/CharacterController.hpp>
 
-void CharacterController::update(entt::registry &registry,
-	glm::vec3 viewPos, glm::vec3 viewDir) {
+void CharacterController::update(entt::registry &registry, glm::vec3 viewDir) {
 	
 	registry.view<CPosition, CVelocity, const CKeyboardControllable>().each(
-		[this, &registry, viewPos, viewDir](auto entity,
+		[this, viewDir](auto entity,
 			auto &pos, auto &vel, const auto &controller)
 		{
 		

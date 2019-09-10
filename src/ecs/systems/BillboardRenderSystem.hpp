@@ -6,11 +6,12 @@
 #include <RenderObject/Billboard.hpp>
 #include <ecs/components.hpp>
 #include <imgui/imgui.h>
+#include <Assets/AssetManager.hpp>
 
 class BillboardRenderSystem {
 public:
 	
-	BillboardRenderSystem();
+	BillboardRenderSystem(AssetManager &am);
 	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	~BillboardRenderSystem();
 	
@@ -23,6 +24,10 @@ private:
 		
 	std::vector<glm::mat4> aInstanceModels;
 	std::vector<glm::vec3> aInstanceColors;
+	std::vector<glm::vec4> aInstanceTexOffsets;
+	
 	GLint lastMaxInstanceCount = -1;
+	
+	AssetManager &assetManager;
 };
 

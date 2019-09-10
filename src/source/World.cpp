@@ -79,7 +79,7 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 	gravitySystem.update(registry, tileGrid);
 	popcorn.update(registry);
 	wayfindSystem.update(registry);
-	charControllerSystem.update(registry, viewPos, viewDir);
+	charControllerSystem.update(registry, viewDir);
 	pressawaySystem.update(registry);
 	//billboardOrient.update(registry, ...);
 	posUpdate.update(registry);
@@ -107,7 +107,7 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	// draw billboards
 	
 	// sort only every N ticks
-	const int maxTicksUntilSort = 60;
+	const int maxTicksUntilSort = 6;
 	static int ticksSinceLastSort = 0;
 	if (++ticksSinceLastSort > maxTicksUntilSort) {
 		billboardSystem.depthSort(registry, camPos);
@@ -136,7 +136,7 @@ void World::setupFloor() {
 	// world pos crosshair
 	worldCrosshair = registry.create();
 	registry.assign<CPosition>(worldCrosshair, glm::vec3(0.0f));
-	registry.assign<CBillboard>(worldCrosshair, glm::vec2(0.03f, 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//registry.assign<CBillboard>(worldCrosshair, glm::vec2(0.03f, 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
 }
 

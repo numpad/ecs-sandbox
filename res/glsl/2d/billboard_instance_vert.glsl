@@ -8,12 +8,13 @@ layout(location = 1) in vec2 aTexCoord;
 layout(location = 2) in mat4 aInstanceModel;
 // location 2-5 reserved by aInstanceModel
 layout(location = 6) in vec3 aInstanceColor;
+layout(location = 7) in vec4 aTexOffsets;
 
 out vec2 vTexCoord;
 out vec3 vColor;
 
 void main() {
-	vTexCoord = aTexCoord;
+	vTexCoord = aTexOffsets.xy + aTexCoord * aTexOffsets.zw;
 	vColor = aInstanceColor;
 	gl_Position = uProjection * uView * aInstanceModel * vec4(aPosition, 1.0);
 }

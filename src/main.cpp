@@ -1,4 +1,6 @@
 #include "config.hpp"
+#include <GL/gl3w.h>
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +16,10 @@
 #include <entt/entt.hpp>
 #include <Util/Math3d.hpp>
 
+#include <Assets/Texture.hpp>
 #include <Assets/AssetManager.hpp>
+#include <ecs/components.hpp>
+#include <ecs/systems.hpp>
 #include <World.hpp>
 
 void onResize(GLFWwindow *, int width, int height) {
@@ -157,7 +162,7 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 	
 	// depth test
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	//glDepthFunc(GL_LEQUAL);
 	
 	// blending
 	glEnable(GL_BLEND);
@@ -233,7 +238,10 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	}
 	if (registry.has<CVelocity>(entity)) {
 		glm::vec3 &vel = registry.get<CVelocity>(entity).vel;
+		float &maxvel = registry.get<CVelocity>(entity).maxvel;
+		
 		DragFloat3("velocity", &vel[0], 0.001f);
+		DragFloat("max velocity", &maxvel, 0.0001f);
 		static glm::vec3 impulse;
 		DragFloat3("  impulse", &impulse[0], 0.001f);
 		SameLine();
@@ -248,8 +256,17 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	if (registry.has<CBillboard>(entity)) {
 		glm::vec2 &size = registry.get<CBillboard>(entity).size;
 		glm::vec3 &color = registry.get<CBillboard>(entity).color;
+		glm::vec4 &texoffset = registry.get<CBillboard>(entity).texture_offset;
 		DragFloat2("size", &size[0], 0.001f);
 		ColorEdit3("tint", &color[0]);
+		SliderFloat2("texoffset", &texoffset[0], 0.0f, 1.0f);
+		SliderFloat2("texscale", &texoffset[2], 0.0f, 1.0f);
+		static int srstart[2] = {0};
+		const int texw = 256, texh = 256, tilesize = 16;
+		
+		bool a = SliderInt2("tilepos", srstart, 0, texw / tilesize);
+		if (a) registry.get<CBillboard>(entity).setSubRect(srstart[0] * float(tilesize), srstart[1] * float(tilesize), float(tilesize), float(tilesize), texw, texh);
+		
 		SameLine();
 		if (Button("X##3")) {
 			registry.remove<CBillboard>(entity);
@@ -266,11 +283,20 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		float &radius = registry.get<CSphereCollider>(entity).radius;
 		float &force = registry.get<CSphereCollider>(entity).force;
 		
-		DragFloat("radius", &radius, 0.0005f);
+		DragFloat("radius", &radius, 0.0005f, 0.0f);
 		DragFloat("force", &force, 0.0005f);
-		
+		SameLine();
 		if (Button("X##5")) {
 			registry.remove<CSphereCollider>(entity);
+		}
+	}
+	if (registry.has<CKeyboardControllable>(entity)) {
+		float &speed = registry.get<CKeyboardControllable>(entity).speed;
+		
+		DragFloat("char speed", &speed, 0.000001f, 0.0000000001f, 0.1f, "%g");
+		SameLine();
+		if (Button("X##6")) {
+			registry.remove<CKeyboardControllable>(entity);
 		}
 	}
 }
@@ -291,10 +317,10 @@ void imguiEntitySpawn(entt::registry &registry, bool spawn, glm::vec3 atpos) {
 	static int spawnamount = 1;
 	static float spawnveloff = 0.02f;
 	
-	static bool haspos = false,
-				hasvel = false,
-				hasgrav = false,
-				hasbb = false,
+	static bool haspos = true,
+				hasvel = true,
+				hasgrav = true,
+				hasbb = true,
 				hasruntt = false,
 				haspresser = false,
 				haskeyboard = false,
@@ -482,9 +508,9 @@ int main(int, char**) {
 		#if CFG_IMGUI_ENABLED
 			if (ImGui::Begin("world")) {
 				static bool pickingMode = false;
-				ImGui::Checkbox("Entity picker (press middle mouse to select)", &pickingMode);
+				ImGui::Checkbox("Entity picker", &pickingMode);
 				static entt::entity selected = entt::null;
-				if (pickingMode && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+				if (pickingMode && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 					selected = world.getNearestEntity(crosspos);
 					pickingMode = false;
 				}
