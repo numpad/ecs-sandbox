@@ -46,14 +46,15 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 		rand() * 2.0f - 1.0f, 0.01f,
 		rand() * 2.0f - 1.0f)) * 0.0025f;
 	
-	glm::vec2 rsize(rand() * 0.04f + 0.1f, rand() * 0.06f + 0.142f);
+	glm::vec2 rsize(rand() * 0.04f + 0.2f, rand() * 0.04f + 0.2f);
 	
 	glm::vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
 	
 	auto entity = registry.create();
 	registry.assign<CPosition>(entity, pos);
 	registry.assign<CVelocity>(entity, rdir);
-	registry.assign<CBillboard>(entity, rsize, rcol);
+	registry.assign<CBillboard>(entity,
+		this->assetManager.getTexture("res/images/textures/dungeon.png"), rsize, rcol);
 	registry.assign<CGravity>(entity);
 	//registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
 	registry.assign<CJumpTimer>(entity, 0);
@@ -70,7 +71,10 @@ entt::entity World::spawnPlayer(glm::vec3 pos) {
 	this->player = spawnDefaultEntity(pos);
 	registry.assign<CKeyboardControllable>(this->player, 0.003f);
 	registry.assign_or_replace<CBillboard>(this->player,
-		glm::vec2(0.12f, 0.14f), glm::vec3(0.961f, 0.8f, 0.545f));
+		this->assetManager.getTexture("res/images/textures/dungeon.png"),
+		glm::vec2(0.2f, 0.2f), glm::vec3(0.961f, 0.8f, 0.545f));
+	registry.get<CBillboard>(this->player).setSubRect(10.0f * 16.0f, 15.0f * 16.0f,
+		16.0f, 16.0f, 256, 256);
 	
 	registry.remove<CJumpTimer>(this->player);
 	
@@ -133,14 +137,34 @@ void World::setupFloor() {
 	tileGridShader.compile();
 	tileGridShader.link();
 	
-	tileGrid.set(0, 0, assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"));
-	tileGrid.set(1, 0, assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"));
-	tileGrid.set(1, 1, assetManager.getModel("res/models/world/dungeon_floor.blend"));
+	//tileGrid.set(0, 0, assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"));
+	//tileGrid.set(1, 0, assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"));
+	//tileGrid.set(1, 1, assetManager.getModel("res/models/world/dungeon_floor.blend"));
+	int x = 0, y = 0;
+	Random r;
+	for (int i = 0; i < 10; ++i) {
+		tileGrid.set(x, y, assetManager.getModel("res/models/world/dungeon_floor.blend"));
+		auto rng = r();
+		if (rng < 0.25) x--;
+		else if (rng < 0.5) x++;
+		else if (rng < 0.75) y--;
+		else y++;
+		if (tileGrid.at(x, y) != nullptr) i--;
+		else {
+			for (int j = 0; j < int(r() * 4.0f); ++j) {
+				auto entity = spawnDefaultEntity(glm::vec3(x * 2.0f, 0.3f, y * 2.0f));
+				auto &vel = registry.get<CVelocity>(entity).vel;
+				vel.x = r() * 0.025f - 0.0125f;
+				vel.z = r() * 0.025f - 0.0125f;
+			}
+		}
+	}
 	
 	// world pos crosshair
 	worldCrosshair = registry.create();
 	registry.assign<CPosition>(worldCrosshair, glm::vec3(0.0f));
-	//registry.assign<CBillboard>(worldCrosshair, glm::vec2(0.03f, 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//registry.assign<CBillboard>(worldCrosshair, this->assetManager.getTexture("res/images/textures/dungeon.png"),
+	//	glm::vec2(0.03f, 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
 }
 

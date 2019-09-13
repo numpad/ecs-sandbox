@@ -34,6 +34,7 @@ void GravitySystem::update(entt::registry &registry, const Grid2D<Model> &tileGr
 		
 		if (pos.pos.y < -5.0f) {
 			if (registry.has<CSpawnPoint>(entity)) {
+				printf("respawned \n");
 				glm::vec3 &playerpos = registry.get<CPosition>(entity).pos;
 				playerpos = registry.get<CSpawnPoint>(entity).getPosition(registry);
 			} else {

@@ -1,14 +1,11 @@
 #include <RenderObject/Billboard.hpp>
 
-Billboard::Billboard(std::string spritepath) {
-	if (!spriteTexture.loadImage(spritepath))
-		printf("[ERR] could not load texture '%s'\n", spritepath.c_str());
+Billboard::Billboard() {
 	setupBillboard();
 }
 
 Billboard::~Billboard() {
 	destroyBillboard();
-	spriteTexture.destroy();
 }
 
 static float bbCylinder(glm::vec3 cam, glm::vec3 pos, glm::vec3 &outRotAxis) {
@@ -72,7 +69,7 @@ glm::mat4 Billboard::calcModelMatrix(glm::mat4 &uView, glm::vec3 pos,
 	return uModel;
 }
 
-void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
+void Billboard::draw(Texture *texture, glm::mat4 &uView, glm::mat4 &uProjection,
 	glm::vec3 pos, glm::vec2 size, glm::vec3 color)
 {
 	
@@ -83,13 +80,13 @@ void Billboard::draw(glm::mat4 &uView, glm::mat4 &uProjection,
 	bbShader["uColor"] = color;
 	
 	glActiveTexture(GL_TEXTURE0);
-	spriteTexture.bind();
+	texture->bind();
 	
 	glBindVertexArray(bbVAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	
-	spriteTexture.unbind();
+	texture->unbind();
 }
 
 /////////////

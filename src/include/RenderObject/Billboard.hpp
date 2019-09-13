@@ -10,24 +10,22 @@
 class Billboard {
 public:
 	
-	Billboard(std::string spritepath);
+	Billboard();
 	Billboard(const Billboard &copy) = delete;
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 	~Billboard();
 	
 	glm::mat4 calcModelMatrix(glm::mat4 &uView, glm::vec3 pos, glm::vec2 size);
 
-	inline Texture &getTexture() { return spriteTexture; }
 	inline GLuint getVAO() { return bbVAO; }
 	inline GLuint getVBO() { return bbVBO; }
 	inline GLuint getEBO() { return bbEBO; }
 	inline sgl::shader &getInstanceShader() { return bbInstanceShader; }
 	
 private:
-	Texture spriteTexture;
 		
-	void draw(glm::mat4 &uView, glm::mat4 &uProjection, glm::vec3 pos,
-		glm::vec2 size, glm::vec3 color);
+	void draw(Texture *texture, glm::mat4 &uView, glm::mat4 &uProjection,
+		glm::vec3 pos, glm::vec2 size, glm::vec3 color);
 	
 	sgl::shader bbShader, bbInstanceShader;
 	GLuint bbVAO, bbVBO, bbEBO;

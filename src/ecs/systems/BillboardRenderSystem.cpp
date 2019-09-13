@@ -1,8 +1,7 @@
 #include <ecs/systems/BillboardRenderSystem.hpp>
 
 BillboardRenderSystem::BillboardRenderSystem(AssetManager &am)
-	: billboardRO(Billboard("res/images/sprites/default_soldier_s.png")),
-	assetManager(am)
+	: assetManager(am)
 {
 	glGenBuffers(1, &instanceBuffer);
 	
@@ -53,7 +52,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	// prepare shader
 	auto &shader = billboardRO.getInstanceShader();
 	shader.use();
-	shader["uTexture"] = 1;
+	shader["uTexture"] = 0;
 	shader["uView"] = uView;
 	shader["uProjection"] = uProjection;
 	
@@ -116,8 +115,6 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	
 	// textures
 	glActiveTexture(GL_TEXTURE0);
-	billboardRO.getTexture().bind();
-	glActiveTexture(GL_TEXTURE1);
 	assetManager.getTexture("res/images/textures/dungeon.png")->bind();
 	
 	// draw
@@ -125,7 +122,6 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	
 	// cleanup
 	glBindVertexArray(0);
-	billboardRO.getTexture().unbind();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

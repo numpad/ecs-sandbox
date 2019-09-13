@@ -44,7 +44,7 @@ bool AssetManager::loadTexture(std::string path) {
 		return false;
 	}
 	
-	Texture *tex = new Texture();
+	Texture *tex = new Texture(Texture::Flags::GEN_MIPMAPS);
 	bool is_loaded = tex->loadImage(path);
 	
 	if (is_loaded) {

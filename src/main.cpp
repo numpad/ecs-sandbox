@@ -301,12 +301,13 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	}
 }
 
-void imguiEntitySpawn(entt::registry &registry, bool spawn, glm::vec3 atpos) {
+void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	using namespace ImGui;
+	entt::registry &registry = world.getRegistry();
 	
 	static glm::vec3 pos(0.0f);
 	static glm::vec3 vel(0.0f);
-	static glm::vec2 bbsize(0.1f, 0.07f);
+	static glm::vec2 bbsize(0.2f, 0.2f);
 	static glm::vec3 bbcolor(1.0f);
 	static float rttforce = 0.01f;
 	static glm::vec3 rttpos(0.0f);
@@ -374,10 +375,11 @@ void imguiEntitySpawn(entt::registry &registry, bool spawn, glm::vec3 atpos) {
 				if (hasvel) registry.assign<CVelocity>(entity,
 					m3d::randomizeVec3(vel, spawnveloff));
 				if (hasgrav) registry.assign<CGravity>(entity);
-				if (hasbb) registry.assign<CBillboard>(entity, bbsize, bbcolor);
+				if (hasbb) registry.assign<CBillboard>(entity, world.getAssetManager().getTexture("res/images/textures/dungeon.png"), bbsize, bbcolor);
 				if (hasruntt) registry.assign<CRunningToTarget>(entity, rttpos, rttforce);
 				if (haspresser) registry.assign<CSphereCollider>(entity, pressrad, pressforce);
 				if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
+				if (hasspawn) registry.assign<CSpawnPoint>(entity, spawnpoint);
 				if (hasjumper) registry.assign<CJumpTimer>(entity);
 			}
 		}
@@ -403,19 +405,11 @@ int main(int, char**) {
 	// init game
 	
 	World world;
-	
 	AssetManager &assetManager = world.getAssetManager();
-	assetManager.getTexture("res/images/sprites/default_soldier.png");
-	assetManager.getTexture("res/images/sprites/default_soldier_e.png");
-	assetManager.getTexture("res/images/sprites/default_soldier_s.png");
-	assetManager.getTexture("res/images/sprites/default_soldier_se.png");
-	assetManager.getTexture("res/images/sprites/default_soldier_sw.png");
-	assetManager.getTexture("res/images/sprites/default_soldier_w.png");
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
-	
 	while (!glfwWindowShouldClose(window)) {
 		// poll events
 		glfwPollEvents();
@@ -519,7 +513,7 @@ int main(int, char**) {
 				imguiEntityEdit(world.getRegistry(), selected);
 			}
 			ImGui::End();
-			imguiEntitySpawn(world.getRegistry(), mouseRightDown, crosspos);
+			imguiEntitySpawn(world, mouseRightDown, crosspos);
 		#endif
 		
 		// rendering
