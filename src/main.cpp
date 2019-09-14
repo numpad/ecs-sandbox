@@ -203,9 +203,9 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 		cam_y = 2.75f;
 	
 	angle_vel *= 0.9f;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		angle_vel += angle_acc;
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		angle_vel += angle_acc;
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		angle_vel -= angle_acc;
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 		cam_dist -= 0.1f;
@@ -299,6 +299,14 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			registry.remove<CKeyboardControllable>(entity);
 		}
 	}
+	if (registry.has<CRunningToTarget>(entity)) {
+		auto &rtt = registry.get<CRunningToTarget>(entity);
+		DragFloat("speed", &rtt.force, 0.001f);
+		DragFloat("closeEnough", &rtt.closeEnough, 0.001f);
+		if (Button("X##7")) {
+			registry.remove<CRunningToTarget>(entity);
+		}
+	}
 }
 
 void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
@@ -310,6 +318,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	static glm::vec2 bbsize(0.2f, 0.2f);
 	static glm::vec3 bbcolor(1.0f);
 	static float rttforce = 0.01f;
+	static float rttnear = 0.1f;
 	static glm::vec3 rttpos(0.0f);
 	static float pressrad = 0.01f, pressforce = 0.01f;
 	static float keycontrolspeed = 0.0015f;
@@ -323,6 +332,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				hasgrav = true,
 				hasbb = true,
 				hasruntt = false,
+				runttToPlayer = false,
 				haspresser = false,
 				haskeyboard = false,
 				hasspawn = false,
@@ -349,8 +359,13 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		}
 		if (hasruntt) {
 			Text("RunToTarget:");
-			DragFloat3("Position", &rttpos[0], 0.001f);
+			SameLine();
+			Checkbox("Player", &runttToPlayer);
+			if (!runttToPlayer) {
+				DragFloat3("Position", &rttpos[0], 0.001f);
+			}
 			SliderFloat("Speed", &rttforce, 0.0f, 0.01f);
+			SliderFloat("Near", &rttnear, 0.0f, 1.0f);
 		}
 		if (haspresser) {
 			Text("SphereCollider:");
@@ -376,7 +391,10 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 					m3d::randomizeVec3(vel, spawnveloff));
 				if (hasgrav) registry.assign<CGravity>(entity);
 				if (hasbb) registry.assign<CBillboard>(entity, world.getAssetManager().getTexture("res/images/textures/dungeon.png"), bbsize, bbcolor);
-				if (hasruntt) registry.assign<CRunningToTarget>(entity, rttpos, rttforce);
+				if (hasruntt) {
+					if (runttToPlayer) registry.assign<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear);
+					else registry.assign<CRunningToTarget>(entity, rttpos, rttforce, rttnear);
+				}
 				if (haspresser) registry.assign<CSphereCollider>(entity, pressrad, pressforce);
 				if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
 				if (hasspawn) registry.assign<CSpawnPoint>(entity, spawnpoint);

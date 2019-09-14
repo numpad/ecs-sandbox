@@ -56,7 +56,7 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 	registry.assign<CBillboard>(entity,
 		this->assetManager.getTexture("res/images/textures/dungeon.png"), rsize, rcol);
 	registry.assign<CGravity>(entity);
-	//registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
+	registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
 	registry.assign<CJumpTimer>(entity, 0);
 	if (registry.valid(this->player)) {
 		//registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
@@ -89,7 +89,6 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 	wayfindSystem.update(registry);
 	charControllerSystem.update(registry, viewDir);
 	pressawaySystem.update(registry);
-	//billboardOrient.update(registry, ...);
 	posUpdate.update(registry);
 	
 	#if CFG_DEBUG
@@ -118,10 +117,10 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	const int maxTicksUntilSort = 6;
 	static int ticksSinceLastSort = 0;
 	if (++ticksSinceLastSort > maxTicksUntilSort) {
-		billboardSystem.depthSort(registry, camPos);
+		
 		ticksSinceLastSort = 0;
 	}
-	
+	billboardSystem.depthSort(registry, camPos);
 	billboardSystem.drawInstanced(registry, uView, uProjection);
 	
 }

@@ -33,11 +33,12 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 		ImGui::End();
 	#endif
 
-	// collect model matrices
+	// collect per instance data
 	aInstanceModels.clear();
 	aInstanceColors.clear();
 	aInstanceTexOffsets.clear();
 	
+	// TODO: multiple textures
 	registry.view<CPosition, CBillboard>().each(
 		[this, &uView](auto entity, auto &pos, auto &bb) {
 		

@@ -9,7 +9,7 @@ struct CRunningToTarget {
 	glm::vec3 pos;
 	
 	float force;
-	float closeEnough;
+	float closeEnough = 1.0f;
 	
 	CRunningToTarget(glm::vec3 targetPos, float force, float close = 0.1f) 
 		: pos(targetPos), force(force), closeEnough(close)
@@ -17,7 +17,7 @@ struct CRunningToTarget {
 	}
 	
 	
-	CRunningToTarget(entt::entity targetEntity, float force, float close = 0.065f) 
+	CRunningToTarget(entt::entity targetEntity, float force, float close = 0.1f) 
 		: entity(targetEntity), force(force), closeEnough(close)
 	{
 	}
