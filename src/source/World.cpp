@@ -136,9 +136,7 @@ void World::setupFloor() {
 	tileGridShader.compile();
 	tileGridShader.link();
 	
-	//tileGrid.set(0, 0, assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"));
-	//tileGrid.set(1, 0, assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"));
-	//tileGrid.set(1, 1, assetManager.getModel("res/models/world/dungeon_floor.blend"));
+	// mapgen
 	int x = 0, y = 0;
 	Random r;
 	for (int i = 0; i < 10; ++i) {
@@ -152,7 +150,7 @@ void World::setupFloor() {
 		else {
 			for (int j = 0; j < int(r() * 4.0f); ++j) {
 				auto entity = spawnDefaultEntity(glm::vec3(x * 2.0f, 0.3f, y * 2.0f));
-				auto &vel = registry.get<CVelocity>(entity).vel;
+				auto &vel = registry.get<CVelocity>(entity).acc;
 				vel.x = r() * 0.025f - 0.0125f;
 				vel.z = r() * 0.025f - 0.0125f;
 			}

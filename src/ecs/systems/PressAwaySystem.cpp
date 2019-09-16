@@ -23,7 +23,7 @@ void PressAwaySystem::update(entt::registry &registry) {
 				});
 			if (count > 0) {
 				mean_vel /= (float)count;
-				vel.vel += mean_vel;
+				vel.acc += mean_vel;
 			}
 		});
 }

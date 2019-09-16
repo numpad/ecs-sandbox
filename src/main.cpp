@@ -22,6 +22,9 @@
 #include <ecs/systems.hpp>
 #include <World.hpp>
 
+#include <cereal/types/memory.hpp>
+#include <cereal/archives/binary.hpp>
+
 void onResize(GLFWwindow *, int width, int height) {
 	glViewport(0, 0, width, height);
 }
@@ -238,15 +241,17 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	}
 	if (registry.has<CVelocity>(entity)) {
 		glm::vec3 &vel = registry.get<CVelocity>(entity).vel;
+		glm::vec3 &acc = registry.get<CVelocity>(entity).acc;
 		float &maxvel = registry.get<CVelocity>(entity).maxvel;
 		
 		DragFloat3("velocity", &vel[0], 0.001f);
+		DragFloat3("acceleration", &acc[0], 0.001f);
 		DragFloat("max velocity", &maxvel, 0.0001f);
 		static glm::vec3 impulse;
-		DragFloat3("  impulse", &impulse[0], 0.001f);
+		DragFloat3("##apply_impulse", &impulse[0], 0.001f);
 		SameLine();
-		if (Button("Apply")) {
-			vel += impulse;
+		if (Button("impulse")) {
+			acc += impulse;
 		}
 		SameLine();
 		if (Button("X##2")) {
@@ -471,7 +476,7 @@ int main(int, char**) {
 		// ease camera to player or origin
 		glm::vec3 targetPos;
 		if (world.getPlayer() != entt::null && world.getRegistry().has<CPosition>(world.getPlayer())) {
-			targetPos = world.getRegistry().get<CPosition>(world.getPlayer()).pos;
+			targetPos = world.getRegistry().get<CPosition>(world.getPlayer()).pos * glm::vec3(1.0f, 0.0f, 1.0f);
 		} else { targetPos = glm::vec3(0.0f); }
 		glm::vec3 toTarget = (targetPos - camtarget) * camToTargetSpeed;
 		camtarget += toTarget;
@@ -493,29 +498,15 @@ int main(int, char**) {
 		crosspos = m3d::raycast(mcRay, mcFloor);
 		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 		
-		static float timeout = 0.3f;
-		static double lastTime = glfwGetTime();
-		static auto rng = Random();
-		timeout = glm::max(0.0f, timeout);
-		if (glfwGetTime() - lastTime > timeout && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && false) {
-			auto e = world.spawnDefaultEntity(targetPos + vec3(0.0f, 0.05f, 0.0f));
-			world.getRegistry().remove<CJumpTimer>(e);
-			glm::vec3 &color = world.getRegistry().get<CBillboard>(e).color;
-			glm::vec3 &vel = world.getRegistry().get<CVelocity>(e).vel;
-			world.getRegistry().get<CVelocity>(e).maxvel = 0.2f;
-			color.r = rng();
-			color.g = rng();
-			color.b = rng();
-			vel.y = rng() * 0.01f + 0.02f;
-			lastTime = glfwGetTime();
-			
+		// fire
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+			auto e = world.spawnDefaultEntity(targetPos);
+			world.getRegistry().remove<CSphereCollider>(e);
+			auto &vel = world.getRegistry().get<CVelocity>(e);
+			vel.maxvel = 5.0f;
+			vel.acc = glm::normalize(crosspos - targetPos) * 0.2f;
+			vel.acc.y = vel.vel.y = 0.0f;
 		}
-		
-		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-			timeout += 0.01f;
-		if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-			timeout -= 0.001f;
-		
 		
 		#if CFG_IMGUI_ENABLED
 			if (ImGui::Begin("world")) {

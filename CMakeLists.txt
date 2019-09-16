@@ -38,6 +38,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/examples")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/code")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include")
 
 file (GLOB source_files
 	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"

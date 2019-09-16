@@ -10,3 +10,6 @@
 [submodule "lib/glfw"]
 	path = lib/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "lib/cereal"]
+	path = lib/cereal
+	url = https://github.com/USCiLab/cereal.git

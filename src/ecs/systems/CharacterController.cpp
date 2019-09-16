@@ -36,7 +36,7 @@ void CharacterController::update(entt::registry &registry, glm::vec3 viewDir) {
 		
 		if (dir.x != 0.0f || dir.y != 0.0f || dir.z != 0.0f) {
 			dir = glm::normalize(dir) * controller.speed;
-			vel.vel += dir;
+			vel.acc += dir;
 		}
 	});
 }
