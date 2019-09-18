@@ -34,6 +34,9 @@ struct CBillboard {
 		if (flip_x) this->texture_offset = glm::vec4(ox + ow, 1.0f - oy, -ow, oh);
 		else this->texture_offset = glm::vec4(ox, 1.0f - oy, ow, oh);
 	}
+	void resetSubRect() {
+		texture_offset = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	}
 	
 	bool isFlipped() { return sr_flip; }
 	void setFlipped(bool flip) {

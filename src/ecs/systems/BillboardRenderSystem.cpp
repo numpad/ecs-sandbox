@@ -27,33 +27,79 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	
 	#if CFG_IMGUI_ENABLED
 		if (ImGui::Begin("bbRenderSystem")) {
-			ImGui::Text("DrawMode: instanced");
+			ImGui::Text("DrawMode: glDrawElementsInstanced");
 			ImGui::Text("#entities: %zu / %d", aInstanceModels.size(), lastMaxInstanceCount);
 		}
 		ImGui::End();
 	#endif
-
+	
 	// collect per instance data
 	aInstanceModels.clear();
 	aInstanceColors.clear();
 	aInstanceTexOffsets.clear();
+	aInstanceTextures.clear();
+	boundTextures.clear();
 	
-	// TODO: multiple textures
+	auto &shader = billboardRO.getInstanceShader();
+	shader.use();
+	
 	registry.view<CPosition, CBillboard>().each(
-		[this, &uView](auto entity, auto &pos, auto &bb) {
+		[this, &uView, &shader](auto entity, auto &pos, auto &bb) {
 		
 		this->aInstanceModels.push_back(billboardRO.calcModelMatrix(uView, pos.pos, bb.size));
 		this->aInstanceColors.push_back(bb.color);
 		this->aInstanceTexOffsets.push_back(bb.texture_offset);
+		
+		const GLuint texture = bb.texture->getTexture();
+		auto exists = std::find(boundTextures.begin(), boundTextures.end(), texture);
+		
+		if (exists == boundTextures.end()) {
+			// texture is not bound
+			this->aInstanceTextures.push_back(boundTextures.size());
+			glActiveTexture(GL_TEXTURE0 + (GLuint)boundTextures.size());
+			glBindTexture(GL_TEXTURE_2D, texture);
+			
+			std::string uniformName = (std::string("uTextures[") + std::to_string(boundTextures.size()) + std::string("]"));
+			shader[uniformName.c_str()] = (GLint)boundTextures.size();
+			
+			boundTextures.push_back(texture);
+		} else {
+			// texture already bound
+			this->aInstanceTextures.push_back(std::distance(boundTextures.begin(), exists));
+		}
 	});
+	// debug
+	#if CFG_IMGUI_ENABLED
+		if (ImGui::Begin("textures")) {
+			using namespace ImGui;
+			static bool uDebugToggle;
+			if (Checkbox("debug: draw instance texture id", &uDebugToggle)) {
+				shader["uDebugToggle"] = uDebugToggle;
+			}
+			
+			int j = 0;
+			for (auto i : boundTextures) {
+				Image((void *)i, ImVec2(100.f, 100.f));
+				SameLine();
+				GLint b;
+				glActiveTexture(GL_TEXTURE0 + j);
+				glGetIntegerv(GL_TEXTURE_BINDING_2D, &b);
+				Text("glActiveTexture(GL_TEXTURE%d)\nglBindTexture(GL_TEXTURE_2D, %d=%d)", j, i, b);
+				++j;
+			}
+			
+			j = 0;
+			for (auto i : aInstanceTextures) {
+				Text("aTextures[%d] = %d", j++, i);
+			}
+		}
+		ImGui::End();
+	#endif
 	
 	
 	// rendering:
 	
 	// prepare shader
-	auto &shader = billboardRO.getInstanceShader();
-	shader.use();
-	shader["uTexture"] = 0;
 	shader["uView"] = uView;
 	shader["uProjection"] = uProjection;
 	
@@ -65,7 +111,8 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 		glBufferData(GL_ARRAY_BUFFER,
 			aInstanceModels.size() * sizeof(glm::mat4)
 			+ aInstanceColors.size() * sizeof(glm::vec3)
-			+ aInstanceTexOffsets.size() * sizeof(glm::vec4),
+			+ aInstanceTexOffsets.size() * sizeof(glm::vec4)
+			+ aInstanceTextures.size() * sizeof(GLuint),
 			nullptr, GL_DYNAMIC_DRAW);
 		
 		#if CFG_DEBUG
@@ -77,13 +124,16 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
 	// fill model matrices
 	glBufferSubData(GL_ARRAY_BUFFER, 0,
-		aInstanceModels.size() * sizeof(glm::mat4), &aInstanceModels[0]);
+		aInstanceModels.size() * sizeof(glm::mat4), aInstanceModels.data());
 	// fill colors
 	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4),
-		aInstanceColors.size() * sizeof(glm::vec3), &aInstanceColors[0]);
-	
+		aInstanceColors.size() * sizeof(glm::vec3), aInstanceColors.data());
+	// fill texoffsets
 	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4) + aInstanceColors.size() * sizeof(glm::vec3),
-		aInstanceTexOffsets.size() * sizeof(glm::vec4), &aInstanceTexOffsets[0]);
+		aInstanceTexOffsets.size() * sizeof(glm::vec4), aInstanceTexOffsets.data());
+	// fill textures
+	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4) + aInstanceColors.size() * sizeof(glm::vec3) + aInstanceTexOffsets.size() * sizeof(glm::vec4),
+		aInstanceTextures.size() * sizeof(GLuint), aInstanceTextures.data());
 	
 	// bind vao
 	glBindVertexArray(billboardRO.getVAO());
@@ -91,20 +141,13 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	GLuint attribInstanceMatrix = 2;
 	GLuint attribInstanceColor = 6;
 	GLuint attribInstanceTexOff = 7;
-	
+	GLuint attribInstanceTextures = 8;
 	// model matrix
-	glVertexAttribPointer(attribInstanceMatrix + 0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(0 * sizeof(glm::vec4)));
-	glVertexAttribPointer(attribInstanceMatrix + 1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(1 * sizeof(glm::vec4)));
-	glVertexAttribPointer(attribInstanceMatrix + 2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(2 * sizeof(glm::vec4)));
-	glVertexAttribPointer(attribInstanceMatrix + 3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(3 * sizeof(glm::vec4)));
-	glEnableVertexAttribArray(attribInstanceMatrix + 0);
-	glEnableVertexAttribArray(attribInstanceMatrix + 1);
-	glEnableVertexAttribArray(attribInstanceMatrix + 2);
-	glEnableVertexAttribArray(attribInstanceMatrix + 3);
-	glVertexAttribDivisor(attribInstanceMatrix + 0, 1);
-	glVertexAttribDivisor(attribInstanceMatrix + 1, 1);
-	glVertexAttribDivisor(attribInstanceMatrix + 2, 1);
-	glVertexAttribDivisor(attribInstanceMatrix + 3, 1);
+	for (GLuint i = 0; i < 4; ++i) {
+		glVertexAttribPointer(attribInstanceMatrix + i, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(i * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(attribInstanceMatrix + i);
+		glVertexAttribDivisor(attribInstanceMatrix + i, 1);
+	}
 	// color
 	glVertexAttribPointer(attribInstanceColor, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *)(aInstanceModels.size() * sizeof(glm::mat4)));
 	glEnableVertexAttribArray(attribInstanceColor);
@@ -113,11 +156,11 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glVertexAttribPointer(attribInstanceTexOff, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)(aInstanceModels.size() * sizeof(glm::mat4) + aInstanceColors.size() * sizeof(glm::vec3)));
 	glEnableVertexAttribArray(attribInstanceTexOff);
 	glVertexAttribDivisor(attribInstanceTexOff, 1);
-	
 	// textures
-	glActiveTexture(GL_TEXTURE0);
-	assetManager.getTexture("res/images/textures/dungeon.png")->bind();
-	
+	glVertexAttribIPointer(attribInstanceTextures, 1, GL_UNSIGNED_INT, sizeof(GLuint), (void *)(aInstanceModels.size() * sizeof(glm::mat4) + aInstanceColors.size() * sizeof(glm::vec3) + aInstanceTexOffsets.size() * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(attribInstanceTextures);
+	glVertexAttribDivisor(attribInstanceTextures, 1);
+
 	// draw
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, aInstanceModels.size());
 	

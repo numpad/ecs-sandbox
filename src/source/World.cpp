@@ -71,14 +71,20 @@ entt::entity World::spawnPlayer(glm::vec3 pos) {
 	this->player = spawnDefaultEntity(pos);
 	registry.assign<CKeyboardControllable>(this->player, 0.003f);
 	registry.assign_or_replace<CBillboard>(this->player,
-		this->assetManager.getTexture("res/images/textures/dungeon.png"),
+		this->assetManager.getTexture("res/images/sprites/guy_stand_frames.png"),
 		glm::vec2(0.2f, 0.2f), glm::vec3(0.961f, 0.8f, 0.545f));
-	registry.get<CBillboard>(this->player).setSubRect(10.0f * 16.0f, 15.0f * 16.0f,
-		16.0f, 16.0f, 256, 256);
+	registry.get<CBillboard>(this->player).setSubRect(1.0f * 16.0f, 0.0f * 16.0f,
+		16.0f, 16.0f, 48, 16);
 	
 	registry.remove<CJumpTimer>(this->player);
 	
 	registry.assign_or_replace<CSpawnPoint>(this->player, glm::vec3(0.0f, 0.5f, 0.0f));
+	
+	// world pos crosshair
+	worldCrosshair = registry.create();
+	registry.assign<CPosition>(worldCrosshair, glm::vec3(0.0f));
+	//registry.assign<CBillboard>(worldCrosshair, this->assetManager.getTexture("res/images/textures/dungeon.png"),
+	//	glm::vec2(0.03f, 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	return this->player;
 }
@@ -102,8 +108,10 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	#if CFG_IMGUI_ENABLED
 		if (ImGui::Begin("render")) {
-			if (ImGui::Button("Reset"))
+			if (ImGui::Button("Reset")) {
 				registry.reset();
+				spawnPlayer();
+			}
 		}
 		ImGui::End();
 	#endif
@@ -114,7 +122,7 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	// draw billboards
 	
 	// sort only every N ticks
-	const int maxTicksUntilSort = 6;
+	const int maxTicksUntilSort = 2;
 	static int ticksSinceLastSort = 0;
 	if (++ticksSinceLastSort > maxTicksUntilSort) {
 		
@@ -157,11 +165,7 @@ void World::setupFloor() {
 		}
 	}
 	
-	// world pos crosshair
-	worldCrosshair = registry.create();
-	registry.assign<CPosition>(worldCrosshair, glm::vec3(0.0f));
-	//registry.assign<CBillboard>(worldCrosshair, this->assetManager.getTexture("res/images/textures/dungeon.png"),
-	//	glm::vec2(0.03f, 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
+	/// ---------- here
 	
 }
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
 #include <config.hpp>
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
@@ -25,6 +28,8 @@ private:
 	std::vector<glm::mat4> aInstanceModels;
 	std::vector<glm::vec3> aInstanceColors;
 	std::vector<glm::vec4> aInstanceTexOffsets;
+	std::vector<GLuint> aInstanceTextures;
+	std::vector<GLuint> boundTextures;
 	
 	GLint lastMaxInstanceCount = -1;
 	

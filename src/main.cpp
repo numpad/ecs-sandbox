@@ -23,7 +23,8 @@
 #include <World.hpp>
 
 #include <cereal/types/memory.hpp>
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
+#include <fstream>
 
 void onResize(GLFWwindow *, int width, int height) {
 	glViewport(0, 0, width, height);
@@ -328,6 +329,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	static float pressrad = 0.01f, pressforce = 0.01f;
 	static float keycontrolspeed = 0.0015f;
 	static glm::vec3 spawnpoint(0.0f);
+	static char texpath[512] = "res/images/textures/dungeon.png";
 	
 	static int spawnamount = 1;
 	static float spawnveloff = 0.02f;
@@ -361,6 +363,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 			Text("Billboard:");
 			DragFloat2("Size", &bbsize[0], 0.001f);
 			ColorEdit3("Color", &bbcolor[0]);
+			InputText("Texture", texpath, 512);
 		}
 		if (hasruntt) {
 			Text("RunToTarget:");
@@ -395,7 +398,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				if (hasvel) registry.assign<CVelocity>(entity,
 					m3d::randomizeVec3(vel, spawnveloff));
 				if (hasgrav) registry.assign<CGravity>(entity);
-				if (hasbb) registry.assign<CBillboard>(entity, world.getAssetManager().getTexture("res/images/textures/dungeon.png"), bbsize, bbcolor);
+				if (hasbb) registry.assign<CBillboard>(entity, world.getAssetManager().getTexture(texpath), bbsize, bbcolor);
 				if (hasruntt) {
 					if (runttToPlayer) registry.assign<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear);
 					else registry.assign<CRunningToTarget>(entity, rttpos, rttforce, rttnear);
@@ -506,6 +509,7 @@ int main(int, char**) {
 			vel.maxvel = 5.0f;
 			vel.acc = glm::normalize(crosspos - targetPos) * 0.2f;
 			vel.acc.y = vel.vel.y = 0.0f;
+			auto &playervel = world.getRegistry().get<CVelocity>(world.getPlayer());
 		}
 		
 		#if CFG_IMGUI_ENABLED
