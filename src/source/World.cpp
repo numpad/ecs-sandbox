@@ -55,6 +55,7 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 	registry.assign<CVelocity>(entity, rdir);
 	registry.assign<CBillboard>(entity,
 		this->assetManager.getTexture("res/images/textures/dungeon.png"), rsize, rcol);
+	registry.get<CBillboard>(entity).setSubRect(1.0f * 16.0f, 10.0f * 16.0f, 16.0f, 16.0f, 256, 256);
 	registry.assign<CGravity>(entity);
 	registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
 	registry.assign<CJumpTimer>(entity, 0);
@@ -89,7 +90,7 @@ entt::entity World::spawnPlayer(glm::vec3 pos) {
 	return this->player;
 }
 
-void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {	
+void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 	gravitySystem.update(registry, tileGrid);
 	popcorn.update(registry);
 	wayfindSystem.update(registry);

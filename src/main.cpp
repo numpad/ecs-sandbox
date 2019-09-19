@@ -270,8 +270,10 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		static int srstart[2] = {0};
 		const int texw = 256, texh = 256, tilesize = 16;
 		
-		bool a = SliderInt2("tilepos", srstart, 0, texw / tilesize);
-		if (a) registry.get<CBillboard>(entity).setSubRect(srstart[0] * float(tilesize), srstart[1] * float(tilesize), float(tilesize), float(tilesize), texw, texh);
+		bool a = SliderInt2("tilepos", srstart, 0, (texw / tilesize) - 1);
+		if (a) registry.get<CBillboard>(entity).setSubRect(
+			float(srstart[0]) * float(tilesize), float(srstart[1]) * float(tilesize),
+			float(tilesize), float(tilesize), texw, texh);
 		
 		SameLine();
 		if (Button("X##3")) {
@@ -502,6 +504,7 @@ int main(int, char**) {
 		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 		
 		// fire
+		if (false)
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 			auto e = world.spawnDefaultEntity(targetPos);
 			world.getRegistry().remove<CSphereCollider>(e);
