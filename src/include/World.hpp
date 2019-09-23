@@ -1,9 +1,12 @@
 #pragma once
 
 #include <stdio.h>
+#include <random>
+#include <array>
+#include <vector>
+
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
-#include <random>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Grid2D.hpp>

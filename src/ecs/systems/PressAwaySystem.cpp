@@ -17,7 +17,7 @@ void PressAwaySystem::update(entt::registry &registry) {
 					float dp = glm::length2(toMe) / glm::pow(presser.radius + other_presser.radius, 2.0f);
 					
 					if (entity != other_entity && dp <= 1.0f && dp >= 0.01f) {
-						mean_vel += glm::normalize(toMe) * (1.1f - dp) * other_presser.force;
+						mean_vel += glm::normalize(toMe) * (1.0f - dp) * other_presser.force;
 						count++;
 					}
 				});

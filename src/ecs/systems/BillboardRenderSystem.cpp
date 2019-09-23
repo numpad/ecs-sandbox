@@ -50,14 +50,15 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 		this->aInstanceColors.push_back(bb.color);
 		this->aInstanceTexOffsets.push_back(bb.texture_offset);
 		
-		const GLuint texture = bb.texture->getTexture();
+		// collect required entitiy textures to bind
+		const Texture *texture = bb.texture;
 		auto exists = std::find(boundTextures.begin(), boundTextures.end(), texture);
 		
 		if (exists == boundTextures.end()) {
 			// texture is not bound
 			this->aInstanceTextures.push_back(boundTextures.size());
 			glActiveTexture(GL_TEXTURE0 + (GLuint)boundTextures.size());
-			glBindTexture(GL_TEXTURE_2D, texture);
+			glBindTexture(GL_TEXTURE_2D, (GLuint)*texture);
 			
 			std::string uniformName = (std::string("uTextures[") + std::to_string(boundTextures.size()) + std::string("]"));
 			shader[uniformName.c_str()] = (GLint)boundTextures.size();
@@ -79,12 +80,14 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			
 			int j = 0;
 			for (auto i : boundTextures) {
-				Image((void *)i, ImVec2(100.f, 100.f));
+				Image((void *)i->getTexture(),
+					ImVec2(100.f, 100.f * i->getAspectRatio()),
+					ImVec2(0,1), ImVec2(1, 0));
 				SameLine();
 				GLint b;
 				glActiveTexture(GL_TEXTURE0 + j);
 				glGetIntegerv(GL_TEXTURE_BINDING_2D, &b);
-				Text("glActiveTexture(GL_TEXTURE%d)\nglBindTexture(GL_TEXTURE_2D, %d=%d)", j, i, b);
+				Text("glActiveTexture(GL_TEXTURE%d)\nglBindTexture(GL_TEXTURE_2D, %d=%d)", j, i->getTexture(), b);
 				++j;
 			}
 			

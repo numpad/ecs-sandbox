@@ -29,7 +29,9 @@ glm::vec2 Texture::getNormalizedPixelSize() const {
 // loading data
 
 bool Texture::loadImage(std::string path) {
+	// TODO: toggle with flag
 	stbi_set_flip_vertically_on_load(true);
+	
 	unsigned char *data = stbi_load(path.c_str(), &width, &height, &nChannels, 0);
 	if (!data) return false;
 	

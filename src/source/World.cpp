@@ -108,11 +108,44 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 
 void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 	#if CFG_IMGUI_ENABLED
-		if (ImGui::Begin("render")) {
-			if (ImGui::Button("Reset")) {
+		if (ImGui::Begin("entities", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar)) {
+			using namespace ImGui;
+			using namespace glm;
+			if (Button("Reset")) {
 				registry.reset();
 				spawnPlayer();
 			}
+			// minimap
+			ImVec2 winsize = GetContentRegionAvail();
+			const mat3 transform = mat3(
+				vec3(winsize.x, 0.0f, 0.0f),
+				vec3(0.0f, winsize.y, 0.0f),
+				vec3(winsize.x * 0.5f, winsize.y * 0.5f, 1.0f));
+			vec3 originP = vec3(0.0f, 0.0f, 1.0f);
+			if (registry.valid(getPlayer())) {
+				originP.x = registry.get<CPosition>(getPlayer()).pos.x;
+				originP.y = registry.get<CPosition>(getPlayer()).pos.z;
+			}
+			vec2 origin = vec2(transform * originP);
+			
+			auto drawlist = GetWindowDrawList();
+			auto wp = GetCursorScreenPos(); // offset of display top left to window
+			const float s = 0.1f; // scale
+			
+			registry.view<CPosition, CSphereCollider, CBillboard>().each([&](auto entity, auto &pos, auto &sphere, auto &bb){
+				const vec2 op = vec2(transform * vec3(pos.pos.x * s, pos.pos.z * s, 1.0));
+				float radius = sphere.radius * 50.0f;
+				ImColor color = ImColor(1.0f, 0.0f, 0.0f);
+				if (registry.has<CKeyboardControllable>(entity)) {
+					color = ImColor(0.0f, 0.0f, 1.0f);
+					vec2 camdir = vec2(pos.pos.x, pos.pos.z) - vec2(camPos.x, camPos.z);
+					drawlist->AddLine(ImVec2(wp.x + op.x - origin.x * s, wp.y + op.y - origin.y * s),
+						ImVec2(wp.x + op.x + normalize(camdir).x * 35.0f - origin.x * s, wp.y + op.y + normalize(camdir).y * 35.0f - origin.y * s),
+						ImColor(1.0f, 1.0f, 0.0f));
+				}
+				drawlist->AddCircleFilled(ImVec2(wp.x + op.x - origin.x * s, wp.y + op.y - origin.y * s), radius, color, 12);
+			});
+			
 		}
 		ImGui::End();
 	#endif
@@ -148,8 +181,15 @@ void World::setupFloor() {
 	// mapgen
 	int x = 0, y = 0;
 	Random r;
-	for (int i = 0; i < 10; ++i) {
-		tileGrid.set(x, y, assetManager.getModel("res/models/world/dungeon_floor.blend"));
+	Model* models[] = {
+		assetManager.getModel("res/models/world/dungeon_floor.blend"),
+		assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"),
+		assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"),
+		assetManager.getModel("res/models/world/dungeon_floor_wall2_opposite.blend")};
+	
+	for (int i = 0; i < 48; ++i) {
+		
+		tileGrid.set(x, y, models[size_t(r() * 2.0)]);
 		auto rng = r();
 		if (rng < 0.25) x--;
 		else if (rng < 0.5) x++;

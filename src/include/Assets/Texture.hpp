@@ -35,6 +35,7 @@ public:
 	inline int getChannels() const { return nChannels; }
 	
 	// convenience
+	inline float getAspectRatio() const { return float(height) / float(width); }
 	glm::vec2 getNormalizedPixelSize() const;
 	
 	// opengl data accessors

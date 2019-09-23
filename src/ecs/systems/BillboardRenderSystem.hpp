@@ -29,7 +29,7 @@ private:
 	std::vector<glm::vec3> aInstanceColors;
 	std::vector<glm::vec4> aInstanceTexOffsets;
 	std::vector<GLuint> aInstanceTextures;
-	std::vector<GLuint> boundTextures;
+	std::vector<const Texture *> boundTextures;
 	
 	GLint lastMaxInstanceCount = -1;
 	
