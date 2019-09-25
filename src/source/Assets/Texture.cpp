@@ -19,6 +19,10 @@ Texture::Texture(Texture::Flags flags)
 }
 
 Texture::~Texture() {
+	#if CFG_DEBUG
+		printf("[LOG] Texture: deleted texture\n");
+	#endif
+	
 	this->destroy();
 }
 
@@ -29,8 +33,8 @@ glm::vec2 Texture::getNormalizedPixelSize() const {
 // loading data
 
 bool Texture::loadImage(std::string path) {
-	// TODO: toggle with flag
-	stbi_set_flip_vertically_on_load(true);
+	bool flip_y = !isFlagSet(Texture::Flags::NO_VERTICAL_FLIP);
+	stbi_set_flip_vertically_on_load(flip_y);
 	
 	unsigned char *data = stbi_load(path.c_str(), &width, &height, &nChannels, 0);
 	if (!data) return false;
@@ -48,7 +52,7 @@ bool Texture::loadMemory(unsigned char *data, int width, int height, int channel
 	glTexImage2D(GL_TEXTURE_2D, 0, channelsToEnum(channels), width, height, 0,
 		channelsToEnum(channels), GL_UNSIGNED_BYTE, data);
 	
-	if (flags & Texture::Flags::GEN_MIPMAPS) {
+	if (this->isFlagSet(Texture::Flags::GEN_MIPMAPS)) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 		#if CFG_DEBUG
 			printf("[LOG] Texture: GEN_MIPMAPS flag is set! Generating...\n");
@@ -125,6 +129,10 @@ std::string Texture::getUsageString() const {
 // PRIVATE //
 /////////////
 
+bool Texture::isFlagSet(Flags flag) {
+	return this->flags & flag;
+}
+
 void Texture::create() {
 	glGenTextures(1, &texture);
 	
@@ -135,7 +143,7 @@ void Texture::create() {
 	this->setWrapMode(Texture::WrapMode::CLAMP);
 	
 	GLint minfilter = GL_NEAREST;
-	if (flags & Texture::Flags::GEN_MIPMAPS)
+	if (this->isFlagSet(Texture::Flags::GEN_MIPMAPS))
 		minfilter = GL_NEAREST_MIPMAP_LINEAR;
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minfilter);

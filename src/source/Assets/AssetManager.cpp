@@ -32,7 +32,18 @@ AssetManager::~AssetManager() {
 
 // texture loading
 
-bool AssetManager::loadTexture(std::string path) {
+bool AssetManager::preloadTexture(std::string path, Texture::Flags flags,
+		Texture::WrapMode wrap_s, Texture::WrapMode wrap_t)
+{
+	bool loaded = this->loadTexture(path, flags);
+	if (!loaded) return false;
+	
+	getTexture(path)->setWrapMode(wrap_s, wrap_t);
+	
+	return true;
+}
+
+bool AssetManager::loadTexture(std::string path, Texture::Flags flags) {
 	auto texture = textures.find(path);
 	
 	// texture already loaded
@@ -44,7 +55,7 @@ bool AssetManager::loadTexture(std::string path) {
 		return false;
 	}
 	
-	Texture *tex = new Texture(Texture::Flags::GEN_MIPMAPS);
+	Texture *tex = new Texture(flags);
 	bool is_loaded = tex->loadImage(path);
 	
 	if (is_loaded) {
@@ -66,7 +77,7 @@ bool AssetManager::loadTexture(std::string path) {
 Texture *AssetManager::getTexture(std::string path) {
 	auto texture = textures.find(path);
 	if (texture == textures.end()) {
-		bool is_loaded = loadTexture(path);
+		bool is_loaded = loadTexture(path, Texture::Flags::NONE);
 		if (!is_loaded) return nullptr;
 	}
 	

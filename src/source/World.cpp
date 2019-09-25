@@ -5,10 +5,7 @@ extern GLFWwindow *window;
 World::World()
 	: charControllerSystem(window)
 {
-	//auto group = registry.group<CPosition, CBillboard>();
-	
 	setupFloor();
-	
 	// spawn player
 	spawnPlayer();
 	

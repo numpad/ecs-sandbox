@@ -21,9 +21,16 @@ public:
 	AssetManager(const AssetManager &copy) = delete;
 	~AssetManager();
 	
+	// preparing data
+	bool preloadTexture(std::string path,
+		Texture::Flags flags = Texture::Flags::NONE,
+		Texture::WrapMode wrap_s = Texture::WrapMode::CLAMP,
+		Texture::WrapMode wrap_t = Texture::WrapMode::CLAMP);
+	
 	// retrieving data
 	Texture *getTexture(std::string path);
 	Model *getModel(std::string path);
+	
 	
 private:
 	std::string base_path;
@@ -33,7 +40,7 @@ private:
 	std::vector<Mesh *> meshes;
 	
 	// loading data
-	bool loadTexture(std::string path);
+	bool loadTexture(std::string path, Texture::Flags flags);
 	bool loadModel(std::string path);
 	
 	Mesh *collectMesh(Mesh *m);

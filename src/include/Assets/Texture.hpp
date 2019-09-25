@@ -1,5 +1,6 @@
 #pragma once
 
+#include <config.hpp>
 #include <string>
 #include <GL/gl3w.h>
 #include <stb/stb_image.h>
@@ -20,8 +21,9 @@ public:
 	};
 	
 	enum Flags {
-		NONE = 0,
-		GEN_MIPMAPS = 1
+		NONE             = 1 << 0,
+		GEN_MIPMAPS      = 1 << 1,
+		NO_VERTICAL_FLIP = 1 << 2
 	};
 public:
 	
@@ -57,6 +59,7 @@ public:
 	void setWrapMode(WrapMode s, WrapMode t);
 	void setWrapMode(WrapMode s_and_t);
 	void setBorderColor(float r, float g, float b, float a = 1.0f);
+	// TODO: min+mag filter
 	
 	// usage type
 	void setUsageType(UsageType type);
@@ -64,6 +67,8 @@ public:
 	std::string getUsageString() const;
 	
 private:
+	
+	bool isFlagSet(Flags flag);
 	
 	void create();
 	
