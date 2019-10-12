@@ -8,8 +8,6 @@ World::World()
 	setupFloor();
 	// spawn player
 	spawnPlayer();
-	
-	
 }
 
 World::~World() {
@@ -68,8 +66,9 @@ entt::entity World::spawnPlayer(glm::vec3 pos) {
 	
 	this->player = spawnDefaultEntity(pos);
 	registry.assign<CKeyboardControllable>(this->player, 0.003f);
+	TiledTexture *playertex = assetManager.getTiledTexture("res/images/sprites/guy_stand_frames.png", 16, 16, 0, 0);
 	registry.assign_or_replace<CBillboard>(this->player,
-		this->assetManager.getTexture("res/images/sprites/guy_stand_frames.png"),
+		playertex, 
 		glm::vec2(0.2f, 0.2f), glm::vec3(0.961f, 0.8f, 0.545f));
 	registry.get<CBillboard>(this->player).setSubRect(1.0f * 16.0f, 0.0f * 16.0f,
 		16.0f, 16.0f, 48, 16);
@@ -81,8 +80,11 @@ entt::entity World::spawnPlayer(glm::vec3 pos) {
 	// world pos crosshair
 	worldCrosshair = registry.create();
 	registry.assign<CPosition>(worldCrosshair, glm::vec3(0.0f));
-	//registry.assign<CBillboard>(worldCrosshair, this->assetManager.getTexture("res/images/textures/dungeon.png"),
-	//	glm::vec2(0.03f, 0.25f), glm::vec3(0.0f, 1.0f, 0.0f));
+	// TODO: assetManager.newTiledTexture("res/...", tile_x, tile_y, tileset_width, tileset_height)
+	//registry.assign<CBillboard>(worldCrosshair, assetManager.getTexture("res/images/sprites/arrows.png"),
+	//	glm::vec2(0.2f, 0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+	TiledTexture *tiledtex = assetManager.getTiledTexture("res/images/sprites/arrows.png", 64, 64, 0, 0);
+	registry.assign<CBillboard>(worldCrosshair, tiledtex, glm::vec2(0.4f, 0.4f));
 	
 	return this->player;
 }

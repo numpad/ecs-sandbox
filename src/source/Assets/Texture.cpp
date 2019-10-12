@@ -18,13 +18,42 @@ Texture::Texture(Texture::Flags flags)
 	
 }
 
-Texture::~Texture() {
-	#if CFG_DEBUG
-		printf("[LOG] Texture: deleted texture\n");
-	#endif
-	
-	this->destroy();
+Texture::Texture(const Texture &copy) {
+	width     = copy.width;
+	height    = copy.height;
+	nChannels = copy.nChannels;
+	flags     = copy.flags;
+	usageType = copy.usageType;
+	texture   = copy.texture;
+	prevBoundTexture = copy.prevBoundTexture;
+	subrect   = copy.subrect;
 }
+
+Texture::~Texture() {
+}
+
+// subrect
+
+glm::vec4 Texture::getSubRect() const {
+	return subrect;
+}
+
+void Texture::resetSubRect() {
+	subrect = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+}
+
+void Texture::flipSubRect(Texture::Flip flip) {
+	if (flip & Texture::Flip::HORIZONTAL) {
+		subrect.x += subrect.z;
+		subrect.z *= -1.0f;
+	}
+	if (flip & Texture::Flip::VERTICAL) {
+		subrect.y += subrect.w;
+		subrect.w *= -1.0f;
+	}
+}
+
+// convenience
 
 glm::vec2 Texture::getNormalizedPixelSize() const {
 	return glm::vec2(1.0f / (float)getWidth(), 1.0f / (float)getHeight());
@@ -63,10 +92,27 @@ bool Texture::loadMemory(unsigned char *data, int width, int height, int channel
 	return true;
 }
 
+bool Texture::loadTexture(const Texture &texture) {
+	this->width = texture.width;
+	this->height = texture.height;
+	this->nChannels = texture.nChannels;
+	this->flags = texture.flags;
+	this->usageType = texture.usageType;
+	this->texture = texture.texture;
+	this->subrect = texture.subrect;
+	
+	return true;
+}
+
 // destroying data
 
 void Texture::destroy() {
+	#if CFG_DEBUG
+		printf("[LOG] Texture: deleted texture @%u\n", texture);
+	#endif
+	
 	glDeleteTextures(1, &texture);
+	width = height = nChannels = 0;
 }
 
 
@@ -116,10 +162,10 @@ Texture::UsageType Texture::getUsageType() const {
 
 std::string Texture::getUsageString() const {
 	switch (usageType) {
-	case Texture::UsageType::DIFFUSE: return "Diffuse";
-	case Texture::UsageType::SPECULAR: return "Specular";
-	case Texture::UsageType::NORMAL: return "Normal";
-	default: break;
+		case Texture::UsageType::DIFFUSE: return "Diffuse";
+		case Texture::UsageType::SPECULAR: return "Specular";
+		case Texture::UsageType::NORMAL: return "Normal";
+		default: break;
 	};
 	
 	return "Diffuse";
@@ -135,6 +181,10 @@ bool Texture::isFlagSet(Flags flag) {
 
 void Texture::create() {
 	glGenTextures(1, &texture);
+	
+	#if CFG_DEBUG
+		printf("[LOG] Texture: created @%u\n", texture);
+	#endif
 	
 	this->bind();
 	

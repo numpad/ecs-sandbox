@@ -20,21 +20,34 @@ public:
 		DIFFUSE, SPECULAR, NORMAL
 	};
 	
+	// construction flags
 	enum Flags {
 		NONE             = 1 << 0,
 		GEN_MIPMAPS      = 1 << 1,
 		NO_VERTICAL_FLIP = 1 << 2
 	};
+	
+	enum Flip {
+		ORIGINAL   = 1 << 0,
+		HORIZONTAL = 1 << 1,
+		VERTICAL   = 1 << 2
+	};
+	
 public:
 	
 	Texture(Texture::Flags flags = Flags::NONE);
-	Texture(const Texture &copy) = delete;
-	~Texture();
+	Texture(const Texture &copy);
+	virtual ~Texture();
 	
 	// read only data
 	inline int getWidth() const { return width; }
 	inline int getHeight() const { return height; }
 	inline int getChannels() const { return nChannels; }
+	
+	// subrect
+	glm::vec4 getSubRect() const;
+	virtual void resetSubRect();
+	void flipSubRect(Flip flip);
 	
 	// convenience
 	inline float getAspectRatio() const { return float(height) / float(width); }
@@ -47,6 +60,7 @@ public:
 	// loading data
 	bool loadMemory(unsigned char *data, int width, int height, int channels = 0);
 	bool loadImage(std::string path);
+	bool loadTexture(const Texture &texture);
 	
 	// destroying data
 	void destroy();
@@ -80,5 +94,8 @@ private:
 	GLuint texture = 0;
 	GLint prevBoundTexture = 0;
 
+protected:
+	glm::vec4 subrect = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f); // xy = offset, zw = scale
+	
 };
 

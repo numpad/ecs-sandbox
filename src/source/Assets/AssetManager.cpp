@@ -5,6 +5,15 @@ AssetManager::~AssetManager() {
 	int freedTextures = 0;
 	for (auto iter : textures) {
 		++freedTextures;
+		iter.second->destroy();
+		delete iter.second;
+		iter.second = nullptr;
+	}
+	
+	int freedTiledTextures = 0;
+	for (auto iter : tiledtextures) {
+		++freedTiledTextures;
+		// no `iter.second->destroy();` since we destroyed it already as Texture*
 		delete iter.second;
 		iter.second = nullptr;
 	}
@@ -25,6 +34,7 @@ AssetManager::~AssetManager() {
 	
 	#if CFG_DEBUG
 		printf("[LOG] AssetManager: freed %d textures.\n", freedTextures);
+		printf("[LOG] AssetManager: freed %d tiledtextures.\n", freedTiledTextures);
 		printf("[LOG] AssetManager: freed %d models.\n", freedModels);
 		printf("[LOG] AssetManager: freed %d meshes.\n", freedMeshes);
 	#endif
@@ -48,6 +58,8 @@ bool AssetManager::loadTexture(std::string path, Texture::Flags flags) {
 	
 	// texture already loaded
 	// todo: reload from path
+	// todo: check if this texture is already loaded with the same flags,
+	//       if not: create new Texture*
 	if (texture != textures.end()) {
 		#if CFG_DEBUG
 			printf("[LOG] AssetManager: texture already loaded... skipping '%s'\n", (path).c_str());
@@ -78,10 +90,57 @@ Texture *AssetManager::getTexture(std::string path) {
 	auto texture = textures.find(path);
 	if (texture == textures.end()) {
 		bool is_loaded = loadTexture(path, Texture::Flags::NONE);
-		if (!is_loaded) return nullptr;
+		if (!is_loaded) {
+			#if CFG_DEBUG
+				printf("[WARN] AssetManager: getTexture(path) could not load:\n  path = \"%s\"!\n", path.c_str());
+			#endif
+			return nullptr;
+		}
 	}
 	
 	return textures.at(path);
+}
+
+TiledTexture *AssetManager::getTiledTexture(std::string path,
+		unsigned int tiles_w, unsigned int tiles_h, int tile_x, int tile_y)
+{
+	auto tile = tiledtextures.find(std::make_tuple(path, tiles_w, tiles_h, tile_x, tile_y));
+	if (tile == tiledtextures.end()) {
+		bool is_loaded = loadTiledTexture(path, tiles_w, tiles_h, tile_x, tile_y, Texture::Flags::NONE);
+		if (!is_loaded) {
+			#if CFG_DEBUG
+				printf("[WARN] AssetManager: getTiledTexture(path) could not load:\n  path = \"%s\"!\n", path.c_str());
+			#endif
+			return nullptr;
+		}
+	}
+	
+	return tiledtextures.at(std::make_tuple(path, tiles_w, tiles_h, tile_x, tile_y));
+}
+
+bool AssetManager::loadTiledTexture(std::string path,
+		unsigned int tiles_w, unsigned int tiles_h, int tile_x, int tile_y,
+		Texture::Flags flags)
+{
+	Texture *texture = getTexture(path);
+	if (texture == nullptr) {
+		#if CFG_DEBUG
+			printf("[WARN] AssetManager: loadTiledTexture(path) failed\n");
+		#endif
+		return false;
+	}
+	
+	TiledTexture *tt = new TiledTexture(tiles_w, tiles_h, flags);
+	if (!tt->loadTexture(*texture)) {
+		#if CFG_DEBUG
+			printf("[WARN] AssetManager: loadTiledTexture(path) TiledTexture::loadTexture(const Texture &copy) failed!\n");
+		#endif
+		return false;
+	}
+	tt->setTile(tile_x, tile_y);
+	
+	tiledtextures.insert({std::make_tuple(path, tiles_w, tiles_h, tile_x, tile_y), tt});
+	return true;
 }
 
 // model loading

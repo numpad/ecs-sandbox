@@ -332,6 +332,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	static float keycontrolspeed = 0.0015f;
 	static glm::vec3 spawnpoint(0.0f);
 	static char texpath[512] = "res/images/textures/dungeon.png";
+	static glm::ivec2 tiles(16, 16), tilepos(1, 10);
 	
 	static int spawnamount = 1;
 	static float spawnveloff = 0.02f;
@@ -358,7 +359,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		Checkbox("CSpawnPoint", &hasspawn);
 		Checkbox("CJumpTimer", &hasjumper);
 		
-		if (haspos) DragFloat3("CPosition", &pos[0], 0.001f);
+		//if (haspos) DragFloat3("CPosition", &pos[0], 0.001f);
 		if (hasvel) DragFloat3("CVelocity", &vel[0], 0.001f);
 		if (hasgrav) Text("Gravity: enabled");
 		if (hasbb) {
@@ -366,6 +367,9 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 			DragFloat2("Size", &bbsize[0], 0.001f);
 			ColorEdit3("Color", &bbcolor[0]);
 			InputText("Texture", texpath, 512);
+			DragInt2("Tiles", &tiles[0], 1);
+			DragInt2("Tile pos", &tilepos[0], 1);
+			
 		}
 		if (hasruntt) {
 			Text("RunToTarget:");
@@ -400,7 +404,9 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				if (hasvel) registry.assign<CVelocity>(entity,
 					m3d::randomizeVec3(vel, spawnveloff));
 				if (hasgrav) registry.assign<CGravity>(entity);
-				if (hasbb) registry.assign<CBillboard>(entity, world.getAssetManager().getTexture(texpath), bbsize, bbcolor);
+				if (hasbb) registry.assign<CBillboard>(entity,
+					world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y),
+					bbsize, bbcolor);
 				if (hasruntt) {
 					if (runttToPlayer) registry.assign<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear);
 					else registry.assign<CRunningToTarget>(entity, rttpos, rttforce, rttnear);
@@ -477,7 +483,7 @@ int main(int, char**) {
 		
 		// orbit camera calculations
 		static glm::vec3 camtarget(0.0f);
-		const float camToTargetSpeed = 0.08f;
+		const float camToTargetSpeed = 0.12f;
 		// ease camera to player or origin
 		glm::vec3 targetPos;
 		if (world.getPlayer() != entt::null && world.getRegistry().has<CPosition>(world.getPlayer())) {

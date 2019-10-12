@@ -1,8 +1,9 @@
 #version 450 core
+#define MAX_BOUND_TEXTURES 10
 
 uniform bool uDebugToggle;
 
-uniform sampler2D uTextures[10];
+uniform sampler2D uTextures[MAX_BOUND_TEXTURES];
 
 in vec2 vTexCoord;
 in vec2 vRawTexCoord;
@@ -17,7 +18,7 @@ void main() {
 		pixel = vec4(vColor, pixel.a);
 	
 	// debug
-	if (uDebugToggle && (abs(vRawTexCoord.y * 2.0 - 1.0) > 0.9 || abs(vRawTexCoord.x * 2.0 - 1.0) > 0.9)) {
+	if (uDebugToggle && (abs(vRawTexCoord.y * 2.0 - 1.0) > 0.9 || abs(vRawTexCoord.x * 2.0 - 1.0) > 0.9) && pixel.a < 0.1) {
 		if (vTextureIndex == 0u)
 			pixel = vec4(1.0, 0.0, 0.0, 1.0);
 		else if (vTextureIndex == 1u)

@@ -48,14 +48,13 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 		
 		this->aInstanceModels.push_back(billboardRO.calcModelMatrix(uView, pos.pos, bb.size));
 		this->aInstanceColors.push_back(bb.color);
-		this->aInstanceTexOffsets.push_back(bb.texture_offset);
+		this->aInstanceTexOffsets.push_back(bb.getSubRect());
 		
 		// collect required entitiy textures to bind
 		const Texture *texture = bb.texture;
-		auto exists = std::find(boundTextures.begin(), boundTextures.end(), texture);
+		auto exists = std::find_if(boundTextures.begin(), boundTextures.end(), [&](const auto &o) { return texture->getTexture() == o->getTexture(); });
 		
-		if (exists == boundTextures.end()) {
-			// texture is not bound
+		if (exists == boundTextures.end()) { // texture is not bound
 			this->aInstanceTextures.push_back(boundTextures.size());
 			glActiveTexture(GL_TEXTURE0 + (GLuint)boundTextures.size());
 			glBindTexture(GL_TEXTURE_2D, (GLuint)*texture);
@@ -64,8 +63,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			shader[uniformName.c_str()] = (GLint)boundTextures.size();
 			
 			boundTextures.push_back(texture);
-		} else {
-			// texture already bound
+		} else { // texture already bound
 			this->aInstanceTextures.push_back(std::distance(boundTextures.begin(), exists));
 		}
 	});
@@ -82,7 +80,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			for (auto i : boundTextures) {
 				Image((void *)i->getTexture(),
 					ImVec2(100.f, 100.f * i->getAspectRatio()),
-					ImVec2(0,1), ImVec2(1, 0));
+					ImVec2(0, 1), ImVec2(1, 0));
 				SameLine();
 				GLint b;
 				glActiveTexture(GL_TEXTURE0 + j);
