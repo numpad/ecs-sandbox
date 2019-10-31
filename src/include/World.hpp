@@ -67,7 +67,7 @@ private:
 	
 	// grid
 	Grid2D<Model> tileGrid;
-	//Grid2D<mat4> tileTransformGrid;
+	Grid2D<mat4> tileTransformGrid;
 	 
 	sgl::shader tileGridShader;
 	

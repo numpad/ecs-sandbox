@@ -200,9 +200,16 @@ void World::setupFloor() {
 		assetManager.getModel("res/models/world/dungeon_floor_wall2_opposite.blend")};
 	
 	for (int i = 0; i < 48; ++i) {
-		
+		// set model
 		tileGrid.set(x, y, models[size_t(r() * 2.0)]);
-		//tileTransformGrid.set(x, y, mat4(1.0f));
+		// random model matrix
+		mat4 *transform = new mat4;
+		// rotate around y axis
+		mat4 yRotation = rotate(mat4(1.0f), radians(90.0f * float(int(r() * 3.0f))), vec3(0.0f, 1.0f, 0.0f));
+		// flip on side (.blend file format stores meshes z-axis facing up)
+		*transform = rotate(yRotation, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
+		tileTransformGrid.set(x, y, transform);
+		
 		auto rng = r();
 		if (rng < 0.25) x--;
 		else if (rng < 0.5) x++;
@@ -222,7 +229,7 @@ void World::setupFloor() {
 }
 
 void World::destroyFloor() {
-	
+	tileTransformGrid.each([](int x, int y, mat4 *m){ delete m; });
 }
 
 void World::drawFloor(mat4 &uView, mat4 &uProjection) {
@@ -230,9 +237,12 @@ void World::drawFloor(mat4 &uView, mat4 &uProjection) {
 	tileGridShader["uView"] = uView;
 	tileGridShader["uProj"] = uProjection;
 	tileGrid.each([this](int x, int y, Model *model) {
-		mat4 uModel = mat4(1.0f);
-		uModel = translate(uModel, vec3(x * 2.0f, 0.0f, y * 2.0f));
-		uModel = rotate(uModel, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
+		mat4 uModel = *tileTransformGrid.at(x, y);
+		uModel[3][0] = 2.0f * x;
+		uModel[3][2] = 2.0f * y;
+		
+		//uModel = translate(uModel, vec3(x * 2.0f, 0.0f, y * 2.0f));
+		//uModel = rotate(uModel, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
 		
 		tileGridShader["uModel"] = uModel;
 		model->draw(tileGridShader);
