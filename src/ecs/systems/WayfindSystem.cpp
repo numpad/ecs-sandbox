@@ -8,10 +8,13 @@ void WayfindSystem::update(entt::registry &registry) {
 			if (pos.pos.y == 0.0f && glm::length(dirToTarget) > runToTarget.closeEnough) {
 				if (registry.has<CVelocity>(entity)) {
 					auto &vel = registry.get<CVelocity>(entity);
-					vel.acc += glm::normalize(dirToTarget) * runToTarget.force;
+					if (glm::length(vel.vel) < 0.009f)
+						vel.acc += glm::normalize(dirToTarget) * runToTarget.force;
 				} else {
 					pos.pos += glm::normalize(dirToTarget) * runToTarget.force;
 				}
+			} else { // reached target
+				if (runToTarget.stopOnceReached) registry.remove<CRunningToTarget>(entity);
 			}
 		});
 }

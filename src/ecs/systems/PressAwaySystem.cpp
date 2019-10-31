@@ -5,7 +5,7 @@ PressAwaySystem::~PressAwaySystem() {
 }
 
 void PressAwaySystem::update(entt::registry &registry) {
-	auto entities = registry.view<const CPosition, CVelocity, const CSphereCollider>();
+	auto entities = registry.view<CPosition, CVelocity, const CSphereCollider>();
 	entities.each([this, &entities]
 		(auto entity, auto &pos, auto &vel, auto &presser) {
 			
@@ -19,6 +19,9 @@ void PressAwaySystem::update(entt::registry &registry) {
 					if (entity != other_entity && dp <= 1.0f && dp >= 0.01f) {
 						mean_vel += glm::normalize(toMe) * (1.0f - dp) * other_presser.force;
 						count++;
+						// test
+						auto toOther = -toMe;
+						other_vel.acc += toOther * 0.1f;
 					}
 				});
 			if (count > 0) {

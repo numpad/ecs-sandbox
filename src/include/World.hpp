@@ -81,7 +81,7 @@ private:
 	PressAwaySystem pressawaySystem;
 	PositionUpdateSystem posUpdate;
 	//BillboardLookAtCameraSystem billboardOrientation;
-	BillboardRenderSystem billboardSystem = BillboardRenderSystem(assetManager);
+	BillboardRenderSystem billboardSystem;
 	
 	sgl::shader floorShader;
 	void setupFloor();

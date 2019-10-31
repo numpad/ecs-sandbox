@@ -11,14 +11,16 @@ struct CRunningToTarget {
 	float force;
 	float closeEnough = 1.0f;
 	
-	CRunningToTarget(glm::vec3 targetPos, float force, float close = 0.1f) 
-		: pos(targetPos), force(force), closeEnough(close)
+	bool stopOnceReached = true;
+	
+	CRunningToTarget(glm::vec3 targetPos, float force, float close = 0.1f, bool stopOnceReached = true) 
+		: pos(targetPos), force(force), closeEnough(close), stopOnceReached(stopOnceReached)
 	{
 	}
 	
 	
-	CRunningToTarget(entt::entity targetEntity, float force, float close = 0.1f) 
-		: entity(targetEntity), force(force), closeEnough(close)
+	CRunningToTarget(entt::entity targetEntity, float force, float close = 0.1f, bool stopOnceReached = true) 
+		: entity(targetEntity), force(force), closeEnough(close), stopOnceReached(stopOnceReached)
 	{
 	}
 	

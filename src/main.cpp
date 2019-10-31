@@ -204,7 +204,7 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 		angle_vel = 0.0f,
 		angle_acc = 0.3f,
 		cam_dist = 4.5f,
-		cam_y = 2.75f;
+		cam_y = 3.2f;
 	
 	angle_vel *= 0.9f;
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
@@ -245,7 +245,8 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		glm::vec3 &acc = registry.get<CVelocity>(entity).acc;
 		float &maxvel = registry.get<CVelocity>(entity).maxvel;
 		
-		DragFloat3("velocity", &vel[0], 0.001f);
+		Text("velocity = %.5f", glm::length(vel));
+		DragFloat3("vel", &vel[0], 0.001f);
 		DragFloat3("acceleration", &acc[0], 0.001f);
 		DragFloat("max velocity", &maxvel, 0.0001f);
 		static glm::vec3 impulse;
@@ -328,12 +329,12 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	static float rttforce = 0.01f;
 	static float rttnear = 0.1f;
 	static glm::vec3 rttpos(0.0f);
+	static bool rttonlyonce = true;
 	static float pressrad = 0.01f, pressforce = 0.01f;
 	static float keycontrolspeed = 0.0015f;
 	static glm::vec3 spawnpoint(0.0f);
 	static char texpath[512] = "res/images/textures/dungeon.png";
 	static glm::ivec2 tiles(16, 16), tilepos(1, 10);
-	
 	static int spawnamount = 1;
 	static float spawnveloff = 0.02f;
 	
@@ -374,6 +375,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		if (hasruntt) {
 			Text("RunToTarget:");
 			SameLine();
+			Checkbox("Only once", &rttonlyonce);
 			Checkbox("Player", &runttToPlayer);
 			if (!runttToPlayer) {
 				DragFloat3("Position", &rttpos[0], 0.001f);
@@ -408,8 +410,8 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 					world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y),
 					bbsize, bbcolor);
 				if (hasruntt) {
-					if (runttToPlayer) registry.assign<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear);
-					else registry.assign<CRunningToTarget>(entity, rttpos, rttforce, rttnear);
+					if (runttToPlayer) registry.assign<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
+					else registry.assign<CRunningToTarget>(entity, rttpos, rttforce, rttnear, rttonlyonce);
 				}
 				if (haspresser) registry.assign<CSphereCollider>(entity, pressrad, pressforce);
 				if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
@@ -448,6 +450,7 @@ int main(int, char**) {
 		// poll events
 		glfwPollEvents();
 		imguiBeforeFrame();
+		
 		
 		// calc time
 		double msCurrentTime = glfwGetTime();

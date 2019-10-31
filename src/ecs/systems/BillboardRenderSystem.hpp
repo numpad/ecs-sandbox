@@ -9,12 +9,11 @@
 #include <RenderObject/Billboard.hpp>
 #include <ecs/components.hpp>
 #include <imgui/imgui.h>
-#include <Assets/AssetManager.hpp>
 
 class BillboardRenderSystem {
 public:
 	
-	BillboardRenderSystem(AssetManager &am);
+	BillboardRenderSystem();
 	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	~BillboardRenderSystem();
 	
@@ -33,6 +32,5 @@ private:
 	
 	GLint lastMaxInstanceCount = -1;
 	
-	AssetManager &assetManager;
 };
 

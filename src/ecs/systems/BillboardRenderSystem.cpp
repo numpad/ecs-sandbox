@@ -1,8 +1,6 @@
 #include <ecs/systems/BillboardRenderSystem.hpp>
 
-BillboardRenderSystem::BillboardRenderSystem(AssetManager &am)
-	: assetManager(am)
-{
+BillboardRenderSystem::BillboardRenderSystem() {
 	glGenBuffers(1, &instanceBuffer);
 	
 }
@@ -52,7 +50,9 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 		
 		// collect required entitiy textures to bind
 		const Texture *texture = bb.texture;
-		auto exists = std::find_if(boundTextures.begin(), boundTextures.end(), [&](const auto &o) { return texture->getTexture() == o->getTexture(); });
+		// check if opengl texture id is already bound
+		auto exists = std::find_if(boundTextures.begin(), boundTextures.end(),
+			[&](const auto &o) { return texture->getTexture() == o->getTexture(); });
 		
 		if (exists == boundTextures.end()) { // texture is not bound
 			this->aInstanceTextures.push_back(boundTextures.size());
@@ -67,6 +67,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			this->aInstanceTextures.push_back(std::distance(boundTextures.begin(), exists));
 		}
 	});
+	
 	// debug
 	#if CFG_IMGUI_ENABLED
 		if (ImGui::Begin("textures")) {
@@ -87,11 +88,6 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 				glGetIntegerv(GL_TEXTURE_BINDING_2D, &b);
 				Text("glActiveTexture(GL_TEXTURE%d)\nglBindTexture(GL_TEXTURE_2D, %d=%d)", j, i->getTexture(), b);
 				++j;
-			}
-			
-			j = 0;
-			for (auto i : aInstanceTextures) {
-				Text("aTextures[%d] = %d", j++, i);
 			}
 		}
 		ImGui::End();
@@ -115,10 +111,6 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			+ aInstanceTexOffsets.size() * sizeof(glm::vec4)
 			+ aInstanceTextures.size() * sizeof(GLuint),
 			nullptr, GL_DYNAMIC_DRAW);
-		
-		#if CFG_DEBUG
-			printf("[LOG] BillboardRenderSystem: new buffer data.\n");
-		#endif
 	}
 	
 	//lastMaxInstanceCount = aInstanceModels.size();
