@@ -15,19 +15,18 @@ public:
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 	~Billboard();
 	
-	glm::mat4 calcModelMatrix(glm::mat4 &uView, glm::vec3 pos, glm::vec2 size);
+	static glm::mat4 calcModelMatrix(glm::mat4 &uView, glm::vec3 pos, glm::vec2 size);
 
 	inline GLuint getVAO() { return bbVAO; }
 	inline GLuint getVBO() { return bbVBO; }
 	inline GLuint getEBO() { return bbEBO; }
-	inline sgl::shader &getInstanceShader() { return bbInstanceShader; }
 	
 private:
 		
 	void draw(Texture *texture, glm::mat4 &uView, glm::mat4 &uProjection,
 		glm::vec3 pos, glm::vec2 size, glm::vec3 color);
 	
-	sgl::shader bbShader, bbInstanceShader;
+	sgl::shader bbShader;
 	GLuint bbVAO, bbVBO, bbEBO;
 	void setupBillboard();
 	void destroyBillboard();

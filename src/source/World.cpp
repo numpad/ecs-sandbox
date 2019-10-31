@@ -1,5 +1,7 @@
 #include <World.hpp>
 
+using namespace glm;
+
 extern GLFWwindow *window;
 
 World::World()
@@ -8,6 +10,7 @@ World::World()
 	setupFloor();
 	// spawn player
 	spawnPlayer();
+	loadSystems();
 }
 
 World::~World() {
@@ -15,7 +18,7 @@ World::~World() {
 	registry.reset();
 }
 
-entt::entity World::getNearestEntity(glm::vec3 posNear) {
+entt::entity World::getNearestEntity(vec3 posNear) {
 	entt::entity nearest = entt::null;
 	
 	registry.view<CPosition>().each([this, &nearest, posNear](auto entity, auto &pos) {
@@ -25,7 +28,7 @@ entt::entity World::getNearestEntity(glm::vec3 posNear) {
 				return;
 			}
 			
-			if (glm::distance(posNear, pos.pos) < glm::distance(posNear, this->registry.get<CPosition>(nearest).pos)) {
+			if (distance(posNear, pos.pos) < distance(posNear, this->registry.get<CPosition>(nearest).pos)) {
 				nearest = entity;
 			}
 		}
@@ -34,16 +37,16 @@ entt::entity World::getNearestEntity(glm::vec3 posNear) {
 	return nearest;
 }
 
-entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
+entt::entity World::spawnDefaultEntity(vec3 pos) {
 	static Random rand;
 	
-	glm::vec3 rdir = glm::normalize(glm::vec3(
+	vec3 rdir = normalize(vec3(
 		rand() * 2.0f - 1.0f, 0.01f,
 		rand() * 2.0f - 1.0f)) * 0.0025f;
 	
-	glm::vec2 rsize(rand() * 0.04f + 0.2f, rand() * 0.04f + 0.2f);
+	vec2 rsize(rand() * 0.04f + 0.2f, rand() * 0.04f + 0.2f);
 	
-	glm::vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
+	vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
 	
 	auto entity = registry.create();
 	registry.assign<CPosition>(entity, pos);
@@ -60,7 +63,7 @@ entt::entity World::spawnDefaultEntity(glm::vec3 pos) {
 	return entity;
 }
 
-entt::entity World::spawnPlayer(glm::vec3 pos) {
+entt::entity World::spawnPlayer(vec3 pos) {
 	if (registry.valid(player))
 		registry.destroy(this->player);
 	
@@ -69,33 +72,30 @@ entt::entity World::spawnPlayer(glm::vec3 pos) {
 	TiledTexture *playertex = assetManager.getTiledTexture("res/images/sprites/guy_stand_frames.png", 16, 16, 0, 0);
 	registry.assign_or_replace<CBillboard>(this->player,
 		playertex, 
-		glm::vec2(0.2f, 0.2f), glm::vec3(0.961f, 0.8f, 0.545f));
+		vec2(0.2f, 0.2f), vec3(0.961f, 0.8f, 0.545f));
 	registry.get<CBillboard>(this->player).setSubRect(1.0f * 16.0f, 0.0f * 16.0f,
 		16.0f, 16.0f, 48, 16);
 	
 	registry.remove<CJumpTimer>(this->player);
 	
-	registry.assign_or_replace<CSpawnPoint>(this->player, glm::vec3(0.0f, 0.5f, 0.0f));
+	registry.assign_or_replace<CSpawnPoint>(this->player, vec3(0.0f, 0.5f, 0.0f));
 	
 	// world pos crosshair
 	worldCrosshair = registry.create();
-	registry.assign<CPosition>(worldCrosshair, glm::vec3(0.0f));
+	registry.assign<CPosition>(worldCrosshair, vec3(0.0f));
 	// TODO: assetManager.newTiledTexture("res/...", tile_x, tile_y, tileset_width, tileset_height)
 	//registry.assign<CBillboard>(worldCrosshair, assetManager.getTexture("res/images/sprites/arrows.png"),
-	//	glm::vec2(0.2f, 0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//	vec2(0.2f, 0.2f), vec3(0.0f, 1.0f, 0.0f));
 	TiledTexture *tiledtex = assetManager.getTiledTexture("res/images/sprites/arrows.png", 64, 64, 0, 0);
-	registry.assign<CBillboard>(worldCrosshair, tiledtex, glm::vec2(0.4f, 0.4f));
+	registry.assign<CBillboard>(worldCrosshair, tiledtex, vec2(0.4f, 0.4f));
 	
 	return this->player;
 }
 
-void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
-	gravitySystem.update(registry, tileGrid);
-	popcorn.update(registry);
-	wayfindSystem.update(registry);
+void World::update(vec3 viewPos, vec3 viewDir) {
+	// update systems
 	charControllerSystem.update(registry, viewDir);
-	pressawaySystem.update(registry);
-	posUpdate.update(registry);
+	for (auto &sys : updateSystems) sys->update(registry);
 	
 	#if CFG_DEBUG
 		if (!registry.valid(player)) {
@@ -105,7 +105,7 @@ void World::update(glm::vec3 viewPos, glm::vec3 viewDir) {
 	#endif
 }
 
-void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
+void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 	#if CFG_IMGUI_ENABLED
 		if (ImGui::Begin("entities", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar)) {
 			using namespace ImGui;
@@ -161,8 +161,8 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 		
 		ticksSinceLastSort = 0;
 	}
-	billboardSystem.depthSort(registry, camPos);
-	billboardSystem.drawInstanced(registry, uView, uProjection);
+	billboardRenderSystem.depthSort(registry, camPos);
+	billboardRenderSystem.drawInstanced(registry, uView, uProjection);
 	
 }
 
@@ -170,6 +170,19 @@ void World::draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection) {
 ///////////////
 /// PRIVATE ///
 ///////////////
+
+void World::loadSystems() {
+	// clear all
+	updateSystems.clear();
+	
+	// create update systems
+	updateSystems.emplace_back(new GravitySystem(0.000981f, tileGrid));
+	updateSystems.emplace_back(new RandomJumpSystem(0.003f));
+	updateSystems.emplace_back(new WayfindSystem());
+	updateSystems.emplace_back(new PressAwaySystem());
+	updateSystems.emplace_back(new PositionUpdateSystem());
+	
+}
 
 void World::setupFloor() {
 	tileGridShader.load("res/glsl/proto/simpleMesh_vert.glsl", sgl::shader::VERTEX);
@@ -189,6 +202,7 @@ void World::setupFloor() {
 	for (int i = 0; i < 48; ++i) {
 		
 		tileGrid.set(x, y, models[size_t(r() * 2.0)]);
+		//tileTransformGrid.set(x, y, mat4(1.0f));
 		auto rng = r();
 		if (rng < 0.25) x--;
 		else if (rng < 0.5) x++;
@@ -197,7 +211,7 @@ void World::setupFloor() {
 		if (tileGrid.at(x, y) != nullptr) i--;
 		else {
 			for (int j = 0; j < int(r() * 4.0f); ++j) {
-				auto entity = spawnDefaultEntity(glm::vec3(x * 2.0f, 0.3f, y * 2.0f));
+				auto entity = spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
 				auto &vel = registry.get<CVelocity>(entity).acc;
 				vel.x = r() * 0.025f - 0.0125f;
 				vel.z = r() * 0.025f - 0.0125f;
@@ -205,22 +219,20 @@ void World::setupFloor() {
 		}
 	}
 	
-	/// ---------- here
-	
 }
 
 void World::destroyFloor() {
 	
 }
 
-void World::drawFloor(glm::mat4 &uView, glm::mat4 &uProjection) {
+void World::drawFloor(mat4 &uView, mat4 &uProjection) {
 	// draw worlds
 	tileGridShader["uView"] = uView;
 	tileGridShader["uProj"] = uProjection;
 	tileGrid.each([this](int x, int y, Model *model) {
-		glm::mat4 uModel = glm::mat4(1.0f);
-		uModel = glm::translate(uModel, glm::vec3(x * 2.0f, 0.0f, y * 2.0f));
-		uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		mat4 uModel = mat4(1.0f);
+		uModel = translate(uModel, vec3(x * 2.0f, 0.0f, y * 2.0f));
+		uModel = rotate(uModel, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
 		
 		tileGridShader["uModel"] = uModel;
 		model->draw(tileGridShader);

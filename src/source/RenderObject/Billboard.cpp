@@ -62,7 +62,7 @@ glm::mat4 Billboard::calcModelMatrix(glm::mat4 &uView, glm::vec3 pos,
 	
 	glm::vec3 rotAxis;
 	float angle = bbCylinder(campos, pos, rotAxis);
-	uModel = glm::translate(uModel, glm::vec3(pos.x, pos.y + size.y * 0.5f, pos.z));
+	uModel = glm::translate(uModel, glm::vec3(pos.x, pos.y, pos.z));
 	uModel = glm::rotate(uModel, angle, rotAxis);
 	uModel = glm::scale(uModel, glm::vec3(size.x, size.y, 0.0f));
 	
@@ -99,21 +99,16 @@ void Billboard::setupBillboard() {
 	bbShader.compile();
 	bbShader.link();
 	
-	bbInstanceShader.load("res/glsl/2d/billboard_instance_vert.glsl", sgl::shader::VERTEX);
-	bbInstanceShader.load("res/glsl/2d/billboard_instance_frag.glsl", sgl::shader::FRAGMENT);
-	bbInstanceShader.compile();
-	bbInstanceShader.link();
-	
 	glGenVertexArrays(1, &bbVAO);
 	glGenBuffers(1, &bbVBO);
 	glGenBuffers(1, &bbEBO);
 	
 	GLfloat vertices[] = {
 		// position
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		-0.5f,  0.5f, 0.0f,
-		 0.5f,  0.5f, 0.0f,
+		-0.5f,  0.0f, 0.0f,
+		 0.5f,  0.0f, 0.0f,
+		-0.5f,  1.0f, 0.0f,
+		 0.5f,  1.0f, 0.0f,
 		 // texcoords
 		 0.0f, 0.0f,
 		 1.0f, 0.0f,

@@ -3,8 +3,9 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <ecs/components.hpp>
+#include <ecs/systems/BaseUpdateSystem.hpp>
 
-class WayfindSystem {
+class WayfindSystem : public BaseUpdateSystem {
 public:
 	
 	WayfindSystem() = default;

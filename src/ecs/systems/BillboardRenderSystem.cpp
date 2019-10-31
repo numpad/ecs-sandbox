@@ -3,6 +3,12 @@
 BillboardRenderSystem::BillboardRenderSystem() {
 	glGenBuffers(1, &instanceBuffer);
 	
+	// load shader
+	instanceShader.load("res/glsl/2d/billboard_instance_vert.glsl", sgl::shader::VERTEX);
+	instanceShader.load("res/glsl/2d/billboard_instance_frag.glsl", sgl::shader::FRAGMENT);
+	instanceShader.compile();
+	instanceShader.link();
+	
 }
 
 BillboardRenderSystem::~BillboardRenderSystem() {
@@ -38,13 +44,11 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	aInstanceTextures.clear();
 	boundTextures.clear();
 	
-	auto &shader = billboardRO.getInstanceShader();
-	shader.use();
-	
+	instanceShader.use();
 	registry.view<CPosition, CBillboard>().each(
-		[this, &uView, &shader](auto entity, auto &pos, auto &bb) {
+		[this, &uView](auto entity, auto &pos, auto &bb) {
 		
-		this->aInstanceModels.push_back(billboardRO.calcModelMatrix(uView, pos.pos, bb.size));
+		this->aInstanceModels.push_back(Billboard::calcModelMatrix(uView, pos.pos, bb.size));
 		this->aInstanceColors.push_back(bb.color);
 		this->aInstanceTexOffsets.push_back(bb.getSubRect());
 		
@@ -60,7 +64,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			glBindTexture(GL_TEXTURE_2D, (GLuint)*texture);
 			
 			std::string uniformName = (std::string("uTextures[") + std::to_string(boundTextures.size()) + std::string("]"));
-			shader[uniformName.c_str()] = (GLint)boundTextures.size();
+			instanceShader[uniformName.c_str()] = (GLint)boundTextures.size();
 			
 			boundTextures.push_back(texture);
 		} else { // texture already bound
@@ -74,7 +78,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 			using namespace ImGui;
 			static bool uDebugToggle;
 			if (Checkbox("debug: draw instance texture id", &uDebugToggle)) {
-				shader["uDebugToggle"] = uDebugToggle;
+				instanceShader["uDebugToggle"] = uDebugToggle;
 			}
 			
 			int j = 0;
@@ -97,8 +101,8 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	// rendering:
 	
 	// prepare shader
-	shader["uView"] = uView;
-	shader["uProjection"] = uProjection;
+	instanceShader["uView"] = uView;
+	instanceShader["uProjection"] = uProjection;
 	
 	// resize instance data buffer
 	if (aInstanceModels.size() > (size_t)lastMaxInstanceCount || lastMaxInstanceCount < 0) {

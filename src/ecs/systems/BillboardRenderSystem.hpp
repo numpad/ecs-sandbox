@@ -9,6 +9,7 @@
 #include <RenderObject/Billboard.hpp>
 #include <ecs/components.hpp>
 #include <imgui/imgui.h>
+#include <util/sgl_shader.hpp>
 
 class BillboardRenderSystem {
 public:
@@ -21,9 +22,11 @@ public:
 	void drawInstanced(entt::registry &, glm::mat4 &uView, glm::mat4 &uProj);
 	
 private:
+	sgl::shader instanceShader;
+	
 	Billboard billboardRO;
 	GLuint instanceBuffer;
-		
+	
 	std::vector<glm::mat4> aInstanceModels;
 	std::vector<glm::vec3> aInstanceColors;
 	std::vector<glm::vec4> aInstanceTexOffsets;
@@ -31,6 +34,5 @@ private:
 	std::vector<const Texture *> boundTextures;
 	
 	GLint lastMaxInstanceCount = -1;
-	
 };
 

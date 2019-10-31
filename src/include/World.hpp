@@ -4,6 +4,7 @@
 #include <random>
 #include <array>
 #include <vector>
+#include <memory>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -28,6 +29,8 @@
 #include <Assets/Mesh.hpp>
 #include <Assets/Model.hpp>
 
+using namespace glm;
+
 class World {
 public:
 	
@@ -37,12 +40,12 @@ public:
 	~World();
 	
 	// entitites
-	entt::entity getNearestEntity(glm::vec3 pos);
-	entt::entity spawnDefaultEntity(glm::vec3 pos);
+	entt::entity getNearestEntity(vec3 pos);
+	entt::entity spawnDefaultEntity(vec3 pos);
 	
 	// gameloop
-	void update(glm::vec3 viewPos, glm::vec3 viewDir);
-	void draw(glm::vec3 &camPos, glm::mat4 &uView, glm::mat4 &uProjection);
+	void update(vec3 viewPos, vec3 viewDir);
+	void draw(vec3 &camPos, mat4 &uView, mat4 &uProjection);
 	
 	// getters
 	inline entt::registry &getRegistry() { return registry; }
@@ -58,35 +61,34 @@ public:
 			return worldCrosshair;
 		return entt::null;
 	}
-	inline float getGravity() const { return gravitySystem.getGravity(); };
 	
 private:
 	entt::registry registry;
 	
 	// grid
 	Grid2D<Model> tileGrid;
+	//Grid2D<mat4> tileTransformGrid;
+	 
 	sgl::shader tileGridShader;
 	
 	// entities
 	entt::entity player = entt::null,
 		worldCrosshair = entt::null;
 	
-	entt::entity spawnPlayer(glm::vec3 pos = glm::vec3(0.0f, 0.2f, 0.0f));
+	entt::entity spawnPlayer(vec3 pos = vec3(0.0f, 0.2f, 0.0f));
 	
 	// systems
-	GravitySystem gravitySystem = GravitySystem(0.000981f);
-	RandomJumpSystem popcorn = RandomJumpSystem(0.003f);
-	WayfindSystem wayfindSystem;
+	std::vector<std::unique_ptr<BaseUpdateSystem>> updateSystems;
 	CharacterController charControllerSystem;
-	PressAwaySystem pressawaySystem;
-	PositionUpdateSystem posUpdate;
-	//BillboardLookAtCameraSystem billboardOrientation;
-	BillboardRenderSystem billboardSystem;
+	BillboardRenderSystem billboardRenderSystem;
 	
+	void loadSystems();
+	
+	// shader & models
 	sgl::shader floorShader;
 	void setupFloor();
 	void destroyFloor();
-	void drawFloor(glm::mat4 &uView, glm::mat4 &uProjection);
+	void drawFloor(mat4 &uView, mat4 &uProjection);
 	
 	AssetManager assetManager;
 	

@@ -3,8 +3,9 @@
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
 #include <ecs/components.hpp>
+#include <ecs/systems/BaseUpdateSystem.hpp>
 
-class PositionUpdateSystem {
+class PositionUpdateSystem : public BaseUpdateSystem {
 public:
 	
 	PositionUpdateSystem() = default;

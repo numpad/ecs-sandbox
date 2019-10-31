@@ -4,13 +4,13 @@ static inline int tilePosRound(float v) {
 	return (v < 0.0f) ? (int)floor(floor(v) * 0.5f + 0.5f) : int(((float)int(v)) * 0.5f + 0.5f);
 }
 
-GravitySystem::GravitySystem(float gravity)
-	: gravity(gravity)
+GravitySystem::GravitySystem(float gravity, Grid2D<Model> &tileGrid)
+	: gravity(gravity), tileGrid(tileGrid)
 {
 }
 
-void GravitySystem::update(entt::registry &registry, const Grid2D<Model> &tileGrid) {
-	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry, &tileGrid](auto entity, auto &pos, auto &vel, auto &gravity) {
+void GravitySystem::update(entt::registry &registry) {
+	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry](auto entity, auto &pos, auto &vel, auto &gravity) {
 			
 		if (tileGrid.at(tilePosRound(pos.pos.x), tilePosRound(pos.pos.z)) == nullptr || pos.pos.y > 0.0f)
 			vel.acc.y -= this->gravity;
@@ -34,9 +34,9 @@ void GravitySystem::update(entt::registry &registry, const Grid2D<Model> &tileGr
 		}
 		
 		if (pos.pos.y < -5.0f) {
-			if (registry.has<CSpawnPoint>(entity)) {
-				glm::vec3 &playerpos = registry.get<CPosition>(entity).pos;
-				playerpos = registry.get<CSpawnPoint>(entity).getPosition(registry);
+			if (registry.has<CSpawnPoint>(entity)) {				
+				pos.pos = registry.get<CSpawnPoint>(entity).getPosition(registry);
+				vel.vel = glm::vec3(0.0f);
 			} else {
 				registry.destroy(entity);
 			}

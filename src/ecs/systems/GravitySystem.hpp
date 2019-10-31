@@ -3,18 +3,20 @@
 #include <Assets/Model.hpp>
 #include <entt/entt.hpp>
 #include <ecs/components.hpp>
+#include <ecs/systems/BaseUpdateSystem.hpp>
 #include <Grid2D.hpp>
 
-class GravitySystem {
+class GravitySystem : public BaseUpdateSystem {
 public:
 	
-	GravitySystem(float gravity);
+	GravitySystem(float gravity, Grid2D<Model> &tileGrid);
 	
-	void update(entt::registry &registry, const Grid2D<Model> &tileGrid);
+	void update(entt::registry &registry);
 	
 	inline float getGravity() const { return gravity; }
 	
 private:
 	float gravity;
+	Grid2D<Model> &tileGrid;
 	
 };
