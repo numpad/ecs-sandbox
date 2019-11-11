@@ -22,6 +22,10 @@
 #include <ecs/systems.hpp>
 #include <World.hpp>
 
+#include <Terrain/Terrain.hpp>
+#include <Terrain/CubeMarcher.hpp>
+
+
 #include <cereal/types/memory.hpp>
 #include <cereal/archives/json.hpp>
 #include <fstream>
@@ -438,8 +442,25 @@ int main(int, char**) {
 	if (!initGL()) fprintf(stderr, "initGL() failed.\n");
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 	
-	// init game
+	// testing
+	Terrain terrain;
+	CubeMarcher marcher(terrain);
 	
+	auto verticesvec3 = marcher.polygonize();
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	for (GLuint i = 0; i < verticesvec3.size(); ++i) {
+		vertices.push_back(Vertex(verticesvec3.at(i), vec3(0.f), vec2(0.f)));
+		indices.push_back(i);
+	}
+	
+	Mesh mMesh(vertices, indices);
+	sgl::shader mShader("res/glsl/proto/isosurface_vert.glsl", "res/glsl/proto/isosurface_frag.glsl");
+	glm::mat4 mMatrix = glm::mat4(1.0f);
+	//mMatrix = glm::scale(mMatrix, glm::vec3(20.0f));
+	mMatrix = glm::translate(mMatrix, glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	// init game
 	World world;
 	AssetManager &assetManager = world.getAssetManager();
 	
@@ -544,6 +565,11 @@ int main(int, char**) {
 		// rendering
 		glClearColor(0.231f, 0.275f, 0.302f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		mShader["uProj"] = uProj;
+		mShader["uView"] = uView;
+		mShader["uModel"] = mMatrix;
+		mMesh.draw(mShader);
 		
 		world.update(campos, glm::normalize(campos - camtarget));
 		world.draw(campos, uView, uProj);

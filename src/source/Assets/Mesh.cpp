@@ -1,5 +1,12 @@
 #include <Assets/Mesh.hpp>
 
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices)
+	: vertices(vertices), indices(indices)
+{
+	setupMesh();
+}
+
+
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture *> textures)
 	: vertices(vertices), indices(indices), textures(textures)
 {
