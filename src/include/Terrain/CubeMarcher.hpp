@@ -15,10 +15,17 @@ public:
 	
 	CubeMarcher(const Terrain &terrain);
 	
+	void setSampleRange(float cube);
+	void setSampleRange(vec3 min, vec3 max);
+	void setSampleDetail(float marchingCubeSize);
+	
 	std::vector<vec3> polygonize();
 	
 private:
-	float stepscale = 0.2f;
+	vec3 sampleRangeMin = vec3(-1.f);
+	vec3 sampleRangeMax = vec3(1.f);
+	float stepscale = 0.2f; // size of cubes to sample, smaller = finer
+	
 	const Terrain &terrain;
 	float isolevel = 0.0f;
 	

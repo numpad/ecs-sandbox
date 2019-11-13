@@ -22,7 +22,7 @@
 #include <ecs/systems.hpp>
 #include <World.hpp>
 
-#include <Terrain/Terrain.hpp>
+#include <Terrain/SignedDistTerrain.hpp>
 #include <Terrain/CubeMarcher.hpp>
 
 
@@ -176,6 +176,10 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	
+	// face culling
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	
 	/* check if debug enabled */
 	#if CFG_DEBUG
@@ -443,8 +447,13 @@ int main(int, char**) {
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 	
 	// testing
-	Terrain terrain;
+	SignedDistTerrain terrain;
+	terrain.addSphere(vec3(0.f, 0.5f, 0.f), 0.4f);
+	terrain.addSphere(vec3(0.f, 0.5f, 0.9f), 0.7f);
+	terrain.subSphere(vec3(0.f, 0.2f, 0.9f), 0.7f);
 	CubeMarcher marcher(terrain);
+	marcher.setSampleDetail(0.2f);
+	marcher.setSampleRange(1.f);
 	
 	auto verticesvec3 = marcher.polygonize();
 	std::vector<Vertex> vertices;
@@ -462,7 +471,7 @@ int main(int, char**) {
 	Mesh mMesh(vertices, indices);
 	sgl::shader mShader("res/glsl/proto/isosurface_vert.glsl", "res/glsl/proto/isosurface_frag.glsl");
 	glm::mat4 mMatrix = glm::mat4(1.0f);
-	mMatrix = glm::translate(mMatrix, glm::vec3(0.0f, 1.0f, 0.0f));
+	mMatrix = glm::translate(mMatrix, glm::vec3(0.0f, 0.2f, 0.0f));
 	
 	// init game
 	World world;

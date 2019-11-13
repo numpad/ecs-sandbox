@@ -8,13 +8,27 @@ CubeMarcher::CubeMarcher(const Terrain &terrain)
 	
 }
 
+void CubeMarcher::setSampleRange(float cube) {
+	setSampleRange(vec3(-cube), vec3(cube));
+}
+
+void CubeMarcher::setSampleRange(vec3 min, vec3 max) {
+	sampleRangeMin = min;
+	sampleRangeMax = max;
+}
+
+void CubeMarcher::setSampleDetail(float marchingCubeSize) {
+	stepscale = glm::abs(marchingCubeSize);
+}
+
 std::vector<vec3> CubeMarcher::polygonize() {
 	std::vector<vec3> triangleVertices;
 	
-	vec3 min(10.0f), max(10.0f);
-	for (float z = -min.z; z <= max.z; ++z) {
-		for (float y = -min.y; y <= max.y; ++y) {
-			for (float x = -min.x; x <= max.x; ++x) {
+	vec3 min = sampleRangeMin / stepscale,
+	     max = sampleRangeMax / stepscale;
+	for (float z = min.z; z <= max.z; ++z) {
+		for (float y = min.y; y <= max.y; ++y) {
+			for (float x = min.x; x <= max.x; ++x) {
 				polygonizeCube(vec3(x - 0.5f, y - 0.5f, z - 0.5f) * stepscale, triangleVertices);
 			}
 		}
