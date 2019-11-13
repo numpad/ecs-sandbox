@@ -137,4 +137,15 @@ namespace m3d {
 
 		return true;
 	}
+	
+	vec3 triangleCalcNormal(vec3 *triangle) {
+		vec3 a = triangle[0],
+		     b = triangle[1],
+		     c = triangle[2];
+
+		vec3 ba = (a - b),
+		     ca = (a - c);
+
+		return normalize(cross(ba, ca));
+	}
 }

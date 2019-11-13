@@ -11,10 +11,11 @@ CubeMarcher::CubeMarcher(const Terrain &terrain)
 std::vector<vec3> CubeMarcher::polygonize() {
 	std::vector<vec3> triangleVertices;
 	
-	for (float z = -3; z <= 3; ++z) {
-		for (float y = -3; y <= 3; ++y) {
-			for (float x = -3; x <= 3; ++x) {
-				polygonizeCube(vec3(x, y, z), triangleVertices);
+	vec3 min(10.0f), max(10.0f);
+	for (float z = -min.z; z <= max.z; ++z) {
+		for (float y = -min.y; y <= max.y; ++y) {
+			for (float x = -min.x; x <= max.x; ++x) {
+				polygonizeCube(vec3(x - 0.5f, y - 0.5f, z - 0.5f) * stepscale, triangleVertices);
 			}
 		}
 	}
@@ -30,14 +31,14 @@ std::vector<vec3> CubeMarcher::polygonize() {
 CubeMarcher::Cell CubeMarcher::getCell(vec3 pos) {
 	CubeMarcher::Cell cell;
 	
-	cell.points[0] = pos + vec3(0.f, 0.f, 0.f);
-	cell.points[1] = pos + vec3(1.f, 0.f, 0.f);
-	cell.points[2] = pos + vec3(1.f, 0.f, 1.f);
-	cell.points[3] = pos + vec3(0.f, 0.f, 1.f);
-	cell.points[4] = pos + vec3(0.f, 1.f, 0.f);
-	cell.points[5] = pos + vec3(1.f, 1.f, 0.f);
-	cell.points[6] = pos + vec3(1.f, 1.f, 1.f);
-	cell.points[7] = pos + vec3(0.f, 1.f, 1.f);
+	cell.points[0] = pos + vec3(0.f, 0.f, 0.f) * stepscale;
+	cell.points[1] = pos + vec3(1.f, 0.f, 0.f) * stepscale;
+	cell.points[2] = pos + vec3(1.f, 0.f, 1.f) * stepscale;
+	cell.points[3] = pos + vec3(0.f, 0.f, 1.f) * stepscale;
+	cell.points[4] = pos + vec3(0.f, 1.f, 0.f) * stepscale;
+	cell.points[5] = pos + vec3(1.f, 1.f, 0.f) * stepscale;
+	cell.points[6] = pos + vec3(1.f, 1.f, 1.f) * stepscale;
+	cell.points[7] = pos + vec3(0.f, 1.f, 1.f) * stepscale;
 	
 	cell.values[0] = terrain.get(cell.points[0]);
 	cell.values[1] = terrain.get(cell.points[1]);
@@ -74,7 +75,7 @@ int CubeMarcher::polygonizeCube(vec3 cellStart, std::vector<vec3> &triangleVerti
 	if (edges & 2048) vertices[11] = interpolate(cell.points[3], cell.points[7], cell.values[3], cell.values[7]);
 	
 	int tricount = 0;
-	for (int i = 0; TRIANGLE_TABLE[cubeindex][i] != -1; i += 3) {
+	for (int i = 0; TRIANGLE_TABLE[cubeindex][i] != -1; i += 3, ++tricount) {
 		 triangleVertices.push_back(vertices[TRIANGLE_TABLE[cubeindex][i    ]]);
 		 triangleVertices.push_back(vertices[TRIANGLE_TABLE[cubeindex][i + 1]]);
 		 triangleVertices.push_back(vertices[TRIANGLE_TABLE[cubeindex][i + 2]]);
@@ -108,16 +109,20 @@ bool CubeMarcher::getEdges(Cell cell, int *cubeindex, int *edges) {
 }
 
 vec3 CubeMarcher::interpolate(vec3 p1, vec3 p2, float v1, float v2) {
-	constexpr float EPSILON = 0.00001f;
+	// no interpolation:
+	// vec3 phd = (p2 - p1) * .5f;
+	// return p1 + phd;
+	
+	constexpr float EPSILON = 0.000001f;
 	vec3 p;
-
+	
 	if (glm::abs(isolevel - v1) < EPSILON)
 		return p1;
 	if (glm::abs(isolevel - v2) < EPSILON)
 		return p2;
 	if (glm::abs(v1 - v2) < EPSILON)
 		return p1;
-
+	
 	float mu = (isolevel - v1) / (v2 - v1);
 	p.x = p1.x + mu * (p2.x - p1.x);
 	p.y = p1.y + mu * (p2.y - p1.y);

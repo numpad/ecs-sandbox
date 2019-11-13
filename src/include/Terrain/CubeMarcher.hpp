@@ -18,6 +18,7 @@ public:
 	std::vector<vec3> polygonize();
 	
 private:
+	float stepscale = 0.2f;
 	const Terrain &terrain;
 	float isolevel = 0.0f;
 	

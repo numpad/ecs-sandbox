@@ -449,15 +449,19 @@ int main(int, char**) {
 	auto verticesvec3 = marcher.polygonize();
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
-	for (GLuint i = 0; i < verticesvec3.size(); ++i) {
-		vertices.push_back(Vertex(verticesvec3.at(i), vec3(0.f), vec2(0.f)));
-		indices.push_back(i);
+	for (GLuint i = 0; i < verticesvec3.size(); i += 3) {
+		vec3 n = m3d::triangleCalcNormal(&verticesvec3.at(i));
+		vertices.push_back(Vertex(verticesvec3.at(i    ), n, vec2(0.f)));
+		vertices.push_back(Vertex(verticesvec3.at(i + 1), n, vec2(0.f)));
+		vertices.push_back(Vertex(verticesvec3.at(i + 2), n, vec2(0.f)));
+		indices.push_back(i    );
+		indices.push_back(i + 1);
+		indices.push_back(i + 2);
 	}
 	
 	Mesh mMesh(vertices, indices);
 	sgl::shader mShader("res/glsl/proto/isosurface_vert.glsl", "res/glsl/proto/isosurface_frag.glsl");
 	glm::mat4 mMatrix = glm::mat4(1.0f);
-	//mMatrix = glm::scale(mMatrix, glm::vec3(20.0f));
 	mMatrix = glm::translate(mMatrix, glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	// init game
@@ -569,6 +573,13 @@ int main(int, char**) {
 		mShader["uProj"] = uProj;
 		mShader["uView"] = uView;
 		mShader["uModel"] = mMatrix;
+		mShader["uTextureScale"] = 0.33f;
+		mShader["uTexture"] = 0;
+		glActiveTexture(GL_TEXTURE0);
+		assetManager.getTexture("res/images/textures/floor.png")->setWrapMode(Texture::WrapMode::REPEAT);
+		assetManager.getTexture("res/images/textures/floor.png")->bind();
+		
+		mMatrix = glm::translate(mMatrix, glm::vec3(0.0f, glm::sin(glfwGetTime()), 0.0f) * 0.005f);
 		mMesh.draw(mShader);
 		
 		world.update(campos, glm::normalize(campos - camtarget));
