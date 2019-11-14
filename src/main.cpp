@@ -330,7 +330,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	using namespace ImGui;
 	entt::registry &registry = world.getRegistry();
 	
-	static glm::vec3 pos(0.0f);
+	//static glm::vec3 pos(0.0f);
 	static glm::vec3 vel(0.0f);
 	static glm::vec2 bbsize(0.2f, 0.2f);
 	static glm::vec3 bbcolor(1.0f);
@@ -448,12 +448,14 @@ int main(int, char**) {
 	
 	// testing
 	SignedDistTerrain terrain;
-	terrain.addSphere(vec3(0.f, 0.5f, 0.f), 0.4f);
-	terrain.addSphere(vec3(0.f, 0.5f, 0.9f), 0.7f);
-	terrain.subSphere(vec3(0.f, 0.2f, 0.9f), 0.7f);
+	terrain.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+	terrain.sphere(vec3(0.0f, 0.0f, 0.0f), 0.5f, SignedDistTerrain::Op::DIFF);
+	terrain.cylinder(vec3(0.f, 0.f, 0.f), 0.3f, 0.4f, SignedDistTerrain::Op::UNION);
+	terrain.box(vec3(0.f, 0.2f, 1.f), vec3(2.f, 0.7f, 0.2f));
+	
 	CubeMarcher marcher(terrain);
-	marcher.setSampleDetail(0.2f);
-	marcher.setSampleRange(1.f);
+	marcher.setSampleDetail(0.05f);
+	marcher.setSampleRange(.975f);
 	
 	auto verticesvec3 = marcher.polygonize();
 	std::vector<Vertex> vertices;
@@ -567,6 +569,10 @@ int main(int, char**) {
 					selected = world.getNearestEntity(crosspos);
 					pickingMode = false;
 				}
+				static bool wireframe = false;
+				if (ImGui::Checkbox("wireframe", &wireframe)) {
+					glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+				}
 				
 				// entity editor
 				imguiEntityEdit(world.getRegistry(), selected);
@@ -579,10 +585,11 @@ int main(int, char**) {
 		glClearColor(0.231f, 0.275f, 0.302f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		// TODO: refactor terrain rendering
 		mShader["uProj"] = uProj;
 		mShader["uView"] = uView;
 		mShader["uModel"] = mMatrix;
-		mShader["uTextureTopdownScale"] = 0.33f;
+		mShader["uTextureTopdownScale"] = 1.0f;
 		mShader["uTextureSideScale"] = 2.0f;
 		mShader["uTextureTopdown"] = 0;
 		mShader["uTextureSide"] = 1;
@@ -595,10 +602,10 @@ int main(int, char**) {
 		assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
 		assetManager.getTexture("res/images/textures/wall.png")->bind();
 		
-		
 		mMatrix = glm::translate(mMatrix, glm::vec3(0.0f, glm::sin(glfwGetTime()), 0.0f) * 0.005f);
 		mMesh.draw(mShader);
 		
+		// actual rendering
 		world.update(campos, glm::normalize(campos - camtarget));
 		world.draw(campos, uView, uProj);
 		
