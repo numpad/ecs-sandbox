@@ -38,7 +38,7 @@ static inline float sdUnionSmooth( float d1, float d2, float k ) {
 	return mix( d2, d1, h ) - k*h*(1.0f-h); }
 
 float SignedDistTerrain::sampleValue(vec3 p) const {
-	float d = 9999999.0f;
+	float d = std::numeric_limits<float>::max();
 	
 	int i = 0;
 	for (auto &b : bodies) {
@@ -46,7 +46,7 @@ float SignedDistTerrain::sampleValue(vec3 p) const {
 		// "b->p - p": transform sampled p according to position of b
 		float newdist = b->distance(b->p - p);
 		switch (op) {
-			case Op::UNION: d = sdUnionSmooth(d, newdist, 0.005f); break;
+			case Op::UNION: d = sdUnion(d, newdist); break;
 			case Op::DIFF: d = sdDiff(d, newdist); break;
 			case Op::INTERSECT: d = sdIntersect(d, newdist); break;
 		};

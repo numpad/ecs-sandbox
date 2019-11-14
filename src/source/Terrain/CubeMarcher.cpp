@@ -24,12 +24,18 @@ void CubeMarcher::setSampleDetail(float marchingCubeSize) {
 std::vector<vec3> CubeMarcher::polygonize() {
 	std::vector<vec3> triangleVertices;
 	
-	vec3 min = sampleRangeMin / stepscale,
-	     max = sampleRangeMax / stepscale;
+	// pixel perfect sample range takes marching cube size into account
+	vec3 ppmin = sampleRangeMin + stepscale * 0.5f;
+	vec3 ppmax = sampleRangeMax - stepscale * 0.5f;
+	
+	vec3 min = (ppmin) / stepscale,
+	     max = (ppmax) / stepscale;
 	for (float z = min.z; z <= max.z; ++z) {
 		for (float y = min.y; y <= max.y; ++y) {
 			for (float x = min.x; x <= max.x; ++x) {
-				polygonizeCube(vec3(x - 0.5f, y - 0.5f, z - 0.5f) * stepscale, triangleVertices);
+				// sample cube around point
+				vec3 sampleP = vec3(x, y, z) - 0.5f;
+				polygonizeCube(sampleP * stepscale, triangleVertices);
 			}
 		}
 	}
@@ -122,10 +128,37 @@ bool CubeMarcher::getEdges(Cell cell, int *cubeindex, int *edges) {
 	return true;
 }
 
+bool vec4LessThan(const vec4 &left, const vec4 &right) {
+	if (left.x < right.x)		return true;
+	else if (left.x > right.x)	return false;
+	if (left.y < right.y)		return true;
+	else if (left.y > right.y)	return false;
+	if (left.z < right.z)		return true;
+	else if (left.z > right.z)	return false;
+	return false;
+}
+
+vec3 LinearInterp(vec4 p1, vec4 p2, float value) {
+	if (vec4LessThan(p2, p1)) {
+		vec4 temp = p1;
+		p1 = p2;
+		p2 = temp;    
+	}
+
+	vec3 p;
+	if (glm::abs(p1.w - p2.w) > 0.00001)
+		p = vec3(p1) + (vec3(p2) - vec3(p1)) / (p2.w - p1.w) * (value - p1.w);
+	else 
+		p = vec3(p1 + (p2 - p1) * 0.5f);
+	return p;
+}
+
+
 vec3 CubeMarcher::interpolate(vec3 p1, vec3 p2, float v1, float v2) {
 	// no interpolation:
-	// vec3 phd = (p2 - p1) * .5f;
-	// return p1 + phd;
+	return LinearInterp(vec4(p1, v1), vec4(p2, v2), isolevel);
+	//vec3 phd = (p2 - p1) * .5f;
+	//return p1 + phd;
 	
 	constexpr float EPSILON = 0.000001f;
 	vec3 p;

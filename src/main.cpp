@@ -181,6 +181,10 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	
+	// improved wireframe rendering
+	glLineWidth(2.75f);
+	glEnable(GL_LINE_SMOOTH);
+	
 	/* check if debug enabled */
 	#if CFG_DEBUG
 	GLint flags;
@@ -451,12 +455,13 @@ int main(int, char**) {
 	terrain.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
 	terrain.sphere(vec3(0.0f, 0.0f, 0.0f), 0.5f, SignedDistTerrain::Op::DIFF);
 	terrain.cylinder(vec3(0.f, 0.f, 0.f), 0.3f, 0.4f, SignedDistTerrain::Op::UNION);
-	terrain.box(vec3(0.f, 0.2f, 1.f), vec3(2.f, 0.7f, 0.2f));
-	terrain.sphere(vec3(0.5f, 0.4f, 0.3f), 0.5f);
+	//terrain.box(vec3(0.f, 0.2f, 1.f), vec3(2.f, 0.5f, 0.2f));
+	//terrain.box(vec3(1.f, 0.2f, 0.f), vec3(0.2f, 0.5f, 2.0f));
+	//terrain.sphere(vec3(0.9f, 0.4f, 0.3f), 0.4f, SignedDistTerrain::Op::DIFF);
 	
 	CubeMarcher marcher(terrain);
-	marcher.setSampleDetail(0.05f);
-	marcher.setSampleRange(.975f);
+	marcher.setSampleDetail(0.1f);
+	marcher.setSampleRange(1.0f);
 	
 	auto verticesvec3 = marcher.polygonize();
 	std::vector<Vertex> vertices;

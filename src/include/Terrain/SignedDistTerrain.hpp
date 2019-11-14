@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include <tuple>
+#include <limits>
 #include <glm/glm.hpp>
 #include <Terrain/Terrain.hpp>
 
@@ -28,7 +28,7 @@ private:
 		vec3 b;
 		Box(vec3 p, vec3 b) : Body(p), b(b) {}
 		float distance(vec3 p) {
-			vec3 q = abs(p) - b;
+			vec3 q = glm::abs(p) - b;
 			return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
 		}
 	};
