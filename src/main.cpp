@@ -452,6 +452,7 @@ int main(int, char**) {
 	terrain.sphere(vec3(0.0f, 0.0f, 0.0f), 0.5f, SignedDistTerrain::Op::DIFF);
 	terrain.cylinder(vec3(0.f, 0.f, 0.f), 0.3f, 0.4f, SignedDistTerrain::Op::UNION);
 	terrain.box(vec3(0.f, 0.2f, 1.f), vec3(2.f, 0.7f, 0.2f));
+	terrain.sphere(vec3(0.5f, 0.4f, 0.3f), 0.5f);
 	
 	CubeMarcher marcher(terrain);
 	marcher.setSampleDetail(0.05f);
@@ -589,7 +590,7 @@ int main(int, char**) {
 		mShader["uProj"] = uProj;
 		mShader["uView"] = uView;
 		mShader["uModel"] = mMatrix;
-		mShader["uTextureTopdownScale"] = 1.0f;
+		mShader["uTextureTopdownScale"] = 2.0f;
 		mShader["uTextureSideScale"] = 2.0f;
 		mShader["uTextureTopdown"] = 0;
 		mShader["uTextureSide"] = 1;
@@ -602,7 +603,7 @@ int main(int, char**) {
 		assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
 		assetManager.getTexture("res/images/textures/wall.png")->bind();
 		
-		mMatrix = glm::translate(mMatrix, glm::vec3(0.0f, glm::sin(glfwGetTime()), 0.0f) * 0.005f);
+		mMatrix = glm::mat4(1.0f);
 		mMesh.draw(mShader);
 		
 		// actual rendering

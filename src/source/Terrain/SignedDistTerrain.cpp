@@ -46,7 +46,7 @@ float SignedDistTerrain::sampleValue(vec3 p) const {
 		// "b->p - p": transform sampled p according to position of b
 		float newdist = b->distance(b->p - p);
 		switch (op) {
-			case Op::UNION: d = sdUnionSmooth(d, newdist, 0.01f); break;
+			case Op::UNION: d = sdUnionSmooth(d, newdist, 0.005f); break;
 			case Op::DIFF: d = sdDiff(d, newdist); break;
 			case Op::INTERSECT: d = sdIntersect(d, newdist); break;
 		};
