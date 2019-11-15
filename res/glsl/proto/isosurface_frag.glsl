@@ -11,13 +11,15 @@ in vec3 vNormal;
 out vec4 Color;
 
 vec3 asymTriplanarBlend(vec3 normal) {
+	float yBlendEdge = 0.7;
+	
 	vec3 blend = vec3(0.0);
 	// sides only
 	vec2 xzBlend = abs(normalize(normal.xz));
-	blend.xz = max(vec2(0.0), xzBlend - 0.7);
+	blend.xz = max(vec2(0.0), xzBlend - yBlendEdge);
 	blend.xz /= max(0.00001, dot(blend.xz, vec2(1.0, 1.0)));
 	// top
-	blend.y = clamp((abs(normal.y) - 0.7 * 1.02) * 80.0, 0.0, 1.0);
+	blend.y = clamp((abs(normal.y) - yBlendEdge * 1.02) * 80.0, 0.0, 1.0);
 	blend.xz *= (1.0 - blend.y);
 	return blend;
 }

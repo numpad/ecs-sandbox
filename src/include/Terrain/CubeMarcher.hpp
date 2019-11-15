@@ -13,26 +13,23 @@ public:
 		float values[8];
 	};
 	
-	CubeMarcher(const Terrain &terrain);
+	CubeMarcher();
 	
 	void setSampleRange(float cube);
 	void setSampleRange(vec3 min, vec3 max);
 	void setSampleDetail(float marchingCubeSize);
 	
-	std::vector<vec3> polygonize();
+	std::vector<vec3> polygonize(const Terrain &terrain);
 	
 private:
 	vec3 sampleRangeMin = vec3(-1.f);
 	vec3 sampleRangeMax = vec3(1.f);
 	float stepscale = 0.2f; // size of cubes to sample, smaller = finer
-	
-	const Terrain &terrain;
 	float isolevel = 0.0f;
 	
-	CubeMarcher::Cell getCell(vec3 pos);
-	
 	// http://paulbourke.net/geometry/polygonise/
-	int polygonizeCube(vec3 cellStart, std::vector<vec3> &triangleVertices);
+	CubeMarcher::Cell getCell(const Terrain &terrain, vec3 pos);
+	int polygonizeCube(const Terrain &terrain, vec3 cellStart, std::vector<vec3> &triangleVertices);
 	bool getEdges(Cell start, int *cubeindex, int *edges);
 	vec3 interpolate(vec3 p1, vec3 p2, float valp1, float valp2);
 	

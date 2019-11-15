@@ -452,18 +452,24 @@ int main(int, char**) {
 	
 	// testing
 	SignedDistTerrain terrain;
+	// floor
 	terrain.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-	terrain.sphere(vec3(0.0f, 0.0f, 0.0f), 0.5f, SignedDistTerrain::Op::DIFF);
-	terrain.cylinder(vec3(0.f, 0.f, 0.f), 0.3f, 0.4f, SignedDistTerrain::Op::UNION);
-	//terrain.box(vec3(0.f, 0.2f, 1.f), vec3(2.f, 0.5f, 0.2f));
-	//terrain.box(vec3(1.f, 0.2f, 0.f), vec3(0.2f, 0.5f, 2.0f));
-	//terrain.sphere(vec3(0.9f, 0.4f, 0.3f), 0.4f, SignedDistTerrain::Op::DIFF);
+	// hole
+	terrain.sphere(vec3(0.0f), 0.4f, SignedDistTerrain::Op::DIFF);
+	// wall
+	terrain.box(vec3(0.0f, 0.5f, 1.8f), vec3(1.9f, 0.75f, 0.2f));
+	// spikes on wall
+	for (float i = -3.f; i <= 3.f; ++i)
+		terrain.box(vec3(i * .84f, 1.35f, 1.8f), vec3(0.2f, 0.1f, 0.2f));
+	// subtract door
+	terrain.sphere(vec3(0.0f, 0.5f, 1.75f), 0.45f, SignedDistTerrain::Op::DIFF);
+	terrain.box(vec3(0.0f, 0.3f, 1.8f), vec3(0.5f, 0.3f, 0.4f), SignedDistTerrain::Op::DIFF);
 	
-	CubeMarcher marcher(terrain);
+	CubeMarcher marcher;
 	marcher.setSampleDetail(0.1f);
-	marcher.setSampleRange(1.0f);
+	marcher.setSampleRange(2.0f);
 	
-	auto verticesvec3 = marcher.polygonize();
+	auto verticesvec3 = marcher.polygonize(terrain);
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	for (GLuint i = 0; i < verticesvec3.size(); i += 3) {
@@ -608,8 +614,14 @@ int main(int, char**) {
 		assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
 		assetManager.getTexture("res/images/textures/wall.png")->bind();
 		
-		mMatrix = glm::mat4(1.0f);
-		mMesh.draw(mShader);
+		for (int i = 0; i < 50; ++i) {
+			mMatrix = glm::mat4(1.0f);
+			mMatrix[3][1] = 0.5f + sin(glfwGetTime() + float(i) * 0.33f) * 0.2f;
+			mMatrix[3][2] = float(i * 4);
+			
+			mShader["uModel"] = mMatrix;
+			mMesh.draw(mShader);
+		}
 		
 		// actual rendering
 		world.update(campos, glm::normalize(campos - camtarget));

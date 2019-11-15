@@ -2,9 +2,7 @@
 
 using namespace glm;
 
-CubeMarcher::CubeMarcher(const Terrain &terrain)
-	: terrain(terrain)
-{
+CubeMarcher::CubeMarcher() {
 	
 }
 
@@ -21,7 +19,7 @@ void CubeMarcher::setSampleDetail(float marchingCubeSize) {
 	stepscale = glm::abs(marchingCubeSize);
 }
 
-std::vector<vec3> CubeMarcher::polygonize() {
+std::vector<vec3> CubeMarcher::polygonize(const Terrain &terrain) {
 	std::vector<vec3> triangleVertices;
 	
 	// pixel perfect sample range takes marching cube size into account
@@ -35,7 +33,7 @@ std::vector<vec3> CubeMarcher::polygonize() {
 			for (float x = min.x; x <= max.x; ++x) {
 				// sample cube around point
 				vec3 sampleP = vec3(x, y, z) - 0.5f;
-				polygonizeCube(sampleP * stepscale, triangleVertices);
+				polygonizeCube(terrain, sampleP * stepscale, triangleVertices);
 			}
 		}
 	}
@@ -48,7 +46,7 @@ std::vector<vec3> CubeMarcher::polygonize() {
 //  PRIVATE  //
 ///////////////
 
-CubeMarcher::Cell CubeMarcher::getCell(vec3 pos) {
+CubeMarcher::Cell CubeMarcher::getCell(const Terrain &terrain, vec3 pos) {
 	CubeMarcher::Cell cell;
 	
 	cell.points[0] = pos + vec3(0.f, 0.f, 0.f) * stepscale;
@@ -72,8 +70,8 @@ CubeMarcher::Cell CubeMarcher::getCell(vec3 pos) {
 	return cell;
 }
 
-int CubeMarcher::polygonizeCube(vec3 cellStart, std::vector<vec3> &triangleVertices) {
-	CubeMarcher::Cell cell = getCell(cellStart);
+int CubeMarcher::polygonizeCube(const Terrain &terrain, vec3 cellStart, std::vector<vec3> &triangleVertices) {
+	CubeMarcher::Cell cell = getCell(terrain, cellStart);
 	
 	int cubeindex, edges;
 	if (!getEdges(cell, &cubeindex, &edges)) return 0; // Cube/Cell is fully in/outside the surface
@@ -128,7 +126,7 @@ bool CubeMarcher::getEdges(Cell cell, int *cubeindex, int *edges) {
 	return true;
 }
 
-bool vec4LessThan(const vec4 &left, const vec4 &right) {
+static bool vec4LessThan(const vec4 &left, const vec4 &right) {
 	if (left.x < right.x)		return true;
 	else if (left.x > right.x)	return false;
 	if (left.y < right.y)		return true;
@@ -138,7 +136,7 @@ bool vec4LessThan(const vec4 &left, const vec4 &right) {
 	return false;
 }
 
-vec3 LinearInterp(vec4 p1, vec4 p2, float value) {
+static vec3 LinearInterp(vec4 p1, vec4 p2, float value) {
 	if (vec4LessThan(p2, p1)) {
 		vec4 temp = p1;
 		p1 = p2;
@@ -156,24 +154,8 @@ vec3 LinearInterp(vec4 p1, vec4 p2, float value) {
 
 vec3 CubeMarcher::interpolate(vec3 p1, vec3 p2, float v1, float v2) {
 	// no interpolation:
+	// vec3 phd = (p2 - p1) * .5f;
+	// return p1 + phd;
+	
 	return LinearInterp(vec4(p1, v1), vec4(p2, v2), isolevel);
-	//vec3 phd = (p2 - p1) * .5f;
-	//return p1 + phd;
-	
-	constexpr float EPSILON = 0.000001f;
-	vec3 p;
-	
-	if (glm::abs(isolevel - v1) < EPSILON)
-		return p1;
-	if (glm::abs(isolevel - v2) < EPSILON)
-		return p2;
-	if (glm::abs(v1 - v2) < EPSILON)
-		return p1;
-	
-	float mu = (isolevel - v1) / (v2 - v1);
-	p.x = p1.x + mu * (p2.x - p1.x);
-	p.y = p1.y + mu * (p2.y - p1.y);
-	p.z = p1.z + mu * (p2.z - p1.z);
-
-	return p;
 }
