@@ -2,7 +2,9 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <Assets/Vertex.hpp>
 #include <Terrain/Terrain.hpp>
+#include <Util/Math3d.hpp>
 
 using namespace glm;
 
@@ -19,7 +21,7 @@ public:
 	void setSampleRange(vec3 min, vec3 max);
 	void setSampleDetail(float marchingCubeSize);
 	
-	std::vector<vec3> polygonize(const Terrain &terrain);
+	std::vector<Vertex> polygonize(const Terrain &terrain);
 	
 private:
 	vec3 sampleRangeMin = vec3(-1.f);
@@ -29,7 +31,7 @@ private:
 	
 	// http://paulbourke.net/geometry/polygonise/
 	CubeMarcher::Cell getCell(const Terrain &terrain, vec3 pos);
-	int polygonizeCube(const Terrain &terrain, vec3 cellStart, std::vector<vec3> &triangleVertices);
+	int polygonizeCube(const Terrain &terrain, vec3 cellStart, std::vector<Vertex> &triangleVertices);
 	bool getEdges(Cell start, int *cubeindex, int *edges);
 	vec3 interpolate(vec3 p1, vec3 p2, float valp1, float valp2);
 	

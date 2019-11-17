@@ -19,8 +19,8 @@ void CubeMarcher::setSampleDetail(float marchingCubeSize) {
 	stepscale = glm::abs(marchingCubeSize);
 }
 
-std::vector<vec3> CubeMarcher::polygonize(const Terrain &terrain) {
-	std::vector<vec3> triangleVertices;
+std::vector<Vertex> CubeMarcher::polygonize(const Terrain &terrain) {
+	std::vector<Vertex> triangleVertices;
 	
 	// pixel perfect sample range takes marching cube size into account
 	vec3 ppmin = sampleRangeMin + stepscale * 0.5f;
@@ -70,7 +70,9 @@ CubeMarcher::Cell CubeMarcher::getCell(const Terrain &terrain, vec3 pos) {
 	return cell;
 }
 
-int CubeMarcher::polygonizeCube(const Terrain &terrain, vec3 cellStart, std::vector<vec3> &triangleVertices) {
+int CubeMarcher::polygonizeCube(const Terrain &terrain, vec3 cellStart,
+	std::vector<Vertex> &triangleVertices)
+{
 	CubeMarcher::Cell cell = getCell(terrain, cellStart);
 	
 	int cubeindex, edges;
@@ -94,10 +96,16 @@ int CubeMarcher::polygonizeCube(const Terrain &terrain, vec3 cellStart, std::vec
 	
 	int tricount = 0;
 	for (int i = 0; TRIANGLE_TABLE[cubeindex][i] != -1; i += 3, ++tricount) {
-		 triangleVertices.push_back(vertices[TRIANGLE_TABLE[cubeindex][i    ]]);
-		 triangleVertices.push_back(vertices[TRIANGLE_TABLE[cubeindex][i + 1]]);
-		 triangleVertices.push_back(vertices[TRIANGLE_TABLE[cubeindex][i + 2]]);
-		 ++tricount;
+		vec3 p[3] = {
+			vertices[TRIANGLE_TABLE[cubeindex][i    ]],
+			vertices[TRIANGLE_TABLE[cubeindex][i + 1]],
+			vertices[TRIANGLE_TABLE[cubeindex][i + 2]]
+		};
+		vec3 n = m3d::triangleCalcNormal(p);
+		triangleVertices.push_back(Vertex(p[0], n));
+		triangleVertices.push_back(Vertex(p[1], n));
+		triangleVertices.push_back(Vertex(p[2], n));
+		++tricount;
 	}
 	
 	return tricount;

@@ -7,6 +7,7 @@ uniform float uTextureTopdownScale;
 
 in vec3 vPos;
 in vec3 vNormal;
+flat in uvec2 vTexture;
 
 out vec4 Color;
 
@@ -35,9 +36,9 @@ vec3 triplanarBlend(vec3 normal) {
 }
 
 vec4 triplanarTexture(vec3 pos, vec3 blend) {
-	vec4 xtex = texture(uTextureSide, vPos.zy * uTextureSideScale);
+	vec4 xtex = texture(uTextureSide,    vPos.zy * uTextureSideScale);
 	vec4 ytex = texture(uTextureTopdown, vPos.xz * uTextureTopdownScale);
-	vec4 ztex = texture(uTextureSide, vPos.xy * uTextureSideScale);
+	vec4 ztex = texture(uTextureSide,    vPos.xy * uTextureSideScale);
 	return xtex * blend.x + ytex * blend.y + ztex * blend.z;
 }
 

@@ -14,9 +14,15 @@ public:
 	std::vector<GLuint> indices;
 	std::vector<Texture *> textures;
 	
-	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices);
+	// without indices
+	Mesh(std::vector<Vertex> vertices, bool hasTexcoords = true);
+	Mesh(std::vector<Vertex> vertices, std::vector<Texture *> textures,
+		bool hasTexcoords = true);
+	// with indices
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices,
-		std::vector<Texture *> textures);
+		bool hasTexcoords = true);
+	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices,
+		std::vector<Texture *> textures, bool hasTexcoords = true);
 	
 	Mesh(const Mesh &copy) = delete;
 	~Mesh();
@@ -27,6 +33,7 @@ public:
 	
 private:
 	GLuint VAO, VBO, EBO;
+	bool hasTexcoords, hasIndices;
 	
 	void setupMesh();
 		
