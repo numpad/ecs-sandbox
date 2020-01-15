@@ -46,15 +46,18 @@ private:
 		float d;
 		Plane(vec3 p, vec3 n, float d = 0.f) : Body(p), n(n), d(d) { }
 		float distance(vec3 p) {
-			return dot(p, -n) + d;
+			return dot(p, -n) - d;
 		}
 	};
 public:
 	
+	SignedDistTerrain() = default;
+
 	void sphere(vec3 p, float r, Op op = Op::UNION);
 	void box(vec3 p, vec3 s, Op op = Op::UNION);
 	void cylinder(vec3 p, float h, float r, Op op = Op::UNION);
 	void plane(vec3 p, vec3 n, float d = 0.f, Op op = Op::UNION);
+	
 protected:
 	
 	float sampleValue(vec3 pos) const;

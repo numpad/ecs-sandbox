@@ -5,6 +5,15 @@
 
 using namespace glm;
 
+// hashing function for ivec2
+template <>
+struct std::hash<glm::ivec2> {
+	size_t operator()(const glm::ivec2& k) const {
+		using std::hash;
+		return ((hash<int>()(k.x) ^ (hash<int>()(k.y) << 1)) >> 1);
+	}
+};
+
 // types
 namespace m3d {
 	

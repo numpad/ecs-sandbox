@@ -4,8 +4,7 @@ void CharacterController::update(entt::registry &registry, glm::vec3 viewDir) {
 	
 	registry.view<CPosition, CVelocity, const CKeyboardControllable>().each(
 		[this, &registry, viewDir](auto entity,
-			auto &pos, auto &vel, const auto &controller)
-		{
+			auto &pos, auto &vel, const auto &controller) {
 		
 		const glm::vec3 noYAxis(1.0f, 0.0f, 1.0f);
 		glm::vec3 viewDirXZ = glm::normalize(noYAxis * viewDir);
@@ -35,8 +34,16 @@ void CharacterController::update(entt::registry &registry, glm::vec3 viewDir) {
 		}
 		
 		if (dir.x != 0.0f || dir.y != 0.0f || dir.z != 0.0f) {
-			dir = glm::normalize(dir) * controller.speed;
-			vel.acc += dir;
+			glm::vec3 nv = vel.vel;
+			if (glm::length(vel.vel) > 0.001f)
+				nv = glm::normalize(vel.vel);
+			
+			dir = glm::normalize(dir) * controller.speed * 10.f;
+			float d = glm::dot(nv, dir);
+			vel.vel = dir * (d + .5f) * 5.f;
+		} else {
+			vel.vel.x *= 0.9f;
+			vel.vel.z *= 0.9f;
 		}
 	});
 }

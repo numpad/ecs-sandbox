@@ -195,13 +195,14 @@ void World::setupFloor() {
 	Random r;
 	Model* models[] = {
 		assetManager.getModel("res/models/world/dungeon_floor.blend"),
-		assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"),
-		assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"),
-		assetManager.getModel("res/models/world/dungeon_floor_wall2_opposite.blend")};
+		//assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"),
+		//assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"),
+		//assetManager.getModel("res/models/world/dungeon_floor_wall2_opposite.blend")
+	};
 	
 	for (int i = 0; i < 48; ++i) {
 		// set model
-		tileGrid.set(x, y, models[size_t(r() * 2.0)]);
+		tileGrid.set(x, y, models[0]);
 		// random model matrix
 		mat4 *transform = new mat4;
 		// rotate around y axis
@@ -217,7 +218,7 @@ void World::setupFloor() {
 		else y++;
 		if (tileGrid.at(x, y) != nullptr) i--;
 		else {
-			for (int j = 0; j < int(r() * 4.0f); ++j) {
+			for (int j = 0; j < int(r() * 4.f); ++j) {
 				auto entity = spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
 				auto &vel = registry.get<CVelocity>(entity).acc;
 				vel.x = r() * 0.025f - 0.0125f;
@@ -234,19 +235,22 @@ void World::destroyFloor() {
 
 void World::drawFloor(mat4 &uView, mat4 &uProjection) {
 	// draw worlds
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	tileGridShader["uView"] = uView;
 	tileGridShader["uProj"] = uProjection;
 	tileGrid.each([this](int x, int y, Model *model) {
 		mat4 uModel = *tileTransformGrid.at(x, y);
-		uModel[3][0] = 2.0f * x;
-		uModel[3][2] = 2.0f * y;
+		uModel[3][0] = 4.f * x;
+		uModel[3][2] = 4.f * y;
 		
 		//uModel = translate(uModel, vec3(x * 2.0f, 0.0f, y * 2.0f));
 		//uModel = rotate(uModel, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
+		uModel = glm::scale(uModel, glm::vec3(2.f));
 		
 		tileGridShader["uModel"] = uModel;
 		model->draw(tileGridShader);
 	});
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	// imgui tilegrid window
 	#if CFG_IMGUI_ENABLED

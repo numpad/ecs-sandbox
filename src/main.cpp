@@ -1,7 +1,6 @@
 #include "config.hpp"
 #include <GL/gl3w.h>
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -23,8 +22,10 @@
 #include <World.hpp>
 
 #include <Terrain/SignedDistTerrain.hpp>
+#include <Terrain/ChunkedTerrain.hpp>
 #include <Terrain/CubeMarcher.hpp>
 
+#include <RenderObject/ChunkedWorld.hpp>
 
 #include <cereal/types/memory.hpp>
 #include <cereal/archives/json.hpp>
@@ -451,29 +452,28 @@ int main(int, char**) {
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 	
 	// testing
-	SignedDistTerrain terrain;
-	// wall
-	terrain.box(vec3(0.0f, 0.5f, 1.8f), vec3(1.9f, 0.75f, 0.2f));
-	// spikes on wall
-	for (float i = -3.f; i <= 3.f; ++i)
-		terrain.box(vec3(i * .84f, 1.35f, 1.8f), vec3(0.2f, 0.1f, 0.2f));
-	// subtract door
-	terrain.sphere(vec3(0.0f, 0.4f, 1.75f), 0.55f, SignedDistTerrain::Op::DIFF);
-	terrain.box(vec3(0.0f, 0.3f, 1.8f), vec3(0.5f, 0.3f, 0.4f), SignedDistTerrain::Op::DIFF);
-	// floor
-	terrain.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-	// hole
-	terrain.sphere(vec3(0.0f), 0.4f, SignedDistTerrain::Op::DIFF);
+	SignedDistTerrain terrain, terrain2, terrain3;
+	
+	terrain.plane (vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+	terrain2.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+	terrain3.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+	
+	ChunkedWorld chunkWorld(vec3(2.f));
+	chunkWorld.set(ivec2(0, 0), terrain);
+	
+	
+	ChunkedTerrain chunks(vec3(2.f));
+	chunks.set(ivec2(0,  0), terrain);
+	
 	
 	CubeMarcher marcher;
 	marcher.setSampleDetail(0.1f);
-	marcher.setSampleRange(2.0f);
-	
-	auto vertices = marcher.polygonize(terrain);
+	marcher.setSampleRange(2.f);
+	auto vertices = marcher.polygonize(chunks);
 	Mesh mMesh(vertices, false);
 	sgl::shader mShader("res/glsl/proto/terrain_vert.glsl", "res/glsl/proto/terrain_frag.glsl");
 	glm::mat4 mMatrix = glm::mat4(1.0f);
-		
+	
 	// init game
 	World world;
 	AssetManager &assetManager = world.getAssetManager();
@@ -533,7 +533,7 @@ int main(int, char**) {
 		glm::mat4 uView = glm::lookAt(campos,
 			camtarget, glm::vec3(0.0f, 0.5f, 0.0f));
 		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),
-			getWindowAspectRatio(window), 0.1f, 100.0f);
+			getWindowAspectRatio(window), 0.1f, 1000.0f);
 		
 		// calculate player aim
 		auto worldCrosshair = world.getCrosshair();
@@ -600,14 +600,11 @@ int main(int, char**) {
 		assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
 		assetManager.getTexture("res/images/textures/wall.png")->bind();
 		
-		for (int i = 0; i < 50; ++i) {
-			mMatrix = glm::mat4(1.0f);
-			mMatrix[3][1] = 0.5f + sin(glfwGetTime() + float(i) * 0.33f) * 0.2f;
-			mMatrix[3][2] = float(i * 4);
-			
-			mShader["uModel"] = mMatrix;
-			mMesh.draw(mShader);
-		}
+		mMatrix = glm::mat4(1.0f);
+		mShader["uModel"] = mMatrix;
+		//mMesh.draw(mShader);
+		
+		chunkWorld.draw(mShader);
 		
 		// actual rendering
 		world.update(campos, glm::normalize(campos - camtarget));

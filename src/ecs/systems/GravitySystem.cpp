@@ -1,6 +1,7 @@
 #include <ecs/systems/GravitySystem.hpp>
 
 static inline int tilePosRound(float v) {
+	v /= 2.f; // tile size
 	return (v < 0.0f) ? (int)floor(floor(v) * 0.5f + 0.5f) : int(((float)int(v)) * 0.5f + 0.5f);
 }
 
