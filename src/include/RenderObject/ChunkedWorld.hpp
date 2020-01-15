@@ -23,7 +23,12 @@ public:
 	
 	void set(ivec2 coords, Terrain &terrain);
 	
+	void polygonizeChunk(ivec2 coords);
+	void polygonizeAllChunks();
+	
 	void draw(sgl::shader &shader);
+	
+	const ChunkedTerrain &getTerrain() const { return chunkedTerrain; };
 	
 private:
 	CubeMarcher marcher;
@@ -31,5 +36,4 @@ private:
 	ChunkedTerrain chunkedTerrain;
 	std::unordered_map<ivec2, Mesh *> chunkMeshes;
 	
-	void polygonizeChunk(ivec2 coords);
 };

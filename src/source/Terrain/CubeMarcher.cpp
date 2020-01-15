@@ -26,11 +26,15 @@ std::vector<Vertex> CubeMarcher::polygonize(const Terrain &terrain) {
 	vec3 ppmin = sampleRangeMin + stepscale * 0.5f;
 	vec3 ppmax = sampleRangeMax - stepscale * 0.5f;
 	
-	vec3 min = (ppmin) / stepscale,
-	     max = (ppmax) / stepscale;
-	for (float z = min.z; z <= max.z; ++z) {
-		for (float y = min.y; y <= max.y; ++y) {
-			for (float x = min.x; x <= max.x; ++x) {
+	vec3 min = ppmin / stepscale,
+	     max = ppmax / stepscale;
+	
+	// TODO: dont rely on EPSILON fixing x/y/z not reaching exactly max.x/y/z
+	//       -> ensure that x/y/z evenly distribute between min and max
+	float EPSILON = 0.0001f;
+	for (float z = min.z; z <= max.z + EPSILON; ++z) {
+		for (float y = min.y; y <= max.y + EPSILON; ++y) {
+			for (float x = min.x; x <= max.x + EPSILON; ++x) {
 				// sample cube around point
 				vec3 sampleP = vec3(x, y, z) - 0.5f;
 				polygonizeCube(terrain, sampleP * stepscale, triangleVertices);

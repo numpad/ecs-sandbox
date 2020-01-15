@@ -13,11 +13,14 @@ ChunkedWorld::ChunkedWorld(vec3 chunkSize)
 
 ChunkedWorld::~ChunkedWorld() {
 	// TODO: destroy all remaining chunk meshes
+	for (auto it : chunkMeshes) {
+		it.second->destroy();
+		delete it.second;
+	}
 }
 
 void ChunkedWorld::set(ivec2 coords, Terrain &terrain) {
 	chunkedTerrain.set(coords, terrain);
-	polygonizeChunk(coords);
 }
 
 void ChunkedWorld::draw(sgl::shader &shader) {
@@ -25,10 +28,6 @@ void ChunkedWorld::draw(sgl::shader &shader) {
 		it.second->draw(shader);
 	}
 }
-
-/////////////
-// PRIVATE //
-/////////////
 
 void ChunkedWorld::polygonizeChunk(ivec2 coords) {
 	auto search = chunkMeshes.find(coords);
@@ -47,3 +46,14 @@ void ChunkedWorld::polygonizeChunk(ivec2 coords) {
 	Mesh *mesh = new Mesh(vertices, false);
 	chunkMeshes[coords] = mesh;
 }
+
+void ChunkedWorld::polygonizeAllChunks() {
+	for (auto it : chunkedTerrain.getChunks()) {
+		this->polygonizeChunk(it.first);
+	}
+}
+
+/////////////
+// PRIVATE //
+/////////////
+

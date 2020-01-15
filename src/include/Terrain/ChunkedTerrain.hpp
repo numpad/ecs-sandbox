@@ -20,6 +20,9 @@ public:
 	
 	ivec2 worldPosToChunk(vec3 p) const;
 	vec3 worldPosToLocalChunkPos(vec3 p) const;
+	
+	const std::unordered_map<ivec2, Terrain &> &getChunks() const;
+	
 protected:
 	
 	float sampleValue(vec3 p) const;

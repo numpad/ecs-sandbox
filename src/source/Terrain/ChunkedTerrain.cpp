@@ -36,9 +36,14 @@ vec3 ChunkedTerrain::worldPosToLocalChunkPos(vec3 p) const {
 	vec2 chunk = vec2(worldPosToChunk(p));
 	vec3 signs = glm::sign(p);
 	
-	p.x = glm::sign(p.x - chunk.x * (chunkSize.x * 2.f)) * glm::mod(glm::abs(p.x - chunk.x * (chunkSize.x * 2.f)), chunkSize.x + 0.0001f);
-	p.z = glm::sign(p.z - chunk.y * (chunkSize.z * 2.f)) * glm::mod(glm::abs(p.z - chunk.y * (chunkSize.z * 2.f)), chunkSize.z + 0.0001f);
+	// 0.0001f actually
+	p.x = glm::sign(p.x - chunk.x * (chunkSize.x * 2.f)) * glm::mod(glm::abs(p.x - chunk.x * (chunkSize.x * 2.f)), chunkSize.x + 0.000f);
+	p.z = glm::sign(p.z - chunk.y * (chunkSize.z * 2.f)) * glm::mod(glm::abs(p.z - chunk.y * (chunkSize.z * 2.f)), chunkSize.z + 0.000f);
 	return p;
+}
+
+const std::unordered_map<ivec2, Terrain &> &ChunkedTerrain::getChunks() const {
+	return chunks;
 }
 
 ///////////////

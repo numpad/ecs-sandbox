@@ -452,27 +452,20 @@ int main(int, char**) {
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 	
 	// testing
-	SignedDistTerrain terrain, terrain2, terrain3;
+	SignedDistTerrain terrain, terrain2;
 	
-	terrain.plane (vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+	terrain .plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
 	terrain2.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-	terrain3.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+	terrain2.box(vec3(0.f), vec3(0.3f));
 	
-	ChunkedWorld chunkWorld(vec3(2.f));
-	chunkWorld.set(ivec2(0, 0), terrain);
+	ChunkedWorld chunkWorld(vec3(2.0f));
+	for (int x = -2; x <= 2; ++x)
+		for (int z = -2; z <= 2; ++z)
+		chunkWorld.set(ivec2(x, z), terrain);
 	
+	chunkWorld.polygonizeAllChunks();
 	
-	ChunkedTerrain chunks(vec3(2.f));
-	chunks.set(ivec2(0,  0), terrain);
-	
-	
-	CubeMarcher marcher;
-	marcher.setSampleDetail(0.1f);
-	marcher.setSampleRange(2.f);
-	auto vertices = marcher.polygonize(chunks);
-	Mesh mMesh(vertices, false);
 	sgl::shader mShader("res/glsl/proto/terrain_vert.glsl", "res/glsl/proto/terrain_frag.glsl");
-	glm::mat4 mMatrix = glm::mat4(1.0f);
 	
 	// init game
 	World world;
@@ -586,7 +579,7 @@ int main(int, char**) {
 		// TODO: refactor terrain rendering
 		mShader["uProj"] = uProj;
 		mShader["uView"] = uView;
-		//mShader["uModel"] = mMatrix;
+		mShader["uModel"] = glm::mat4(1.f);
 		mShader["uTextureTopdownScale"] = 2.0f;
 		mShader["uTextureSideScale"] = 2.0f;
 		mShader["uTextureTopdown"] = 0;
@@ -599,11 +592,7 @@ int main(int, char**) {
 		glActiveTexture(GL_TEXTURE1);
 		assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
 		assetManager.getTexture("res/images/textures/wall.png")->bind();
-		
-		mMatrix = glm::mat4(1.0f);
-		mShader["uModel"] = mMatrix;
-		//mMesh.draw(mShader);
-		
+			
 		chunkWorld.draw(mShader);
 		
 		// actual rendering

@@ -235,6 +235,8 @@ void World::destroyFloor() {
 
 void World::drawFloor(mat4 &uView, mat4 &uProjection) {
 	// draw worlds
+	GLint polymode;
+	glGetIntegerv(GL_POLYGON_MODE, &polymode);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	tileGridShader["uView"] = uView;
 	tileGridShader["uProj"] = uProjection;
@@ -250,7 +252,7 @@ void World::drawFloor(mat4 &uView, mat4 &uProjection) {
 		tileGridShader["uModel"] = uModel;
 		model->draw(tileGridShader);
 	});
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, polymode);
 	
 	// imgui tilegrid window
 	#if CFG_IMGUI_ENABLED
