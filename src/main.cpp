@@ -457,11 +457,16 @@ int main(int, char**) {
 	terrain .plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
 	terrain2.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
 	terrain2.box(vec3(0.f), vec3(0.3f));
+	terrain.box(vec3(0.f, 0.f, 0.f), vec3(0.3f, 0.3f, 4.f), SignedDistTerrain::Op::DIFF);
 	
 	ChunkedWorld chunkWorld(vec3(2.0f));
-	for (int x = -2; x <= 2; ++x)
-		for (int z = -2; z <= 2; ++z)
-		chunkWorld.set(ivec2(x, z), terrain);
+	for (int x = -1; x <= 1; ++x) {
+		for (int z = -1; z <= 1; ++z) {
+			if (x != 0 || z != 0) {
+				chunkWorld.set(ivec2(x, z), terrain);
+			}
+		}
+	}
 	
 	chunkWorld.polygonizeAllChunks();
 	
