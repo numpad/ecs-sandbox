@@ -26,7 +26,7 @@ public:
 	void polygonizeChunk(ivec2 coords);
 	void polygonizeAllChunks();
 	
-	void draw(sgl::shader &shader);
+	void draw(sgl::shader &shader) const;
 	
 	const ChunkedTerrain &getTerrain() const { return chunkedTerrain; };
 	

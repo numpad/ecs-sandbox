@@ -12,7 +12,6 @@ ChunkedWorld::ChunkedWorld(vec3 chunkSize)
 }
 
 ChunkedWorld::~ChunkedWorld() {
-	// TODO: destroy all remaining chunk meshes
 	for (auto it : chunkMeshes) {
 		it.second->destroy();
 		delete it.second;
@@ -23,7 +22,7 @@ void ChunkedWorld::set(ivec2 coords, Terrain &terrain) {
 	chunkedTerrain.set(coords, terrain);
 }
 
-void ChunkedWorld::draw(sgl::shader &shader) {
+void ChunkedWorld::draw(sgl::shader &shader) const {
 	for (auto it : chunkMeshes) {
 		it.second->draw(shader);
 	}

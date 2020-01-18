@@ -1,5 +1,6 @@
 #pragma once
 
+#include <thread>
 #include <unordered_map>
 #include <limits>
 #include <glm/glm.hpp>

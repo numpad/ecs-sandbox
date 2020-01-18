@@ -29,6 +29,9 @@
 #include <Assets/Mesh.hpp>
 #include <Assets/Model.hpp>
 
+#include <Terrain/SignedDistTerrain.hpp>
+#include <RenderObject/ChunkedWorld.hpp>
+
 using namespace glm;
 
 class World {
@@ -67,10 +70,11 @@ private:
 	
 	// grid
 	Grid2D<Model> tileGrid;
-	Grid2D<mat4> tileTransformGrid;
-	 
-	sgl::shader tileGridShader;
-	
+		
+	ChunkedWorld chunks;
+	SignedDistTerrain sdTerrain;
+	sgl::shader chunkShader;
+		
 	// entities
 	entt::entity player = entt::null,
 		worldCrosshair = entt::null;

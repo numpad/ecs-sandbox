@@ -5,7 +5,7 @@ using namespace glm;
 extern GLFWwindow *window;
 
 World::World()
-	: charControllerSystem(window)
+	: charControllerSystem(window), chunks(vec3(2.f))
 {
 	setupFloor();
 	// spawn player
@@ -185,31 +185,25 @@ void World::loadSystems() {
 }
 
 void World::setupFloor() {
-	tileGridShader.load("res/glsl/proto/simpleMesh_vert.glsl", sgl::shader::VERTEX);
-	tileGridShader.load("res/glsl/proto/simpleMesh_frag.glsl", sgl::shader::FRAGMENT);
-	tileGridShader.compile();
-	tileGridShader.link();
+	chunkShader.load("res/glsl/proto/terrain_vert.glsl", sgl::shader::VERTEX);
+	chunkShader.load("res/glsl/proto/terrain_frag.glsl", sgl::shader::FRAGMENT);
+	chunkShader.compile();
+	chunkShader.link();
+	
+	sdTerrain.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
 	
 	// mapgen
 	int x = 0, y = 0;
 	Random r;
-	Model* models[] = {
-		assetManager.getModel("res/models/world/dungeon_floor.blend"),
-		//assetManager.getModel("res/models/world/dungeon_floor_wall1.blend"),
-		//assetManager.getModel("res/models/world/dungeon_floor_wall2_corner_nopillar.blend"),
-		//assetManager.getModel("res/models/world/dungeon_floor_wall2_opposite.blend")
-	};
-	
 	for (int i = 0; i < 48; ++i) {
 		// set model
-		tileGrid.set(x, y, models[0]);
+		tileGrid.set(x, y, assetManager.getModel("res/models/world/dungeon_floor.blend"));
+		chunks.set(ivec2(x, y), sdTerrain);
+		
 		// random model matrix
-		mat4 *transform = new mat4;
 		// rotate around y axis
 		mat4 yRotation = rotate(mat4(1.0f), radians(90.0f * float(int(r() * 3.0f))), vec3(0.0f, 1.0f, 0.0f));
 		// flip on side (.blend file format stores meshes z-axis facing up)
-		*transform = rotate(yRotation, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
-		tileTransformGrid.set(x, y, transform);
 		
 		auto rng = r();
 		if (rng < 0.25) x--;
@@ -227,47 +221,31 @@ void World::setupFloor() {
 		}
 	}
 	
+	chunks.polygonizeAllChunks();
+	
 }
 
 void World::destroyFloor() {
-	tileTransformGrid.each([](int x, int y, mat4 *m){ delete m; });
+	
 }
 
 void World::drawFloor(mat4 &uView, mat4 &uProjection) {
-	// draw worlds
-	GLint polymode;
-	glGetIntegerv(GL_POLYGON_MODE, &polymode);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	tileGridShader["uView"] = uView;
-	tileGridShader["uProj"] = uProjection;
-	tileGrid.each([this](int x, int y, Model *model) {
-		mat4 uModel = *tileTransformGrid.at(x, y);
-		uModel[3][0] = 4.f * x;
-		uModel[3][2] = 4.f * y;
-		
-		//uModel = translate(uModel, vec3(x * 2.0f, 0.0f, y * 2.0f));
-		//uModel = rotate(uModel, radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
-		uModel = glm::scale(uModel, glm::vec3(2.f));
-		
-		tileGridShader["uModel"] = uModel;
-		model->draw(tileGridShader);
-	});
-	glPolygonMode(GL_FRONT_AND_BACK, polymode);
+	chunkShader["uProj"] = uProjection;
+	chunkShader["uView"] = uView;
+	chunkShader["uModel"] = glm::mat4(1.f);
+	chunkShader["uTextureTopdownScale"] = 2.0f;
+	chunkShader["uTextureSideScale"] = 2.0f;
+	chunkShader["uTextureTopdown"] = 0;
+	chunkShader["uTextureSide"] = 1;
 	
-	// imgui tilegrid window
-	#if CFG_IMGUI_ENABLED
-		using namespace ImGui;
-		static int worldpos[2] = {0};
-		static char modelpath[128] = "dungeon_floor";
-		if (Begin("tilegrid")) {
-			InputInt2("tile pos", worldpos);
-			InputText("model", modelpath, 128);
-			if (Button("Add Tile")) {
-				tileGrid.set(worldpos[0], worldpos[1],
-					assetManager.getModel("res/models/world/" + std::string(modelpath) + ".blend"));
-			}
-		}
-		End();
-	#endif
+	glActiveTexture(GL_TEXTURE0);
+	assetManager.getTexture("res/images/textures/floor.png")->setWrapMode(Texture::WrapMode::REPEAT);
+	assetManager.getTexture("res/images/textures/floor.png")->bind();
+	
+	glActiveTexture(GL_TEXTURE1);
+	assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
+	assetManager.getTexture("res/images/textures/wall.png")->bind();
+	
+	chunks.draw(chunkShader);
 	
 }

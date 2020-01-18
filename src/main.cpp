@@ -450,28 +450,7 @@ int main(int, char**) {
 	// init gl and window
 	if (!initGL()) fprintf(stderr, "initGL() failed.\n");
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
-	
-	// testing
-	SignedDistTerrain terrain, terrain2;
-	
-	terrain .plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-	terrain2.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-	terrain2.box(vec3(0.f), vec3(0.3f));
-	terrain.box(vec3(0.f, 0.f, 0.f), vec3(0.3f, 0.3f, 4.f), SignedDistTerrain::Op::DIFF);
-	
-	ChunkedWorld chunkWorld(vec3(2.0f));
-	for (int x = -1; x <= 1; ++x) {
-		for (int z = -1; z <= 1; ++z) {
-			if (x != 0 || z != 0) {
-				chunkWorld.set(ivec2(x, z), terrain);
-			}
-		}
-	}
-	
-	chunkWorld.polygonizeAllChunks();
-	
-	sgl::shader mShader("res/glsl/proto/terrain_vert.glsl", "res/glsl/proto/terrain_frag.glsl");
-	
+
 	// init game
 	World world;
 	AssetManager &assetManager = world.getAssetManager();
@@ -580,25 +559,6 @@ int main(int, char**) {
 		// rendering
 		glClearColor(0.231f, 0.275f, 0.302f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		// TODO: refactor terrain rendering
-		mShader["uProj"] = uProj;
-		mShader["uView"] = uView;
-		mShader["uModel"] = glm::mat4(1.f);
-		mShader["uTextureTopdownScale"] = 2.0f;
-		mShader["uTextureSideScale"] = 2.0f;
-		mShader["uTextureTopdown"] = 0;
-		mShader["uTextureSide"] = 1;
-		
-		glActiveTexture(GL_TEXTURE0);
-		assetManager.getTexture("res/images/textures/floor.png")->setWrapMode(Texture::WrapMode::REPEAT);
-		assetManager.getTexture("res/images/textures/floor.png")->bind();
-		
-		glActiveTexture(GL_TEXTURE1);
-		assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
-		assetManager.getTexture("res/images/textures/wall.png")->bind();
-			
-		chunkWorld.draw(mShader);
 		
 		// actual rendering
 		world.update(campos, glm::normalize(campos - camtarget));
