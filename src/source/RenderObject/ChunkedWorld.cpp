@@ -18,6 +18,11 @@ ChunkedWorld::~ChunkedWorld() {
 	}
 }
 
+bool ChunkedWorld::hasChunkAtPos(vec3 pos) const {
+	ivec2 p = chunkedTerrain.worldPosToChunk(pos);
+	return chunkedTerrain.has(p);
+}
+
 void ChunkedWorld::set(ivec2 coords, Terrain &terrain) {
 	chunkedTerrain.set(coords, terrain);
 }

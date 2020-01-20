@@ -16,6 +16,11 @@ vec3 ChunkedTerrain::getChunkSize() const {
 	return chunkSize;
 }
 
+bool ChunkedTerrain::has(ivec2 coords) const {
+	auto search = chunks.find(coords);
+	return search != chunks.end();
+}
+
 void ChunkedTerrain::set(ivec2 coords, Terrain &terrain) {
 	chunks.insert_or_assign(coords, terrain);
 }

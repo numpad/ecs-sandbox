@@ -16,6 +16,7 @@ public:
 	
 	vec3 getChunkSize() const;
 	
+	bool has(ivec2 coords) const;
 	void set(ivec2 coords, Terrain &terrain);
 	void getChunkBounds(ivec2 coords, vec3 &min, vec3 &max) const;
 	

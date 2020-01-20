@@ -190,20 +190,16 @@ void World::setupFloor() {
 	chunkShader.compile();
 	chunkShader.link();
 	
-	sdTerrain.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+	sdTerrain.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);	
 	
 	// mapgen
 	int x = 0, y = 0;
 	Random r;
-	for (int i = 0; i < 48; ++i) {
+	const int gen_n_chunks = 28;
+	for (int i = 0; i < gen_n_chunks; ++i) {
 		// set model
 		tileGrid.set(x, y, assetManager.getModel("res/models/world/dungeon_floor.blend"));
 		chunks.set(ivec2(x, y), sdTerrain);
-		
-		// random model matrix
-		// rotate around y axis
-		mat4 yRotation = rotate(mat4(1.0f), radians(90.0f * float(int(r() * 3.0f))), vec3(0.0f, 1.0f, 0.0f));
-		// flip on side (.blend file format stores meshes z-axis facing up)
 		
 		auto rng = r();
 		if (rng < 0.25) x--;
@@ -220,8 +216,14 @@ void World::setupFloor() {
 			}
 		}
 	}
-	
+	#if CFG_DEBUG
+		double starttime = glfwGetTime();
+	#endif
 	chunks.polygonizeAllChunks();
+	#if CFG_DEBUG
+		double endtime = glfwGetTime();
+		printf("[LOG] World: generated %d chunks in %.2fs.\n", gen_n_chunks, endtime - starttime);
+	#endif
 	
 }
 
