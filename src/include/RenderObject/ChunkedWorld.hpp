@@ -24,6 +24,8 @@ public:
 	bool hasChunkAtPos(vec3 pos) const;
 	void set(ivec2 coords, Terrain &terrain);
 	
+	void update(ivec2 coords, Terrain &terrain);
+	
 	void polygonizeChunk(ivec2 coords);
 	void polygonizeAllChunks();
 	

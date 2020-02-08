@@ -5,7 +5,7 @@ static inline int tilePosRound(float v) {
 	return (v < 0.0f) ? (int)floor(floor(v) * 0.5f + 0.5f) : int(((float)int(v)) * 0.5f + 0.5f);
 }
 
-GravitySystem::GravitySystem(float gravity, Grid2D<Model> &tileGrid)
+GravitySystem::GravitySystem(float gravity, Grid2D<SignedDistTerrain> &tileGrid)
 	: gravity(gravity), tileGrid(tileGrid)
 {
 }

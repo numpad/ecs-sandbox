@@ -69,7 +69,7 @@ private:
 	entt::registry registry;
 	
 	// grid
-	Grid2D<Model> tileGrid;
+	Grid2D<SignedDistTerrain> tileGrid;
 		
 	ChunkedWorld chunks;
 	SignedDistTerrain sdTerrain;

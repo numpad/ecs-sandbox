@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Assets/Model.hpp>
+#include <Terrain/SignedDistTerrain.hpp>
 #include <entt/entt.hpp>
 #include <ecs/components.hpp>
 #include <ecs/systems/BaseUpdateSystem.hpp>
@@ -9,7 +9,7 @@
 class GravitySystem : public BaseUpdateSystem {
 public:
 	
-	GravitySystem(float gravity, Grid2D<Model> &tileGrid);
+	GravitySystem(float gravity, Grid2D<SignedDistTerrain> &tileGrid);
 	
 	void update(entt::registry &registry);
 	
@@ -17,6 +17,6 @@ public:
 	
 private:
 	float gravity;
-	Grid2D<Model> &tileGrid;
+	Grid2D<SignedDistTerrain> &tileGrid;
 	
 };

@@ -190,16 +190,18 @@ void World::setupFloor() {
 	chunkShader.compile();
 	chunkShader.link();
 	
-	sdTerrain.plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);	
-	
 	// mapgen
 	int x = 0, y = 0;
 	Random r;
-	const int gen_n_chunks = 28;
+	const int gen_n_chunks = 8;
 	for (int i = 0; i < gen_n_chunks; ++i) {
 		// set model
-		tileGrid.set(x, y, assetManager.getModel("res/models/world/dungeon_floor.blend"));
-		chunks.set(ivec2(x, y), sdTerrain);
+		tileGrid.set(x, y, new SignedDistTerrain());
+		SignedDistTerrain *sd = tileGrid.at(x, y);
+		sd->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+		if (r() > 0.5)
+			sd->sphere(vec3(0.f), 0.4f);
+		chunks.set(ivec2(x, y), *sd);
 		
 		auto rng = r();
 		if (rng < 0.25) x--;
@@ -219,7 +221,13 @@ void World::setupFloor() {
 	#if CFG_DEBUG
 		double starttime = glfwGetTime();
 	#endif
-	chunks.polygonizeAllChunks();
+	size_t i = 0;
+	for (auto it : chunks.getTerrain().getChunks()) {
+		#if CFG_DEBUG
+			printf("Generating chunk %d/%d...\n", i++, gen_n_chunks);
+		#endif
+		chunks.polygonizeChunk(it.first);
+	}
 	#if CFG_DEBUG
 		double endtime = glfwGetTime();
 		printf("[LOG] World: generated %d chunks in %.2fs.\n", gen_n_chunks, endtime - starttime);

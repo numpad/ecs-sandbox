@@ -100,6 +100,11 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	
 	// rendering:
 	
+	// disable wireframe
+	GLint prevWireframeMode;
+	glGetIntegerv(GL_POLYGON_MODE, &prevWireframeMode);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
 	// prepare shader
 	instanceShader["uView"] = uView;
 	instanceShader["uProjection"] = uProjection;
@@ -164,5 +169,8 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	// cleanup
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	// restore polygon mode
+	glPolygonMode(GL_FRONT_AND_BACK, prevWireframeMode);
 }
 

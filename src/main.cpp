@@ -31,6 +31,8 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
+#include <Util/Random.hpp>
+
 void onResize(GLFWwindow *, int width, int height) {
 	glViewport(0, 0, width, height);
 }
@@ -383,7 +385,10 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 			InputText("Texture", texpath, 512);
 			DragInt2("Tiles", &tiles[0], 1);
 			DragInt2("Tile pos", &tilepos[0], 1);
-			
+			// TODO: remove
+			static Random r;
+			tilepos.x = int(r()*5.f);
+			tilepos.y = 11+int(r()*3.f);
 		}
 		if (hasruntt) {
 			Text("RunToTarget:");
@@ -508,8 +513,8 @@ int main(int, char**) {
 		
 		glm::vec3 campos = targetPos + calcCamPos(window);
 		glm::mat4 uView = glm::lookAt(campos,
-			camtarget, glm::vec3(0.0f, 0.5f, 0.0f));
-		glm::mat4 uProj = glm::perspective(glm::radians(30.0f),
+			camtarget, glm::vec3(0.0f, 0.2f, 0.0f));
+		glm::mat4 uProj = glm::perspective(glm::radians(32.0f),
 			getWindowAspectRatio(window), 0.1f, 1000.0f);
 		
 		// calculate player aim
@@ -557,7 +562,7 @@ int main(int, char**) {
 		#endif
 		
 		// rendering
-		glClearColor(0.231f, 0.275f, 0.302f, 1);
+		glClearColor(.231f, .275f, .302f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// actual rendering

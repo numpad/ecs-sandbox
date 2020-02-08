@@ -27,6 +27,11 @@ void ChunkedWorld::set(ivec2 coords, Terrain &terrain) {
 	chunkedTerrain.set(coords, terrain);
 }
 
+void ChunkedWorld::update(ivec2 coords, Terrain &terrain) {
+	set(coords, terrain);
+	polygonizeChunk(coords);
+}
+
 void ChunkedWorld::draw(sgl::shader &shader) const {
 	for (auto it : chunkMeshes) {
 		it.second->draw(shader);
