@@ -5,7 +5,7 @@ using namespace glm;
 extern GLFWwindow *window;
 
 World::World()
-	: charControllerSystem(window), chunks(vec3(2.f))
+	: chunks(vec3(2.f)), charControllerSystem(window)
 {
 	setupFloor();
 	// spawn player
@@ -39,18 +39,13 @@ entt::entity World::getNearestEntity(vec3 posNear) {
 
 entt::entity World::spawnDefaultEntity(vec3 pos) {
 	static Random rand;
-	
-	vec3 rdir = normalize(vec3(
-		rand() * 2.0f - 1.0f, 0.01f,
-		rand() * 2.0f - 1.0f)) * 0.0025f;
-	
-	vec2 rsize(rand() * 0.04f + 0.2f, rand() * 0.04f + 0.2f);
+	vec2 rsize(0.2f, 0.2f);
 	
 	vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
 	
 	auto entity = registry.create();
 	registry.assign<CPosition>(entity, pos);
-	registry.assign<CVelocity>(entity, rdir);
+	registry.assign<CVelocity>(entity, vec3(0.f));
 	registry.assign<CBillboard>(entity,
 		this->assetManager.getTexture("res/images/textures/dungeon.png"), rsize, rcol);
 	registry.get<CBillboard>(entity).setSubRect(1.0f * 16.0f, 10.0f * 16.0f, 16.0f, 16.0f, 256, 256);
@@ -144,7 +139,6 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 				}
 				drawlist->AddCircleFilled(ImVec2(wp.x + op.x - origin.x * s, wp.y + op.y - origin.y * s), radius, color, 12);
 			});
-			
 		}
 		ImGui::End();
 	#endif
@@ -212,9 +206,6 @@ void World::setupFloor() {
 		else {
 			for (int j = 0; j < int(r() * 4.f); ++j) {
 				auto entity = spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
-				auto &vel = registry.get<CVelocity>(entity).acc;
-				vel.x = r() * 0.025f - 0.0125f;
-				vel.z = r() * 0.025f - 0.0125f;
 			}
 		}
 	}
@@ -236,7 +227,7 @@ void World::setupFloor() {
 }
 
 void World::destroyFloor() {
-	
+	tileGrid.each([](int, int, SignedDistTerrain *t) { delete t; });
 }
 
 void World::drawFloor(mat4 &uView, mat4 &uProjection) {

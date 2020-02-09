@@ -52,7 +52,7 @@ private:
 public:
 	
 	SignedDistTerrain() = default;
-
+	
 	void sphere(vec3 p, float r, Op op = Op::UNION);
 	void box(vec3 p, vec3 s, Op op = Op::UNION);
 	void cylinder(vec3 p, float h, float r, Op op = Op::UNION);

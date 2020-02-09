@@ -52,6 +52,7 @@ public:
 	
 	// getters
 	inline entt::registry &getRegistry() { return registry; }
+	inline entt::dispatcher &getDispatcher() { return dispatcher; }
 	inline AssetManager &getAssetManager() { return assetManager; }
 	
 	inline entt::entity getPlayer() const {
@@ -67,12 +68,11 @@ public:
 	
 private:
 	entt::registry registry;
+	entt::dispatcher dispatcher;
 	
 	// grid
 	Grid2D<SignedDistTerrain> tileGrid;
-		
 	ChunkedWorld chunks;
-	SignedDistTerrain sdTerrain;
 	sgl::shader chunkShader;
 		
 	// entities

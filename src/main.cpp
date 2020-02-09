@@ -331,6 +331,14 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			registry.remove<CRunningToTarget>(entity);
 		}
 	}
+	
+	if (registry.has<CHealth>(entity)) {
+		auto &health = registry.get<CHealth>(entity);
+		SliderInt("health", &health.hp, 0, health.max_hp);
+		if (Button("X##8")) {
+			registry.remove<CHealth>(entity);
+		}
+	}
 }
 
 void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
@@ -352,6 +360,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	static glm::ivec2 tiles(16, 16), tilepos(1, 10);
 	static int spawnamount = 1;
 	static float spawnveloff = 0.02f;
+	static int max_hp = 10;
 	
 	static bool haspos = true,
 				hasvel = true,
@@ -362,7 +371,8 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				haspresser = false,
 				haskeyboard = false,
 				hasspawn = false,
-				hasjumper = false;
+				hasjumper = true,
+				hashealth = true;
 	
 	if (Begin("spawn entity")) {
 		Checkbox("CPosition", &haspos);
@@ -374,6 +384,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		Checkbox("CKeyboardController", &haskeyboard);
 		Checkbox("CSpawnPoint", &hasspawn);
 		Checkbox("CJumpTimer", &hasjumper);
+		Checkbox("CHealth", &hashealth);
 		
 		//if (haspos) DragFloat3("CPosition", &pos[0], 0.001f);
 		if (hasvel) DragFloat3("CVelocity", &vel[0], 0.001f);
@@ -415,6 +426,10 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		if (hasjumper) {
 			
 		}
+		if (hashealth) {
+			Text("Health:");
+			DragInt("health", &max_hp, 1);
+		}
 		
 		// do spawning
 		if (spawn) {
@@ -435,6 +450,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
 				if (hasspawn) registry.assign<CSpawnPoint>(entity, spawnpoint);
 				if (hasjumper) registry.assign<CJumpTimer>(entity);
+				if (hashealth) registry.assign<CHealth>(entity, max_hp);
 			}
 		}
 		Separator();

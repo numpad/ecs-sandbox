@@ -53,6 +53,7 @@ set (OpenGL_GL_PREFERENCE GLVND)
 find_package (OpenGL REQUIRED)
 find_package (glfw3 REQUIRED)
 find_package (glm REQUIRED)
+find_package (Lua REQUIRED)
 
 #add_subdirectory (lib/assimp)
 set(ZLIB_LIBRARIES zlibstatic)
@@ -69,6 +70,7 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
                        glfw
                        dl
                        assimp
+                       ${LUA_LIBRARIES}
 )
 
 if (MSVC)
