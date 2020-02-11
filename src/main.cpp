@@ -31,6 +31,7 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
+#include <Util/Font.hpp>
 #include <Util/Random.hpp>
 
 void onResize(GLFWwindow *, int width, int height) {
@@ -473,8 +474,11 @@ int main(int, char**) {
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 
 	// init game
+	Font::Init();
 	World world;
 	AssetManager &assetManager = world.getAssetManager();
+	
+	Font defaultFont("res/fonts/FSmono.ttf", 32);
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
@@ -532,6 +536,7 @@ int main(int, char**) {
 			camtarget, glm::vec3(0.0f, 0.2f, 0.0f));
 		glm::mat4 uProj = glm::perspective(glm::radians(32.0f),
 			getWindowAspectRatio(window), 0.1f, 1000.0f);
+		glm::mat4 uProjFont = glm::ortho(0.f, (float)screenX, 0.f, (float)screenY);
 		
 		// calculate player aim
 		auto worldCrosshair = world.getCrosshair();
@@ -584,6 +589,11 @@ int main(int, char**) {
 		// actual rendering
 		world.update(campos, glm::normalize(campos - camtarget));
 		world.draw(campos, uView, uProj);
+		static float ff = 0.f;
+		ff += 0.11f;
+		float fc = ff * 0.2f;
+		vec3 color = abs(vec3(cos(fc * 1.3f), sin(fc + ff * 0.1), -cos(fc * 3.5)));
+		defaultFont.drawString(uProjFont, "Hello, World", 10.f, 10.f, abs(sin(ff)) + 0.2f, color);
 		
 		// present rendered
 		imguiRender();
@@ -592,6 +602,7 @@ int main(int, char**) {
 	}
 
 	/* cleanup */
+	Font::Destroy();
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	imguiDestroy();

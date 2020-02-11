@@ -52,6 +52,7 @@ entt::entity World::spawnDefaultEntity(vec3 pos) {
 	registry.assign<CGravity>(entity);
 	registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
 	registry.assign<CJumpTimer>(entity, 0);
+	registry.assign<CHealth>(entity, 10);
 	if (registry.valid(this->player)) {
 		//registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
 	}
@@ -74,6 +75,7 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	registry.remove<CJumpTimer>(this->player);
 	
 	registry.assign_or_replace<CSpawnPoint>(this->player, vec3(0.0f, 0.5f, 0.0f));
+	registry.assign_or_replace<CHealth>(this->player, 12);
 	
 	// world pos crosshair
 	worldCrosshair = registry.create();
@@ -83,7 +85,6 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	//	vec2(0.2f, 0.2f), vec3(0.0f, 1.0f, 0.0f));
 	TiledTexture *tiledtex = assetManager.getTiledTexture("res/images/sprites/arrows.png", 64, 64, 0, 0);
 	registry.assign<CBillboard>(worldCrosshair, tiledtex, vec2(0.4f, 0.4f));
-	
 	return this->player;
 }
 
@@ -187,7 +188,7 @@ void World::setupFloor() {
 	// mapgen
 	int x = 0, y = 0;
 	Random r;
-	const int gen_n_chunks = 8;
+	const int gen_n_chunks = 2;
 	for (int i = 0; i < gen_n_chunks; ++i) {
 		// set model
 		tileGrid.set(x, y, new SignedDistTerrain());

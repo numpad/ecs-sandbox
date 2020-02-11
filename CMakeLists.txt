@@ -54,6 +54,7 @@ find_package (OpenGL REQUIRED)
 find_package (glfw3 REQUIRED)
 find_package (glm REQUIRED)
 find_package (Lua REQUIRED)
+find_package (Freetype REQUIRED)
 
 #add_subdirectory (lib/assimp)
 set(ZLIB_LIBRARIES zlibstatic)
@@ -71,7 +72,10 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
                        dl
                        assimp
                        ${LUA_LIBRARIES}
+                       ${FREETYPE_LIBRARIES}
 )
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 
 if (MSVC)
 	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /WX)
