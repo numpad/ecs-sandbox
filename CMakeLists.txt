@@ -77,6 +77,13 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 
+add_custom_target (
+	run ALL
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_ecs_includes.py ${CMAKE_CURRENT_SOURCE_DIR}
+	BYPRODUCTS ecs/components.hpp ecs/systems.hpp ecs/components.hpp
+	COMMENT "Generating ECS Includes"
+)
+
 if (MSVC)
 	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /WX)
 else (MSVC)

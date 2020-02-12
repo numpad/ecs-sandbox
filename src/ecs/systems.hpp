@@ -1,5 +1,6 @@
 #pragma once
 // auto-generated
+
 #include <ecs/systems/PositionUpdateSystem.hpp>
 #include <ecs/systems/WayfindSystem.hpp>
 #include <ecs/systems/BaseUpdateSystem.hpp>

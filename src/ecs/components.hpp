@@ -1,5 +1,6 @@
 #pragma once
 // auto-generated
+
 #include <ecs/components/CVelocity.hpp>
 #include <ecs/components/CSphereCollider.hpp>
 #include <ecs/components/CGravity.hpp>
