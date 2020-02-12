@@ -164,17 +164,24 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 		
 		ticksSinceLastSort = 0;
 	}
-	double st = glfwGetTime();
+	#ifdef CFG_DEBUG
+		double st = glfwGetTime();
+	#endif
+	
 	billboardRenderSystem->depthSort(registry, camPos);
-	double ms = ((glfwGetTime() - st) * 1000.f);
-	static double ms_total = 0.;
-	ms_total += ms;
-	static int cnt = 0, max_cnt = 30;
-	if (++cnt >= max_cnt) {
-		printf("%.2fms for depthsort over %d ticks\n", ms_total / (double)cnt, cnt);
-		cnt = 0;
-		ms_total = 0.;
-	}
+	
+	#ifdef CFG_DEBUG
+		double ms = ((glfwGetTime() - st) * 1000.f);
+		static double ms_total = 0.;
+		ms_total += ms;
+		static int cnt = 0, max_cnt = 30;
+		if (++cnt >= max_cnt) {
+			printf("%.2fms for depthsort over %d ticks\n", ms_total / (double)cnt, cnt);
+			cnt = 0;
+			ms_total = 0.;
+		}
+	#endif
+	
 	billboardRenderSystem->drawInstanced(registry, uView, uProjection);
 	
 }
@@ -226,7 +233,7 @@ void World::setupFloor() {
 		if (tileGrid.at(x, y) != nullptr) i--;
 		else {
 			for (int j = 0; j < int(r() * 4.f); ++j) {
-				auto entity = spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
+				spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
 			}
 		}
 	}
@@ -236,7 +243,7 @@ void World::setupFloor() {
 	size_t i = 0;
 	for (auto it : chunks.getTerrain().getChunks()) {
 		#if CFG_DEBUG
-			printf("Generating chunk %d/%d...\n", i++, gen_n_chunks);
+			printf("Generating chunk %ld/%d...\n", i++, gen_n_chunks);
 		#endif
 		chunks.polygonizeChunk(it.first);
 	}

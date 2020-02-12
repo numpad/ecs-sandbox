@@ -10,13 +10,24 @@ ecs_dirs = [d for d in listdir(ECS_PATH) if isdir(join(ECS_PATH, d))]
 
 def make_include_all_file(subdir):
 	dirpath = join(ECS_PATH, subdir)
-	files = (dirpath, [f for f in listdir(dirpath) if isfile(join(dirpath, f))])
+	files = (dirpath.replace('src/', ''), [f for f in listdir(dirpath) if isfile(join(dirpath, f))])
 	return files
 
-def include_text(files):
+def include_text(subdir):
+	files = make_include_all_file(subdir)
+	hfiles = []
 	for file in files[1]:
-		print(join(files[0], file))
+		if file.endswith('.h') or file.endswith('.hpp'):
+			hfiles.append('#include <%s>' % join(files[0], file))
+	return hfiles
 
 for d in ecs_dirs:
-	files = make_include_all_file(d)
-	include_text(files)
+	header_fn = '%s.hpp' % join(ECS_PATH, d)
+	header = open(header_fn, 'w+')
+	
+	header.write('#pragma once\n// auto-generated\n\n')
+	for f in include_text(d):
+		header.write(f + '\n')
+	
+	header.close()
+
