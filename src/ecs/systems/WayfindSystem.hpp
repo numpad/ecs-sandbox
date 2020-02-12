@@ -8,10 +8,10 @@
 class WayfindSystem : public BaseUpdateSystem {
 public:
 	
-	WayfindSystem() = default;
+	WayfindSystem(entt::registry &registry);
 	WayfindSystem(const WayfindSystem &copy) = delete;
 	
-	void update(entt::registry &registry);
+	void update();
 	
 private:
 	

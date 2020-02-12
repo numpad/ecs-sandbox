@@ -19,6 +19,7 @@
 
 #include <ecs/components.hpp>
 #include <ecs/systems.hpp>
+#include <ecs/events.hpp>
 
 #include <Util/Random.hpp>
 #include <Util/Math3d.hpp>

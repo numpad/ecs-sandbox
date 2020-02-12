@@ -10,12 +10,12 @@
 class RandomJumpSystem : public BaseUpdateSystem {
 public:
 	
-	RandomJumpSystem(float chanceToJump = 0.01f)
-		: chanceToJump(chanceToJump), chanceToFlip(chanceToJump)
+	RandomJumpSystem(entt::registry &registry, float chanceToJump = 0.01f)
+		: BaseUpdateSystem(registry), chanceToJump(chanceToJump), chanceToFlip(chanceToJump)
 	{
 	}
 	
-	void update(entt::registry &registry);
+	void update();
 	
 private:
 	float chanceToJump, chanceToFlip;

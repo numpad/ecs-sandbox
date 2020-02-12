@@ -1,10 +1,15 @@
 #include <ecs/systems/PressAwaySystem.hpp>
 
+PressAwaySystem::PressAwaySystem(entt::registry &registry)
+	: BaseUpdateSystem(registry) {
+	
+}
+
 PressAwaySystem::~PressAwaySystem() {
 	
 }
 
-void PressAwaySystem::update(entt::registry &registry) {
+void PressAwaySystem::update() {
 	auto entities = registry.view<CPosition, CVelocity, const CSphereCollider>();
 	entities.each([this, &entities]
 		(auto entity, auto &pos, auto &vel, auto &presser) {

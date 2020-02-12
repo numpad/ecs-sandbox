@@ -9,9 +9,9 @@
 class GravitySystem : public BaseUpdateSystem {
 public:
 	
-	GravitySystem(float gravity, Grid2D<SignedDistTerrain> &tileGrid);
+	GravitySystem(entt::registry &registry, float gravity, Grid2D<SignedDistTerrain> &tileGrid);
 	
-	void update(entt::registry &registry);
+	void update();
 	
 	inline float getGravity() const { return gravity; }
 	

@@ -8,7 +8,6 @@ World::World()
 	: chunks(vec3(2.f)), charControllerSystem(window)
 {
 	registry.set<entt::dispatcher>();
-	getDispatcher();
 	
 	// load systems
 	loadSystems();
@@ -100,7 +99,7 @@ entt::entity World::spawnPlayer(vec3 pos) {
 void World::update(vec3 viewPos, vec3 viewDir) {
 	// update systems
 	charControllerSystem.update(registry, viewDir);
-	for (auto &sys : updateSystems) sys->update(registry);
+	for (auto &sys : updateSystems) sys->update();
 	
 	#if CFG_DEBUG
 		if (!registry.valid(player)) {
@@ -190,11 +189,11 @@ void World::loadSystems() {
 	updateSystems.clear();
 	
 	// create update systems
-	updateSystems.emplace_back(new GravitySystem(0.000981f, tileGrid));
-	updateSystems.emplace_back(new RandomJumpSystem(0.003f));
-	updateSystems.emplace_back(new WayfindSystem());
-	updateSystems.emplace_back(new PressAwaySystem());
-	updateSystems.emplace_back(new PositionUpdateSystem());
+	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f, tileGrid));
+	updateSystems.emplace_back(new RandomJumpSystem(registry, 0.003f));
+	updateSystems.emplace_back(new WayfindSystem(registry));
+	updateSystems.emplace_back(new PressAwaySystem(registry));
+	updateSystems.emplace_back(new PositionUpdateSystem(registry));
 	
 	// and render systems
 	billboardRenderSystem = std::make_unique<BillboardRenderSystem>(registry);

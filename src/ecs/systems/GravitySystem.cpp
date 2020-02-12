@@ -5,13 +5,13 @@ static inline int tilePosRound(float v) {
 	return (v < 0.0f) ? (int)floor(floor(v) * 0.5f + 0.5f) : int(((float)int(v)) * 0.5f + 0.5f);
 }
 
-GravitySystem::GravitySystem(float gravity, Grid2D<SignedDistTerrain> &tileGrid)
-	: gravity(gravity), tileGrid(tileGrid)
+GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<SignedDistTerrain> &tileGrid)
+	: BaseUpdateSystem(registry), gravity(gravity), tileGrid(tileGrid)
 {
 }
 
-void GravitySystem::update(entt::registry &registry) {
-	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry](auto entity, auto &pos, auto &vel, auto &gravity) {
+void GravitySystem::update() {
+	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry = registry](auto entity, auto &pos, auto &vel, auto &gravity) {
 			
 		if (tileGrid.at(tilePosRound(pos.pos.x), tilePosRound(pos.pos.z)) == nullptr || pos.pos.y > 0.0f)
 			vel.acc.y -= this->gravity;

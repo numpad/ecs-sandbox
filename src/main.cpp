@@ -19,6 +19,7 @@
 #include <Assets/AssetManager.hpp>
 #include <ecs/components.hpp>
 #include <ecs/systems.hpp>
+#include <ecs/events.hpp>
 #include <World.hpp>
 
 #include <Terrain/SignedDistTerrain.hpp>

@@ -9,10 +9,10 @@
 class PressAwaySystem : public BaseUpdateSystem {
 public:
 	
-	PressAwaySystem() = default;
+	PressAwaySystem(entt::registry &registry);
 	~PressAwaySystem();
 	
-	void update(entt::registry &);
+	void update();
 	
 private:
 	

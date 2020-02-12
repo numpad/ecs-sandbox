@@ -1,6 +1,6 @@
 #include <ecs/systems/RandomJumpSystem.hpp>
 
-void RandomJumpSystem::update(entt::registry &registry) {
+void RandomJumpSystem::update() {
 	
 	static Random randIfJump(0.0f, 1.0f), randIfFlip(0.0f, 1.0f);
 	static Random randJumpVel(0.002f, 0.01f);

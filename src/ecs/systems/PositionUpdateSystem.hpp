@@ -8,9 +8,9 @@
 class PositionUpdateSystem : public BaseUpdateSystem {
 public:
 	
-	PositionUpdateSystem() = default;
+	PositionUpdateSystem(entt::registry &registry);
 	
-	void update(entt::registry &reg);
+	void update();
 	
 private:
 		

@@ -1,7 +1,12 @@
 #include <ecs/systems/WayfindSystem.hpp>
 
-void WayfindSystem::update(entt::registry &registry) {
-	registry.view<CPosition, CRunningToTarget>().each([&registry]
+WayfindSystem::WayfindSystem(entt::registry &registry)
+	: BaseUpdateSystem(registry) {
+	
+}
+
+void WayfindSystem::update() {
+	registry.view<CPosition, CRunningToTarget>().each([&registry = registry]
 		(auto &entity, auto &pos, auto &runToTarget) {
 			glm::vec3 dirToTarget = runToTarget.getTargetPosition(registry) - pos.pos;
 			
