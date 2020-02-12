@@ -478,7 +478,7 @@ int main(int, char**) {
 	World world;
 	AssetManager &assetManager = world.getAssetManager();
 	
-	Font defaultFont("res/fonts/FSmono.ttf", 32);
+	Font defaultFont("res/fonts/FFF_Tusj.ttf", 48);
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
@@ -589,11 +589,7 @@ int main(int, char**) {
 		// actual rendering
 		world.update(campos, glm::normalize(campos - camtarget));
 		world.draw(campos, uView, uProj);
-		static float ff = 0.f;
-		ff += 0.11f;
-		float fc = ff * 0.2f;
-		vec3 color = abs(vec3(cos(fc * 1.3f), sin(fc + ff * 0.1), -cos(fc * 3.5)));
-		defaultFont.drawString(uProjFont, "Hello, World", 10.f, 10.f, abs(sin(ff)) + 0.2f, color);
+		defaultFont.drawString(uProjFont, "(Hello), World!", 10.f, 10.f);
 		
 		// present rendered
 		imguiRender();

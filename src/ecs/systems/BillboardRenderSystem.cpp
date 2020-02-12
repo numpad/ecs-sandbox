@@ -1,6 +1,6 @@
 #include <ecs/systems/BillboardRenderSystem.hpp>
 
-BillboardRenderSystem::BillboardRenderSystem() {
+BillboardRenderSystem::BillboardRenderSystem(entt::registry &registry) {
 	glGenBuffers(1, &instanceBuffer);
 	
 	// load shader
@@ -17,13 +17,13 @@ BillboardRenderSystem::~BillboardRenderSystem() {
 
 void BillboardRenderSystem::depthSort(entt::registry &registry, glm::vec3 camPos) {
 	registry.sort<CPosition>([camPos](const auto &lhs, const auto &rhs) {
-		const glm::vec3 noY(1.0f, 0.0f, 1.0f);
+		constexpr glm::vec3 noY(1.0f, 0.0f, 1.0f);
 		float l1 = glm::length2((lhs.pos - camPos) * noY);
 		float l2 = glm::length2((rhs.pos - camPos) * noY);
 		
 		return l1 > l2;
 	});
-	registry.sort<CBillboard, CPosition>();
+	//registry.sort<CBillboard, CPosition>();
 }
 
 void BillboardRenderSystem::drawInstanced(entt::registry &registry,

@@ -14,7 +14,7 @@
 class BillboardRenderSystem {
 public:
 	
-	BillboardRenderSystem();
+	BillboardRenderSystem(entt::registry &registry);
 	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	~BillboardRenderSystem();
 	
@@ -22,6 +22,7 @@ public:
 	void drawInstanced(entt::registry &, glm::mat4 &uView, glm::mat4 &uProj);
 	
 private:
+	//entt::group<CPosition, CBillboard> drawGroup{};
 	sgl::shader instanceShader;
 	
 	Billboard billboardRO;

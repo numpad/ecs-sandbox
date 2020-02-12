@@ -7,10 +7,19 @@ extern GLFWwindow *window;
 World::World()
 	: chunks(vec3(2.f)), charControllerSystem(window)
 {
+	registry.set<entt::dispatcher>();
+	getDispatcher();
+	
+	// load systems
+	loadSystems();
+	
+	// load world
 	setupFloor();
+	
 	// spawn player
 	spawnPlayer();
-	loadSystems();
+	
+	
 }
 
 World::~World() {
@@ -156,8 +165,18 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 		
 		ticksSinceLastSort = 0;
 	}
-	billboardRenderSystem.depthSort(registry, camPos);
-	billboardRenderSystem.drawInstanced(registry, uView, uProjection);
+	double st = glfwGetTime();
+	billboardRenderSystem->depthSort(registry, camPos);
+	double ms = ((glfwGetTime() - st) * 1000.f);
+	static double ms_total = 0.;
+	ms_total += ms;
+	static int cnt = 0, max_cnt = 30;
+	if (++cnt >= max_cnt) {
+		printf("%.2fms for depthsort over %d ticks\n", ms_total / (double)cnt, cnt);
+		cnt = 0;
+		ms_total = 0.;
+	}
+	billboardRenderSystem->drawInstanced(registry, uView, uProjection);
 	
 }
 
@@ -177,6 +196,8 @@ void World::loadSystems() {
 	updateSystems.emplace_back(new PressAwaySystem());
 	updateSystems.emplace_back(new PositionUpdateSystem());
 	
+	// and render systems
+	billboardRenderSystem = std::make_unique<BillboardRenderSystem>(registry);
 }
 
 void World::setupFloor() {

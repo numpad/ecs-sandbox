@@ -74,13 +74,16 @@ void Font::drawString(mat4 uProj, std::string str, float x, float y, float scale
 	// TODO: restore previous blend
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	Font::defaultShader.use();
 	Font::defaultShader["uTextColor"] = color;
 	Font::defaultShader["uTexture"] = 0;
 	Font::defaultShader["uProjection"] = uProj;
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
+	
+	GLint depthTest;
+	glGetIntegerv(GL_DEPTH_TEST, &depthTest);
+	glDisable(GL_DEPTH_TEST);
 	
 	for (char c : str) {
 		Character ch = chars[c];
@@ -106,6 +109,9 @@ void Font::drawString(mat4 uProj, std::string str, float x, float y, float scale
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		x += (ch.advance >> 6) * scale;
 	}
+	
+	if (depthTest)
+		glEnable(GL_DEPTH_TEST);
 	
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
