@@ -1,5 +1,5 @@
+// 8122d72202d786ec8c3d9aae1a6a6513a2613cb3
 #pragma once
-// auto-generated
 
 #include <ecs/systems/PositionUpdateSystem.hpp>
 #include <ecs/systems/WayfindSystem.hpp>

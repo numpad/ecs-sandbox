@@ -8,6 +8,14 @@ static inline int tilePosRound(float v) {
 GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<SignedDistTerrain> &tileGrid)
 	: BaseUpdateSystem(registry), gravity(gravity), tileGrid(tileGrid)
 {
+	
+	registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().connect<&GravitySystem::entityKilled>(*this);
+	
+}
+
+void GravitySystem::entityKilled(const KillEntityEvent &e) {
+	printf("Entity killed: %s\n", e.how.c_str());
+	registry.destroy(e.which);
 }
 
 void GravitySystem::update() {
@@ -39,7 +47,8 @@ void GravitySystem::update() {
 				pos.pos = registry.get<CSpawnPoint>(entity).getPosition(registry);
 				vel.vel = glm::vec3(0.0f);
 			} else {
-				registry.destroy(entity);
+				registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Fell down.");
+				//registry.destroy(entity);
 			}
 		}
 	});

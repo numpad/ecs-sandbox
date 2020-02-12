@@ -181,7 +181,7 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 			ms_total = 0.;
 		}
 	#endif
-	
+		
 	billboardRenderSystem->drawInstanced(registry, uView, uProjection);
 	
 }

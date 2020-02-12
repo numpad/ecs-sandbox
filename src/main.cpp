@@ -464,7 +464,6 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 
 GLFWwindow *window = nullptr;
 int main(int, char**) {
-	
 	// disable buffering for stdout (fixes sublime text console)
 	#if CFG_DEBUG
 		setbuf(stdout, nullptr);

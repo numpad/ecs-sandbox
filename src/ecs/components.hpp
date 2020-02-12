@@ -1,5 +1,5 @@
+// 3263cf3501b420c6e17ac39db9544a4214ba6d87
 #pragma once
-// auto-generated
 
 #include <ecs/components/CVelocity.hpp>
 #include <ecs/components/CSphereCollider.hpp>
