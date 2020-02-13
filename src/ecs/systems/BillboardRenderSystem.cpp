@@ -44,13 +44,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 		ImGui::End();
 	#endif
 	
-	// collect per instance data
-	//aInstanceModels.clear();
-	//aInstanceColors.clear();
-	//aInstanceTexOffsets.clear();
-	//aInstanceTextures.clear();
 	boundTextures.clear();
-	
 	instanceShader.use();
 		
 	// resize instance data buffer
@@ -74,21 +68,18 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, currentBuffer);
 	void *instanceData = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-	mat4   *modelMatrixData = (mat4   *)(instanceData + 0);
+	mat4   *modelMatrixData = (mat4   *)(instanceData);
 	vec3   *colorData       = (vec3   *)(instanceData + instances * (sizeof(mat4)));
 	vec4   *texoffsetData   = (vec4   *)(instanceData + instances * (sizeof(mat4) + sizeof(vec3)));
 	GLuint *textureData     = (GLuint *)(instanceData + instances * (sizeof(mat4) + sizeof(vec3) + sizeof(vec4)));
 	
 	size_t currentInstance = 0;
-	renderables.each([=, this, &uView, &currentInstance,
-		modelMatrixData, colorData, texoffsetData, textureData
-		](auto entity, auto &pos, auto &bb) {
+	renderables.each([this, &uView, &currentInstance,
+		modelMatrixData, colorData, texoffsetData, textureData]
+		(auto entity, auto &pos, auto &bb) {
 		
-		//this->aInstanceModels.push_back(Billboard::calcModelMatrix(uView, pos.pos, bb.size));
 		modelMatrixData[currentInstance] = Billboard::calcModelMatrix(uView, pos.pos, bb.size);
-		//this->aInstanceColors.push_back(bb.color);
 		colorData[currentInstance] = bb.color;
-		//this->aInstanceTexOffsets.push_back(bb.getSubRect());
 		texoffsetData[currentInstance] = bb.getSubRect();
 		// collect required entitiy textures to bind
 		const Texture *texture = bb.texture;
@@ -113,7 +104,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 		
 		++currentInstance;
 	});
-	swapBuffers();
+	glUnmapBuffer(GL_ARRAY_BUFFER);
 	
 	// debug
 	#if CFG_IMGUI_ENABLED
@@ -148,25 +139,10 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glGetIntegerv(GL_POLYGON_MODE, &prevWireframeMode);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
+	
 	// prepare shader
 	instanceShader["uView"] = uView;
 	instanceShader["uProjection"] = uProjection;
-	
-	//lastMaxInstanceCount = instances;
-	//glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
-	// fill model matrices
-	//glBufferSubData(GL_ARRAY_BUFFER, 0,
-	//	instances * sizeof(mat4), aInstanceModels.data());
-	//// fill colors
-	//glBufferSubData(GL_ARRAY_BUFFER, instances * sizeof(mat4),
-	//	aInstanceColors.size() * sizeof(vec3), aInstanceColors.data());
-	//// fill texoffsets
-	//glBufferSubData(GL_ARRAY_BUFFER, instances * sizeof(mat4) + instances * sizeof(vec3),
-	//	aInstanceTexOffsets.size() * sizeof(vec4), aInstanceTexOffsets.data());
-	//// fill textures
-	//glBufferSubData(GL_ARRAY_BUFFER, instances * sizeof(mat4) + instances * sizeof(vec3) + instances * sizeof(vec4),
-	//	aInstanceTextures.size() * sizeof(GLuint), aInstanceTextures.data());
-	glUnmapBuffer(GL_ARRAY_BUFFER);
 	
 	// bind vao
 	glBindVertexArray(billboardRO.getVAO());
@@ -203,5 +179,7 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	
 	// restore polygon mode
 	glPolygonMode(GL_FRONT_AND_BACK, prevWireframeMode);
+	
+	swapBuffers();
 }
 
