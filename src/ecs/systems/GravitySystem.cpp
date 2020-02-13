@@ -15,7 +15,14 @@ GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<Sig
 
 void GravitySystem::entityKilled(const KillEntityEvent &e) {
 	printf("Entity killed: %s\n", e.how.c_str());
-	registry.destroy(e.which);
+	
+	if (registry.has<CSpawnPoint>(e.which)) {
+		auto [pos, vel] = registry.get<CPosition, CVelocity>(e.which);
+		pos.pos = registry.get<CSpawnPoint>(e.which).getPosition(registry);
+		vel.vel = glm::vec3(0.0f);
+	} else {
+		registry.destroy(e.which);
+	}
 }
 
 void GravitySystem::update() {
@@ -42,14 +49,8 @@ void GravitySystem::update() {
 			}
 		}
 		
-		if (pos.pos.y < -5.0f) {
-			if (registry.has<CSpawnPoint>(entity)) {				
-				pos.pos = registry.get<CSpawnPoint>(entity).getPosition(registry);
-				vel.vel = glm::vec3(0.0f);
-			} else {
-				registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Fell down.");
-				//registry.destroy(entity);
-			}
+		if (pos.pos.y < voidHeight) {
+			registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Fell down.");
 		}
 	});
 }
