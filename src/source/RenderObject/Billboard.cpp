@@ -64,29 +64,12 @@ glm::mat4 Billboard::calcModelMatrix(glm::mat4 &uView, glm::vec3 pos,
 	float angle = bbCylinder(campos, pos, rotAxis);
 	uModel = glm::translate(uModel, glm::vec3(pos.x, pos.y, pos.z));
 	uModel = glm::rotate(uModel, angle, rotAxis);
+	// rotate away from camera:
+	// uModel = glm::rotate(uModel, glm::radians(-10.f), glm::vec3(1.f, 0.f, 0.f));
 	uModel = glm::scale(uModel, glm::vec3(size.x, size.y, 0.0f));
 	
+	
 	return uModel;
-}
-
-void Billboard::draw(Texture *texture, glm::mat4 &uView, glm::mat4 &uProjection,
-	glm::vec3 pos, glm::vec2 size, glm::vec3 color)
-{
-	
-	bbShader.use();
-	bbShader["uProjection"] = uProjection;
-	bbShader["uView"] = uView;
-	bbShader["uModel"] = calcModelMatrix(uView, pos, size);
-	bbShader["uColor"] = color;
-	
-	glActiveTexture(GL_TEXTURE0);
-	texture->bind();
-	
-	glBindVertexArray(bbVAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	
-	texture->unbind();
 }
 
 /////////////
@@ -94,11 +77,6 @@ void Billboard::draw(Texture *texture, glm::mat4 &uView, glm::mat4 &uProjection,
 /////////////
 
 void Billboard::setupBillboard() {
-	bbShader.load("res/glsl/2d/billboard_vert.glsl", sgl::shader::VERTEX);
-	bbShader.load("res/glsl/2d/billboard_frag.glsl", sgl::shader::FRAGMENT);
-	bbShader.compile();
-	bbShader.link();
-	
 	glGenVertexArrays(1, &bbVAO);
 	glGenBuffers(1, &bbVBO);
 	glGenBuffers(1, &bbEBO);

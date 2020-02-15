@@ -22,11 +22,6 @@ public:
 	inline GLuint getEBO() { return bbEBO; }
 	
 private:
-		
-	void draw(Texture *texture, glm::mat4 &uView, glm::mat4 &uProjection,
-		glm::vec3 pos, glm::vec2 size, glm::vec3 color);
-	
-	sgl::shader bbShader;
 	GLuint bbVAO, bbVBO, bbEBO;
 	void setupBillboard();
 	void destroyBillboard();

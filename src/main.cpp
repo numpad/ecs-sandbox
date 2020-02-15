@@ -34,6 +34,7 @@
 
 #include <Util/Font.hpp>
 #include <Util/Random.hpp>
+#include <Util/Benchmark.hpp>
 
 void onResize(GLFWwindow *, int width, int height) {
 	glViewport(0, 0, width, height);
