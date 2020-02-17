@@ -35,6 +35,7 @@
 #include <Util/Font.hpp>
 #include <Util/Random.hpp>
 #include <Util/Benchmark.hpp>
+#include <Util/Blackboard.hpp>
 
 void onResize(GLFWwindow *, int width, int height) {
 	glViewport(0, 0, width, height);
@@ -463,8 +464,9 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	End();
 }
 
-GLFWwindow *window = nullptr;
 int main(int, char**) {
+	GLFWwindow *window = nullptr;
+	
 	// disable buffering for stdout (fixes sublime text console)
 	#if CFG_DEBUG
 		setbuf(stdout, nullptr);
@@ -476,15 +478,17 @@ int main(int, char**) {
 
 	// init game
 	Font::Init();
-	World world;
-	AssetManager &assetManager = world.getAssetManager();
+	World world(CharacterController{window});
+	//AssetManager &assetManager = world.getAssetManager();
 	
-	Font defaultFont("res/fonts/FFF_Tusj.ttf", 48);
+	Font defaultFont("res/fonts/FSmono.ttf", 48);
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
 	while (!glfwWindowShouldClose(window)) {
+		BM_START(updateloop);
+		
 		// poll events
 		glfwPollEvents();
 		imguiBeforeFrame();
@@ -539,11 +543,12 @@ int main(int, char**) {
 			getWindowAspectRatio(window), 0.1f, 1000.0f);
 		glm::mat4 uProjFont = glm::ortho(0.f, (float)screenX, 0.f, (float)screenY);
 		
+		
 		// calculate player aim
 		auto worldCrosshair = world.getCrosshair();
 		if (!world.getRegistry().valid(worldCrosshair))
 			printf("[ERR] main: World crosshair not valid, may segfault.\n");
-		auto &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;				
+		glm::vec3 &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;				
 		glm::vec3 mcRayDir = m3d::mouseToCameraRay(uProj, uView, normalizedMouse);
 		m3d::ray mcRay(campos, mcRayDir);
 		m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
@@ -559,7 +564,7 @@ int main(int, char**) {
 			vel.maxvel = 5.0f;
 			vel.acc = glm::normalize(crosspos - targetPos) * 0.2f;
 			vel.acc.y = vel.vel.y = 0.0f;
-			auto &playervel = world.getRegistry().get<CVelocity>(world.getPlayer());
+			//auto &playervel = world.getRegistry().get<CVelocity>(world.getPlayer());
 		}
 		
 		#if CFG_IMGUI_ENABLED
@@ -581,6 +586,13 @@ int main(int, char**) {
 			}
 			ImGui::End();
 			imguiEntitySpawn(world, mouseRightDown, crosspos);
+			if (ImGui::Begin("shaders")) {
+				sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
+				if (ImGui::Button("Reload shaders")) {
+					chunkShader->reload();
+				}
+			}
+			ImGui::End();
 		#endif
 		
 		// rendering
@@ -588,14 +600,28 @@ int main(int, char**) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// actual rendering
+		BM_START(world_update);
 		world.update(campos, glm::normalize(campos - camtarget));
+		BM_STOP(world_update);
+		BM_START(world_draw);
 		world.draw(campos, uView, uProj);
-		defaultFont.drawString(uProjFont, "(Hello), World!", 10.f, 10.f);
+		BM_STOP(world_draw);
+		
+		BM_START(draw_string);
+		vec4 cpSp = uProj * uView * vec4(crosspos, 1.f);
+		cpSp.x /= cpSp.z;
+		cpSp.y /= cpSp.z;
+		cpSp.x = (cpSp.x * .5f + .5f) * screenX;
+		cpSp.y = (cpSp.y * .5f + .5f) * screenY;
+		defaultFont.drawString(uProjFont, L"@abc äöü ÄÖÜ", cpSp.x, cpSp.y);
+		BM_STOP(draw_string);
 		
 		// present rendered
 		imguiRender();
 		glfwSwapBuffers(window);
 		// poll events here?
+		BM_STOP(updateloop);
+		DEBUG(printf("\n"));
 	}
 
 	/* cleanup */

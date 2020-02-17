@@ -29,8 +29,19 @@ void sgl::shader::unload()
 		this->stage_of_type[i] = sgl::shader::STAGE_EMPTY;
 		this->shaders_src[i] = nullptr;
 		this->shaders[i] = 0;
+		this->filenames[i].clear();
 	}
 	this->program = 0;
+}
+
+void sgl::shader::reload()
+{
+	for (size_t i = 0; i < sgl::shader::MAX_TYPES; ++i) {
+		if (!this->filenames[i].empty())
+			this->load(this->filenames[i], (sgl::shader::type)i);
+	}
+	this->compile();
+	this->link();
 }
 
 void sgl::shader::use()
@@ -52,7 +63,11 @@ bool sgl::shader::load(std::string fname, sgl::shader::type type)
 {
 	std::string content = sgl::shader::load_file(fname);
 	
-	return this->load_from_memory(content, type);
+	bool loaded = this->load_from_memory(content, type);
+	if (loaded)
+		filenames[type] = fname;
+	
+	return loaded;
 }
 
 bool sgl::shader::load_from_memory(std::string ssrc, sgl::shader::type type)

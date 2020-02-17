@@ -13,7 +13,7 @@ public:
 	
 	double ns() { return chrono::duration_cast<chrono::nanoseconds>(duration).count(); }
 	double us() { return chrono::duration_cast<chrono::microseconds>(duration).count(); }
-	double ms() { return chrono::duration_cast<chrono::milliseconds>(duration).count(); }
+	double ms() { return chrono::duration_cast<chrono::microseconds>(duration).count() / 1000.f; }
 	double s()  { return chrono::duration_cast<chrono::seconds>(duration).count(); }
 	
 private:

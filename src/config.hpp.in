@@ -4,3 +4,17 @@
 #define CFG_VERSION_MINOR @CFG_VERSION_MINOR@
 #define CFG_DEBUG @CFG_DEBUG@
 #define CFG_IMGUI_ENABLED @CFG_IMGUI_ENABLED@
+
+#if CFG_DEBUG
+	#define DEBUG(x) do { x; } while (0)
+	#define DEBUGP(s, ...) printf(s, __VA_ARGS__)
+	#define DEBUGR(x) x
+	#define BM_START(name) Benchmark BENCHMARK_##name;
+	#define BM_STOP(name) (BENCHMARK_##name).stop(); printf("[BM ] %s took %.2fms\n", #name, (BENCHMARK_##name).ms());
+#else
+	#define DEBUG(x)
+	#define DEBUGP(s, ...)
+	#define DEBUGR(x)
+	#define BM_START(name)
+	#define BM_STOP(name)
+#endif

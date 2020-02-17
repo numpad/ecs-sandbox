@@ -42,6 +42,14 @@ vec4 triplanarTexture(vec3 pos, vec3 blend) {
 	return xtex * blend.x + ytex * blend.y + ztex * blend.z;
 }
 
+float linearDepth() {
+	const float uNearPlane = 0.1;
+	const float uFarPlane = 100.0;
+	float z = gl_FragCoord.z * 2.0 - 1.0;
+	float d = (2.0 * uNearPlane * uFarPlane) / (uFarPlane + uNearPlane - z * (uFarPlane - uNearPlane));
+	return d / uFarPlane;
+}
+
 void main() {
 	vec3 blend = asymTriplanarBlend(vNormal);
 	vec4 color = triplanarTexture(vPos, blend);

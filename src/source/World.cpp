@@ -2,10 +2,8 @@
 
 using namespace glm;
 
-extern GLFWwindow *window;
-
-World::World()
-	: chunks(vec3(2.f)), charControllerSystem(window)
+World::World(CharacterController charController)
+	: chunks(vec3(2.f)), charControllerSystem(charController)
 {
 	registry.set<entt::dispatcher>();
 	
@@ -211,6 +209,7 @@ void World::setupFloor() {
 	chunkShader.load("res/glsl/proto/terrain_frag.glsl", sgl::shader::FRAGMENT);
 	chunkShader.compile();
 	chunkShader.link();
+	Blackboard::write("chunkShader", &chunkShader);
 	
 	// mapgen
 	int x = 0, y = 0;

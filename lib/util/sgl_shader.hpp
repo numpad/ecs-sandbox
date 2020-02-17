@@ -102,7 +102,9 @@ namespace sgl {
 		char *shaders_src[sgl::shader::MAX_TYPES];
 		GLuint shaders[sgl::shader::MAX_TYPES];
 		GLuint program;
-
+		
+		std::string filenames[sgl::shader::MAX_TYPES];
+		
 		static std::string load_file(std::string fname);
 		
 	public:
@@ -183,7 +185,12 @@ namespace sgl {
 		 * @see sgl::shader#~shader()
 		 */
 		void unload();
-
+		
+		/**
+		 * TODO: documentation!!!!
+		 */
+		void reload();
+		
 		/**
 		 * @brief Allow simple and clean interoperability between sgl::shader and OpenGL.
 		 *

@@ -23,6 +23,7 @@
 
 #include <Util/Random.hpp>
 #include <Util/Math3d.hpp>
+#include <Util/Blackboard.hpp>
 #include <RenderObject/Billboard.hpp>
 
 #include <Assets/AssetManager.hpp>
@@ -38,7 +39,7 @@ using namespace glm;
 class World {
 public:
 	
-	World();
+	World(CharacterController charController);
 	World(const World &copy) = delete;
 	
 	~World();

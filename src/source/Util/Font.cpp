@@ -45,6 +45,9 @@ Font::Font(std::string ttf, unsigned int height_px) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	for (unsigned long i = 0; i < 128; ++i)
 		loadChar(i);
+	std::wstring extra_chars = L"äöüÄÖÜ";
+	for (wchar_t c : extra_chars)
+		loadChar(c);
 	
 	glPixelStorei(GL_UNPACK_ALIGNMENT, prevAlignment);
 	
@@ -70,8 +73,10 @@ void Font::destroy() {
 	}
 }
 
-void Font::drawString(mat4 uProj, std::string str, float x, float y, float scale, vec3 color) {
-	// TODO: restore previous blend
+void Font::drawString(mat4 uProj, std::wstring str, float x, float y, float scale, vec3 color) {
+	// TODO: restore previous blend func
+	GLint blendEnabled;
+	glGetIntegerv(GL_BLEND, &blendEnabled);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	Font::defaultShader.use();
@@ -81,11 +86,12 @@ void Font::drawString(mat4 uProj, std::string str, float x, float y, float scale
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 	
-	GLint depthTest;
-	glGetIntegerv(GL_DEPTH_TEST, &depthTest);
+	GLint depthTestEnabled;
+	glGetIntegerv(GL_DEPTH_TEST, &depthTestEnabled);
 	glDisable(GL_DEPTH_TEST);
 	
-	for (char c : str) {
+	for (wchar_t c : str) {
+		if (chars.count(c) == 0) continue;
 		Character ch = chars[c];
 		
 		float xpos = x + ch.bearing.x * scale;
@@ -110,8 +116,11 @@ void Font::drawString(mat4 uProj, std::string str, float x, float y, float scale
 		x += (ch.advance >> 6) * scale;
 	}
 	
-	if (depthTest)
-		glEnable(GL_DEPTH_TEST);
+	// is this necessarry?
+	if (depthTestEnabled) glEnable(GL_DEPTH_TEST);
+	else glDisable(GL_DEPTH_TEST);
+	if (blendEnabled) glEnable(GL_DEPTH_TEST);
+	else glDisable(GL_DEPTH_TEST);
 	
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -132,9 +141,11 @@ bool Font::loadFontface(std::string ttf, unsigned int height_px) {
 }
 
 // expects GL_UNPACK_ALIGNMENT to be 1
-void Font::loadChar(unsigned long chr) {
+void Font::loadChar(wchar_t chr) {
+	if (chars.count(chr) > 0) return; // already loaded
+	
 	if (FT_Load_Char(face, chr, FT_LOAD_RENDER)) {
-		printf("[ERR] FreeType: cannot load char %lu\n", chr);
+		printf("[ERR] FreeType: cannot load char %d\n", chr);
 		return;
 	}
 	

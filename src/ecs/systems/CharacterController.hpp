@@ -10,7 +10,6 @@ class CharacterController {
 public:
 	
 	CharacterController(GLFWwindow *window) : window(window) {}
-	CharacterController(const CharacterController &copy) = delete;
 	
 	void update(entt::registry &, glm::vec3 viewDir);
 	
