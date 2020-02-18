@@ -24,7 +24,7 @@
 #include <Util/Random.hpp>
 #include <Util/Math3d.hpp>
 #include <Util/Blackboard.hpp>
-#include <RenderObject/Billboard.hpp>
+#include <Util/Benchmark.hpp>
 
 #include <Assets/AssetManager.hpp>
 #include <Assets/Texture.hpp>
@@ -32,14 +32,16 @@
 #include <Assets/Model.hpp>
 
 #include <Terrain/SignedDistTerrain.hpp>
+
 #include <RenderObject/ChunkedWorld.hpp>
+#include <RenderObject/Billboard.hpp>
 
 using namespace glm;
 
 class World {
 public:
 	
-	World(CharacterController charController);
+	World(GLFWwindow *window);
 	World(const World &copy) = delete;
 	
 	~World();

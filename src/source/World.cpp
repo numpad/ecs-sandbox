@@ -2,8 +2,9 @@
 
 using namespace glm;
 
-World::World(CharacterController charController)
-	: chunks(vec3(2.f)), charControllerSystem(charController)
+World::World(GLFWwindow *window)
+	: chunks(vec3(2.f)),
+	charControllerSystem(window)
 {
 	registry.set<entt::dispatcher>();
 	
@@ -166,6 +167,7 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 		double st = glfwGetTime();
 	#endif
 	
+	BM_START(depth_sort, 30);
 	billboardRenderSystem->depthSort(registry, camPos);
 	
 	#ifdef CFG_DEBUG
@@ -179,8 +181,10 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 			ms_total = 0.;
 		}
 	#endif
-		
+	BM_STOP(depth_sort);
+	BM_START(billboard_render, 30);
 	billboardRenderSystem->drawInstanced(registry, uView, uProjection);
+	BM_STOP(billboard_render);
 	
 }
 

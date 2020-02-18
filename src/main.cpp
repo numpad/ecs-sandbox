@@ -1,8 +1,9 @@
 #include "config.hpp"
 #include <GL/gl3w.h>
 
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
+#include <fstream>
 #include <iostream>
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -26,11 +27,11 @@
 #include <Terrain/ChunkedTerrain.hpp>
 #include <Terrain/CubeMarcher.hpp>
 
+#include <RenderObject/Camera.hpp>
 #include <RenderObject/ChunkedWorld.hpp>
 
 #include <cereal/types/memory.hpp>
 #include <cereal/archives/json.hpp>
-#include <fstream>
 
 #include <Util/Font.hpp>
 #include <Util/Random.hpp>
@@ -39,6 +40,12 @@
 
 void onResize(GLFWwindow *, int width, int height) {
 	glViewport(0, 0, width, height);
+	for (Camera *cam : Camera::CAMERAS) {
+		if (cam->windowAspectLocked) {
+			cam->setScreenSize(width, height);
+			cam->windowAspectLocked = true;
+		}
+	}
 }
 
 void APIENTRY glDebugOutput(GLenum source,
@@ -477,8 +484,12 @@ int main(int, char**) {
 	if (!initWindow(&window, 930, 640)) fprintf(stderr, "initWindow() failed.\n");
 
 	// init game
+	Camera::Init(window);
 	Font::Init();
-	World world(CharacterController{window});
+	World world(window);
+	
+	Camera camera(vec3(0.f));
+	
 	//AssetManager &assetManager = world.getAssetManager();
 	
 	Font defaultFont("res/fonts/FSmono.ttf", 48);
@@ -487,7 +498,7 @@ int main(int, char**) {
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
 	while (!glfwWindowShouldClose(window)) {
-		BM_START(updateloop);
+		BM_START(updateloop, 60);
 		
 		// poll events
 		glfwPollEvents();
@@ -600,20 +611,20 @@ int main(int, char**) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// actual rendering
-		BM_START(world_update);
+		BM_START(world_update, 60);
 		world.update(campos, glm::normalize(campos - camtarget));
 		BM_STOP(world_update);
-		BM_START(world_draw);
+		BM_START(world_draw, 60);
 		world.draw(campos, uView, uProj);
 		BM_STOP(world_draw);
 		
-		BM_START(draw_string);
+		BM_START(draw_string, 60);
 		vec4 cpSp = uProj * uView * vec4(crosspos, 1.f);
 		cpSp.x /= cpSp.z;
 		cpSp.y /= cpSp.z;
 		cpSp.x = (cpSp.x * .5f + .5f) * screenX;
 		cpSp.y = (cpSp.y * .5f + .5f) * screenY;
-		defaultFont.drawString(uProjFont, L"@abc äöü ÄÖÜ", cpSp.x, cpSp.y);
+		defaultFont.drawString(camera.getHudProjection(), L"@abc äöü ÄÖÜ", cpSp.x, cpSp.y);
 		BM_STOP(draw_string);
 		
 		// present rendered
@@ -621,7 +632,7 @@ int main(int, char**) {
 		glfwSwapBuffers(window);
 		// poll events here?
 		BM_STOP(updateloop);
-		DEBUG(printf("\n"));
+		//DEBUG(printf("\n"));
 	}
 
 	/* cleanup */

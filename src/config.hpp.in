@@ -9,12 +9,26 @@
 	#define DEBUG(x) do { x; } while (0)
 	#define DEBUGP(s, ...) printf(s, __VA_ARGS__)
 	#define DEBUGR(x) x
-	#define BM_START(name) Benchmark BENCHMARK_##name;
-	#define BM_STOP(name) (BENCHMARK_##name).stop(); printf("[BM ] %s took %.2fms\n", #name, (BENCHMARK_##name).ms());
+	#define DEBUGB
+	#define BM_START(name, tick_count) \
+		constexpr int name##_tick_count = (tick_count); \
+		static int name##_ticks = (tick_count); \
+		static double name##_avg = 0.0; \
+		Benchmark BENCHMARK_##name;
+		
+	#define BM_STOP(name) \
+		if (-- name##_ticks == 0) { \
+			name##_ticks = name##_tick_count; \
+			printf("[BM ] %s took %.2fms\n", #name, name##_avg / double(name##_tick_count)); \
+			name##_avg = 0.0; \
+		} \
+		(BENCHMARK_##name).stop(); \
+		name##_avg += BENCHMARK_##name.ms();
 #else
 	#define DEBUG(x)
 	#define DEBUGP(s, ...)
 	#define DEBUGR(x)
-	#define BM_START(name)
+	#define DEBUGB if (false)
+	#define BM_START(name, tick_count)
 	#define BM_STOP(name)
 #endif
