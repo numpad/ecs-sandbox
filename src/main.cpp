@@ -486,8 +486,8 @@ int main(int, char**) {
 	// init game
 	Camera::Init(window);
 	Font::Init();
-	World world(window);
 	
+	World world(window);
 	Camera camera(vec3(0.f));
 	
 	//AssetManager &assetManager = world.getAssetManager();
@@ -550,16 +550,13 @@ int main(int, char**) {
 		glm::vec3 campos = targetPos + calcCamPos(window);
 		camera.setPos(campos);
 		camera.setTarget(camtarget);
-		glm::mat4 uView = camera.getView();
-		glm::mat4 uProj = camera.getProjection();		
-		
+				
 		// calculate player aim
-		auto worldCrosshair = world.getCrosshair();
+		entt::entity worldCrosshair = world.getCrosshair();
 		if (!world.getRegistry().valid(worldCrosshair))
 			printf("[ERR] main: World crosshair not valid, may segfault.\n");
-		glm::vec3 &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;				
-		glm::vec3 mcRayDir = m3d::mouseToCameraRay(uProj, uView, normalizedMouse);
-		m3d::ray mcRay(campos, mcRayDir);
+		glm::vec3 &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;
+		m3d::ray mcRay = camera.raycast(normalizedMouse);
 		m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
 		crosspos = m3d::raycast(mcRay, mcFloor);
 		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
@@ -617,12 +614,8 @@ int main(int, char**) {
 		BM_STOP(world_draw);
 		
 		BM_START(draw_string, 60);
-		vec4 cpSp = uProj * uView * vec4(crosspos, 1.f);
-		cpSp.x /= cpSp.z;
-		cpSp.y /= cpSp.z;
-		cpSp.x = (cpSp.x * .5f + .5f) * screenX;
-		cpSp.y = (cpSp.y * .5f + .5f) * screenY;
-		defaultFont.drawString(camera.getHudProjection(), L"@abc äöü ÄÖÜ", cpSp.x, cpSp.y);
+		vec2 wtos = camera.worldToScreen(crosspos);
+		defaultFont.drawString(camera.getHudProjection(), L"this is a test", wtos.x, wtos.y, 1.f, vec3(1.f, 0.f, 0.f));
 		BM_STOP(draw_string);
 		
 		// present rendered

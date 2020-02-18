@@ -11,6 +11,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <Util/Math3d.hpp>
+
 using namespace glm;
 
 class Camera {
@@ -37,6 +39,10 @@ public:
 	const mat4& getProjection() const;
 	const mat4& getHudProjection() const;
 	const mat4& getView() const;
+	
+	// calculations
+	vec2 worldToScreen(vec3 worldpos);
+	m3d::ray raycast(vec2 normalized_screenpos);
 	
 	bool windowAspectLocked = true;
 private:
