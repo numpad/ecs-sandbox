@@ -487,8 +487,8 @@ int main(int, char**) {
 	Camera::Init(window);
 	Font::Init();
 	
-	World world(window);
 	Camera camera(vec3(0.f));
+	World world(window, camera);
 	
 	//AssetManager &assetManager = world.getAssetManager();
 	
@@ -497,9 +497,7 @@ int main(int, char**) {
 	/* draw loop */
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
-	while (!glfwWindowShouldClose(window)) {
-		BM_START(updateloop, 60);
-		
+	while (!glfwWindowShouldClose(window)) {		
 		// poll events
 		glfwPollEvents();
 		imguiBeforeFrame();
@@ -606,24 +604,16 @@ int main(int, char**) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// actual rendering
-		BM_START(world_update, 60);
-		world.update(camera);
-		BM_STOP(world_update);
-		BM_START(world_draw, 60);
-		world.draw(camera);
-		BM_STOP(world_draw);
+		world.update();
+		world.draw();
 		
-		BM_START(draw_string, 60);
 		vec2 wtos = camera.worldToScreen(crosspos);
 		defaultFont.drawString(camera.getHudProjection(), L"this is a test", wtos.x, wtos.y, 1.f, vec3(1.f, 0.f, 0.f));
-		BM_STOP(draw_string);
 		
 		// present rendered
 		imguiRender();
 		glfwSwapBuffers(window);
 		// poll events here?
-		BM_STOP(updateloop);
-		//DEBUG(printf("\n"));
 	}
 
 	/* cleanup */

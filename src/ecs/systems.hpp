@@ -1,4 +1,4 @@
-// 8122d72202d786ec8c3d9aae1a6a6513a2613cb3
+// b50979bace1ad6876066277ed48db6d3fa50ec2e
 #pragma once
 
 #include <ecs/systems/PositionUpdateSystem.hpp>
@@ -7,6 +7,7 @@
 #include <ecs/systems/PressAwaySystem.hpp>
 #include <ecs/systems/CharacterController.hpp>
 #include <ecs/systems/GravitySystem.hpp>
+#include <ecs/systems/BaseRenderSystem.hpp>
 #include <ecs/systems/RandomJumpSystem.hpp>
 #include <ecs/systems/BillboardRenderSystem.hpp>
 #include <ecs/systems/CHealthbarRenderSystem.hpp>

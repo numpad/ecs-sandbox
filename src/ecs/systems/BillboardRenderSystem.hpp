@@ -11,23 +11,25 @@
 #include <imgui/imgui.h>
 #include <util/sgl_shader.hpp>
 
+#include <ecs/systems/BaseUpdateSystem.hpp>
+#include <ecs/systems/BaseRenderSystem.hpp>
 #include <ecs/components.hpp>
 
 #include <RenderObject/Billboard.hpp>
 #include <RenderObject/Camera.hpp>
 
-class BillboardRenderSystem {
+class BillboardRenderSystem : public BaseUpdateSystem, public BaseRenderSystem {
 public:
 	
-	BillboardRenderSystem(entt::registry &registry);
+	BillboardRenderSystem(entt::registry &registry, Camera &camera);
 	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	~BillboardRenderSystem();
 	
-	void depthSort(entt::registry &, const Camera &camera);
-	void drawInstanced(entt::registry &, const Camera &camera);
+	void update();
+	void draw();
 	
+		
 private:
-	//entt::group<CPosition, CBillboard> drawGroup{};
 	sgl::shader instanceShader;
 	
 	Billboard billboardRO;

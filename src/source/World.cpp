@@ -2,8 +2,9 @@
 
 using namespace glm;
 
-World::World(GLFWwindow *window)
-	: chunks(vec3(2.f)),
+World::World(GLFWwindow *window, Camera &camera)
+	: camera(camera),
+	chunks(vec3(2.f)),
 	charControllerSystem(window)
 {
 	registry.set<entt::dispatcher>();
@@ -95,7 +96,7 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	return this->player;
 }
 
-void World::update(Camera &camera) {
+void World::update() {
 	// update systems
 	charControllerSystem.update(registry, -camera.toTarget);
 	for (auto &sys : updateSystems) sys->update();
@@ -108,7 +109,7 @@ void World::update(Camera &camera) {
 	#endif
 }
 
-void World::draw(Camera &camera) {
+void World::draw() {
 	#if CFG_IMGUI_ENABLED
 		if (ImGui::Begin("entities", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar)) {
 			using namespace ImGui;
@@ -152,39 +153,10 @@ void World::draw(Camera &camera) {
 	#endif
 	
 	// render systems
-	drawFloor(camera);
-	
-	// draw billboards
-	
-	// sort only every N ticks
-	const int maxTicksUntilSort = 2;
-	static int ticksSinceLastSort = 0;
-	if (++ticksSinceLastSort > maxTicksUntilSort) {
-		
-		ticksSinceLastSort = 0;
-	}
-	#ifdef CFG_DEBUG
-		double st = glfwGetTime();
-	#endif
-	
-	BM_START(depth_sort, 30);
-	billboardRenderSystem->depthSort(registry, camera);
-	
-	#ifdef CFG_DEBUG
-		double ms = ((glfwGetTime() - st) * 1000.f);
-		static double ms_total = 0.;
-		ms_total += ms;
-		static int cnt = 0, max_cnt = 30;
-		if (++cnt >= max_cnt) {
-			printf("%.2fms for depthsort over %d ticks\n", ms_total / (double)cnt, cnt);
-			cnt = 0;
-			ms_total = 0.;
-		}
-	#endif
-	BM_STOP(depth_sort);
-	BM_START(billboard_render, 30);
-	billboardRenderSystem->drawInstanced(registry, camera);
-	BM_STOP(billboard_render);
+	BM_START(rendering, 30);
+	drawFloor();
+	for (auto &sys : renderSystems) sys->draw();
+	BM_STOP(rendering);
 	
 }
 
@@ -197,15 +169,19 @@ void World::loadSystems() {
 	// clear all
 	updateSystems.clear();
 	
+	// update and render systems
+	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(registry, camera);
+	
 	// create update systems
 	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f, tileGrid));
 	updateSystems.emplace_back(new RandomJumpSystem(registry, 0.003f));
 	updateSystems.emplace_back(new WayfindSystem(registry));
 	updateSystems.emplace_back(new PressAwaySystem(registry));
 	updateSystems.emplace_back(new PositionUpdateSystem(registry));
+	updateSystems.push_back(billboardRenderSystem);
 	
 	// and render systems
-	billboardRenderSystem = std::make_unique<BillboardRenderSystem>(registry);
+	renderSystems.push_back(billboardRenderSystem);
 }
 
 void World::setupFloor() {
@@ -261,7 +237,7 @@ void World::destroyFloor() {
 	tileGrid.each([](int, int, SignedDistTerrain *t) { delete t; });
 }
 
-void World::drawFloor(Camera &camera) {
+void World::drawFloor() {
 	chunkShader["uProj"] = camera.getProjection();
 	chunkShader["uView"] = camera.getView();
 	chunkShader["uModel"] = glm::mat4(1.f);

@@ -38,6 +38,7 @@ Camera::~Camera() {
 	auto it = std::find(CAMERAS.begin(), CAMERAS.end(), this);
 	if (it != CAMERAS.end()) {
 		CAMERAS.erase(it);
+		DEBUG(printf("[LOG] Camera: destructor called...\n"));
 	}
 	else DEBUGB {
 		printf("[WRN] Camera: could not find own reference in destructor\n");

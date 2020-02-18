@@ -42,7 +42,7 @@ using namespace glm;
 class World {
 public:
 	
-	World(GLFWwindow *window);
+	World(GLFWwindow *window, Camera &camera);
 	World(const World &copy) = delete;
 	
 	~World();
@@ -52,8 +52,8 @@ public:
 	entt::entity spawnDefaultEntity(vec3 pos);
 	
 	// gameloop
-	void update(Camera &camera);
-	void draw(Camera &camera);
+	void update();
+	void draw();
 	
 	// getters
 	inline entt::registry &getRegistry() { return registry; }
@@ -73,6 +73,7 @@ public:
 	
 private:
 	entt::registry registry;
+	Camera &camera;
 	
 	// grid
 	Grid2D<SignedDistTerrain> tileGrid;
@@ -87,8 +88,8 @@ private:
 	
 	// systems
 	std::vector<std::shared_ptr<BaseUpdateSystem>> updateSystems;
+	std::vector<std::shared_ptr<BaseRenderSystem>> renderSystems;
 	CharacterController charControllerSystem;
-	std::unique_ptr<BillboardRenderSystem> billboardRenderSystem;
 	
 	void loadSystems();
 	
@@ -96,7 +97,7 @@ private:
 	sgl::shader floorShader;
 	void setupFloor();
 	void destroyFloor();
-	void drawFloor(Camera &camera);
+	void drawFloor();
 	
 	AssetManager assetManager;
 	
