@@ -15,19 +15,18 @@ BillboardRenderSystem::~BillboardRenderSystem() {
 	glDeleteBuffers(1, &instanceBuffer);
 }
 
-void BillboardRenderSystem::depthSort(entt::registry &registry, glm::vec3 camPos) {
-	registry.sort<CPosition>([camPos](const auto &lhs, const auto &rhs) {
+void BillboardRenderSystem::depthSort(entt::registry &registry, const Camera &camera) {
+	registry.sort<CPosition>([&camera](const auto &lhs, const auto &rhs) {
 		constexpr glm::vec3 noY(1.0f, 0.0f, 1.0f);
-		float l1 = glm::length2((lhs.pos - camPos) * noY);
-		float l2 = glm::length2((rhs.pos - camPos) * noY);
+		float l1 = glm::length2((lhs.pos - camera.pos) * noY);
+		float l2 = glm::length2((rhs.pos - camera.pos) * noY);
 		
 		return l1 > l2;
 	});
 	//registry.sort<CBillboard, CPosition>();
 }
 
-void BillboardRenderSystem::drawInstanced(entt::registry &registry,
-	glm::mat4 &uView, glm::mat4 &uProjection) {
+void BillboardRenderSystem::drawInstanced(entt::registry &registry, const Camera &camera) {
 	
 	#if CFG_IMGUI_ENABLED
 		if (ImGui::Begin("bbRenderSystem")) {
@@ -46,9 +45,9 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	
 	instanceShader.use();
 	registry.view<CPosition, CBillboard>().each(
-		[this, &uView](auto entity, auto &pos, auto &bb) {
+		[this, &camera](auto entity, auto &pos, auto &bb) {
 		
-		this->aInstanceModels.push_back(Billboard::calcModelMatrix(uView, pos.pos, bb.size));
+		this->aInstanceModels.push_back(Billboard::calcModelMatrix(camera.getView(), pos.pos, bb.size));
 		this->aInstanceColors.push_back(bb.color);
 		this->aInstanceTexOffsets.push_back(bb.getSubRect());
 		
@@ -106,8 +105,8 @@ void BillboardRenderSystem::drawInstanced(entt::registry &registry,
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	// prepare shader
-	instanceShader["uView"] = uView;
-	instanceShader["uProjection"] = uProjection;
+	instanceShader["uView"] = camera.getView();
+	instanceShader["uProjection"] = camera.getProjection();
 	
 	// resize instance data buffer
 	if (aInstanceModels.size() > (size_t)lastMaxInstanceCount || lastMaxInstanceCount < 0) {

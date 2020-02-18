@@ -95,9 +95,9 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	return this->player;
 }
 
-void World::update(vec3 viewPos, vec3 viewDir) {
+void World::update(Camera &camera) {
 	// update systems
-	charControllerSystem.update(registry, viewDir);
+	charControllerSystem.update(registry, -camera.toTarget);
 	for (auto &sys : updateSystems) sys->update();
 	
 	#if CFG_DEBUG
@@ -108,7 +108,7 @@ void World::update(vec3 viewPos, vec3 viewDir) {
 	#endif
 }
 
-void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
+void World::draw(Camera &camera) {
 	#if CFG_IMGUI_ENABLED
 		if (ImGui::Begin("entities", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar)) {
 			using namespace ImGui;
@@ -140,7 +140,7 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 				ImColor color = ImColor(1.0f, 0.0f, 0.0f);
 				if (registry.has<CKeyboardControllable>(entity)) {
 					color = ImColor(0.0f, 0.0f, 1.0f);
-					vec2 camdir = vec2(pos.pos.x, pos.pos.z) - vec2(camPos.x, camPos.z);
+					vec2 camdir = vec2(pos.pos.x, pos.pos.z) - vec2(camera.pos.x, camera.pos.z);
 					drawlist->AddLine(ImVec2(wp.x + op.x - origin.x * s, wp.y + op.y - origin.y * s),
 						ImVec2(wp.x + op.x + normalize(camdir).x * 35.0f - origin.x * s, wp.y + op.y + normalize(camdir).y * 35.0f - origin.y * s),
 						ImColor(1.0f, 1.0f, 0.0f));
@@ -152,7 +152,7 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 	#endif
 	
 	// render systems
-	drawFloor(uView, uProjection);
+	drawFloor(camera);
 	
 	// draw billboards
 	
@@ -168,7 +168,7 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 	#endif
 	
 	BM_START(depth_sort, 30);
-	billboardRenderSystem->depthSort(registry, camPos);
+	billboardRenderSystem->depthSort(registry, camera);
 	
 	#ifdef CFG_DEBUG
 		double ms = ((glfwGetTime() - st) * 1000.f);
@@ -183,7 +183,7 @@ void World::draw(vec3 &camPos, mat4 &uView, mat4 &uProjection) {
 	#endif
 	BM_STOP(depth_sort);
 	BM_START(billboard_render, 30);
-	billboardRenderSystem->drawInstanced(registry, uView, uProjection);
+	billboardRenderSystem->drawInstanced(registry, camera);
 	BM_STOP(billboard_render);
 	
 }
@@ -261,9 +261,9 @@ void World::destroyFloor() {
 	tileGrid.each([](int, int, SignedDistTerrain *t) { delete t; });
 }
 
-void World::drawFloor(mat4 &uView, mat4 &uProjection) {
-	chunkShader["uProj"] = uProjection;
-	chunkShader["uView"] = uView;
+void World::drawFloor(Camera &camera) {
+	chunkShader["uProj"] = camera.getProjection();
+	chunkShader["uView"] = camera.getView();
 	chunkShader["uModel"] = glm::mat4(1.f);
 	chunkShader["uTextureTopdownScale"] = 2.0f;
 	chunkShader["uTextureSideScale"] = 2.0f;

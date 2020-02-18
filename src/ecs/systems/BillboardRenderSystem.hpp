@@ -1,15 +1,20 @@
 #pragma once
 
+#include <config.hpp>
+
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
-#include <config.hpp>
+
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
-#include <RenderObject/Billboard.hpp>
-#include <ecs/components.hpp>
 #include <imgui/imgui.h>
 #include <util/sgl_shader.hpp>
+
+#include <ecs/components.hpp>
+
+#include <RenderObject/Billboard.hpp>
+#include <RenderObject/Camera.hpp>
 
 class BillboardRenderSystem {
 public:
@@ -18,8 +23,8 @@ public:
 	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	~BillboardRenderSystem();
 	
-	void depthSort(entt::registry &, glm::vec3 camPos);
-	void drawInstanced(entt::registry &, glm::mat4 &uView, glm::mat4 &uProj);
+	void depthSort(entt::registry &, const Camera &camera);
+	void drawInstanced(entt::registry &, const Camera &camera);
 	
 private:
 	//entt::group<CPosition, CBillboard> drawGroup{};

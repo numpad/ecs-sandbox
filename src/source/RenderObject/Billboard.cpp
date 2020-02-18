@@ -51,7 +51,7 @@ static float bbCylinder(glm::vec3 cam, glm::vec3 pos, glm::vec3 &outRotAxis) {
 	return glm::acos(angleCosine);
 }
 
-glm::mat4 Billboard::calcModelMatrix(glm::mat4 &uView, glm::vec3 pos,
+glm::mat4 Billboard::calcModelMatrix(const glm::mat4 &uView, glm::vec3 pos,
 	glm::vec2 size)
 {
 	

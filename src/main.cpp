@@ -226,7 +226,7 @@ float getWindowAspectRatio(GLFWwindow *window) {
 
 glm::vec3 calcCamPos(GLFWwindow *window) {
 	// calculate view & projection matrix
-	static float angle = 45.0f,
+	static float angle = 0.0f,
 		angle_vel = 0.0f,
 		angle_acc = 0.3f,
 		cam_dist = 4.5f,
@@ -548,12 +548,10 @@ int main(int, char**) {
 		camtarget += toTarget;
 		
 		glm::vec3 campos = targetPos + calcCamPos(window);
-		glm::mat4 uView = glm::lookAt(campos,
-			camtarget, glm::vec3(0.0f, 0.2f, 0.0f));
-		glm::mat4 uProj = glm::perspective(glm::radians(32.0f),
-			getWindowAspectRatio(window), 0.1f, 1000.0f);
-		glm::mat4 uProjFont = glm::ortho(0.f, (float)screenX, 0.f, (float)screenY);
-		
+		camera.setPos(campos);
+		camera.setTarget(camtarget);
+		glm::mat4 uView = camera.getView();
+		glm::mat4 uProj = camera.getProjection();		
 		
 		// calculate player aim
 		auto worldCrosshair = world.getCrosshair();
@@ -565,7 +563,7 @@ int main(int, char**) {
 		m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
 		crosspos = m3d::raycast(mcRay, mcFloor);
 		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
-		
+
 		// fire
 		if (false)
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
@@ -612,10 +610,10 @@ int main(int, char**) {
 		
 		// actual rendering
 		BM_START(world_update, 60);
-		world.update(campos, glm::normalize(campos - camtarget));
+		world.update(camera);
 		BM_STOP(world_update);
 		BM_START(world_draw, 60);
-		world.draw(campos, uView, uProj);
+		world.draw(camera);
 		BM_STOP(world_draw);
 		
 		BM_START(draw_string, 60);

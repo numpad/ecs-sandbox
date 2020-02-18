@@ -35,6 +35,7 @@
 
 #include <RenderObject/ChunkedWorld.hpp>
 #include <RenderObject/Billboard.hpp>
+#include <RenderObject/Camera.hpp>
 
 using namespace glm;
 
@@ -51,8 +52,8 @@ public:
 	entt::entity spawnDefaultEntity(vec3 pos);
 	
 	// gameloop
-	void update(vec3 viewPos, vec3 viewDir);
-	void draw(vec3 &camPos, mat4 &uView, mat4 &uProjection);
+	void update(Camera &camera);
+	void draw(Camera &camera);
 	
 	// getters
 	inline entt::registry &getRegistry() { return registry; }
@@ -85,7 +86,7 @@ private:
 	entt::entity spawnPlayer(vec3 pos = vec3(0.0f, 0.2f, 0.0f));
 	
 	// systems
-	std::vector<std::unique_ptr<BaseUpdateSystem>> updateSystems;
+	std::vector<std::shared_ptr<BaseUpdateSystem>> updateSystems;
 	CharacterController charControllerSystem;
 	std::unique_ptr<BillboardRenderSystem> billboardRenderSystem;
 	
@@ -95,7 +96,7 @@ private:
 	sgl::shader floorShader;
 	void setupFloor();
 	void destroyFloor();
-	void drawFloor(mat4 &uView, mat4 &uProjection);
+	void drawFloor(Camera &camera);
 	
 	AssetManager assetManager;
 	
