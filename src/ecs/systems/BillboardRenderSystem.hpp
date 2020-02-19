@@ -2,6 +2,7 @@
 
 #include <config.hpp>
 
+#include <memory>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
@@ -21,7 +22,7 @@
 class BillboardRenderSystem : public BaseUpdateSystem, public BaseRenderSystem {
 public:
 	
-	BillboardRenderSystem(entt::registry &registry, Camera &camera);
+	BillboardRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera);
 	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	~BillboardRenderSystem();
 	

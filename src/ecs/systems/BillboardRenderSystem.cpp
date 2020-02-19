@@ -1,6 +1,6 @@
 #include <ecs/systems/BillboardRenderSystem.hpp>
 
-BillboardRenderSystem::BillboardRenderSystem(entt::registry &registry, Camera &camera)
+BillboardRenderSystem::BillboardRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera)
 	: BaseUpdateSystem(registry), BaseRenderSystem(registry, camera)
 {
 	glGenBuffers(1, &instanceBuffer);
@@ -23,8 +23,8 @@ void BillboardRenderSystem::update() {
 	// depthsort
 	registry.sort<const CPosition>([this](const auto &lhs, const auto &rhs) {
 		constexpr glm::vec3 noY(1.0f, 0.0f, 1.0f);
-		float l1 = glm::length2((lhs.pos - this->camera.getPos()) * noY);
-		float l2 = glm::length2((rhs.pos - this->camera.getPos()) * noY);
+		float l1 = glm::length2((lhs.pos - this->camera->getPos()) * noY);
+		float l2 = glm::length2((rhs.pos - this->camera->getPos()) * noY);
 		
 		return l1 > l2;
 	});
@@ -52,7 +52,7 @@ void BillboardRenderSystem::draw() {
 	cregistry.view<const CPosition, const CBillboard>().each(
 		[this](auto entity, auto &pos, auto &bb) {
 		
-		this->aInstanceModels.push_back(Billboard::calcModelMatrix(this->camera.getView(), pos.pos, bb.size));
+		this->aInstanceModels.push_back(Billboard::calcModelMatrix(this->camera->getView(), pos.pos, bb.size));
 		this->aInstanceColors.push_back(bb.color);
 		this->aInstanceTexOffsets.push_back(bb.getSubRect());
 		
@@ -110,8 +110,8 @@ void BillboardRenderSystem::draw() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	// prepare shader
-	instanceShader["uView"] = camera.getView();
-	instanceShader["uProjection"] = camera.getProjection();
+	instanceShader["uView"] = camera->getView();
+	instanceShader["uProjection"] = camera->getProjection();
 	
 	// resize instance data buffer
 	if (aInstanceModels.size() > (size_t)lastMaxInstanceCount || lastMaxInstanceCount < 0) {

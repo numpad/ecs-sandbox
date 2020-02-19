@@ -43,7 +43,7 @@ using namespace glm;
 class World {
 public:
 	
-	World(GLFWwindow *window, Camera &camera);
+	World(GLFWwindow *window, std::shared_ptr<Camera> camera);
 	World(const World &copy) = delete;
 	
 	~World();
@@ -57,13 +57,13 @@ public:
 	void draw();
 	
 	// setters
-	void setCamera(Camera &camera);
+	void setCamera(std::shared_ptr<Camera> camera);
 	
 	// getters
 	inline entt::registry &getRegistry() { return registry; }
 	inline entt::dispatcher &getDispatcher() { return registry.ctx<entt::dispatcher>(); }
 	inline AssetManager &getAssetManager() { return assetManager; }
-	inline const Camera &getCamera() const { return camera; }
+	inline const std::shared_ptr<Camera> getCamera() const { return camera; }
 	
 	inline entt::entity getPlayer() const {
 		if (registry.valid(player))
@@ -78,7 +78,7 @@ public:
 	
 private:
 	entt::registry registry;
-	Camera &camera;
+	std::shared_ptr<Camera> camera;
 	
 	// grid
 	Grid2D<SignedDistTerrain> tileGrid;

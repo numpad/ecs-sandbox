@@ -9,17 +9,17 @@
 class BaseRenderSystem {
 public:
 	
-	BaseRenderSystem(const entt::registry &cregistry, Camera &camera)
+	BaseRenderSystem(const entt::registry &cregistry, std::shared_ptr<Camera> camera)
 		: cregistry(cregistry), camera(camera) {}
 	
 	virtual ~BaseRenderSystem() { }
 	virtual void draw() = 0;
 	
 	// setters
-	inline void setCamera(Camera &camera) { this->camera = camera; }
+	inline void setCamera(std::shared_ptr<Camera> camera) { this->camera = camera; }
 	
 protected:
 	const entt::registry &cregistry;
-	Camera camera;
+	std::shared_ptr<Camera> camera;
 	
 };
