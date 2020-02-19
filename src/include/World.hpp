@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <memory>
+#include <functional>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -55,10 +56,14 @@ public:
 	void update();
 	void draw();
 	
+	// setters
+	void setCamera(Camera &camera);
+	
 	// getters
 	inline entt::registry &getRegistry() { return registry; }
 	inline entt::dispatcher &getDispatcher() { return registry.ctx<entt::dispatcher>(); }
 	inline AssetManager &getAssetManager() { return assetManager; }
+	inline const Camera &getCamera() const { return camera; }
 	
 	inline entt::entity getPlayer() const {
 		if (registry.valid(player))

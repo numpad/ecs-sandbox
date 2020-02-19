@@ -30,19 +30,19 @@ public:
 	void setFoV(float fov_angles);
 	
 	// getters / readonly
-	const vec3& pos = position;
-	const vec3& target = targetpos;
-	const float& zNear = znear;
-	const float& zFar = zfar;
-	const vec3& toTarget = dirToTarget;
+	inline vec3 getPos()      const { return this->position; };
+	inline vec3 getTarget()   const { return this->targetpos; };
+	inline float getZNear()   const { return this->znear; };
+	inline float getZFar()    const { return this->zfar; };
+	inline vec3 getToTarget() const { return this->dirToTarget; };
 	
 	const mat4& getProjection() const;
 	const mat4& getHudProjection() const;
 	const mat4& getView() const;
 	
 	// calculations
-	vec2 worldToScreen(vec3 worldpos);
-	m3d::ray raycast(vec2 normalized_screenpos);
+	vec2 worldToScreen(vec3 worldpos) const;
+	m3d::ray raycast(vec2 normalized_screenpos) const;
 	
 	bool windowAspectLocked = true;
 private:

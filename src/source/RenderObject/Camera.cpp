@@ -79,18 +79,18 @@ const mat4& Camera::getHudProjection() const {
 	return hudProjection;
 }
 
-const mat4& Camera::getView() const{
+const mat4& Camera::getView() const {
 	return this->view;
 }
 
 
-vec2 Camera::worldToScreen(vec3 worldpos) {
+vec2 Camera::worldToScreen(vec3 worldpos) const {
 	vec4 screen3d = projection * view * vec4(worldpos, 1.f);
 	vec2 screen2d = vec2(screen3d.x, screen3d.y) / screen3d.z;
 	return (screen2d * .5f + .5f) * vec2(float(screen_width), float(screen_height));
 }
 
-m3d::ray Camera::raycast(vec2 normalized_screenpos) {
+m3d::ray Camera::raycast(vec2 normalized_screenpos) const {
 	vec3 raydir = m3d::mouseToCameraRay(getProjection(), getView(), normalized_screenpos);
 	return m3d::ray(position, raydir);
 }

@@ -98,7 +98,7 @@ entt::entity World::spawnPlayer(vec3 pos) {
 
 void World::update() {
 	// update systems
-	charControllerSystem.update(registry, -camera.toTarget);
+	charControllerSystem.update(registry, -camera.getToTarget());
 	for (auto &sys : updateSystems) sys->update();
 	
 	#if CFG_DEBUG
@@ -141,7 +141,7 @@ void World::draw() {
 				ImColor color = ImColor(1.0f, 0.0f, 0.0f);
 				if (registry.has<CKeyboardControllable>(entity)) {
 					color = ImColor(0.0f, 0.0f, 1.0f);
-					vec2 camdir = vec2(pos.pos.x, pos.pos.z) - vec2(camera.pos.x, camera.pos.z);
+					vec2 camdir = vec2(pos.pos.x, pos.pos.z) - vec2(camera.getPos().x, camera.getPos().z);
 					drawlist->AddLine(ImVec2(wp.x + op.x - origin.x * s, wp.y + op.y - origin.y * s),
 						ImVec2(wp.x + op.x + normalize(camdir).x * 35.0f - origin.x * s, wp.y + op.y + normalize(camdir).y * 35.0f - origin.y * s),
 						ImColor(1.0f, 1.0f, 0.0f));
@@ -160,6 +160,12 @@ void World::draw() {
 	
 }
 
+
+void World::setCamera(Camera &cam) {
+	// TODO: references dont work like this, cant reassign
+	this->camera = cam;
+	//for (auto &sys : renderSystems) sys->setCamera(camera);
+}
 
 ///////////////
 /// PRIVATE ///

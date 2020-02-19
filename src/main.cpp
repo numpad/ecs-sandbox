@@ -488,6 +488,8 @@ int main(int, char**) {
 	Font::Init();
 	
 	Camera camera(vec3(0.f));
+	Camera topdown(vec3(0.f, 5.f, 0.f));
+	topdown.setTarget(vec3(0.f, 0.f, 0.01f));
 	World world(window, camera);
 	
 	//AssetManager &assetManager = world.getAssetManager();
@@ -520,6 +522,11 @@ int main(int, char**) {
 					glfwSwapInterval(vsync ? 1 : 0);
 				}
 				
+				static bool topdowncam = false;
+				if (ImGui::Checkbox("topdown camera?", &topdowncam)) {
+					if (topdowncam) world.setCamera(topdown);
+					else world.setCamera(camera);
+				}
 			}
 			ImGui::End();
 		#endif
@@ -554,7 +561,7 @@ int main(int, char**) {
 		if (!world.getRegistry().valid(worldCrosshair))
 			printf("[ERR] main: World crosshair not valid, may segfault.\n");
 		glm::vec3 &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;
-		m3d::ray mcRay = camera.raycast(normalizedMouse);
+		m3d::ray mcRay = world.getCamera().raycast(normalizedMouse);
 		m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
 		crosspos = m3d::raycast(mcRay, mcFloor);
 		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
@@ -607,8 +614,10 @@ int main(int, char**) {
 		world.update();
 		world.draw();
 		
-		vec2 wtos = camera.worldToScreen(crosspos);
-		defaultFont.drawString(camera.getHudProjection(), L"this is a test", wtos.x, wtos.y, 1.f, vec3(1.f, 0.f, 0.f));
+		world.getRegistry().view<CPosition, CBillboard>().each([&camera=world.getCamera(), &defaultFont](const auto &pos, const auto &bb) {
+			vec2 wtos = camera.worldToScreen(pos.pos);
+			defaultFont.drawString(camera.getHudProjection(), L"@", wtos.x, wtos.y, 1.f, vec3(1.f, 0.f, 0.f));
+		});
 		
 		// present rendered
 		imguiRender();
