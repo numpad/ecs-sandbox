@@ -22,6 +22,11 @@ World::World(GLFWwindow *window, std::shared_ptr<Camera> camera)
 }
 
 World::~World() {
+}
+
+void World::destroy() {
+	updateSystems.clear();
+	renderSystems.clear();
 	destroyFloor();
 	registry.reset();
 }
@@ -93,6 +98,9 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	//	vec2(0.2f, 0.2f), vec3(0.0f, 1.0f, 0.0f));
 	TiledTexture *tiledtex = assetManager.getTiledTexture("res/images/sprites/arrows.png", 64, 64, 0, 0);
 	registry.assign<CBillboard>(worldCrosshair, tiledtex, vec2(0.4f, 0.4f));
+	
+	registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(player, vec3(0.f, .1f, 0.f), L"Hello, World!", 60 * 4);
+	
 	return this->player;
 }
 
@@ -176,6 +184,7 @@ void World::loadSystems() {
 	
 	// update and render systems
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(registry, camera);
+	auto textRenderSystem = std::make_shared<TextEventSystem>(registry, camera);
 	
 	// create update systems
 	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f, tileGrid));
@@ -184,9 +193,11 @@ void World::loadSystems() {
 	updateSystems.emplace_back(new PressAwaySystem(registry));
 	updateSystems.emplace_back(new PositionUpdateSystem(registry));
 	updateSystems.push_back(billboardRenderSystem);
+	updateSystems.push_back(textRenderSystem);
 	
 	// and render systems
 	renderSystems.push_back(billboardRenderSystem);
+	renderSystems.push_back(textRenderSystem);
 }
 
 void World::setupFloor() {

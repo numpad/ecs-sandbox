@@ -47,6 +47,7 @@ public:
 	World(const World &copy) = delete;
 	
 	~World();
+	void destroy();
 	
 	// entitites
 	entt::entity getNearestEntity(vec3 pos);

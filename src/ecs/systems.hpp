@@ -1,9 +1,10 @@
-// b50979bace1ad6876066277ed48db6d3fa50ec2e
+// f6b7044ef3c5611a32d0a289aceafc80d778acc4
 #pragma once
 
 #include <ecs/systems/PositionUpdateSystem.hpp>
 #include <ecs/systems/WayfindSystem.hpp>
 #include <ecs/systems/BaseUpdateSystem.hpp>
+#include <ecs/systems/TextEventSystem.hpp>
 #include <ecs/systems/PressAwaySystem.hpp>
 #include <ecs/systems/CharacterController.hpp>
 #include <ecs/systems/GravitySystem.hpp>

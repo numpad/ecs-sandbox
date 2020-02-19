@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.1)
 project (synthlike LANGUAGES CXX)
 
 set (CMAKE_BUILD_TYPE Debug)
-set (CMAKE_CXX_FLAGS_DEBUG "-O0")
+set (CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
 set (CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set (CMAKE_CXX_STANDARD 17)

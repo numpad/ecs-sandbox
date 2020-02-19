@@ -7,6 +7,6 @@
 struct WorldTextEvent {
 	entt::entity who;
 	glm::vec3 offset;
-	std::string text;
-	
+	std::wstring text;
+	int duration;
 };

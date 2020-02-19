@@ -488,7 +488,7 @@ int main(int, char**) {
 	Font::Init();
 	
 	std::shared_ptr<Camera> camera = std::make_shared<Camera>(vec3(0.f));
-	std::shared_ptr<Camera> topdown = std::make_shared<Camera>(vec3(0.f, 5.f, 0.f));
+	std::shared_ptr<Camera> topdown = std::make_shared<Camera>(vec3(7.f, 5.f, -4.f));
 	topdown->setTarget(vec3(0.f, 0.f, 0.01f));
 	World world(window, camera);
 	
@@ -614,11 +614,6 @@ int main(int, char**) {
 		world.update();
 		world.draw();
 		
-		world.getRegistry().view<CPosition, CBillboard>().each([camera=world.getCamera(), &defaultFont](const auto &pos, const auto &bb) {
-			vec2 wtos = camera->worldToScreen(pos.pos);
-			defaultFont.drawString(camera->getHudProjection(), L"@", wtos.x, wtos.y, 1.f, vec3(1.f, 0.f, 0.f));
-		});
-		
 		// present rendered
 		imguiRender();
 		glfwSwapBuffers(window);
@@ -626,7 +621,11 @@ int main(int, char**) {
 	}
 
 	/* cleanup */
+	world.destroy();
+	
+	defaultFont.destroy();
 	Font::Destroy();
+	
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	imguiDestroy();
