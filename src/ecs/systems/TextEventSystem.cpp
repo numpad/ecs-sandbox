@@ -15,29 +15,60 @@ TextEventSystem::~TextEventSystem() {
 
 
 void TextEventSystem::receive(const WorldTextEvent &e) {
-	textEvents.push_back(e);
+	textEvents.push_back(TextEventEntry(e, textfont.getSize(e.text)));
 }
 
 
 void TextEventSystem::update() {
 	for (auto &te : textEvents) {
-		te.duration--;
+		switch (te.animation) {
+			case TextEventEntry::Animation::ZOOM: {
+				if (te.event.duration > 0) {
+					if (te.scale >= 1.0f) {
+						te.event.duration--;
+					} else {
+						te.scale += 0.02f;
+						te.scale *= 1.7f;
+						if (te.scale > 1.0f) te.scale = 1.0f;
+					}
+				} else {
+					te.scale *= 0.8f;
+					if (te.scale < 0.05f) te.event.duration = -1;
+				}
+				break;
+			}
+			case TextEventEntry::Animation::LETTERS: {
+				te.scale = 1.f;
+				
+				if (te.event.text.size() < te.displayString.size()) {
+					if (te.letter_timer-- <= 0) {
+						te.letter_timer = te.letter_duration;
+						te.event.text += te.displayString[te.event.text.size()];
+						te.size = textfont.getSize(te.event.text);
+					}
+				} else {
+					te.event.duration--;
+				}
+				break;
+			}
+		};
 	}
 	
 	textEvents.erase(std::remove_if(textEvents.begin(), textEvents.end(),
 		[](auto &e) {
-			return e.duration <= 0;
+			return e.event.duration < 0;
 		}), textEvents.end());
 }
 
 void TextEventSystem::draw() {
 	for (auto &te : textEvents) {
 		vec3 pos = vec3(0.f);
-		if (registry.valid(te.who) && registry.has<CPosition>(te.who))
-			pos = registry.get<CPosition>(te.who).pos;
-		pos += te.offset;
+		if (registry.valid(te.event.who) && registry.has<CPosition>(te.event.who))
+			pos = registry.get<CPosition>(te.event.who).pos;
+		pos += te.event.offset;
 		
-		vec2 wtos = camera->worldToScreen(pos);
-		textfont.drawString(camera->getHudProjection(), te.text, wtos.x, wtos.y, 1.f, vec3(1.f, 1.f, 1.f));
+		vec2 wtos = camera->worldToScreen(pos) - te.size * te.scale * .5f;
+		textfont.drawString(camera->getHudProjection(), te.event.text, wtos.x, wtos.y, te.scale, vec3(1.f, 1.f, 1.f));
+		
 	}
 }

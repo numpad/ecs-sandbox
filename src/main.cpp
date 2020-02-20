@@ -350,6 +350,9 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			registry.remove<CHealth>(entity);
 		}
 	}
+	if (Button("Send Message")) {
+		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(entity, vec3(0.f, .25f, 0.f), L"Hello, World!", 60 * 4);
+	}
 }
 
 void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {

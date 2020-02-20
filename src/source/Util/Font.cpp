@@ -73,6 +73,25 @@ void Font::destroy() {
 	}
 }
 
+vec2 Font::getSize(std::wstring str, float scale) {
+	vec2 size(0.f, std::numeric_limits<float>::min());
+	
+	float last_width;
+	for (wchar_t c : str) {
+		if (chars.count(c) == 0) continue;
+		Character ch = chars[c];
+		float w = ch.size.x * scale;
+		float h = ch.size.y * scale;
+		
+		last_width = w;
+		size.x += (ch.advance >> 6) * scale;
+		if (h > size.y) size.y = h;
+	}
+	size.x += last_width;
+	
+	return size;
+}
+
 void Font::drawString(mat4 uProj, std::wstring str, float x, float y, float scale, vec3 color) {
 	// TODO: restore previous blend func
 	GLint blendEnabled;

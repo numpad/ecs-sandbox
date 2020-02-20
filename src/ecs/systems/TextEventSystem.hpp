@@ -17,6 +17,8 @@
 
 #include <Util/Font.hpp>
 
+using namespace glm;
+
 class TextEventSystem : public BaseUpdateSystem, public BaseRenderSystem {
 public:
 	
@@ -29,6 +31,28 @@ public:
 	void draw();
 	
 private:
-	std::vector<WorldTextEvent> textEvents;
+	struct TextEventEntry {
+		enum class Animation {
+			ZOOM, LETTERS
+		} animation = Animation::LETTERS;
+		
+		WorldTextEvent event;
+		vec2 size;
+		
+		// zoom
+		float scale = 0.0f;
+		// letters
+		std::wstring displayString;
+		int letter_duration = 6;
+		int letter_timer = letter_duration;
+		
+		TextEventEntry(WorldTextEvent te, vec2 size)
+			: event(te), size(size), displayString(te.text) {
+			if (animation == Animation::LETTERS) event.text.clear();
+		}
+	
+	};
+	
+	std::vector<TextEventEntry> textEvents;
 	Font textfont;
 };

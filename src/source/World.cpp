@@ -99,7 +99,7 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	TiledTexture *tiledtex = assetManager.getTiledTexture("res/images/sprites/arrows.png", 64, 64, 0, 0);
 	registry.assign<CBillboard>(worldCrosshair, tiledtex, vec2(0.4f, 0.4f));
 	
-	registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(player, vec3(0.f, .1f, 0.f), L"Hello, World!", 60 * 4);
+	registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(player, vec3(0.f, .25f, 0.f), L"Hello, World!", 60 * 4);
 	
 	return this->player;
 }
