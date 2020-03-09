@@ -72,6 +72,15 @@ entt::entity World::spawnDefaultEntity(vec3 pos) {
 	return entity;
 }
 
+void World::resetEntities() {
+	vec3 spawnPos;
+	if (registry.has<CPosition>(getPlayer()))
+		spawnPos = registry.get<CPosition>(getPlayer()).pos;
+	
+	registry.reset();
+	spawnPlayer(spawnPos);
+}
+
 entt::entity World::spawnPlayer(vec3 pos) {
 	if (registry.valid(player))
 		registry.destroy(this->player);
@@ -99,8 +108,6 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	TiledTexture *tiledtex = assetManager.getTiledTexture("res/images/sprites/arrows.png", 64, 64, 0, 0);
 	registry.assign<CBillboard>(worldCrosshair, tiledtex, vec2(0.4f, 0.4f));
 	
-	registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(player, vec3(0.f, .25f, 0.f), L"Hello, World!", 60 * 4);
-	
 	return this->player;
 }
 
@@ -118,48 +125,6 @@ void World::update() {
 }
 
 void World::draw() {
-	#if CFG_IMGUI_ENABLED
-		if (ImGui::Begin("entities", NULL, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar)) {
-			using namespace ImGui;
-			using namespace glm;
-			if (Button("Reset")) {
-				registry.reset();
-				spawnPlayer();
-			}
-			// minimap
-			ImVec2 winsize = GetContentRegionAvail();
-			const mat3 transform = mat3(
-				vec3(winsize.x, 0.0f, 0.0f),
-				vec3(0.0f, winsize.y, 0.0f),
-				vec3(winsize.x * 0.5f, winsize.y * 0.5f, 1.0f));
-			vec3 originP = vec3(0.0f, 0.0f, 1.0f);
-			if (registry.valid(getPlayer())) {
-				originP.x = registry.get<CPosition>(getPlayer()).pos.x;
-				originP.y = registry.get<CPosition>(getPlayer()).pos.z;
-			}
-			vec2 origin = vec2(transform * originP);
-			
-			auto drawlist = GetWindowDrawList();
-			auto wp = GetCursorScreenPos(); // offset of display top left to window
-			const float s = 0.1f; // scale
-			
-			registry.view<CPosition, CSphereCollider, CBillboard>().each([&](auto entity, auto &pos, auto &sphere, auto &bb){
-				const vec2 op = vec2(transform * vec3(pos.pos.x * s, pos.pos.z * s, 1.0));
-				float radius = sphere.radius * 50.0f;
-				ImColor color = ImColor(1.0f, 0.0f, 0.0f);
-				if (registry.has<CKeyboardControllable>(entity)) {
-					color = ImColor(0.0f, 0.0f, 1.0f);
-					vec2 camdir = vec2(pos.pos.x, pos.pos.z) - vec2(camera->getPos().x, camera->getPos().z);
-					drawlist->AddLine(ImVec2(wp.x + op.x - origin.x * s, wp.y + op.y - origin.y * s),
-						ImVec2(wp.x + op.x + normalize(camdir).x * 35.0f - origin.x * s, wp.y + op.y + normalize(camdir).y * 35.0f - origin.y * s),
-						ImColor(1.0f, 1.0f, 0.0f));
-				}
-				drawlist->AddCircleFilled(ImVec2(wp.x + op.x - origin.x * s, wp.y + op.y - origin.y * s), radius, color, 12);
-			});
-		}
-		ImGui::End();
-	#endif
-	
 	// render systems
 	BM_START(rendering, 30);
 	drawFloor();
@@ -210,14 +175,22 @@ void World::setupFloor() {
 	// mapgen
 	int x = 0, y = 0;
 	Random r;
-	const int gen_n_chunks = 2;
+	const int gen_n_chunks = 12;
 	for (int i = 0; i < gen_n_chunks; ++i) {
-		// set model
+		// set modelD
 		tileGrid.set(x, y, new SignedDistTerrain());
 		SignedDistTerrain *sd = tileGrid.at(x, y);
 		sd->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-		if (r() > 0.5)
+		float rand = r();
+		if (rand < .2f) {
 			sd->sphere(vec3(0.f), 0.4f);
+			sd->sphere(vec3(0.f, .5f, 0.f), 0.4f);
+		} else if (rand < .4f) {
+			sd->box(vec3(0.f), vec3(0.8f), SignedDistTerrain::Op::DIFF);
+		} else {
+			sd->sphere(vec3(.0f, .3f, .0f), 0.7f, SignedDistTerrain::Op::DIFF);
+		}
+		
 		chunks.set(ivec2(x, y), *sd);
 		
 		auto rng = r();

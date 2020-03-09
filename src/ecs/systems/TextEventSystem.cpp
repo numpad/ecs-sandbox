@@ -2,14 +2,13 @@
 
 TextEventSystem::TextEventSystem(entt::registry &registry, std::shared_ptr<Camera> camera)
 	: BaseUpdateSystem(registry), BaseRenderSystem(registry, camera),
-	textfont("res/fonts/FFF_Tusj.ttf", 32) {
+	textfont("res/fonts/escalope_2.ttf", 42) {
 	
 	registry.ctx<entt::dispatcher>().sink<WorldTextEvent>().connect<&TextEventSystem::receive>(*this);
 }
 
 TextEventSystem::~TextEventSystem() {
-	// does this make sense?
-	// registry.ctx<entt::dispatcher>().sink<WorldTextEvent>().disconnect<&TextEventSystem::receive>(*this);
+	registry.ctx<entt::dispatcher>().sink<WorldTextEvent>().disconnect<&TextEventSystem::receive>(*this);
 	textfont.destroy();
 }
 
@@ -68,7 +67,8 @@ void TextEventSystem::draw() {
 		pos += te.event.offset;
 		
 		vec2 wtos = camera->worldToScreen(pos) - te.size * te.scale * .5f;
-		textfont.drawString(camera->getHudProjection(), te.event.text, wtos.x, wtos.y, te.scale, vec3(1.f, 1.f, 1.f));
+		textfont.drawString(camera->getHudProjection(), te.event.text, wtos.x, wtos.y,
+			te.scale, vec3(.82f, .29f, .25f));
 		
 	}
 }

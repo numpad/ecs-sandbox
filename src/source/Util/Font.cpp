@@ -45,7 +45,7 @@ Font::Font(std::string ttf, unsigned int height_px) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	for (unsigned long i = 0; i < 128; ++i)
 		loadChar(i);
-	std::wstring extra_chars = L"äöüÄÖÜ";
+	std::wstring extra_chars = L"äöüÄÖÜ§ß²³€";
 	for (wchar_t c : extra_chars)
 		loadChar(c);
 	

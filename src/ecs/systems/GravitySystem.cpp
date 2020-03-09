@@ -20,6 +20,9 @@ void GravitySystem::entityKilled(const KillEntityEvent &e) {
 		auto [pos, vel] = registry.get<CPosition, CVelocity>(e.which);
 		pos.pos = registry.get<CSpawnPoint>(e.which).getPosition(registry);
 		vel.vel = glm::vec3(0.0f);
+		
+		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(e.which, vec3(0.f, .32f, 0.f), L"Ouch...", 60 * 2);
+	
 	} else {
 		registry.destroy(e.which);
 	}

@@ -52,6 +52,7 @@ public:
 	// entitites
 	entt::entity getNearestEntity(vec3 pos);
 	entt::entity spawnDefaultEntity(vec3 pos);
+	void resetEntities();
 	
 	// gameloop
 	void update();

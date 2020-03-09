@@ -28,7 +28,9 @@ void BillboardRenderSystem::update() {
 		
 		return l1 > l2;
 	});
-	//registry.sort<CBillboard, CPosition>();
+	
+	// required if entities exist with and without billboards, but both with postitions
+	registry.sort<CBillboard, CPosition>();
 }
 
 void BillboardRenderSystem::draw() {

@@ -33,7 +33,8 @@ public:
 	
 	vec2 getSize(std::wstring str, float scale = 1.0f);
 	
-	void drawString(mat4 uProj, std::wstring str, float x, float y, float scale = 1.f, vec3 color = vec3(1.f));
+	void drawString(mat4 uProj, std::wstring str, float x, float y,
+		float scale = 1.f, vec3 color = vec3(1.f));
 	
 private:
 	FT_Face face;

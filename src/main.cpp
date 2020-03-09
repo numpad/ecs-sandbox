@@ -351,7 +351,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		}
 	}
 	if (Button("Send Message")) {
-		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(entity, vec3(0.f, .25f, 0.f), L"Hello, World!", 60 * 4);
+		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(entity, vec3(0.f, .25f, 0.f), L"Hello", 60 * 4);
 	}
 }
 
@@ -363,11 +363,12 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	static glm::vec3 vel(0.0f);
 	static glm::vec2 bbsize(0.2f, 0.2f);
 	static glm::vec3 bbcolor(1.0f);
+	static bool bbrandom = true;
 	static float rttforce = 0.01f;
 	static float rttnear = 0.1f;
 	static glm::vec3 rttpos(0.0f);
 	static bool rttonlyonce = true;
-	static float pressrad = 0.01f, pressforce = 0.01f;
+	static float pressrad = 0.09f, pressforce = 0.01f;
 	static float keycontrolspeed = 0.0015f;
 	static glm::vec3 spawnpoint(0.0f);
 	static char texpath[512] = "res/images/textures/dungeon.png";
@@ -388,7 +389,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				hasjumper = true,
 				hashealth = true;
 	
-	if (Begin("spawn entity")) {
+	if (BeginMenu("Spawn...")) {
 		Checkbox("CPosition", &haspos);
 		Checkbox("CVelocity", &hasvel);
 		Checkbox("CGravity", &hasgrav);
@@ -400,78 +401,103 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		Checkbox("CJumpTimer", &hasjumper);
 		Checkbox("CHealth", &hashealth);
 		
-		//if (haspos) DragFloat3("CPosition", &pos[0], 0.001f);
-		if (hasvel) DragFloat3("CVelocity", &vel[0], 0.001f);
-		if (hasgrav) Text("Gravity: enabled");
+		Separator();
+		
+		if (hasvel) if (BeginMenu("CVelocity")) { DragFloat3("##CVelocity", &vel[0], 0.001f); EndMenu(); }
+		//if (hasgrav) Text("Gravity: enabled");
 		if (hasbb) {
-			Text("Billboard:");
-			DragFloat2("Size", &bbsize[0], 0.001f);
-			ColorEdit3("Color", &bbcolor[0]);
-			InputText("Texture", texpath, 512);
-			DragInt2("Tiles", &tiles[0], 1);
-			DragInt2("Tile pos", &tilepos[0], 1);
-			// TODO: remove
-			static Random r;
-			tilepos.x = int(r()*5.f);
-			tilepos.y = 11+int(r()*3.f);
+			if (BeginMenu("CBillboard")) {
+				DragFloat2("Size", &bbsize[0], 0.001f);
+				ColorEdit3("Color", &bbcolor[0]);
+				InputText("Texture", texpath, 512);
+				DragInt2("Tiles", &tiles[0], 1);
+				if (!bbrandom)
+					DragInt2("Tile pos", &tilepos[0], 1);
+				Checkbox("Random?", &bbrandom);
+				
+				EndMenu();
+			}
 		}
 		if (hasruntt) {
-			Text("RunToTarget:");
-			SameLine();
-			Checkbox("Only once", &rttonlyonce);
-			Checkbox("Player", &runttToPlayer);
-			if (!runttToPlayer) {
-				DragFloat3("Position", &rttpos[0], 0.001f);
+			if (BeginMenu("CRunningToTarget")) {
+				Checkbox("Only once", &rttonlyonce);
+				Checkbox("Player", &runttToPlayer);
+				if (!runttToPlayer) {
+					DragFloat3("Position", &rttpos[0], 0.001f);
+				}
+				SliderFloat("Speed", &rttforce, 0.0f, 0.01f);
+				SliderFloat("Near", &rttnear, 0.0f, 1.0f);
+				
+				EndMenu();
 			}
-			SliderFloat("Speed", &rttforce, 0.0f, 0.01f);
-			SliderFloat("Near", &rttnear, 0.0f, 1.0f);
 		}
 		if (haspresser) {
-			Text("SphereCollider:");
-			DragFloat("Radius", &pressrad, 0.0f, 0.1f);
-			DragFloat("Force", &pressforce, 0.0f, 0.05f);
+			if (BeginMenu("CSphereCollider")) {
+				DragFloat("Radius", &pressrad, 0.0f, 0.1f);
+				DragFloat("Force", &pressforce, 0.0f, 0.05f);
+				EndMenu();
+			}
 		}
 		if (haskeyboard) {
-			DragFloat("control speed", &keycontrolspeed, 0.0005f, 0.0035f);
+			if (BeginMenu("CKeyboardControllable")) {
+				DragFloat("control speed", &keycontrolspeed, 0.0005f, 0.0035f);
+				EndMenu();
+			}
 		}
 		if (hasspawn) {
-			DragFloat3("SpawnPoint", &spawnpoint[0], 0.001f);
+			if (BeginMenu("CSpawnPoint")) {
+				DragFloat3("SpawnPoint", &spawnpoint[0], 0.001f);
+				EndMenu();
+			}
 		}
 		if (hasjumper) {
 			
 		}
 		if (hashealth) {
-			Text("Health:");
-			DragInt("health", &max_hp, 1);
-		}
-		
-		// do spawning
-		if (spawn) {
-			for (int i = 0; i < spawnamount; ++i) {
-				auto entity = registry.create();
-				if (haspos) registry.assign<CPosition>(entity, atpos);
-				if (hasvel) registry.assign<CVelocity>(entity,
-					m3d::randomizeVec3(vel, spawnveloff));
-				if (hasgrav) registry.assign<CGravity>(entity);
-				if (hasbb) registry.assign<CBillboard>(entity,
-					world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y),
-					bbsize, bbcolor);
-				if (hasruntt) {
-					if (runttToPlayer) registry.assign<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
-					else registry.assign<CRunningToTarget>(entity, rttpos, rttforce, rttnear, rttonlyonce);
-				}
-				if (haspresser) registry.assign<CSphereCollider>(entity, pressrad, pressforce);
-				if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
-				if (hasspawn) registry.assign<CSpawnPoint>(entity, spawnpoint);
-				if (hasjumper) registry.assign<CJumpTimer>(entity);
-				if (hashealth) registry.assign<CHealth>(entity, max_hp);
+			if (BeginMenu("CHealth")) {
+				DragInt("Max. HP", &max_hp, 1);
+				EndMenu();
 			}
 		}
+		
 		Separator();
 		SliderInt("Amount", &spawnamount, 1, 50);
 		SliderFloat("Velocity", &spawnveloff, 0.0f, 0.05f);
+		
+		EndMenu();
 	}
-	End();
+	
+	
+	// 
+	// do spawning
+	static Random r;
+	if (spawn) {
+		for (int i = 0; i < spawnamount; ++i) {
+			auto entity = registry.create();
+			if (haspos) registry.assign<CPosition>(entity, atpos);
+			if (hasvel) registry.assign<CVelocity>(entity,
+				m3d::randomizeVec3(vel, spawnveloff));
+			if (hasgrav) registry.assign<CGravity>(entity);
+			if (hasbb) {
+				if (bbrandom) {
+					tilepos.x = int(r()*5.f);
+					tilepos.y = 11+int(r()*3.f);
+				}
+				registry.assign<CBillboard>(entity,
+					world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y),
+					bbsize, bbcolor);
+			}
+			if (hasruntt) {
+				if (runttToPlayer) registry.assign<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
+				else registry.assign<CRunningToTarget>(entity, rttpos, rttforce, rttnear, rttonlyonce);
+			}
+			if (haspresser) registry.assign<CSphereCollider>(entity, pressrad, pressforce);
+			if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
+			if (hasspawn) registry.assign<CSpawnPoint>(entity, spawnpoint);
+			if (hasjumper) registry.assign<CJumpTimer>(entity);
+			if (hashealth) registry.assign<CHealth>(entity, max_hp);
+		}
+	}
 }
 
 int main(int, char**) {
@@ -516,23 +542,6 @@ int main(int, char**) {
 			msFrames = 0;
 			msLastTime += 1.0;
 		}
-		
-		#if CFG_IMGUI_ENABLED
-			if (ImGui::Begin("performance")) {
-				static bool vsync = true;
-				ImGui::Text("%g ms / frame", msPerFrame);
-				if (ImGui::Checkbox("V-Sync", &vsync)) {
-					glfwSwapInterval(vsync ? 1 : 0);
-				}
-				
-				static bool topdowncam = false;
-				if (ImGui::Checkbox("topdown camera?", &topdowncam)) {
-					if (topdowncam) world.setCamera(topdown);
-					else world.setCamera(camera);
-				}
-			}
-			ImGui::End();
-		#endif
 		
 		// input
 		double mouseX, mouseY;
@@ -590,23 +599,57 @@ int main(int, char**) {
 					selected = world.getNearestEntity(crosspos);
 					pickingMode = false;
 				}
-				static bool wireframe = false;
-				if (ImGui::Checkbox("wireframe", &wireframe)) {
-					glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-				}
 				
 				// entity editor
 				imguiEntityEdit(world.getRegistry(), selected);
 			}
 			ImGui::End();
+		#endif
+		
+		#if CFG_IMGUI_ENABLED
+		if (ImGui::BeginMainMenuBar()) {
+			// Spawn entity
 			imguiEntitySpawn(world, mouseRightDown, crosspos);
-			if (ImGui::Begin("shaders")) {
-				sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
-				if (ImGui::Button("Reload shaders")) {
-					chunkShader->reload();
+			// Shaders
+			if (ImGui::BeginMenu("Shader")) {
+				if (ImGui::MenuItem("Reload all")) {
+					sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
+					if (chunkShader) chunkShader->reload();
 				}
+				
+				ImGui::EndMenu();
 			}
-			ImGui::End();
+			
+			// Cameras
+			static bool settings_topdowncam = false;
+			if (ImGui::BeginMenu("Camera")) {
+				if (ImGui::Checkbox("topdown camera?", &settings_topdowncam)) {
+					if (settings_topdowncam) world.setCamera(topdown);
+					else world.setCamera(camera);
+				}
+				ImGui::EndMenu();
+			}
+			
+			// Settings
+			if (ImGui::BeginMenu("Settings")) {
+				static bool settings_vsync = true;
+				if (ImGui::Checkbox("V-Sync", &settings_vsync)) glfwSwapInterval(settings_vsync ? 1 : 0);
+				static bool settings_wireframe = false;
+				if (ImGui::Checkbox("Wireframe", &settings_wireframe)) {
+					glPolygonMode(GL_FRONT_AND_BACK, settings_wireframe ? GL_LINE : GL_FILL);
+				}
+				if (ImGui::MenuItem("Reset")) {
+					world.resetEntities();
+				}
+				ImGui::EndMenu();
+			}
+			
+			ImGui::Separator();
+			
+			ImGui::Text("%g ms / frame", msPerFrame);
+			
+			ImGui::EndMainMenuBar();
+		}
 		#endif
 		
 		// rendering
