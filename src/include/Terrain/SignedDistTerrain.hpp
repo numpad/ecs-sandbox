@@ -51,7 +51,19 @@ private:
 	};
 public:
 	
-	SignedDistTerrain() = default;
+	SignedDistTerrain() {
+		static int n = 0;
+		n++;
+		printf("CREATED #%d\n", n);
+	}
+	SignedDistTerrain(const SignedDistTerrain &) {
+		printf("COPIED ##\n");
+	}
+	~SignedDistTerrain() {
+		static int n = 0;
+		n++;
+		printf("REMOVED #%d\n", n);
+	}
 	
 	void sphere(vec3 p, float r, Op op = Op::UNION);
 	void box(vec3 p, vec3 s, Op op = Op::UNION);

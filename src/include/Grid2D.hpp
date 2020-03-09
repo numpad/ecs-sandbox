@@ -10,7 +10,7 @@ class Grid2D {
 public:
 	
 	Grid2D() = default;
-	Grid2D(const Grid2D &copy) = delete;
+	//Grid2D(const Grid2D &copy) = delete;
 	~Grid2D() = default;
 	
 	T *at(int x, int y) const {
@@ -25,9 +25,25 @@ public:
 		cells.insert_or_assign(std::make_pair(x, y), value);
 	}
 	
+	T *remove(int x, int y) {
+		auto res = cells.find(std::make_pair(x, y));
+		if (res == cells.end()) return nullptr;
+		
+		cells.erase(res);
+		return res->second;
+	}
+
+	T *at(glm::ivec2 pos) const { return this->at(pos.x, pos.y); }
+	void set(glm::ivec2 pos, T *value) { this->set(pos.x, pos.y, value); }
+	T *remove(glm::ivec2 pos) { return this->remove(pos.x, pos.y); }
+	
 	void each(std::function<void (int, int, T *)> func) {
 		for (auto iter : cells)
 			func(std::get<0>(iter.first), std::get<1>(iter.first), iter.second);
+	}
+	
+	void clear() {
+		cells.clear();
 	}
 	
 private:

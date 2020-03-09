@@ -4,7 +4,7 @@ using namespace glm;
 
 World::World(GLFWwindow *window, std::shared_ptr<Camera> camera)
 	: camera(camera),
-	chunks(vec3(2.f)),
+	chunkedWorld(vec3(2.f)),
 	charControllerSystem(window)
 {
 	registry.set<entt::dispatcher>();
@@ -175,11 +175,11 @@ void World::setupFloor() {
 	// mapgen
 	int x = 0, y = 0;
 	Random r;
-	const int gen_n_chunks = 12;
+	const int gen_n_chunks = 4;
 	for (int i = 0; i < gen_n_chunks; ++i) {
 		// set modelD
-		tileGrid.set(x, y, new SignedDistTerrain());
-		SignedDistTerrain *sd = tileGrid.at(x, y);
+		SignedDistTerrain *sd = new SignedDistTerrain();
+		tileGrid.set(x, y, (SignedDistTerrain *)1);
 		sd->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
 		float rand = r();
 		if (rand < .2f) {
@@ -191,7 +191,7 @@ void World::setupFloor() {
 			sd->sphere(vec3(.0f, .3f, .0f), 0.7f, SignedDistTerrain::Op::DIFF);
 		}
 		
-		chunks.set(ivec2(x, y), *sd);
+		chunkedWorld.set(ivec2(x, y), sd);
 		
 		auto rng = r();
 		if (rng < 0.25) x--;
@@ -209,12 +209,12 @@ void World::setupFloor() {
 		double starttime = glfwGetTime();
 	#endif
 	size_t i = 0;
-	for (auto it : chunks.getTerrain().getChunks()) {
+	chunkedWorld.getTerrain().getChunkGrid().each([this, &i, gen_n_chunks](int x, int y, Terrain *terrain) {
 		#if CFG_DEBUG
 			printf("Generating chunk %ld/%d...\n", i++, gen_n_chunks);
 		#endif
-		chunks.polygonizeChunk(it.first);
-	}
+		this->chunkedWorld.polygonizeChunk(ivec2(x, y));
+	});
 	#if CFG_DEBUG
 		double endtime = glfwGetTime();
 		printf("[LOG] World: generated %d chunks in %.2fs.\n", gen_n_chunks, endtime - starttime);
@@ -223,7 +223,7 @@ void World::setupFloor() {
 }
 
 void World::destroyFloor() {
-	tileGrid.each([](int, int, SignedDistTerrain *t) { delete t; });
+	chunkedWorld.destroy();
 }
 
 void World::drawFloor() {
@@ -243,6 +243,6 @@ void World::drawFloor() {
 	assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
 	assetManager.getTexture("res/images/textures/wall.png")->bind();
 	
-	chunks.draw(chunkShader);
+	chunkedWorld.draw(chunkShader);
 	
 }

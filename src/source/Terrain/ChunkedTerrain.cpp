@@ -17,17 +17,20 @@ vec3 ChunkedTerrain::getChunkSize() const {
 }
 
 bool ChunkedTerrain::has(ivec2 coords) const {
-	auto search = chunks.find(coords);
-	return search != chunks.end();
+	return chunks.at(coords) != nullptr;
 }
 
-void ChunkedTerrain::set(ivec2 coords, Terrain &terrain) {
-	chunks.insert_or_assign(coords, terrain);
+void ChunkedTerrain::set(ivec2 coords, Terrain *terrain) {
+	chunks.set(coords, terrain);
 }
 
 void ChunkedTerrain::getChunkBounds(ivec2 coords, vec3 &min, vec3 &max) const {
 	min = 2.f * chunkSize * vec3(float(coords.x), 0.f, float(coords.y)) - chunkSize;
 	max = 2.f * chunkSize * vec3(float(coords.x), 0.f, float(coords.y)) + chunkSize;
+}
+
+Terrain *ChunkedTerrain::remove(ivec2 coords) {
+	return chunks.remove(coords);
 }
 
 ivec2 ChunkedTerrain::worldPosToChunk(vec3 p) const {
@@ -47,10 +50,6 @@ vec3 ChunkedTerrain::worldPosToLocalChunkPos(vec3 p) const {
 	return p;
 }
 
-const std::unordered_map<ivec2, Terrain &> &ChunkedTerrain::getChunks() const {
-	return chunks;
-}
-
 ///////////////
 // PROTECTED //
 ///////////////
@@ -58,10 +57,10 @@ const std::unordered_map<ivec2, Terrain &> &ChunkedTerrain::getChunks() const {
 float ChunkedTerrain::sampleValue(vec3 p) const {
 	ivec2 chunk = worldPosToChunk(p);
 	
-	auto search = chunks.find(chunk);
-	if (search != chunks.end()) {
+	Terrain *search = chunks.at(chunk);
+	if (search != nullptr) {
 		vec3 local = worldPosToLocalChunkPos(p);
-		return search->second.get(local);
+		return search->get(local);
 	}
 	
 	return std::numeric_limits<float>::max();

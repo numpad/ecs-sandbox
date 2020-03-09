@@ -10,7 +10,7 @@
 #include <Terrain/ChunkedTerrain.hpp>
 #include <Terrain/CubeMarcher.hpp>
 #include <Util/Math3d.hpp>
-
+#include <Grid2D.hpp>
 #include <util/sgl_shader.hpp>
 
 using namespace glm;
@@ -19,24 +19,27 @@ class ChunkedWorld {
 public:
 	
 	ChunkedWorld(vec3 chunkSize);
-	~ChunkedWorld();
 	
 	bool hasChunkAtPos(vec3 pos) const;
-	void set(ivec2 coords, Terrain &terrain);
+	void set(ivec2 coords, Terrain *terrain);
 	
-	void update(ivec2 coords, Terrain &terrain);
+	void remove(ivec2 coords);
+	
+	void update(ivec2 coords, Terrain *terrain);
 	
 	void polygonizeChunk(ivec2 coords);
 	void polygonizeAllChunks();
 	
-	void draw(sgl::shader &shader) const;
+	void destroy();
 	
-	const ChunkedTerrain &getTerrain() const { return chunkedTerrain; };
+	void draw(sgl::shader &shader);
+	
+	ChunkedTerrain &getTerrain() { return chunkedTerrain; };
 	
 private:
 	CubeMarcher marcher;
 	
 	ChunkedTerrain chunkedTerrain;
-	std::unordered_map<ivec2, Mesh *> chunkMeshes;
+	Grid2D<Mesh> chunkMeshes;
 	
 };

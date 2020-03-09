@@ -84,7 +84,7 @@ private:
 	
 	// grid
 	Grid2D<SignedDistTerrain> tileGrid;
-	ChunkedWorld chunks;
+	ChunkedWorld chunkedWorld;
 	sgl::shader chunkShader;
 		
 	// entities
