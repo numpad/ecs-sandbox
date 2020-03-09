@@ -126,6 +126,19 @@ void World::update() {
 
 void World::draw() {
 	// render systems
+	
+	// TODO: remove this, just for testing
+	if (ImGui::Begin("hurt world")) {
+		static int p[2];
+		ImGui::InputInt2("pos", p);
+		if (ImGui::Button("hurt")) {
+			SignedDistTerrain *t = new SignedDistTerrain();
+			t->sphere(vec3(0.f), .8f);
+			chunkedWorld.update(ivec2(p[0], p[1]), t);
+		}
+	}
+	ImGui::End();
+	
 	BM_START(rendering, 30);
 	drawFloor();
 	for (auto &sys : renderSystems) sys->draw();

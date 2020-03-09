@@ -35,6 +35,13 @@ void ChunkedWorld::remove(ivec2 coords) {
 void ChunkedWorld::update(ivec2 coords, Terrain *terrain) {
 	set(coords, terrain);
 	polygonizeChunk(coords);
+	
+	// update surrounding chunks
+	polygonizeChunk(coords + ivec2( 1,  0));
+	polygonizeChunk(coords + ivec2( 0,  1));
+	polygonizeChunk(coords + ivec2(-1,  0));
+	polygonizeChunk(coords + ivec2( 0, -1));
+	
 }
 
 void ChunkedWorld::draw(sgl::shader &shader) {
@@ -44,6 +51,9 @@ void ChunkedWorld::draw(sgl::shader &shader) {
 }
 
 void ChunkedWorld::polygonizeChunk(ivec2 coords) {
+	if (!chunkedTerrain.has(coords)) {
+		printf("no terrain data at %d, %d\n", coords.x, coords.y);
+	}
 	auto search = chunkMeshes.at(coords);
 	if (search != nullptr) {
 		// chunk already polygonized into mesh, delete old
