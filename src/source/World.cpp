@@ -177,22 +177,22 @@ void World::setupFloor() {
 	Random r;
 	const int gen_n_chunks = 4;
 	for (int i = 0; i < gen_n_chunks; ++i) {
-		// set modelD
-		SignedDistTerrain *sd = new SignedDistTerrain();
-		tileGrid.set(x, y, (SignedDistTerrain *)1);
-		sd->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-		float rand = r();
-		if (rand < .2f) {
-			sd->sphere(vec3(0.f), 0.4f);
-			sd->sphere(vec3(0.f, .5f, 0.f), 0.4f);
-		} else if (rand < .4f) {
-			sd->box(vec3(0.f), vec3(0.8f), SignedDistTerrain::Op::DIFF);
-		} else {
-			sd->sphere(vec3(.0f, .3f, .0f), 0.7f, SignedDistTerrain::Op::DIFF);
+		if (tileGrid.at(x, y) == nullptr) {
+			SignedDistTerrain *sd = new SignedDistTerrain();
+			tileGrid.set(x, y, (SignedDistTerrain *)1);
+			sd->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
+			float rand = r();
+			if (rand < .2f) {
+				sd->sphere(vec3(0.f), 0.4f);
+				sd->sphere(vec3(0.f, .5f, 0.f), 0.4f);
+			} else if (rand < .4f) {
+				sd->box(vec3(0.f), vec3(0.8f), SignedDistTerrain::Op::DIFF);
+			} else {
+				sd->sphere(vec3(.0f, .3f, .0f), 0.7f, SignedDistTerrain::Op::DIFF);
+			}
+			
+			chunkedWorld.set(ivec2(x, y), sd);
 		}
-		
-		chunkedWorld.set(ivec2(x, y), sd);
-		
 		auto rng = r();
 		if (rng < 0.25) x--;
 		else if (rng < 0.5) x++;
