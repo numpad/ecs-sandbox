@@ -132,7 +132,14 @@ void World::draw() {
 		static int p[2];
 		ImGui::InputInt2("pos", p);
 		if (ImGui::Button("hurt")) {
-			SignedDistTerrain *t = new SignedDistTerrain();
+			SignedDistTerrain *e = (SignedDistTerrain *)chunkedWorld.getTerrain().getChunkGrid().at(p[0], p[1]);
+			SignedDistTerrain *t;
+			if (e && false) {
+				//t = new SignedDistTerrain(*e);
+			} else {
+				t = new SignedDistTerrain();
+			}
+			
 			t->sphere(vec3(0.f), .8f);
 			chunkedWorld.update(ivec2(p[0], p[1]), t);
 		}

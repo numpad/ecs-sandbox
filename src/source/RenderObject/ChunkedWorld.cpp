@@ -51,9 +51,6 @@ void ChunkedWorld::draw(sgl::shader &shader) {
 }
 
 void ChunkedWorld::polygonizeChunk(ivec2 coords) {
-	if (!chunkedTerrain.has(coords)) {
-		printf("no terrain data at %d, %d\n", coords.x, coords.y);
-	}
 	auto search = chunkMeshes.at(coords);
 	if (search != nullptr) {
 		// chunk already polygonized into mesh, delete old
