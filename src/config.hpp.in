@@ -5,6 +5,13 @@
 #define CFG_DEBUG @CFG_DEBUG@
 #define CFG_IMGUI_ENABLED @CFG_IMGUI_ENABLED@
 
+#define return_if(r)         \
+	do {                     \
+		auto res = (r);      \
+		if (res) return res; \
+	} while (0)
+					
+
 #if CFG_DEBUG
 	#define DEBUG(x) do { x; } while (0)
 	#define DEBUGP(s, ...) printf(s, __VA_ARGS__)

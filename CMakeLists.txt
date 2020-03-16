@@ -39,6 +39,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/examples")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/code")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/angelscript/sdk/angelscript/include")
 
 file (GLOB source_files
 	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
@@ -64,6 +65,7 @@ set(BUILD_ASSIMP_TOOLS  ON)
 set(ASSIMP_BUILD_STATIC_LIB ON)
 find_package (assimp REQUIRED)
 
+add_subdirectory (lib/angelscript/sdk/angelscript/projects/cmake)
 
 add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
 target_link_libraries (${CMAKE_PROJECT_NAME}
@@ -71,6 +73,7 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
                        glfw
                        dl
                        assimp
+                       angelscript
                        ${LUA_LIBRARIES}
                        ${FREETYPE_LIBRARIES}
 )

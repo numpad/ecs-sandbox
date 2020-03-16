@@ -12,9 +12,9 @@ public:
 	void stop();
 	
 	double ns() { return chrono::duration_cast<chrono::nanoseconds>(duration).count(); }
-	double us() { return chrono::duration_cast<chrono::microseconds>(duration).count(); }
+	double us() { return chrono::duration_cast<chrono::nanoseconds>(duration).count()  / 1000.f; }
 	double ms() { return chrono::duration_cast<chrono::microseconds>(duration).count() / 1000.f; }
-	double s()  { return chrono::duration_cast<chrono::seconds>(duration).count(); }
+	double s()  { return chrono::duration_cast<chrono::milliseconds>(duration).count() / 1000.f; }
 	
 private:
 	chrono::time_point<chrono::high_resolution_clock> begin, end;

@@ -38,6 +38,8 @@
 #include <Util/Benchmark.hpp>
 #include <Util/Blackboard.hpp>
 
+#include <Script/ScriptBinder.hpp>
+
 void onResize(GLFWwindow *, int width, int height) {
 	glViewport(0, 0, width, height);
 	for (Camera *cam : Camera::CAMERAS) {
@@ -524,6 +526,8 @@ int main(int, char**) {
 	//AssetManager &assetManager = world.getAssetManager();
 	
 	Font defaultFont("res/fonts/FSmono.ttf", 48);
+	
+	ScriptBinder::angelscriptTest();
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
