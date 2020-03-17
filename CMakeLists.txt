@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.1)
 
 project (synthlike LANGUAGES CXX)
 
-set (CMAKE_BUILD_TYPE Debug)
+set (CMAKE_BUILD_TYPE Release)
 set (CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
 set (CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -40,6 +40,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/code")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/angelscript/sdk/angelscript/include")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/sol2/single/include")
 
 file (GLOB source_files
 	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"

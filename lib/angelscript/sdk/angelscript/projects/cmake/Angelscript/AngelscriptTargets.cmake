@@ -48,11 +48,11 @@ set_target_properties(Angelscript::angelscript PROPERTIES
   INTERFACE_LINK_LIBRARIES "Threads::Threads"
 )
 
-# Import target "Angelscript::angelscript" for configuration "Debug"
-set_property(TARGET Angelscript::angelscript APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+# Import target "Angelscript::angelscript" for configuration "Release"
+set_property(TARGET Angelscript::angelscript APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(Angelscript::angelscript PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
-  IMPORTED_LOCATION_DEBUG "/home/chris/Dev/C++/synthlike/lib/libangelscript.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
+  IMPORTED_LOCATION_RELEASE "/home/chris/Dev/C++/synthlike/lib/libangelscript.a"
   )
 
 # This file does not depend on other imported targets which have

@@ -53,15 +53,32 @@ namespace ScriptBinder {
 			int r = ctx->Execute();
 			if (r == asEXECUTION_FINISHED) {
 				asDWORD ret = ctx->GetReturnDWord();
-				//printf("fib(%d) = %d\n", i, ret);
+				printf("fib.as(%d) = %d\n", i, ret);
 			}
 		}
 		ctx->Release();
 		b.stop();
-		printf("fib(0..35) took %gs\n", b.s());
+		printf("fib.as(0..35) took %gs\n", b.s());
 		
 		
 		engine->ShutDownAndRelease();
+	}
+	
+	void luaTest() {
+		sol::state lua;
+		lua.open_libraries();
+		lua.script_file("res/entitydefs/fib.lua");
+		auto fib = lua["fib"];
+		
+		Benchmark b;
+		
+		for (int i = 0; i < 35; ++i) {
+			int r = fib(i);
+			printf("fib.lua(%d) = %d\n", i, r);
+		}
+		
+		b.stop();
+		printf("fib.lua(0..35) took %gs\n", b.s());
 	}
 	
 	void registerEngine(asIScriptEngine *engine) {

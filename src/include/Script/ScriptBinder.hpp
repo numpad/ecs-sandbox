@@ -5,6 +5,8 @@
 #include <config.hpp>
 
 #include <angelscript.h>
+#include <sol/sol.hpp>
+
 #include <Util/File.hpp>
 #include <Util/Benchmark.hpp>
 
@@ -14,6 +16,7 @@
 namespace ScriptBinder {
 	
 	void angelscriptTest();
+	void luaTest();
 	
 	void registerEngine(asIScriptEngine *engine);
 	
