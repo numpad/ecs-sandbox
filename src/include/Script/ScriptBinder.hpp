@@ -19,6 +19,5 @@ namespace ScriptBinder {
 	
 	// grouped register calls
 	
-	int registerVectors(asIScriptEngine *engine);
 	int registerComponents(asIScriptEngine *engine);
 }

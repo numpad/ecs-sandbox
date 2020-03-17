@@ -30,6 +30,7 @@ namespace ScriptBinder {
 		engine->SetMessageCallback(asFUNCTION(MessageCallback), 0, asCALL_CDECL);
 
 		// register class
+		registerEngine(engine);
 		engine->RegisterObjectType("Acc", sizeof(Acc), asOBJ_VALUE | asOBJ_POD);
 		engine->RegisterObjectMethod("Acc", "void add(int)", asMETHOD(Acc, add), asCALL_THISCALL);
 		engine->RegisterObjectMethod("Acc", "void mul(int)", asMETHOD(Acc, mul), asCALL_THISCALL);
@@ -44,16 +45,6 @@ namespace ScriptBinder {
 		// get function
 		asIScriptContext *ctx = engine->CreateContext();
 		asIScriptFunction *fib = mod->GetFunctionByDecl("int fib(int)");
-		asIScriptFunction *calc = mod->GetFunctionByDecl("Acc calc(Acc)");
-		// call function with value object
-		Acc a(7);
-		ctx->Prepare(calc);
-		ctx->SetArgObject(0, &a);
-		ctx->Execute();
-		Acc *ret = (Acc *)ctx->GetReturnObject();
-		printf("c++ Acc = %d\n", a.v);
-		printf("script Acc = %d\n", ret->v);
-		
 		// call function
 		Benchmark b;
 		for (int i = 0; i < 35; ++i) {
@@ -74,19 +65,9 @@ namespace ScriptBinder {
 	}
 	
 	void registerEngine(asIScriptEngine *engine) {
-		registerComponents(engine);
+		//registerComponents(engine);
 	}
 	
-	int registerVectors(asIScriptEngine *engine) {
-		using namespace glm;
-		
-		int r;
-		
-		r = engine->RegisterObjectType("vec3", sizeof(vec3), asOBJ_VALUE | asOBJ_POD);
-		return_if(r);
-		
-		return 0;
-	}
 	
 	int registerComponents(asIScriptEngine *engine) {
 		int r; // result
