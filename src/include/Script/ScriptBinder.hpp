@@ -4,7 +4,6 @@
 
 #include <config.hpp>
 
-#include <angelscript.h>
 #include <sol/sol.hpp>
 
 #include <Util/File.hpp>
@@ -13,14 +12,18 @@
 #include <ecs/components.hpp>
 #include <glm/glm.hpp>
 
+using namespace glm;
+
 namespace ScriptBinder {
 	
-	void angelscriptTest();
 	void luaTest();
 	
-	void registerEngine(asIScriptEngine *engine);
+	void loadEntity(std::string);
+	
+	void registerEngine(sol::state &lua);
 	
 	// grouped register calls
 	
-	int registerComponents(asIScriptEngine *engine);
+	int registerVectors(sol::state &lua);
+	int registerComponents(sol::state &lua);
 }

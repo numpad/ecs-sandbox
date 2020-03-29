@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.1)
 
 project (synthlike LANGUAGES CXX)
 
-set (CMAKE_BUILD_TYPE Release)
+set (CMAKE_BUILD_TYPE Debug)
 set (CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
 set (CMAKE_CXX_FLAGS_RELEASE "-O3")
 
@@ -39,7 +39,6 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/examples")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/code")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/angelscript/sdk/angelscript/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/sol2/single/include")
 
 file (GLOB source_files
@@ -66,7 +65,6 @@ set(BUILD_ASSIMP_TOOLS  ON)
 set(ASSIMP_BUILD_STATIC_LIB ON)
 find_package (assimp REQUIRED)
 
-add_subdirectory (lib/angelscript/sdk/angelscript/projects/cmake)
 
 add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
 target_link_libraries (${CMAKE_PROJECT_NAME}
@@ -74,7 +72,6 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
                        glfw
                        dl
                        assimp
-                       angelscript
                        ${LUA_LIBRARIES}
                        ${FREETYPE_LIBRARIES}
 )

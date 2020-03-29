@@ -198,7 +198,7 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 	glCullFace(GL_BACK);
 	
 	// improved wireframe rendering
-	glLineWidth(2.75f);
+	glLineWidth(2.f);
 	glEnable(GL_LINE_SMOOTH);
 	
 	/* check if debug enabled */
@@ -528,7 +528,6 @@ int main(int, char**) {
 	Font defaultFont("res/fonts/FSmono.ttf", 48);
 	
 	
-	ScriptBinder::angelscriptTest();
 	ScriptBinder::luaTest();
 	
 	/* draw loop */
