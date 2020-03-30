@@ -97,6 +97,7 @@ private:
 	std::vector<std::shared_ptr<BaseUpdateSystem>> updateSystems;
 	std::vector<std::shared_ptr<BaseRenderSystem>> renderSystems;
 	CharacterController charControllerSystem;
+	std::unique_ptr<LogSystem> logEventSystem;
 	
 	void loadSystems();
 	

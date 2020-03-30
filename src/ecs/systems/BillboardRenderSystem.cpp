@@ -15,7 +15,7 @@ BillboardRenderSystem::BillboardRenderSystem(entt::registry &registry, std::shar
 
 BillboardRenderSystem::~BillboardRenderSystem() {
 	glDeleteBuffers(1, &instanceBuffer);
-	DEBUG(printf("[LOG] BillboardRenderSystem: destructed\n"));
+	registry.ctx<entt::dispatcher>().trigger<LogEvent>("BillboardRenderSystem: destructed.", LogEvent::DEBUG);
 }
 
 void BillboardRenderSystem::update() {

@@ -72,6 +72,7 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
                        glfw
                        dl
                        assimp
+                       pthread
                        ${LUA_LIBRARIES}
                        ${FREETYPE_LIBRARIES}
 )

@@ -15,6 +15,7 @@
 #include <ecs/systems/BaseUpdateSystem.hpp>
 #include <ecs/systems/BaseRenderSystem.hpp>
 #include <ecs/components.hpp>
+#include <ecs/events.hpp>
 
 #include <RenderObject/Billboard.hpp>
 #include <RenderObject/Camera.hpp>

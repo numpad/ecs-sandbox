@@ -15,8 +15,5 @@ entity = {
 	}
 }
 
-pos = vec3.new(3, 5, 1)
-norm = pos:normalize()
-print(pos.x .. ', ' .. pos.y .. ', ' .. pos.z .. ' = ' .. pos:length())
-print(norm.x .. ', ' .. norm.y .. ', ' .. norm.z .. ' = ' .. norm:length())
-print(pos:dot(norm))
+
+

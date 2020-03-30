@@ -7,8 +7,7 @@ namespace ScriptBinder {
 		
 		sol::state loader;
 		loader.open_libraries();
-		
-		registerVectors(loader);
+		registerEngine(loader);
 		
 		loader.script_file(path);
 		std::string ename = loader["entity"]["name"];
@@ -24,13 +23,14 @@ namespace ScriptBinder {
 		sol::state lua;
 		lua.open_libraries();
 		
+		registerEngine(lua);
 		
 		loadEntity("bat.lua");
 		
 	}
 	
 	void registerEngine(sol::state &lua) {
-		//registerComponents(engine);
+		registerComponents(lua);
 		registerVectors(lua);
 	}
 	

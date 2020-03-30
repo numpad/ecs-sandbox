@@ -17,18 +17,22 @@ bool ChunkedWorld::hasChunkAtPos(vec3 pos) const {
 }
 
 void ChunkedWorld::set(ivec2 coords, Terrain *terrain) {
-	this->remove(coords);
+	this->remove(coords, terrain);
 	chunkedTerrain.set(coords, terrain);
 }
 
-void ChunkedWorld::remove(ivec2 coords) {
+void ChunkedWorld::remove(ivec2 coords, Terrain *not_if_same) {
 	Mesh *m = chunkMeshes.remove(coords);
 	if (m) {
 		delete m;
 	}
-	Terrain *t = chunkedTerrain.remove(coords);
-	if (t) {
-		delete t;
+	Terrain *t = chunkedTerrain.get(coords);
+	// remove and delete Terrain if not the same
+	if (t != not_if_same) {
+		t = chunkedTerrain.remove(coords);
+		if (t) {
+			delete t;
+		}
 	}
 }
 

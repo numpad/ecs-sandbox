@@ -24,6 +24,10 @@ void ChunkedTerrain::set(ivec2 coords, Terrain *terrain) {
 	chunks.set(coords, terrain);
 }
 
+Terrain *ChunkedTerrain::get(ivec2 coords) {
+	return chunks.at(coords);
+}
+
 void ChunkedTerrain::getChunkBounds(ivec2 coords, vec3 &min, vec3 &max) const {
 	min = 2.f * chunkSize * vec3(float(coords.x), 0.f, float(coords.y)) - chunkSize;
 	max = 2.f * chunkSize * vec3(float(coords.x), 0.f, float(coords.y)) + chunkSize;

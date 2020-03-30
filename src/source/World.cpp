@@ -22,6 +22,7 @@ World::World(GLFWwindow *window, std::shared_ptr<Camera> camera)
 }
 
 World::~World() {
+	registry.ctx<entt::dispatcher>().trigger<LogEvent>("rip world");
 }
 
 void World::destroy() {
@@ -119,7 +120,7 @@ void World::update() {
 	#if CFG_DEBUG
 		if (!registry.valid(player)) {
 			spawnPlayer();
-			printf("[LOG] World: respawned player because debug is enabled.\n");
+			registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: respawned player because debug is enabled.", LogEvent::WARN);
 		}
 	#endif
 }
@@ -134,8 +135,8 @@ void World::draw() {
 		if (ImGui::Button("hurt")) {
 			SignedDistTerrain *e = (SignedDistTerrain *)chunkedWorld.getTerrain().getChunkGrid().at(p[0], p[1]);
 			SignedDistTerrain *t;
-			if (e && false) {
-				//t = new SignedDistTerrain(*e);
+			if (e) {
+				t = e;
 			} else {
 				t = new SignedDistTerrain();
 			}
@@ -146,10 +147,10 @@ void World::draw() {
 	}
 	ImGui::End();
 	
-	BM_START(rendering, 30);
+	//BM_START(rendering, 30);
 	drawFloor();
 	for (auto &sys : renderSystems) sys->draw();
-	BM_STOP(rendering);
+	//BM_STOP(rendering);
 	
 }
 
@@ -166,6 +167,9 @@ void World::setCamera(std::shared_ptr<Camera> camera) {
 void World::loadSystems() {
 	// clear all
 	updateSystems.clear();
+	
+	// register a logging event system
+	logEventSystem = std::make_unique<LogSystem>(registry);
 	
 	// update and render systems
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(registry, camera);
@@ -225,19 +229,16 @@ void World::setupFloor() {
 			}
 		}
 	}
-	#if CFG_DEBUG
-		double starttime = glfwGetTime();
-	#endif
+	
+	double starttime = glfwGetTime();
 	size_t i = 0;
 	chunkedWorld.getTerrain().getChunkGrid().each([this, &i, gen_n_chunks](int x, int y, Terrain *terrain) {
-		#if CFG_DEBUG
-			printf("Generating chunk %ld/%d...\n", i++, gen_n_chunks);
-		#endif
+		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generating chunk " + std::to_string(i++) + "/" + std::to_string(gen_n_chunks), LogEvent::LOG);
 		this->chunkedWorld.polygonizeChunk(ivec2(x, y));
 	});
 	#if CFG_DEBUG
 		double endtime = glfwGetTime();
-		printf("[LOG] World: generated %d chunks in %.2fs.\n", gen_n_chunks, endtime - starttime);
+		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generated chunks in " + std::to_string(endtime - starttime) + "s.", LogEvent::LOG);
 	#endif
 	
 }

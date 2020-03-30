@@ -14,7 +14,7 @@ GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<Sig
 }
 
 void GravitySystem::entityKilled(const KillEntityEvent &e) {
-	printf("Entity killed: %s\n", e.how.c_str());
+	registry.ctx<entt::dispatcher>().trigger<LogEvent>("Entity killed: " + e.how, LogEvent::LOG);
 	
 	if (registry.has<CSpawnPoint>(e.which)) {
 		auto [pos, vel] = registry.get<CPosition, CVelocity>(e.which);

@@ -19,6 +19,7 @@ public:
 	
 	bool has(ivec2 coords) const;
 	void set(ivec2 coords, Terrain *terrain);
+	Terrain *get(ivec2 coords);
 	void getChunkBounds(ivec2 coords, vec3 &min, vec3 &max) const;
 	Terrain *remove(ivec2 coords);
 	

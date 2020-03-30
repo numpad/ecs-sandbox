@@ -23,7 +23,7 @@ public:
 	bool hasChunkAtPos(vec3 pos) const;
 	void set(ivec2 coords, Terrain *terrain);
 	
-	void remove(ivec2 coords);
+	void remove(ivec2 coords, Terrain *not_if_same = nullptr);
 	
 	void update(ivec2 coords, Terrain *terrain);
 	
