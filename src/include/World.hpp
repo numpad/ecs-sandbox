@@ -1,22 +1,24 @@
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
 #include <random>
 #include <array>
 #include <vector>
 #include <memory>
+#include <iostream>
 #include <functional>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <Grid2D.hpp>
-#include <util/sgl_shader.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <entt/entt.hpp>
+#include <util/sgl_shader.hpp>
+
+#include <Grid2D.hpp>
 
 #include <ecs/components.hpp>
 #include <ecs/systems.hpp>

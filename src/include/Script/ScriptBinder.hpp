@@ -5,6 +5,7 @@
 #include <config.hpp>
 
 #include <sol/sol.hpp>
+#include <entt/entt.hpp>
 
 #include <Util/File.hpp>
 #include <Util/Benchmark.hpp>

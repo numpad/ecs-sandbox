@@ -479,28 +479,28 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	if (spawn) {
 		for (int i = 0; i < spawnamount; ++i) {
 			auto entity = registry.create();
-			if (haspos) registry.assign<CPosition>(entity, atpos);
-			if (hasvel) registry.assign<CVelocity>(entity,
+			if (haspos) registry.emplace<CPosition>(entity, atpos);
+			if (hasvel) registry.emplace<CVelocity>(entity,
 				m3d::randomizeVec3(vel, spawnveloff));
-			if (hasgrav) registry.assign<CGravity>(entity);
+			if (hasgrav) registry.emplace<CGravity>(entity);
 			if (hasbb) {
 				if (bbrandom) {
 					tilepos.x = int(r()*5.f);
 					tilepos.y = 11+int(r()*3.f);
 				}
-				registry.assign<CBillboard>(entity,
+				registry.emplace<CBillboard>(entity,
 					world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y),
 					bbsize, bbcolor);
 			}
 			if (hasruntt) {
-				if (runttToPlayer) registry.assign<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
-				else registry.assign<CRunningToTarget>(entity, rttpos, rttforce, rttnear, rttonlyonce);
+				if (runttToPlayer) registry.emplace<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
+				else registry.emplace<CRunningToTarget>(entity, rttpos, rttforce, rttnear, rttonlyonce);
 			}
-			if (haspresser) registry.assign<CSphereCollider>(entity, pressrad, pressforce);
-			if (haskeyboard) registry.assign<CKeyboardControllable>(entity, keycontrolspeed);
-			if (hasspawn) registry.assign<CSpawnPoint>(entity, spawnpoint);
-			if (hasjumper) registry.assign<CJumpTimer>(entity);
-			if (hashealth) registry.assign<CHealth>(entity, max_hp);
+			if (haspresser) registry.emplace<CSphereCollider>(entity, pressrad, pressforce);
+			if (haskeyboard) registry.emplace<CKeyboardControllable>(entity, keycontrolspeed);
+			if (hasspawn) registry.emplace<CSpawnPoint>(entity, spawnpoint);
+			if (hasjumper) registry.emplace<CJumpTimer>(entity);
+			if (hashealth) registry.emplace<CHealth>(entity, max_hp);
 		}
 	}
 }

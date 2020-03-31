@@ -22,7 +22,7 @@ void WayfindSystem::update() {
 				if (runToTarget.stopOnceReached) {
 					registry.remove<CRunningToTarget>(entity);
 					// look a little more alive
-					registry.assign_or_replace<CJumpTimer>(entity);
+					registry.emplace_or_replace<CJumpTimer>(entity);
 				}
 			}
 		});

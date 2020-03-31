@@ -16,4 +16,8 @@ entity = {
 }
 
 
+-- testing components
+p = CPosition.new(3, 2, 1)
+print(p.pos.x .. '_' .. p.pos.y .. '_' .. p.pos.z)
+
 

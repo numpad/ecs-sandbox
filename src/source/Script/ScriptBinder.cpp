@@ -17,6 +17,18 @@ namespace ScriptBinder {
 		for (const auto &kv : components) {
 			printf("%s\n", kv.first.as<std::string>().c_str());
 		}
+		
+		// testing assigning
+		entt::registry reg;
+		sol::object p = loader["p"];
+		
+		entt::meta_type cp = entt::resolve("CPosition"_hs);
+		
+		entt::entity e = reg.create();
+		
+		reg.view<CPosition>().each([](auto entity, auto pos) {
+			printf("#\n# GOT ENTITY WITH CPosition!\n#\n");
+		});
 	}
 	
 	void luaTest() {
@@ -30,8 +42,8 @@ namespace ScriptBinder {
 	}
 	
 	void registerEngine(sol::state &lua) {
-		registerComponents(lua);
 		registerVectors(lua);
+		registerComponents(lua);
 	}
 	
 	int registerVectors(sol::state &lua) {
@@ -64,6 +76,7 @@ namespace ScriptBinder {
 				[](const vec3 self, const float v)       { return self / v; },
 				[](const vec3 self, const vec3 other)    { return self / other; })
 			);
+		
 		// vec2
 		lua.new_usertype<vec2>("vec2",
 			sol::constructors<vec2(), vec2(float), vec2(float, float)>(),
@@ -94,7 +107,10 @@ namespace ScriptBinder {
 	}
 	
 	int registerComponents(sol::state &lua) {
-		
+		lua.new_usertype<CPosition>("CPosition",
+			sol::constructors<CPosition(float, float, float), CPosition(vec3)>(),
+			"pos", &CPosition::pos
+			);
 		return 0;
 	}
 }

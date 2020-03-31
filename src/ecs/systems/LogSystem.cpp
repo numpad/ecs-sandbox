@@ -10,9 +10,12 @@ LogSystem::~LogSystem() {
 	registry.ctx<entt::dispatcher>().sink<LogEvent>().disconnect<&LogSystem::receive>(*this);
 }
 
+void LogSystem::setLogger(std::function<void (const LogEvent &)> logFunc) {
+	this->logFunc = logFunc;
+}
 
 void LogSystem::receive(const LogEvent &event) {
-	printf("log> %s\n", event.text.c_str());
+	this->logFunc(event);
 }
 
 void LogSystem::update() {

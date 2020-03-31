@@ -29,7 +29,7 @@ void World::destroy() {
 	updateSystems.clear();
 	renderSystems.clear();
 	destroyFloor();
-	registry.reset();
+	registry.clear();
 }
 
 entt::entity World::getNearestEntity(vec3 posNear) {
@@ -58,17 +58,17 @@ entt::entity World::spawnDefaultEntity(vec3 pos) {
 	vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
 	
 	auto entity = registry.create();
-	registry.assign<CPosition>(entity, pos);
-	registry.assign<CVelocity>(entity, vec3(0.f));
-	registry.assign<CBillboard>(entity,
+	registry.emplace<CPosition>(entity, pos);
+	registry.emplace<CVelocity>(entity, vec3(0.f));
+	registry.emplace<CBillboard>(entity,
 		this->assetManager.getTexture("res/images/textures/dungeon.png"), rsize, rcol);
 	registry.get<CBillboard>(entity).setSubRect(1.0f * 16.0f, 10.0f * 16.0f, 16.0f, 16.0f, 256, 256);
-	registry.assign<CGravity>(entity);
-	registry.assign<CSphereCollider>(entity, 0.045f, 0.01f);
-	registry.assign<CJumpTimer>(entity, 0);
-	registry.assign<CHealth>(entity, 10);
+	registry.emplace<CGravity>(entity);
+	registry.emplace<CSphereCollider>(entity, 0.045f, 0.01f);
+	registry.emplace<CJumpTimer>(entity, 0);
+	registry.emplace<CHealth>(entity, 10);
 	if (registry.valid(this->player)) {
-		//registry.assign<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
+		//registry.emplace<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
 	}
 	return entity;
 }
@@ -78,7 +78,7 @@ void World::resetEntities() {
 	if (registry.has<CPosition>(getPlayer()))
 		spawnPos = registry.get<CPosition>(getPlayer()).pos;
 	
-	registry.reset();
+	registry.clear();
 	spawnPlayer(spawnPos);
 }
 
@@ -87,9 +87,9 @@ entt::entity World::spawnPlayer(vec3 pos) {
 		registry.destroy(this->player);
 	
 	this->player = spawnDefaultEntity(pos);
-	registry.assign<CKeyboardControllable>(this->player, 0.003f);
+	registry.emplace<CKeyboardControllable>(this->player, 0.003f);
 	TiledTexture *playertex = assetManager.getTiledTexture("res/images/sprites/guy_stand_frames.png", 16, 16, 0, 0);
-	registry.assign_or_replace<CBillboard>(this->player,
+	registry.emplace_or_replace<CBillboard>(this->player,
 		playertex, 
 		vec2(0.2f, 0.2f), vec3(0.961f, 0.8f, 0.545f));
 	registry.get<CBillboard>(this->player).setSubRect(1.0f * 16.0f, 0.0f * 16.0f,
@@ -97,17 +97,17 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	
 	registry.remove<CJumpTimer>(this->player);
 	
-	registry.assign_or_replace<CSpawnPoint>(this->player, vec3(0.0f, 0.5f, 0.0f));
-	registry.assign_or_replace<CHealth>(this->player, 12);
+	registry.emplace_or_replace<CSpawnPoint>(this->player, vec3(0.0f, 0.5f, 0.0f));
+	registry.emplace_or_replace<CHealth>(this->player, 12);
 	
 	// world pos crosshair
 	worldCrosshair = registry.create();
-	registry.assign<CPosition>(worldCrosshair, vec3(0.0f));
+	registry.emplace<CPosition>(worldCrosshair, vec3(0.0f));
 	// TODO: assetManager.newTiledTexture("res/...", tile_x, tile_y, tileset_width, tileset_height)
-	//registry.assign<CBillboard>(worldCrosshair, assetManager.getTexture("res/images/sprites/arrows.png"),
+	//registry.emplace<CBillboard>(worldCrosshair, assetManager.getTexture("res/images/sprites/arrows.png"),
 	//	vec2(0.2f, 0.2f), vec3(0.0f, 1.0f, 0.0f));
 	TiledTexture *tiledtex = assetManager.getTiledTexture("res/images/sprites/arrows.png", 64, 64, 0, 0);
-	registry.assign<CBillboard>(worldCrosshair, tiledtex, vec2(0.4f, 0.4f));
+	registry.emplace<CBillboard>(worldCrosshair, tiledtex, vec2(0.4f, 0.4f));
 	
 	return this->player;
 }
@@ -134,15 +134,12 @@ void World::draw() {
 		ImGui::InputInt2("pos", p);
 		if (ImGui::Button("hurt")) {
 			SignedDistTerrain *e = (SignedDistTerrain *)chunkedWorld.getTerrain().getChunkGrid().at(p[0], p[1]);
-			SignedDistTerrain *t;
-			if (e) {
-				t = e;
-			} else {
-				t = new SignedDistTerrain();
+			if (!e) {
+				e = new SignedDistTerrain();
 			}
 			
-			t->sphere(vec3(0.f), .8f);
-			chunkedWorld.update(ivec2(p[0], p[1]), t);
+			e->sphere(vec3(0.f), .5f, SignedDistTerrain::Op::DIFF);
+			chunkedWorld.update(ivec2(p[0], p[1]), e);
 		}
 	}
 	ImGui::End();
@@ -170,7 +167,9 @@ void World::loadSystems() {
 	
 	// register a logging event system
 	logEventSystem = std::make_unique<LogSystem>(registry);
-	
+	logEventSystem->setLogger([](const LogEvent &e) {
+		std::cout << e.text << std::endl;
+	});
 	// update and render systems
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(registry, camera);
 	auto textRenderSystem = std::make_shared<TextEventSystem>(registry, camera);

@@ -21,7 +21,7 @@ BillboardRenderSystem::~BillboardRenderSystem() {
 void BillboardRenderSystem::update() {
 	
 	// depthsort
-	registry.sort<const CPosition>([this](const auto &lhs, const auto &rhs) {
+	registry.sort<CPosition>([this](const auto &lhs, const auto &rhs) {
 		constexpr glm::vec3 noY(1.0f, 0.0f, 1.0f);
 		float l1 = glm::length2((lhs.pos - this->camera->getPos()) * noY);
 		float l2 = glm::length2((rhs.pos - this->camera->getPos()) * noY);
