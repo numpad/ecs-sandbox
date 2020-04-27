@@ -26,5 +26,6 @@ namespace ScriptBinder {
 	// grouped register calls
 	
 	int registerVectors(sol::state &lua);
+	int registerEnTT(sol::state &lua);
 	int registerComponents(sol::state &lua);
 }

@@ -9,6 +9,9 @@ namespace ScriptBinder {
 		loader.open_libraries();
 		registerEngine(loader);
 		
+		entt::registry reg;
+		loader["registry"] = std::ref(reg);
+		
 		loader.script_file(path);
 		std::string ename = loader["entity"]["name"];
 		printf("loading '%s'\n", ename.c_str());
@@ -19,12 +22,11 @@ namespace ScriptBinder {
 		}
 		
 		// testing assigning
-		entt::registry reg;
-		sol::object p = loader["p"];
+		auto p = loader["p"];
 		
-		entt::meta_type cp = entt::resolve("CPosition"_hs);
+		// assign it by script (that sucks)
+		//p["assign"](p, reg, e);
 		
-		entt::entity e = reg.create();
 		
 		reg.view<CPosition>().each([](auto entity, auto pos) {
 			printf("#\n# GOT ENTITY WITH CPosition!\n#\n");
@@ -43,6 +45,7 @@ namespace ScriptBinder {
 	
 	void registerEngine(sol::state &lua) {
 		registerVectors(lua);
+		registerEnTT(lua);
 		registerComponents(lua);
 	}
 	
@@ -106,11 +109,30 @@ namespace ScriptBinder {
 		return 0;
 	}
 	
+	int registerEnTT(sol::state &lua) {
+		lua.new_usertype<entt::registry>("Registry",
+			"create", [](entt::registry &self) { return self.create(); });
+		lua.new_usertype<entt::entity>("Entity");
+		
+		return 0;
+	}
+	
 	int registerComponents(sol::state &lua) {
+		using namespace glm;
+		
+		// CPosition
 		lua.new_usertype<CPosition>("CPosition",
 			sol::constructors<CPosition(float, float, float), CPosition(vec3)>(),
-			"pos", &CPosition::pos
-			);
+			"assign", [](const CPosition self, entt::registry &r, entt::entity e) { r.emplace<CPosition>(e, self); },
+			"pos", &CPosition::pos);
+		// CVelocity
+		lua.new_usertype<CVelocity>("CVelocity",
+			sol::constructors<CVelocity(), CVelocity(float, float, float), CVelocity(vec3)>(),
+			"assign", [](const CVelocity self, entt::registry &r, entt::entity e) { r.emplace<CVelocity>(e, self); },
+			"vel",     &CVelocity::vel,
+			"acc",     &CVelocity::acc,
+			"maxvel", &CVelocity::maxvel);
+		
 		return 0;
 	}
 }

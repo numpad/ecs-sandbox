@@ -17,7 +17,8 @@ entity = {
 
 
 -- testing components
-p = CPosition.new(3, 2, 1)
-print(p.pos.x .. '_' .. p.pos.y .. '_' .. p.pos.z)
+pos_comp = CPosition.new(3, 2, 1)
+print(pos_comp.pos.x .. ', ' .. pos_comp.pos.y .. ', ' .. pos_comp.pos.z)
 
-
+ent = registry:create()
+pos_comp:assign(registry, ent)

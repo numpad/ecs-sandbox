@@ -493,8 +493,11 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 					bbsize, bbcolor);
 			}
 			if (hasruntt) {
-				if (runttToPlayer) registry.emplace<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
-				else registry.emplace<CRunningToTarget>(entity, rttpos, rttforce, rttnear, rttonlyonce);
+				if (runttToPlayer) {
+					registry.emplace<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
+				} else {
+					registry.emplace<CRunningToTarget>(entity, rttpos, rttforce, rttnear, rttonlyonce);
+				}
 			}
 			if (haspresser) registry.emplace<CSphereCollider>(entity, pressrad, pressforce);
 			if (haskeyboard) registry.emplace<CKeyboardControllable>(entity, keycontrolspeed);

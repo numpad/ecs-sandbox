@@ -170,14 +170,16 @@ void World::loadSystems() {
 	logEventSystem->setLogger([](const LogEvent &e) {
 		std::cout << e.text << std::endl;
 	});
-	// update and render systems
+	
+	// initialize update and render systems
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(registry, camera);
 	auto textRenderSystem = std::make_shared<TextEventSystem>(registry, camera);
+	auto wayfindSystem = std::make_shared<WayfindSystem>(registry, camera);
 	
 	// create update systems
 	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f, tileGrid));
 	updateSystems.emplace_back(new RandomJumpSystem(registry, 0.003f));
-	updateSystems.emplace_back(new WayfindSystem(registry));
+	updateSystems.push_back(wayfindSystem);
 	updateSystems.emplace_back(new PressAwaySystem(registry));
 	updateSystems.emplace_back(new PositionUpdateSystem(registry));
 	updateSystems.push_back(billboardRenderSystem);
@@ -186,6 +188,7 @@ void World::loadSystems() {
 	// and render systems
 	renderSystems.push_back(billboardRenderSystem);
 	renderSystems.push_back(textRenderSystem);
+	renderSystems.push_back(wayfindSystem);
 }
 
 void World::setupFloor() {
