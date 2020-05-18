@@ -71,8 +71,7 @@ void WayfindSystem::draw() {
 	lineShader["uView"] = camera->getView();
 	lineShader["uColor"] = vec3(1.0, 0.0, 0.0);
 	lineShader.use();
-	//glDisable(GL_DEPTH_TEST);
+	
 	glDrawArrays(GL_LINES, 0, lines.size());
-	glEnable(GL_DEPTH_TEST);
 	
 }

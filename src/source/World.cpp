@@ -12,13 +12,12 @@ World::World(GLFWwindow *window, std::shared_ptr<Camera> camera)
 	// load systems
 	loadSystems();
 	
-	// load world
-	setupFloor();
-	
-	// spawn player
-	spawnPlayer();
-	
-	
+	// load terrain shader
+	chunkShader.load("res/glsl/proto/terrain_vert.glsl", sgl::shader::VERTEX);
+	chunkShader.load("res/glsl/proto/terrain_frag.glsl", sgl::shader::FRAGMENT);
+	chunkShader.compile();
+	chunkShader.link();
+	Blackboard::write("chunkShader", &chunkShader);
 }
 
 World::~World() {
@@ -112,13 +111,23 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	return this->player;
 }
 
+void World::load() {
+	// load world
+	setupFloor();
+	
+	// spawn player
+	spawnPlayer();
+	
+	loaded = true;
+}
+
 void World::update() {
 	// update systems
 	charControllerSystem.update(registry, -camera->getToTarget());
 	for (auto &sys : updateSystems) sys->update();
 	
 	#if CFG_DEBUG
-		if (!registry.valid(player)) {
+		if (!registry.valid(player) && this->is_loaded()) {
 			spawnPlayer();
 			registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: respawned player because debug is enabled.", LogEvent::WARN);
 		}
@@ -192,11 +201,6 @@ void World::loadSystems() {
 }
 
 void World::setupFloor() {
-	chunkShader.load("res/glsl/proto/terrain_vert.glsl", sgl::shader::VERTEX);
-	chunkShader.load("res/glsl/proto/terrain_frag.glsl", sgl::shader::FRAGMENT);
-	chunkShader.compile();
-	chunkShader.link();
-	Blackboard::write("chunkShader", &chunkShader);
 	
 	// mapgen
 	int x = 0, y = 0;

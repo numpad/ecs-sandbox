@@ -529,6 +529,8 @@ int main(int, char**) {
 	topdown->setTarget(vec3(0.f, 0.f, 0.01f));
 	World world(window, camera);
 	
+	world.load();
+	
 	//AssetManager &assetManager = world.getAssetManager();
 	
 	Font defaultFont("res/fonts/FSmono.ttf", 48);
@@ -581,13 +583,15 @@ int main(int, char**) {
 				
 		// calculate player aim
 		entt::entity worldCrosshair = world.getCrosshair();
-		if (!world.getRegistry().valid(worldCrosshair))
-			printf("[ERR] main: World crosshair not valid, may segfault.\n");
-		glm::vec3 &crosspos = world.getRegistry().get<CPosition>(worldCrosshair).pos;
+		
 		m3d::ray mcRay = world.getCamera()->raycast(normalizedMouse);
 		m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
-		crosspos = m3d::raycast(mcRay, mcFloor);
+		glm::vec3 crosspos = m3d::raycast(mcRay, mcFloor);
 		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+
+		if (world.getRegistry().valid(worldCrosshair)) {
+			world.getRegistry().get<CPosition>(worldCrosshair).pos = crosspos;
+		}
 
 		// fire
 		if (false)
@@ -658,7 +662,9 @@ int main(int, char**) {
 			ImGui::Separator();
 			
 			ImGui::Text("%g ms / frame", msPerFrame);
-			
+			if (ImGui::Button("load world")) {
+				world.load();
+			}
 			ImGui::EndMainMenuBar();
 		}
 		#endif
@@ -668,8 +674,10 @@ int main(int, char**) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// actual rendering
-		world.update();
-		world.draw();
+		if (world.is_loaded()) {
+			world.update();
+			world.draw();
+		}
 		
 		// present rendered
 		imguiRender();

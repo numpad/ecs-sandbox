@@ -56,6 +56,9 @@ public:
 	entt::entity spawnDefaultEntity(vec3 pos);
 	void resetEntities();
 	
+	// generate
+	void load();
+	
 	// gameloop
 	void update();
 	void draw();
@@ -68,7 +71,7 @@ public:
 	inline entt::dispatcher &getDispatcher() { return registry.ctx<entt::dispatcher>(); }
 	inline AssetManager &getAssetManager() { return assetManager; }
 	inline const std::shared_ptr<Camera> getCamera() const { return camera; }
-	
+	inline bool is_loaded()  const { return loaded; }
 	inline entt::entity getPlayer() const {
 		if (registry.valid(player))
 			return player;
@@ -83,6 +86,9 @@ public:
 private:
 	entt::registry registry;
 	std::shared_ptr<Camera> camera;
+	
+	// loading
+	bool loaded = false; // is the terrain etc. loaded?
 	
 	// grid
 	Grid2D<SignedDistTerrain> tileGrid;
