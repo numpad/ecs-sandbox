@@ -18,8 +18,8 @@ WayfindSystem::WayfindSystem(entt::registry &registry, std::shared_ptr<Camera> c
 	
 	// load shader
 	bool ok = true;
-	ok &= lineShader.load("res/glsl/debug/lines_vert.glsl", sgl::shader::VERTEX);
-	ok &= lineShader.load("res/glsl/debug/lines_frag.glsl", sgl::shader::FRAGMENT);
+	ok &= lineShader.load("res/glsl/primitives/lines_vert.glsl", sgl::shader::VERTEX);
+	ok &= lineShader.load("res/glsl/primitives/lines_frag.glsl", sgl::shader::FRAGMENT);
 	ok &= lineShader.compile();
 	ok &= lineShader.link();
 	if (!ok)

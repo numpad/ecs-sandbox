@@ -167,6 +167,6 @@ vec3 CubeMarcher::interpolate(vec3 p1, vec3 p2, float v1, float v2) {
 	// no interpolation:
 	// vec3 phd = (p2 - p1) * .5f;
 	// return p1 + phd;
-	
+
 	return LinearInterp(vec4(p1, v1), vec4(p2, v2), isolevel);
 }

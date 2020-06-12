@@ -1,4 +1,4 @@
-// fcd3685afb34ae62d2d45b52d96633eb199a69bd
+// b255be4ba7945e612bd5ab7375d74392847a7054
 #pragma once
 
 #include <ecs/systems/PositionUpdateSystem.hpp>
@@ -7,6 +7,7 @@
 #include <ecs/systems/TextEventSystem.hpp>
 #include <ecs/systems/PressAwaySystem.hpp>
 #include <ecs/systems/CharacterController.hpp>
+#include <ecs/systems/PrimitiveRenderSystem.hpp>
 #include <ecs/systems/LogSystem.hpp>
 #include <ecs/systems/GravitySystem.hpp>
 #include <ecs/systems/BaseRenderSystem.hpp>

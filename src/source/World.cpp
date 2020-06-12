@@ -138,17 +138,40 @@ void World::draw() {
 	// render systems
 	
 	// TODO: remove this, just for testing
-	if (ImGui::Begin("hurt world")) {
-		static int p[2];
-		ImGui::InputInt2("pos", p);
-		if (ImGui::Button("hurt")) {
-			SignedDistTerrain *e = (SignedDistTerrain *)chunkedWorld.getTerrain().getChunkGrid().at(p[0], p[1]);
+	if (ImGui::Begin("Edit world")) {
+		static int vtype = 0;
+		constexpr int vsphere = 0, vcube = 1;
+		ImGui::RadioButton("Sphere", &vtype, vsphere);
+		ImGui::SameLine();
+		ImGui::RadioButton("Cube", &vtype, vcube);
+		
+		static int vop = (int)SignedDistTerrain::Op::UNION;
+		ImGui::RadioButton("Add", &vop, (int)SignedDistTerrain::Op::UNION);
+		ImGui::SameLine();
+		ImGui::RadioButton("Sub", &vop, (int)SignedDistTerrain::Op::DIFF);
+		
+		static vec3 pos;
+		static vec3 r = vec3(.5f);
+		ImGui::InputFloat3("pos", &pos[0], "%.2f");
+		if (vtype == vsphere) {
+			ImGui::SliderFloat("r", &r[0], .1f, 2.f);
+		} else {
+			ImGui::SliderFloat3("r", &r[0], .1f, 2.f);
+		}
+		
+		if (ImGui::Button("Edit")) {
+			ivec2 chunkPos = chunkedWorld.getTerrain().worldPosToChunk(pos);
+			SignedDistTerrain *e = (SignedDistTerrain *)chunkedWorld.getTerrain().getChunkGrid().at(chunkPos);
 			if (!e) {
 				e = new SignedDistTerrain();
 			}
 			
-			e->sphere(vec3(0.f), .5f, SignedDistTerrain::Op::DIFF);
-			chunkedWorld.update(ivec2(p[0], p[1]), e);
+			if (vtype == vsphere) {
+				e->sphere(pos, r.x, (SignedDistTerrain::Op)vop);
+			} else if (vtype == vcube) {
+				e->box(pos, r, (SignedDistTerrain::Op)vop);
+			}
+			chunkedWorld.update(chunkPos, e);
 		}
 	}
 	ImGui::End();
@@ -184,6 +207,7 @@ void World::loadSystems() {
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(registry, camera);
 	auto textRenderSystem = std::make_shared<TextEventSystem>(registry, camera);
 	auto wayfindSystem = std::make_shared<WayfindSystem>(registry, camera);
+	auto primitiveRenderer = std::make_shared<PrimitiveRenderSystem>(registry, camera);
 	
 	// create update systems
 	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f, tileGrid));
@@ -193,11 +217,13 @@ void World::loadSystems() {
 	updateSystems.emplace_back(new PositionUpdateSystem(registry));
 	updateSystems.push_back(billboardRenderSystem);
 	updateSystems.push_back(textRenderSystem);
+	updateSystems.push_back(primitiveRenderer);
 	
 	// and render systems
 	renderSystems.push_back(billboardRenderSystem);
 	renderSystems.push_back(textRenderSystem);
 	renderSystems.push_back(wayfindSystem);
+	renderSystems.push_back(primitiveRenderer);
 }
 
 void World::setupFloor() {

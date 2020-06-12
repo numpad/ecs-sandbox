@@ -536,7 +536,7 @@ int main(int, char**) {
 	Font defaultFont("res/fonts/FSmono.ttf", 48);
 	
 	
-	ScriptBinder::luaTest();
+	//ScriptBinder::luaTest();
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
