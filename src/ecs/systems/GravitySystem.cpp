@@ -52,6 +52,10 @@ void GravitySystem::update() {
 			}
 		}
 		
+		if (pos.pos.y <= -1.2f) {
+			vel.vel *= vec3(.8f, .4f, .8f);
+		}
+		
 		if (pos.pos.y < voidHeight) {
 			registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Fell down.");
 		}

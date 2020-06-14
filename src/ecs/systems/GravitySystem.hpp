@@ -22,7 +22,7 @@ public:
 private:
 	float gravity;
 	// below which height are entities killed
-	float voidHeight = -5.f;
+	float voidHeight = -1.7f;
 	
 	Grid2D<SignedDistTerrain> &tileGrid;
 	

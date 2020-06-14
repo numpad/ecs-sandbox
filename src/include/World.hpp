@@ -94,7 +94,10 @@ private:
 	Grid2D<SignedDistTerrain> tileGrid;
 	ChunkedWorld chunkedWorld;
 	sgl::shader chunkShader;
-		
+	
+	GLuint waterPlaneVAO, waterPlaneVBO;
+	sgl::shader waterShader;
+	
 	// entities
 	entt::entity player = entt::null,
 		worldCrosshair = entt::null;

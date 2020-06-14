@@ -273,13 +273,54 @@ void World::setupFloor() {
 		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generated chunks in " + std::to_string(endtime - starttime) + "s.", LogEvent::LOG);
 	#endif
 	
+	// water plane
+	waterShader.load("res/glsl/world/waterplane_vert.glsl", sgl::shader::VERTEX);
+	waterShader.load("res/glsl/world/waterplane_frag.glsl", sgl::shader::FRAGMENT);
+	waterShader.compile();
+	waterShader.link();
+	
+	std::vector<vec3> vertices = {
+		vec3(-1.f, 0.f, -1.f),
+		vec3(-1.f, 0.f,  1.f),
+		vec3( 1.f, 0.f,  1.f),
+		vec3(-1.f, 0.f, -1.f),
+		vec3( 1.f, 0.f,  1.f),
+		vec3( 1.f, 0.f, -1.f)
+	};
+	glGenVertexArrays(1, &waterPlaneVAO);
+	glGenBuffers(1, &waterPlaneVBO);
+	
+	glBindVertexArray(waterPlaneVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, waterPlaneVBO);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec3), &vertices[0], GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)(0));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void World::destroyFloor() {
 	chunkedWorld.destroy();
+	glDeleteVertexArrays(1, &waterPlaneVAO);
+	glDeleteBuffers(1, &waterPlaneVBO);
 }
 
 void World::drawFloor() {
+	// draw water plane
+	waterShader.use();
+	mat4 waterModel = mat4(1.f);
+	static float waveTime = 0.f;
+	waveTime += 0.07f;
+	waterModel = glm::translate(waterModel, vec3(0.f, -1.2f + glm::sin(waveTime) * .02f, 0.f));
+	waterModel = glm::scale(waterModel, vec3(20.f, 1.f, 20.f));
+	waterShader["uProjection"] = camera->getProjection();
+	waterShader["uView"] = camera->getView();
+	waterShader["uModel"] = waterModel;
+	glBindVertexArray(waterPlaneVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+	
+	// draw terrain chunks
 	chunkShader["uProj"] = camera->getProjection();
 	chunkShader["uView"] = camera->getView();
 	chunkShader["uModel"] = glm::mat4(1.f);
