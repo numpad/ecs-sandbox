@@ -13,6 +13,10 @@
 #include <FastNoise/FastNoise.h>
 #include <stb/stb_image.h>
 #include <util/sgl_shader.hpp>
+#include <util/sgl_framebuffer.hpp>
+#include <util/sgl_texture.hpp>
+#include <util/sgl_renderbuffer.hpp>
+#include <util/sgl_attachment.hpp>
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_glfw.h>
 #include <imgui/examples/imgui_impl_opengl3.h>
@@ -538,10 +542,66 @@ int main(int, char**) {
 	
 	//ScriptBinder::luaTest();
 	
+	// deferred rendering
+	sgl::texture color_buffer;
+	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgb);
+	
+	sgl::renderbuffer depthstencil_buffer;
+	depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
+		
+	// sgl::texture depthstencil_buffer;
+	//depthstencil_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(),
+	//	sgl::texture::internalformat::depth24_stencil8, nullptr,
+	//	sgl::texture::format::depth_stencil, sgl::texture::datatype::u24_8);
+
+	sgl::framebuffer screen_fbo;
+	screen_fbo.attach(color_buffer, sgl::attachment::color(0));
+	screen_fbo.attach(depthstencil_buffer, sgl::attachment::depth_stencil());
+	
+	// build screen mesh
+	GLfloat vertices[] = {
+		-1.f, -1.f,
+		 1.f, -1.f,
+		-1.f,  1.f,
+		-1.f,  1.f,
+		 1.f, -1.f,
+		 1.f,  1.f,
+		 
+		 0.f, 0.f,
+		 1.f, 0.f,
+		 0.f, 1.f,
+		 0.f, 1.f,
+		 1.f, 0.f,
+		 1.f, 1.f
+	};
+	GLuint svao, svbo;
+	glGenBuffers(1, &svbo);
+	glGenVertexArrays(1, &svao);
+	
+	glBindVertexArray(svao);
+	glBindBuffer(GL_ARRAY_BUFFER, svbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 24, vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(sizeof(GLfloat) * 12));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	
+	sgl::shader screen_shader;
+	screen_shader.load("res/glsl/2d/screen_vert.glsl", sgl::shader::VERTEX);
+	screen_shader.load("res/glsl/2d/screen_frag.glsl", sgl::shader::FRAGMENT);
+	screen_shader.compile();
+	screen_shader.link();
+	
+	screen_shader["uScreen"] = 0;
+	
+	color_buffer.bind();
+	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
-	while (!glfwWindowShouldClose(window)) {		
+	while (!glfwWindowShouldClose(window)) {
 		// poll events
 		glfwPollEvents();
 		imguiBeforeFrame();
@@ -619,57 +679,56 @@ int main(int, char**) {
 				imguiEntityEdit(world.getRegistry(), selected);
 			}
 			ImGui::End();
-		#endif
 		
-		#if CFG_IMGUI_ENABLED
-		if (ImGui::BeginMainMenuBar()) {
-			// Spawn entity
-			imguiEntitySpawn(world, mouseRightDown, crosspos);
-			// Shaders
-			if (ImGui::BeginMenu("Shader")) {
-				if (ImGui::MenuItem("Reload all")) {
-					sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
-					if (chunkShader) chunkShader->reload();
+			if (ImGui::BeginMainMenuBar()) {
+				// Spawn entity
+				imguiEntitySpawn(world, mouseRightDown, crosspos);
+				// Shaders
+				if (ImGui::BeginMenu("Shader")) {
+					if (ImGui::MenuItem("Reload all")) {
+						sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
+						if (chunkShader) chunkShader->reload();
+					}
+					
+					ImGui::EndMenu();
 				}
 				
-				ImGui::EndMenu();
-			}
-			
-			// Cameras
-			static bool settings_topdowncam = false;
-			if (ImGui::BeginMenu("Camera")) {
-				if (ImGui::Checkbox("topdown camera?", &settings_topdowncam)) {
-					if (settings_topdowncam) world.setCamera(topdown);
-					else world.setCamera(camera);
+				// Cameras
+				static bool settings_topdowncam = false;
+				if (ImGui::BeginMenu("Camera")) {
+					if (ImGui::Checkbox("topdown camera?", &settings_topdowncam)) {
+						if (settings_topdowncam) world.setCamera(topdown);
+						else world.setCamera(camera);
+					}
+					ImGui::EndMenu();
 				}
-				ImGui::EndMenu();
-			}
-			
-			// Settings
-			if (ImGui::BeginMenu("Settings")) {
-				static bool settings_vsync = true;
-				if (ImGui::Checkbox("V-Sync", &settings_vsync)) glfwSwapInterval(settings_vsync ? 1 : 0);
-				static bool settings_wireframe = false;
-				if (ImGui::Checkbox("Wireframe", &settings_wireframe)) {
-					glPolygonMode(GL_FRONT_AND_BACK, settings_wireframe ? GL_LINE : GL_FILL);
+				
+				// Settings
+				if (ImGui::BeginMenu("Settings")) {
+					static bool settings_vsync = true;
+					if (ImGui::Checkbox("V-Sync", &settings_vsync)) glfwSwapInterval(settings_vsync ? 1 : 0);
+					static bool settings_wireframe = false;
+					if (ImGui::Checkbox("Wireframe", &settings_wireframe)) {
+						glPolygonMode(GL_FRONT_AND_BACK, settings_wireframe ? GL_LINE : GL_FILL);
+					}
+					if (ImGui::MenuItem("Reset")) {
+						world.resetEntities();
+					}
+					ImGui::EndMenu();
 				}
-				if (ImGui::MenuItem("Reset")) {
-					world.resetEntities();
+				
+				ImGui::Separator();
+				
+				ImGui::Text("%g ms / frame", msPerFrame);
+				if (ImGui::Button("load world")) {
+					world.load();
 				}
-				ImGui::EndMenu();
+				ImGui::EndMainMenuBar();
 			}
-			
-			ImGui::Separator();
-			
-			ImGui::Text("%g ms / frame", msPerFrame);
-			if (ImGui::Button("load world")) {
-				world.load();
-			}
-			ImGui::EndMainMenuBar();
-		}
 		#endif
 		
 		// rendering
+		screen_fbo.bind();
 		glClearColor(.231f, .275f, .302f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -678,6 +737,17 @@ int main(int, char**) {
 			world.update();
 			world.draw();
 		}
+		screen_fbo.unbind();
+		
+		screen_shader.use();
+		glDisable(GL_DEPTH_TEST);
+		glBindVertexArray(svao);
+		glBindBuffer(GL_ARRAY_BUFFER, svbo);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, color_buffer);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+		glEnable(GL_DEPTH_TEST);
 		
 		// present rendered
 		imguiRender();
@@ -690,6 +760,9 @@ int main(int, char**) {
 	
 	defaultFont.destroy();
 	Font::Destroy();
+	
+	glDeleteBuffers(1, &svbo);
+	glDeleteVertexArrays(1, &svao);
 	
 	glfwDestroyWindow(window);
 	glfwTerminate();
