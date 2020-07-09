@@ -717,11 +717,21 @@ int main(int, char**) {
 					ImGui::Separator();
 					// which framebuffer attachment
 					ImGui::Text("Framebuffer");
+					static bool settings_attachment_change = false;
 					// defined above because of scope:
 					//static int settings_attachment = GL_COLOR_ATTACHMENT0;
-					ImGui::RadioButton("- Result -", &settings_attachment, 0);
-					ImGui::RadioButton("Color Buffer", &settings_attachment, GL_COLOR_ATTACHMENT0);
-					ImGui::RadioButton("Position Buffer", &settings_attachment, GL_COLOR_ATTACHMENT1);
+					if (ImGui::RadioButton("- Result -", &settings_attachment, 0)) { settings_attachment_change = true; };
+					if (ImGui::RadioButton("Color Buffer", &settings_attachment, GL_COLOR_ATTACHMENT0)) { settings_attachment_change = true; };
+					if (ImGui::RadioButton("Position Buffer", &settings_attachment, GL_COLOR_ATTACHMENT1)) { settings_attachment_change = true; };
+					
+					if (settings_attachment_change) {
+						settings_attachment_change = false;
+						if (settings_attachment == 0) {
+							ImGui::StyleColorsDark();
+						} else {
+							ImGui::StyleColorsLight();
+						}
+					}
 					
 					ImGui::EndMenu();
 				}
