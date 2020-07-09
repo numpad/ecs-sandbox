@@ -719,7 +719,7 @@ int main(int, char**) {
 					ImGui::Text("Framebuffer");
 					// defined above because of scope:
 					//static int settings_attachment = GL_COLOR_ATTACHMENT0;
-					//ImGui::RadioButton
+					ImGui::RadioButton("- Result -", &settings_attachment, 0);
 					ImGui::RadioButton("Color Buffer", &settings_attachment, GL_COLOR_ATTACHMENT0);
 					ImGui::RadioButton("Position Buffer", &settings_attachment, GL_COLOR_ATTACHMENT1);
 					
@@ -770,8 +770,11 @@ int main(int, char**) {
 		
 		// render framebuffer to screen
 		#if CFG_IMGUI_ENABLED
-			GLint display_texture;
-			glGetNamedFramebufferAttachmentParameteriv(screen_fbo, settings_attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &display_texture);
+			screen_shader["uTexChoiceActive"] = (settings_attachment != 0);
+			GLint display_texture = color_buffer;
+			if (settings_attachment != 0) {
+				glGetNamedFramebufferAttachmentParameteriv(screen_fbo, settings_attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &display_texture);
+			}
 		#else
 			const GLint display_texture = color_buffer;
 		#endif

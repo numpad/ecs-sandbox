@@ -3,6 +3,7 @@
 uniform sampler2D uTexColor;
 uniform sampler2D uTexPosition;
 layout(binding = 2) uniform sampler2D uTexChoice;
+uniform bool uTexChoiceActive;
 
 in vec2 vPos;
 in vec2 vTexCoord;
@@ -12,5 +13,13 @@ void main() {
     vec4 albedo = texture(uTexColor, vTexCoord).rgba;
     vec4 position = texture(uTexPosition, vTexCoord).rgba;
     
-	Color = vec4(albedo.rgb * max(0., min(position.y, 1.)), 1.0);
+    vec3 outcolor;
+    if (uTexChoiceActive) {
+        outcolor = texture(uTexChoice, vTexCoord).rgb;
+    } else {
+        float brightness = clamp(position.y, 0., 1.);
+        
+        outcolor = albedo.rgb * smoothstep(.0, .94, brightness);
+    }
+    Color = vec4(outcolor, 1.0);
 }
