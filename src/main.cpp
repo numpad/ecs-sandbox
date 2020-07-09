@@ -724,6 +724,7 @@ int main(int, char**) {
 					if (ImGui::RadioButton("Color Buffer", &settings_attachment, GL_COLOR_ATTACHMENT0)) { settings_attachment_change = true; };
 					if (ImGui::RadioButton("Position Buffer", &settings_attachment, GL_COLOR_ATTACHMENT1)) { settings_attachment_change = true; };
 					
+					// switch to darkmode when viewing result rendering.
 					if (settings_attachment_change) {
 						settings_attachment_change = false;
 						if (settings_attachment == 0) {
