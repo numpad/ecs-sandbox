@@ -13,6 +13,10 @@
 #include <FastNoise/FastNoise.h>
 #include <stb/stb_image.h>
 #include <util/sgl_shader.hpp>
+#include <util/sgl_framebuffer.hpp>
+#include <util/sgl_texture.hpp>
+#include <util/sgl_renderbuffer.hpp>
+#include <util/sgl_attachment.hpp>
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_glfw.h>
 #include <imgui/examples/imgui_impl_opengl3.h>
@@ -151,13 +155,13 @@ bool initGL() {
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_SAMPLES, 4);
 	
 	#if CFG_DEBUG
 		// TODO: fix for my window manager
-		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+		//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	#endif
 	
 	/* request debug context */
@@ -538,10 +542,74 @@ int main(int, char**) {
 	
 	//ScriptBinder::luaTest();
 	
+	// deferred rendering
+	sgl::texture color_buffer, position_buffer, normal_buffer;
+	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgb);
+	position_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
+	position_buffer.set_filter(sgl::texture::filter::nearest);
+	normal_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
+	normal_buffer.set_filter(sgl::texture::filter::nearest);
+	
+	sgl::renderbuffer depthstencil_buffer;
+	depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
+	
+	// sgl::texture depthstencil_buffer;
+	//depthstencil_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(),
+	//	sgl::texture::internalformat::depth24_stencil8, nullptr,
+	//	sgl::texture::format::depth_stencil, sgl::texture::datatype::u24_8);
+
+	sgl::framebuffer screen_fbo;
+	screen_fbo.attach(color_buffer, sgl::attachment::color(0));
+	screen_fbo.attach(position_buffer, sgl::attachment::color(1));
+	screen_fbo.attach(normal_buffer, sgl::attachment::color(2));
+	screen_fbo.attach(depthstencil_buffer, sgl::attachment::depth_stencil());
+	screen_fbo.targets();
+	
+	// build screen mesh
+	GLfloat vertices[] = {
+		-1.f, -1.f,
+		 1.f, -1.f,
+		-1.f,  1.f,
+		-1.f,  1.f,
+		 1.f, -1.f,
+		 1.f,  1.f,
+		 
+		 0.f, 0.f,
+		 1.f, 0.f,
+		 0.f, 1.f,
+		 0.f, 1.f,
+		 1.f, 0.f,
+		 1.f, 1.f
+	};
+	GLuint svao, svbo;
+	glGenBuffers(1, &svbo);
+	glGenVertexArrays(1, &svao);
+	
+	glBindVertexArray(svao);
+	glBindBuffer(GL_ARRAY_BUFFER, svbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 24, vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(sizeof(GLfloat) * 12));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	
+	sgl::shader screen_shader;
+	screen_shader.load("res/glsl/2d/screen_vert.glsl", sgl::shader::VERTEX);
+	screen_shader.load("res/glsl/2d/screen_frag.glsl", sgl::shader::FRAGMENT);
+	screen_shader.compile();
+	screen_shader.link();
+	Blackboard::write("deferredShader", &screen_shader);
+	
+	screen_shader["uTexColor"] = 0;
+	screen_shader["uTexPosition"] = 1;
+	screen_shader["uTexNormal"] = 2;
+	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
-	while (!glfwWindowShouldClose(window)) {		
+	while (!glfwWindowShouldClose(window)) {
 		// poll events
 		glfwPollEvents();
 		imguiBeforeFrame();
@@ -606,6 +674,7 @@ int main(int, char**) {
 		}
 		
 		#if CFG_IMGUI_ENABLED
+			static int settings_attachment = GL_COLOR_ATTACHMENT2;
 			if (ImGui::Begin("world")) {
 				static bool pickingMode = false;
 				ImGui::Checkbox("Entity picker", &pickingMode);
@@ -619,57 +688,103 @@ int main(int, char**) {
 				imguiEntityEdit(world.getRegistry(), selected);
 			}
 			ImGui::End();
-		#endif
 		
-		#if CFG_IMGUI_ENABLED
-		if (ImGui::BeginMainMenuBar()) {
-			// Spawn entity
-			imguiEntitySpawn(world, mouseRightDown, crosspos);
-			// Shaders
-			if (ImGui::BeginMenu("Shader")) {
-				if (ImGui::MenuItem("Reload all")) {
+			if (ImGui::BeginMainMenuBar()) {
+				// Spawn entity
+				imguiEntitySpawn(world, mouseRightDown, crosspos);
+				// Shaders
+				static bool shaders_reload = false;
+				if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) shaders_reload = true;
+				if (ImGui::BeginMenu("Shader")) {
+					if (ImGui::MenuItem("Reload all", "P")) {
+						shaders_reload = true;
+					}
+					
+					ImGui::EndMenu();
+				}
+				if (shaders_reload) {
+					shaders_reload = false;
+					
 					sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
+					sgl::shader *billboardShader = Blackboard::read<sgl::shader>("billboardShader");
+					sgl::shader *deferredShader = Blackboard::read<sgl::shader>("deferredShader");
 					if (chunkShader) chunkShader->reload();
+					if (billboardShader) billboardShader->reload();
+					if (deferredShader) deferredShader->reload();
 				}
 				
-				ImGui::EndMenu();
-			}
-			
-			// Cameras
-			static bool settings_topdowncam = false;
-			if (ImGui::BeginMenu("Camera")) {
-				if (ImGui::Checkbox("topdown camera?", &settings_topdowncam)) {
-					if (settings_topdowncam) world.setCamera(topdown);
-					else world.setCamera(camera);
+				// Cameras
+				if (ImGui::BeginMenu("Rendering")) {
+					// which camera
+					ImGui::Text("Camera");
+					static int settings_camera = 0;
+					bool settings_changed = false;
+					if (ImGui::RadioButton("Default", settings_camera == 0)) { settings_camera = 0; settings_changed = true; }
+					if (ImGui::RadioButton("Camera #1 (topdown)", settings_camera == 1)) { settings_camera = 1; settings_changed = true; }
+					if (settings_changed) {
+						settings_changed = false;
+						switch (settings_camera) {
+							case 1: world.setCamera(topdown); break;
+							default: world.setCamera(camera); break;
+						};
+					}
+					ImGui::Separator();
+					// which framebuffer attachment
+					ImGui::Text("Framebuffer");
+					static bool settings_attachment_change = false;
+					// defined above because of scope:
+					//static int settings_attachment = GL_COLOR_ATTACHMENT0;
+					if (ImGui::RadioButton("- Result -", &settings_attachment, 0)) { settings_attachment_change = true; };
+					if (ImGui::RadioButton("Color Buffer", &settings_attachment, GL_COLOR_ATTACHMENT0)) { settings_attachment_change = true; };
+					if (ImGui::RadioButton("Position Buffer", &settings_attachment, GL_COLOR_ATTACHMENT1)) { settings_attachment_change = true; };
+					if (ImGui::RadioButton("Normal Buffer", &settings_attachment, GL_COLOR_ATTACHMENT2)) { settings_attachment_change = true; };
+					
+					// switch to darkmode when viewing result rendering.
+					if (settings_attachment_change) {
+						settings_attachment_change = false;
+						if (settings_attachment == 0) {
+							ImGui::StyleColorsDark();
+						} else {
+							ImGui::StyleColorsLight();
+						}
+					}
+					
+					ImGui::EndMenu();
 				}
-				ImGui::EndMenu();
-			}
-			
-			// Settings
-			if (ImGui::BeginMenu("Settings")) {
-				static bool settings_vsync = true;
-				if (ImGui::Checkbox("V-Sync", &settings_vsync)) glfwSwapInterval(settings_vsync ? 1 : 0);
-				static bool settings_wireframe = false;
-				if (ImGui::Checkbox("Wireframe", &settings_wireframe)) {
-					glPolygonMode(GL_FRONT_AND_BACK, settings_wireframe ? GL_LINE : GL_FILL);
+				
+				// Settings
+				if (ImGui::BeginMenu("Settings")) {
+					static bool settings_vsync = true;
+					if (ImGui::Checkbox("V-Sync", &settings_vsync)) glfwSwapInterval(settings_vsync ? 1 : 0);
+					static bool settings_wireframe = false;
+					if (ImGui::Checkbox("Wireframe", &settings_wireframe)) {
+						glPolygonMode(GL_FRONT_AND_BACK, settings_wireframe ? GL_LINE : GL_FILL);
+					}
+					if (ImGui::MenuItem("Reset")) {
+						world.resetEntities();
+					}
+					ImGui::EndMenu();
 				}
-				if (ImGui::MenuItem("Reset")) {
-					world.resetEntities();
+				
+				ImGui::Separator();
+				
+				ImGui::Text("%g ms / frame", msPerFrame);
+				if (ImGui::Button("load world")) {
+					world.load();
 				}
-				ImGui::EndMenu();
+				ImGui::EndMainMenuBar();
 			}
-			
-			ImGui::Separator();
-			
-			ImGui::Text("%g ms / frame", msPerFrame);
-			if (ImGui::Button("load world")) {
-				world.load();
-			}
-			ImGui::EndMainMenuBar();
-		}
 		#endif
 		
+		// TODO: find a better way to resize fbo attachments
+		color_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
+		position_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
+		normal_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
+		depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
+		
 		// rendering
+		screen_fbo.bind();
+		
 		glClearColor(.231f, .275f, .302f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -678,6 +793,43 @@ int main(int, char**) {
 			world.update();
 			world.draw();
 		}
+		screen_fbo.unbind();
+		
+		// render framebuffer to screen
+		#if CFG_IMGUI_ENABLED
+			screen_shader["uTexChoiceActive"] = (settings_attachment != 0);
+			GLint display_texture = color_buffer;
+			if (settings_attachment != 0) {
+				glGetNamedFramebufferAttachmentParameteriv(screen_fbo, settings_attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &display_texture);
+			}
+			screen_shader["uTexColor"] = 0;
+			screen_shader["uTexPosition"] = 1;
+			screen_shader["uTexNormal"] = 2;
+		#else
+			const GLint display_texture = color_buffer;
+		#endif
+		GLint pmode;
+		glGetIntegerv(GL_POLYGON_MODE, &pmode);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		
+		screen_shader.use();
+		glDisable(GL_DEPTH_TEST);
+		glBindVertexArray(svao);
+		glBindBuffer(GL_ARRAY_BUFFER, svbo);
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, color_buffer);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, position_buffer);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, normal_buffer);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, display_texture);
+		
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+		glEnable(GL_DEPTH_TEST);
+		glPolygonMode(GL_FRONT_AND_BACK, pmode);
 		
 		// present rendered
 		imguiRender();
@@ -690,6 +842,9 @@ int main(int, char**) {
 	
 	defaultFont.destroy();
 	Font::Destroy();
+	
+	glDeleteBuffers(1, &svbo);
+	glDeleteVertexArrays(1, &svao);
 	
 	glfwDestroyWindow(window);
 	glfwTerminate();
