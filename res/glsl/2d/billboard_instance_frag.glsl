@@ -10,9 +10,11 @@ in vec2 vTexCoord;
 in vec2 vRawTexCoord;
 in vec3 vColor;
 flat in uint vTextureIndex;
+in vec3 vNormal;
 
 layout(location = 0) out vec4 Color;
 layout(location = 1) out vec4 Position;
+layout(location = 2) out vec4 Normal;
 
 void main() {
 	vec4 pixel = texture(uTextures[vTextureIndex], vTexCoord);
@@ -39,4 +41,5 @@ void main() {
 	
 	Color = pixel; 
 	Position = vec4(vPosition*.5+.5, pixel.a);
+	Normal = vec4(vNormal*.5+.5, pixel.a);
 }

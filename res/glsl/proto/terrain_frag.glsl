@@ -12,6 +12,7 @@ flat in uvec2 vTexture;
 
 layout(location = 0) out vec4 Color;
 layout(location = 1) out vec4 Position;
+layout(location = 2) out vec4 Normal;
 
 vec3 asymTriplanarBlend(vec3 normal) {
 	float yBlendEdge = 0.7;
@@ -58,4 +59,5 @@ void main() {
 	
 	Color = vec4(color.rgb, 1.0);
 	Position = vec4(vPos*.5+.5, 1.0);
+	Normal = vec4(vNormal*.5+.5, 1.0);
 }

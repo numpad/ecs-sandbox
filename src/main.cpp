@@ -155,13 +155,13 @@ bool initGL() {
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_SAMPLES, 4);
 	
 	#if CFG_DEBUG
 		// TODO: fix for my window manager
-		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+		//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	#endif
 	
 	/* request debug context */
@@ -543,10 +543,12 @@ int main(int, char**) {
 	//ScriptBinder::luaTest();
 	
 	// deferred rendering
-	sgl::texture color_buffer, position_buffer;
+	sgl::texture color_buffer, position_buffer, normal_buffer;
 	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgb);
 	position_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
 	position_buffer.set_filter(sgl::texture::filter::nearest);
+	normal_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
+	normal_buffer.set_filter(sgl::texture::filter::nearest);
 	
 	sgl::renderbuffer depthstencil_buffer;
 	depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
@@ -559,6 +561,7 @@ int main(int, char**) {
 	sgl::framebuffer screen_fbo;
 	screen_fbo.attach(color_buffer, sgl::attachment::color(0));
 	screen_fbo.attach(position_buffer, sgl::attachment::color(1));
+	screen_fbo.attach(normal_buffer, sgl::attachment::color(2));
 	screen_fbo.attach(depthstencil_buffer, sgl::attachment::depth_stencil());
 	screen_fbo.targets();
 	
@@ -597,11 +600,11 @@ int main(int, char**) {
 	screen_shader.load("res/glsl/2d/screen_frag.glsl", sgl::shader::FRAGMENT);
 	screen_shader.compile();
 	screen_shader.link();
+	Blackboard::write("deferredShader", &screen_shader);
 	
 	screen_shader["uTexColor"] = 0;
 	screen_shader["uTexPosition"] = 1;
-	
-	color_buffer.bind();
+	screen_shader["uTexNormal"] = 2;
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
@@ -671,7 +674,7 @@ int main(int, char**) {
 		}
 		
 		#if CFG_IMGUI_ENABLED
-			static int settings_attachment = GL_COLOR_ATTACHMENT0;
+			static int settings_attachment = GL_COLOR_ATTACHMENT2;
 			if (ImGui::Begin("world")) {
 				static bool pickingMode = false;
 				ImGui::Checkbox("Entity picker", &pickingMode);
@@ -690,13 +693,24 @@ int main(int, char**) {
 				// Spawn entity
 				imguiEntitySpawn(world, mouseRightDown, crosspos);
 				// Shaders
+				static bool shaders_reload = false;
+				if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) shaders_reload = true;
 				if (ImGui::BeginMenu("Shader")) {
-					if (ImGui::MenuItem("Reload all")) {
-						sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
-						if (chunkShader) chunkShader->reload();
+					if (ImGui::MenuItem("Reload all", "P")) {
+						shaders_reload = true;
 					}
 					
 					ImGui::EndMenu();
+				}
+				if (shaders_reload) {
+					shaders_reload = false;
+					
+					sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
+					sgl::shader *billboardShader = Blackboard::read<sgl::shader>("billboardShader");
+					sgl::shader *deferredShader = Blackboard::read<sgl::shader>("deferredShader");
+					if (chunkShader) chunkShader->reload();
+					if (billboardShader) billboardShader->reload();
+					if (deferredShader) deferredShader->reload();
 				}
 				
 				// Cameras
@@ -723,6 +737,7 @@ int main(int, char**) {
 					if (ImGui::RadioButton("- Result -", &settings_attachment, 0)) { settings_attachment_change = true; };
 					if (ImGui::RadioButton("Color Buffer", &settings_attachment, GL_COLOR_ATTACHMENT0)) { settings_attachment_change = true; };
 					if (ImGui::RadioButton("Position Buffer", &settings_attachment, GL_COLOR_ATTACHMENT1)) { settings_attachment_change = true; };
+					if (ImGui::RadioButton("Normal Buffer", &settings_attachment, GL_COLOR_ATTACHMENT2)) { settings_attachment_change = true; };
 					
 					// switch to darkmode when viewing result rendering.
 					if (settings_attachment_change) {
@@ -764,6 +779,7 @@ int main(int, char**) {
 		// TODO: find a better way to resize fbo attachments
 		color_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
 		position_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
+		normal_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
 		depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
 		
 		// rendering
@@ -786,6 +802,9 @@ int main(int, char**) {
 			if (settings_attachment != 0) {
 				glGetNamedFramebufferAttachmentParameteriv(screen_fbo, settings_attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &display_texture);
 			}
+			screen_shader["uTexColor"] = 0;
+			screen_shader["uTexPosition"] = 1;
+			screen_shader["uTexNormal"] = 2;
 		#else
 			const GLint display_texture = color_buffer;
 		#endif
@@ -803,6 +822,8 @@ int main(int, char**) {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, position_buffer);
 		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, normal_buffer);
+		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_2D, display_texture);
 		
 		glDrawArrays(GL_TRIANGLES, 0, 6);

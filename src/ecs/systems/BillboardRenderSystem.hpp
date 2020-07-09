@@ -20,6 +20,8 @@
 #include <RenderObject/Billboard.hpp>
 #include <RenderObject/Camera.hpp>
 
+#include <Util/Blackboard.hpp>
+
 class BillboardRenderSystem : public BaseUpdateSystem, public BaseRenderSystem {
 public:
 	

@@ -16,6 +16,7 @@ out vec2 vTexCoord; // translated
 out vec2 vRawTexCoord; // texcoord from [0..1]
 out vec3 vColor;
 flat out uint vTextureIndex;
+out vec3 vNormal;
 
 void main() {
     vec4 worldPosition = aInstanceModel * vec4(aPosition, 1.0);
@@ -25,5 +26,6 @@ void main() {
 	vRawTexCoord = aTexCoord;
 	vColor = aInstanceColor;
 	vTextureIndex = aTextureIndex;
+    vNormal = transpose(inverse(mat3(aInstanceModel))) * vec3(0., 0., -1.);
 	gl_Position = uProjection * uView * worldPosition;
 }
