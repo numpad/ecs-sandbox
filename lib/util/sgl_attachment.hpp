@@ -1,5 +1,7 @@
 #pragma once
 
+#include <config.hpp>
+#include <iostream>
 #include <GL/gl3w.h>
 
 namespace sgl {
@@ -27,9 +29,12 @@ namespace sgl {
 		
 		attachment(type atype);
 		
+		inline bool is_color() const { return m_basetype == type::color; }
+		
 		operator GLenum() const;
 	private:
 		GLenum m_type;
+		type m_basetype;
 	};
 	
 }

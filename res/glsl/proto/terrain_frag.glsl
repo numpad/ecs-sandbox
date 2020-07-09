@@ -4,12 +4,14 @@ uniform sampler2D uTextureSide;
 uniform sampler2D uTextureTopdown;
 uniform float uTextureSideScale;
 uniform float uTextureTopdownScale;
+uniform float uTime;
 
 in vec3 vPos;
 in vec3 vNormal;
 flat in uvec2 vTexture;
 
-out vec4 Color;
+layout(location = 0) out vec4 Color;
+layout(location = 1) out vec4 Position;
 
 vec3 asymTriplanarBlend(vec3 normal) {
 	float yBlendEdge = 0.7;
@@ -55,4 +57,5 @@ void main() {
 	vec4 color = triplanarTexture(vPos, blend);
 	
 	Color = vec4(color.rgb, 1.0);
+	Position = vec4(vPos*.5+.5, 1.0);
 }

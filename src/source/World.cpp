@@ -287,6 +287,7 @@ void World::drawFloor() {
 	chunkShader["uTextureSideScale"] = 2.0f;
 	chunkShader["uTextureTopdown"] = 0;
 	chunkShader["uTextureSide"] = 1;
+	chunkShader["uTime"] = (float)glfwGetTime();
 	
 	glActiveTexture(GL_TEXTURE0);
 	assetManager.getTexture("res/images/textures/floor.png")->setWrapMode(Texture::WrapMode::REPEAT);

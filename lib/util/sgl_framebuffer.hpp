@@ -2,6 +2,8 @@
 
 #include <GL/gl3w.h>
 
+#include <vector>
+
 #include "sgl_texture.hpp"
 #include "sgl_renderbuffer.hpp"
 #include "sgl_attachment.hpp"
@@ -45,15 +47,23 @@ namespace sgl {
 			void attach(sgl::texture      &texture,      sgl::attachment attachment, framebuffer::target target = framebuffer::target::both);
 			void attach(sgl::renderbuffer &renderbuffer, sgl::attachment attachment, framebuffer::target target = framebuffer::target::both);
 			
+			void targets(std::vector<sgl::attachment> atts = {});
+			
 			/**
 			 * @brief Returns if the framebuffer is complete and fully usable.
 			 * @details [long description]
-			 * @return true if the framebuffer is 
+			 * @return true if the framebuffer is complete.
 			 */
 			bool is_complete(framebuffer::target target = framebuffer::target::both);
+			
+			/**
+			 * @brief Returns the framebuffers name.
+			 * @return the framebuffers name as GLuint.
+			 */
+			operator GLuint() const { return m_handle; }
 		private:
 			GLuint m_handle;
-			
+			std::vector<sgl::attachment> m_attachments;
 	};
 	
 }

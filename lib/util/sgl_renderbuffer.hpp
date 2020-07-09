@@ -35,6 +35,8 @@ namespace sgl {
 		operator GLuint() const;
 	private:
 		GLuint m_handle;
+		GLenum m_format;
+		
 		int m_width, m_height;
 		
 	};
