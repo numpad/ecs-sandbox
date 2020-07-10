@@ -35,6 +35,8 @@ public:
 	inline float getZNear()   const { return this->znear; };
 	inline float getZFar()    const { return this->zfar; };
 	inline vec3 getToTarget() const { return this->dirToTarget; };
+	inline int getScreenWidth()  const { return this->screen_width; };
+	inline int getScreenHeight() const { return this->screen_height; };
 	
 	const mat4& getProjection() const;
 	const mat4& getHudProjection() const;

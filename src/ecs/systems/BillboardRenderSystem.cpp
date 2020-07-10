@@ -11,6 +11,7 @@ BillboardRenderSystem::BillboardRenderSystem(entt::registry &registry, std::shar
 	instanceShader.compile();
 	instanceShader.link();
 	
+	Blackboard::write("billboardShader", &instanceShader);
 }
 
 BillboardRenderSystem::~BillboardRenderSystem() {
