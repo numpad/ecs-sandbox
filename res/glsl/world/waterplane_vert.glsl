@@ -6,6 +6,11 @@ uniform mat4 uProjection;
 
 layout(location = 0) in vec3 aPosition;
 
+out vec4 vWorldPosition;
+out vec3 vNormal;
+
 void main() {
-    gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
+    vWorldPosition = uModel * vec4(aPosition, 1.0);
+    vNormal = vec3(0., 1., 0.);
+    gl_Position = uProjection * uView * vWorldPosition;
 }
