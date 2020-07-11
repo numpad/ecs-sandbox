@@ -40,6 +40,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/code")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/sol2/single/include")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/glm/glm/")
 
 file (GLOB source_files
 	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
@@ -53,7 +54,7 @@ file (GLOB source_files
 set (OpenGL_GL_PREFERENCE GLVND)
 find_package (OpenGL REQUIRED)
 find_package (glfw3 REQUIRED)
-find_package (glm REQUIRED)
+#find_package (glm REQUIRED)
 find_package (Lua REQUIRED)
 find_package (Freetype REQUIRED)
 
