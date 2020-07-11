@@ -62,6 +62,24 @@ All assets that are used in the game. Some assets currently in the project are n
 [16x16 Dungeon Tileset](https://0x72.itch.io/16x16-dungeon-tileset) | [0x72](https://0x72.itch.io/) |  CC-0   | texture / sprite
 
 
+## Resources
+An (incomplete) list of the resources I used in no particular order.
+
+ Website                                                                        | Description
+--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------
+[learnopengl.com](https://learnopengl.com/)                                     | The main resource I used for learning (modern) OpenGL.
+[docs.gl](https://docs.gl/)                                                     | Organized version of the OpenGL reference.
+[OpenGL Reference Pages](https://www.khronos.org/registry/OpenGL-Refpages/gl4/) | The official OpenGL API reference.
+[entt wiki](https://github.com/skypjack/entt/wiki)                              | The entt tutorial / API reference.
+[ECS back and forth](https://skypjack.github.io/2019-02-14-ecs-baf-part-1/)     | An ongoing series about deeper insights into the design, implementation and usage of ECS. From the author of entt.
+[open.gl](https://open.gl/)                                                     | Another resource for learning OpenGL.
+[Game programming patterns](https://gameprogrammingpatterns.com/)               | Learning about architectural patterns for game engines and games in general.
+[opengl-tutorial.org](http://www.opengl-tutorial.org/)                          | Yet another learning resource for modern OpenGL.
+[The book of shaders](https://thebookofshaders.com/)                            | A great book for learning more about the OpenGL shading language.
+[Polygonizing a scalar field.](http://paulbourke.net/geometry/polygonise/)      | The original implementation of the marching cubes algorithm.
+[0fps](https://0fps.net/)                                                       | A blog covering many topics related to game programming.
+
+
 ## License
 I have not yet decided on a license.  
 The goal of this project is mostly for learning purposes, both for me and other developers in a similar position.
