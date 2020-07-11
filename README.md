@@ -11,6 +11,7 @@ Personal entity component system (ECS) sandbox. Some day this will become a fun 
 - thousands of items. many different and unique base items, item combinations and random modifiers.
 - free, non-linear gameplay. you decide how you want to play, the game tries to be as emergent and permissive as possible while trying to give few restrictions. there is no hard goal or forced playstyle.
 
+_(Note: these are the features and goals I want to achieve, while the building blocks for most features are already set, nearly all of them are still WIP or not even implemented at all.)_
 
 ## Screenshots
 A short eye-catcher showing the latest features of the game and engine, while keeping a simple history of development milestones.
@@ -62,4 +63,7 @@ All assets that are used in the game. Some assets currently in the project are n
 
 
 ## License
-I have not yet decided on a license.
+I have not yet decided on a license.  
+The goal of this project is mostly for learning purposes, both for me and other developers in a similar position.
+But as this project grows, ultimately my plan is to release it as a real game for people to buy. Therefore it is still undecided how I want to handle open-source, monetization and everything related to this.
+Feel free to use my project as a learning resource until I come to a decision.
