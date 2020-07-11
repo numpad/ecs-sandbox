@@ -40,6 +40,6 @@ void main() {
 	}
 	
 	Color = pixel; 
-	Position = vec4(vPosition*.5+.5, pixel.a);
-	Normal = vec4(vNormal*.5+.5, pixel.a);
+	Position = vec4(vPosition, pixel.a);
+	Normal = vec4(vNormal, pixel.a);
 }

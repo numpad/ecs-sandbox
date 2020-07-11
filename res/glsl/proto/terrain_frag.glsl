@@ -57,7 +57,7 @@ void main() {
 	vec3 blend = asymTriplanarBlend(vNormal);
 	vec4 color = triplanarTexture(vPos, blend);
 	
-	Color = vec4(color.rgb, 1.0);
-	Position = vec4(vPos*.5+.5, 1.0);
-	Normal = vec4(vNormal*.5+.5, 1.0);
+	Color = vec4(color.rgb, color.a);
+	Position = vec4(vPos, color.a);
+	Normal = vec4(vNormal, color.a);
 }

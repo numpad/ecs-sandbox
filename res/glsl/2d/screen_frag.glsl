@@ -19,10 +19,10 @@ void main() {
     if (uTexChoiceActive) {
         outcolor = texture(uTexChoice, vTexCoord).rgb;
     } else {
-        float brightness = clamp(position.y, 0., 1.);
+        float brightness = clamp(position.y*.5+.5, 0., 1.);
         brightness = smoothstep(.0, .89, brightness);
         brightness = clamp(brightness, 0.1, 0.8);
         outcolor = albedo.rgb * brightness;
     }
-    Color = vec4(outcolor, 1.);
+    Color = vec4(outcolor, 1.0);
 }

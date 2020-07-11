@@ -27,6 +27,8 @@ namespace sgl {
 			rg            = GL_RG,                    /**< Store 2 components in the red and green channels. */
 			rgb           = GL_RGB,                   /**< Store 3 components in the red, green and blue channels. */
 			rgba          = GL_RGBA,                  /**< Store 4 components, RGB with alpha. Default. */
+			srgb          = GL_SRGB,                  /**< Store 3 components, automatically converting them to linear colorspace. */
+			srgba         = GL_SRGB_ALPHA,            /**< Store 4 components, automatically converting them to linear colorspace. */
 			r8            = GL_R8,                    /**< Store 1 8bit component in the red channel. */
 			rg8           = GL_RG8,                   /**< Store 2 8bit components in the red and green channels. */
 			rgb8          = GL_RGB8,                  /**< Store 3 8bit components in the red, green and blue channels. */

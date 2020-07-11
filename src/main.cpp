@@ -546,7 +546,7 @@ int main(int, char**) {
 	
 	// deferred rendering
 	sgl::texture color_buffer, position_buffer, normal_buffer;
-	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgb);
+	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgb, nullptr, sgl::texture::format::rgba, sgl::texture::datatype::u8);
 	position_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
 	position_buffer.set_filter(sgl::texture::filter::nearest);
 	normal_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
