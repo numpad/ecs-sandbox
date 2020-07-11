@@ -13,6 +13,7 @@ Personal entity component system (ECS) sandbox. Some day this will become a fun 
 
 _(Note: these are the features and goals I want to achieve, while the building blocks for most features are already set, nearly all of them are still WIP or not even implemented at all.)_
 
+
 ## Screenshots
 A short eye-catcher showing the latest features of the game and engine, while keeping a simple history of development milestones.
 ![v0.1](/website/images/screenshot-v0.1.png)
@@ -20,6 +21,7 @@ A short eye-catcher showing the latest features of the game and engine, while ke
 Version | Screenshot & Notable features
 --------|---------------------------------------------------------------------
  v0.1   | [Added basic deferred shading](/website/images/screenshot-v0.1.png)
+
 
 ## Changelog
 Keep track of the current development status on the [feature board](https://github.com/numpad/ecs-sandbox/projects/1).
@@ -41,6 +43,7 @@ All libraries included and/or required for the game. Some libraries are not yet 
 
  Library                                          | Version | License             | Description
 --------------------------------------------------|---------|---------------------|-------------
+[glm](https://glm.g-truc.net/)                    |  0.9.9  | MIT / modified MIT  | The mathematics library for vectors, matrices and everything inbetween.
 [glfw](https://www.glfw.org)                      |  3.4.0  | zlib                | Multi-platform OpenGL library for creating windows with an OpenGL context and receiving inputs.
 [entt](https://github.com/skypjack/entt)          |  3.4.0  | MIT                 | Library for the ECS architectural pattern, also comes with a great observer pattern implementation.
 [dear imgui](https://github.com/ocornut/imgui)    |  1.69   | MIT                 | GUI library for debugging and visualization.
@@ -52,6 +55,7 @@ All libraries included and/or required for the game. Some libraries are not yet 
 [gl3w](https://github.com/skaslev/gl3w)           |    ?    | public domain       | Simple OpenGL core profile loading library.
 [stb_image.h](https://github.com/nothings/stb)    |  2.22   | public domain / MIT | Image loading library.
 [FreeType 2](https://www.freetype.org/)           |  2.?    | GPLv2 / FTL         | Font rasterization library.
+[OpenAL-soft](https://openal-soft.org/)           |    ?    | LGPLv2              | A software implementation of the OpenAL 3D audio API.
 
 
 ## Assets
@@ -78,6 +82,7 @@ An (incomplete) list of the resources I used in no particular order.
 [The book of shaders](https://thebookofshaders.com/)                            | A great book for learning more about the OpenGL shading language.
 [Polygonizing a scalar field.](http://paulbourke.net/geometry/polygonise/)      | The original implementation of the marching cubes algorithm.
 [0fps](https://0fps.net/)                                                       | A blog covering many topics related to game programming.
+[glm API documentation](https://glm.g-truc.net/0.9.9/api/index.html/)           | The glm API reference.
 
 
 ## License
