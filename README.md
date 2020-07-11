@@ -1,6 +1,25 @@
 # ecs-sandbox
 Personal entity component system (ECS) sandbox. Some day this will become a fun game I want to play.
 
+
+## Features
+- realtime, completely destructible terrain using the marching cubes algorithm.
+- emergent gameplay trough flexible combinations of components.
+- performance. instanced rendering and efficient ecs design allow for updating and rendering hundreds of thousand entities.
+- first-class modding support using the lua programming language. if you don't like something, or are missing a feature you can always get your hands dirty and implement it yourself.
+- procedural generation. technically infinite replayability as a new, unique level is generated every run.
+- thousands of items. many different and unique base items, item combinations and random modifiers.
+- free, non-linear gameplay. you decide how you want to play, the game tries to be as emergent and permissive as possible while trying to give few restrictions. there is no hard goal or forced playstyle.
+
+
+## Screenshots
+A short eye-catcher showing the latest features of the game and engine, while keeping a simple history of development milestones.
+![v0.1](/website/images/screenshot-v0.1.png)
+
+Version | Screenshot & Notable features
+--------|---------------------------------------------------------------------
+ v0.1   | [Added basic deferred shading](/website/images/screenshot-v0.1.png)
+
 ## Changelog
 Keep track of the current development status on the [feature board](https://github.com/numpad/ecs-sandbox/projects/1).
 Planned, in-development and implemented features will be listed there.
@@ -16,7 +35,8 @@ This serves as a catch-all for noting any kind of bugs appearing. While not requ
 - Added deferred shading
 
 
-## Libraries and Assets
+## Libraries
+All libraries included and/or required for the game. Some libraries are not yet used but already included as they are pretty much guaranteed to be of use.
 
  Library                                          | Version | License             | Description
 --------------------------------------------------|---------|---------------------|-------------
@@ -32,9 +52,13 @@ This serves as a catch-all for noting any kind of bugs appearing. While not requ
 [stb_image.h](https://github.com/nothings/stb)    |  2.22   | public domain / MIT | Image loading library.
 [FreeType 2](https://www.freetype.org/)           |  2.?    | GPLv2 / FTL         | Font rasterization library.
 
- Asset                                                              | Creator                       | Category
---------------------------------------------------------------------|-------------------------------|------------------
-[16x16 Dungeon Tileset](https://0x72.itch.io/16x16-dungeon-tileset) | [0x72](https://0x72.itch.io/) | texture / sprite
+
+## Assets
+All assets that are used in the game. Some assets currently in the project are not meant to be in the final release (because of licensing problems, or simply because they do not fit the game and are just an experiment or for debugging purposes) and will soon be completely removed. Assets listed in the table below are planned for the final release.
+
+ Asset                                                              | Creator                       | License | Category
+--------------------------------------------------------------------|-------------------------------|---------|------------------
+[16x16 Dungeon Tileset](https://0x72.itch.io/16x16-dungeon-tileset) | [0x72](https://0x72.itch.io/) |  CC-0   | texture / sprite
 
 
 ## License
