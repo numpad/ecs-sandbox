@@ -42,6 +42,20 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/sol2/single/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/glm/glm/")
 
+# glfw
+set (GLFW_BUILD_DOCS OFF)
+set (GLFW_INSTALL OFF)
+add_subdirectory (lib/glfw)
+
+# assimp
+set (ZLIB_LIBRARIES zlibstatic)
+set (BUILD_SHARED_LIBS OFF)
+set (ASSIMP_NO_EXPORT ON)
+set (ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set (ASSIMP_BUILD_TESTS OFF)
+set (ASSIMP_INSTALL OFF)
+add_subdirectory (lib/assimp)
+
 file (GLOB source_files
 	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
 	"${PROJECT_SOURCE_DIR}/*.cpp"
@@ -53,19 +67,8 @@ file (GLOB source_files
 
 set (OpenGL_GL_PREFERENCE GLVND)
 find_package (OpenGL REQUIRED)
-find_package (glfw3 REQUIRED)
-#find_package (glm REQUIRED)
 find_package (Lua REQUIRED)
 find_package (Freetype REQUIRED)
-
-#add_subdirectory (lib/assimp)
-set(ZLIB_LIBRARIES zlibstatic)
-set(ENABLE_BOOST_WORKAROUND ON)
-set(BUILD_STATIC_LIB ON)
-set(BUILD_ASSIMP_TOOLS  ON)
-set(ASSIMP_BUILD_STATIC_LIB ON)
-find_package (assimp REQUIRED)
-
 
 add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
 target_link_libraries (${CMAKE_PROJECT_NAME}
