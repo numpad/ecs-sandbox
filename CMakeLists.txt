@@ -56,6 +56,17 @@ set (ASSIMP_BUILD_TESTS OFF)
 set (ASSIMP_INSTALL OFF)
 add_subdirectory (lib/assimp)
 
+# openal
+set (ALSOFT_EXAMPLES OFF)
+set (ALSOFT_INSTALL OFF)
+set (ALSOFT_INSTALL_CONFIG OFF)
+set (ALSOFT_INSTALL_HRTF_DEFS OFF)
+set (ALSOFT_INSTALL_AMBDEC_PRESETS OFF)
+set (ALSOFT_INSTALL_EXAMPLES OFF)
+set (ALSOFT_INSTALL_UTILS OFF)
+set (ALSOFT_UPDATE_BUILD_VERSION OFF)
+add_subdirectory (lib/openal_soft)
+
 file (GLOB source_files
 	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
 	"${PROJECT_SOURCE_DIR}/*.cpp"
@@ -77,6 +88,7 @@ target_link_libraries (${CMAKE_PROJECT_NAME}
                        dl
                        assimp
                        pthread
+                       openal
                        ${LUA_LIBRARIES}
                        ${FREETYPE_LIBRARIES}
 )
