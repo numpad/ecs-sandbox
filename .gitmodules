@@ -22,3 +22,4 @@
 [submodule "lib/openal_soft"]
 	path = lib/openal_soft
 	url = https://github.com/kcat/openal-soft.git
+	ignore = dirty
