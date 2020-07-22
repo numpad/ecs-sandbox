@@ -57,6 +57,7 @@ set (ASSIMP_INSTALL OFF)
 add_subdirectory (lib/assimp)
 
 # openal
+set (ALSOFT_UTILS OFF)
 set (ALSOFT_EXAMPLES OFF)
 set (ALSOFT_INSTALL OFF)
 set (ALSOFT_INSTALL_CONFIG OFF)
