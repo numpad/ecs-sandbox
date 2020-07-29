@@ -90,3 +90,4 @@ I have not yet decided on a license.
 The goal of this project is mostly for learning purposes, both for me and other developers in a similar position.
 But as this project grows, ultimately my plan is to release it as a real game for people to buy. Therefore it is still undecided how I want to handle open-source, monetization and everything related to this.
 Feel free to use my project as a learning resource until I come to a decision.
+
