@@ -122,6 +122,7 @@ inline void imguiInit(GLFWwindow *window) {
 		// imgui glfw init
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 450");
+		printf("[INIT] dear imgui %s\n", ImGui::GetVersion());
 	#endif
 }
 inline void imguiBeforeFrame() {
@@ -151,14 +152,14 @@ bool initGL() {
 	#else
 		const char *cfg_debug_state = "Release build";
 	#endif
-	printf("%s version: %d.%d (%s)\n", CFG_PROJECT_NAME, CFG_VERSION_MAJOR, CFG_VERSION_MINOR, cfg_debug_state);
+	printf("[INIT] %s version: %d.%d (%s)\n", CFG_PROJECT_NAME, CFG_VERSION_MAJOR, CFG_VERSION_MINOR, cfg_debug_state);
 	
 	if (!glfwInit()) {
 		fprintf(stderr, "glfwInit() failed.\n");
 		return false;
 	}
 	
-	printf("Initialized GLFW %s\n", glfwGetVersionString());
+	printf("[INIT] GLFW %s\n", glfwGetVersionString());
 	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -188,7 +189,7 @@ bool initWindow(GLFWwindow **window, int width, int height) {
 		fprintf(stderr, "gl3wInit() failed.\n");
 		return false;
 	}
-	printf("OpenGL %s, GLSL %s\n",
+	printf("[INIT] OpenGL %s, GLSL %s\n",
 		glGetString(GL_VERSION),
 		glGetString(GL_SHADING_LANGUAGE_VERSION));
 	
