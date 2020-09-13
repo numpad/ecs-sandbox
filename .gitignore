@@ -13,4 +13,4 @@ Makefile
 imgui.ini
 compile_commands.json
 run.sh
-
+.vscode/
