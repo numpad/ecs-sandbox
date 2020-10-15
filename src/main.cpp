@@ -120,14 +120,13 @@ glm::vec3 calcCamPos(GLFWwindow *window) {
 }
 
 int main(int, char**) {
-	Window window;
-	
 	// disable buffering for stdout (fixes sublime text console)
 	#if CFG_DEBUG
 		setbuf(stdout, nullptr);
 	#endif
 	
 	// init gl and window
+	Window window;
 	if (!Window::Init()) std::cerr << "[INIT] Window::Init() failed." << std::endl;
 	if (!window.create(930, 640)) std::cerr << "[INIT] window.create() failed." << std::endl;
 	imguiInit(window);
@@ -337,16 +336,15 @@ int main(int, char**) {
 
 	/* cleanup */
 	world.destroy();
-	
 	defaultFont.destroy();
-	Font::Destroy();
+	window.destroy();
 	
 	glDeleteBuffers(1, &svbo);
 	glDeleteVertexArrays(1, &svao);
 	
-	window.destroy();
+	Font::Destroy();
 	Window::Destroy();
 	imguiDestroy();
-	printf("\ncleanup complete, quitting now...\n\n");
+	std::cout << "[SYS]" << "cleanup complete, quitting now..." << std::endl;
 	return 0;
 }
