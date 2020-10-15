@@ -55,7 +55,9 @@ void BillboardRenderSystem::draw() {
 	cregistry.view<const CPosition, const CBillboard>().each(
 		[this](auto entity, auto &pos, auto &bb) {
 		
-		this->aInstanceModels.push_back(Billboard::calcModelMatrix(this->camera->getView(), pos.pos, bb.size));
+		glm::mat4 modelmatrix = Billboard::calcModelMatrix(this->camera->getView(), pos.pos, bb.size);
+		
+		this->aInstanceModels.push_back(modelmatrix);
 		this->aInstanceColors.push_back(bb.color);
 		this->aInstanceTexOffsets.push_back(bb.getSubRect());
 		
