@@ -124,8 +124,62 @@ void World::load() {
 void World::update() {
 	// update systems
 	charControllerSystem.update(registry, -camera->getToTarget());
-	for (auto &sys : updateSystems) sys->update();
 	
+	#if CFG_DEBUG
+		Benchmark update_benchmark;
+		static std::unordered_map<const char *, std::vector<double>> exec_time;
+	#endif
+
+	for (auto &sys : updateSystems) {
+		#if CFG_DEBUG
+			update_benchmark.start();
+		#endif
+
+		sys->update();
+		
+		#if CFG_DEBUG
+			update_benchmark.stop();
+			if (exec_time.find(typeid(*sys).name()) == exec_time.end()) {
+				exec_time[typeid(*sys).name()] = std::vector<double>();
+			}
+			exec_time[typeid(*sys).name()].push_back(update_benchmark.ms());
+		#endif
+	}
+	
+	#if CFG_DEBUG
+		if (ImGui::Begin("Systems")) {
+			using namespace ImGui;
+			static int vals = 60;
+			InputInt("last x values", &vals, 1);
+
+			Columns(4);
+			Text("SYSTEM"); NextColumn();
+			Text("t"); NextColumn();
+			Text("avg"); NextColumn();
+			Text("min/max"); NextColumn();
+
+			for (auto &it : exec_time) {
+				Text("%s", it.first);
+				NextColumn();
+				Text("%.3fms", it.second.back());
+				NextColumn();
+				double total = 0.0;
+				double min = std::numeric_limits<double>::max();
+				double max = std::numeric_limits<double>::min();
+				for (auto it2 = it.second.end() - vals; it2 != it.second.end(); ++it2) {
+					total += *it2;
+					min = std::min(min, *it2);
+					max = std::max(max, *it2);
+				}
+				Text("%.3fms", total / double(vals));
+				NextColumn();
+				Text("%.3fms/%.3fms", min, max);
+				NextColumn();
+			}
+		}
+		ImGui::End();
+	#endif
+
 	#if CFG_DEBUG
 		if (!registry.valid(player) && this->is_loaded()) {
 			spawnPlayer();

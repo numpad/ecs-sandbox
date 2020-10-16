@@ -296,7 +296,7 @@ int main(int, char**) {
 		}
 		
 		#if CFG_IMGUI_ENABLED
-			static int settings_attachment = GL_COLOR_ATTACHMENT2;
+			static int settings_attachment = 0;
 			imguiRenderMenuBar(window, world, crosspos, topdown, camera, msPerFrame, settings_attachment);
 		#endif
 		
