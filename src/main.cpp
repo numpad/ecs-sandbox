@@ -16,10 +16,6 @@
 #include <util/sgl_texture.hpp>
 #include <util/sgl_renderbuffer.hpp>
 #include <util/sgl_attachment.hpp>
-#include <util/sgl_audio_listener.hpp>
-#include <util/sgl_audio_source.hpp>
-#include <util/sgl_audio.hpp>
-#include <dr/dr_wav.h>
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_glfw.h>
 #include <imgui/examples/imgui_impl_opengl3.h>
@@ -216,29 +212,6 @@ int main(int, char**) {
 	screen_shader["uTexColor"] = 0;
 	screen_shader["uTexPosition"] = 1;
 	screen_shader["uTexNormal"] = 2;
-	
-	/* audio test */
-	auto audio_outputs = sgl::audio_listener::get_available();
-	std::cout << "Listing available audio output devices." << std::endl;
-	for (auto out : audio_outputs) {
-		std::cout << " * " << out << std::endl;
-	}
-	
-	sgl::audio_listener listener;
-	sgl::audio_source source;
-	sgl::audio audio;
-	unsigned int channels;
-	unsigned int sampleRate;
-	drwav_uint64 totalPCMFrameCount;
-	short *pSampleData = drwav_open_file_and_read_pcm_frames_s16("res/audio/sfx/hit.wav", &channels, &sampleRate, &totalPCMFrameCount, NULL);
-	if (pSampleData == NULL) {
-		std::cout << "[ERR] DRWAV: Could not read file." << std::endl;
-	}
-	
-	audio.load(sgl::audio::format::mono16, sampleRate, totalPCMFrameCount * channels * sizeof(short), pSampleData);
-	drwav_free(pSampleData, nullptr);
-	source.set_buffer(audio);
-	source.play();
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
