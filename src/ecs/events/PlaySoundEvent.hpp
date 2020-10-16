@@ -4,4 +4,5 @@
 
 struct PlaySoundEvent {
 	std::string name;
+	float pitch = 1.f;
 };

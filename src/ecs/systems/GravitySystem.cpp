@@ -15,6 +15,8 @@ GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<Sig
 
 void GravitySystem::entityKilled(const KillEntityEvent &e) {
 	registry.ctx<entt::dispatcher>().trigger<LogEvent>("Entity killed: " + e.how, LogEvent::LOG);
+	static Random random(0.8f, 1.2f);
+	registry.ctx<entt::dispatcher>().trigger<PlaySoundEvent>("ouch.wav", random());
 	
 	if (registry.has<CSpawnPoint>(e.which)) {
 		auto [pos, vel] = registry.get<CPosition, CVelocity>(e.which);
