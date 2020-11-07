@@ -1,4 +1,4 @@
-#include "sgl_texture.hpp"
+#include "sgl/sgl_texture.hpp"
 
 sgl::texture::texture() {
 	glGenTextures(1, &m_handle);

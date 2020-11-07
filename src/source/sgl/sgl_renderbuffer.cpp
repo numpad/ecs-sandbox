@@ -1,4 +1,4 @@
-#include "sgl_renderbuffer.hpp"
+#include "sgl/sgl_renderbuffer.hpp"
 
 sgl::renderbuffer::renderbuffer() {
 	glGenRenderbuffers(1, &m_handle);

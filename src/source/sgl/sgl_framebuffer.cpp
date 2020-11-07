@@ -1,4 +1,4 @@
-#include "sgl_framebuffer.hpp"
+#include "sgl/sgl_framebuffer.hpp"
 
 ////////////
 // PUBLIC //

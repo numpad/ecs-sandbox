@@ -1,4 +1,4 @@
-#include "sgl_audio.hpp"
+#include "sgl/sgl_audio.hpp"
 #include <iostream>
 
 sgl::audio::audio() {

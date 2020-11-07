@@ -1,4 +1,4 @@
-#include "sgl_attachment.hpp"
+#include "sgl/sgl_attachment.hpp"
 
 sgl::attachment sgl::attachment::color(int i) {
 	#if CFG_DEBUG

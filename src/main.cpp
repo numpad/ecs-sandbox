@@ -11,11 +11,11 @@
 #include <GLFW/glfw3.h>
 #include <FastNoise/FastNoise.h>
 #include <stb/stb_image.h>
-#include <util/sgl_shader.hpp>
-#include <util/sgl_framebuffer.hpp>
-#include <util/sgl_texture.hpp>
-#include <util/sgl_renderbuffer.hpp>
-#include <util/sgl_attachment.hpp>
+#include <sgl/sgl_shader.hpp>
+#include <sgl/sgl_framebuffer.hpp>
+#include <sgl/sgl_texture.hpp>
+#include <sgl/sgl_renderbuffer.hpp>
+#include <sgl/sgl_attachment.hpp>
 #include <imgui/imgui.h>
 #include <imgui/examples/imgui_impl_glfw.h>
 #include <imgui/examples/imgui_impl_opengl3.h>

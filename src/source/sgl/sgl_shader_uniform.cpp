@@ -1,4 +1,4 @@
-#include "sgl_shader_uniform.hpp"
+#include "sgl/sgl_shader_uniform.hpp"
 
 void sgl::shader_uniform::use_program()
 {
