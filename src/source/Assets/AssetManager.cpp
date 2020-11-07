@@ -31,12 +31,20 @@ AssetManager::~AssetManager() {
 		delete m;
 		m = nullptr;
 	}
+
+	int freedAudios = 0;
+	for (auto iter : audios) {
+		++freedAudios;
+		delete iter.second;
+		iter.second = nullptr;
+	}
 	
 	#if CFG_DEBUG
 		printf("[LOG] AssetManager: freed %d textures.\n", freedTextures);
 		printf("[LOG] AssetManager: freed %d tiledtextures.\n", freedTiledTextures);
 		printf("[LOG] AssetManager: freed %d models.\n", freedModels);
 		printf("[LOG] AssetManager: freed %d meshes.\n", freedMeshes);
+		printf("[LOG] AssetManager: freed %d audios.\n", freedAudios);
 	#endif
 }
 
@@ -282,4 +290,55 @@ Model *AssetManager::getModel(std::string path) {
 	}
 	
 	return models.at(path);
+}
+
+// audio loading
+
+bool AssetManager::loadAudio(std::string path) {
+	// TODO: check for filetype and decide which loader to use
+	return loadAudioWAV(path);
+}
+
+sgl::audio *AssetManager::getAudio(std::string path) {
+	auto audio = audios.find(path);
+	if (audio == audios.end()) {
+		bool is_loaded = loadAudio(path);
+		if (!is_loaded) {
+			#if CFG_DEBUG
+				printf("[WARN] AssetManager: getAudio(path) could not load:\n  path = \"%s\"!\n", path.c_str());
+			#endif
+			return nullptr;
+		}
+	}
+	
+	return audios.at(path);
+}
+
+bool AssetManager::loadAudioWAV(std::string path) {
+	unsigned int channels;
+	unsigned int sampleRate;
+	drwav_uint64 totalPCMFrameCount;
+	short *pSampleData = drwav_open_file_and_read_pcm_frames_s16(path.c_str(), &channels, &sampleRate, &totalPCMFrameCount, nullptr);
+	if (pSampleData == nullptr) {
+		std::cout << "[ERR] DRWAV: Could not read file '" << path << "'." << std::endl;
+		return false;
+	}
+	
+	// TODO: add support for 8 bit audio files.
+	sgl::audio::format audio_fmt;
+	switch (channels) {
+		case 1:
+			audio_fmt = sgl::audio::format::mono16;
+			break;
+		case 2:
+			audio_fmt = sgl::audio::format::stereo16;
+			break;
+	};
+
+	sgl::audio *audio = new sgl::audio;
+	audio->load(audio_fmt, sampleRate, totalPCMFrameCount * channels * sizeof(short), pSampleData);
+	drwav_free(pSampleData, nullptr);
+
+	audios[path] = audio;
+	return true;
 }

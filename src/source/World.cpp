@@ -272,7 +272,7 @@ void World::loadSystems() {
 	updateSystems.push_back(billboardRenderSystem);
 	updateSystems.push_back(textRenderSystem);
 	updateSystems.push_back(primitiveRenderer);
-	updateSystems.emplace_back(new AudioSystem(registry));
+	updateSystems.emplace_back(new AudioSystem(registry, assetManager));
 	
 	// and render systems
 	renderSystems.push_back(billboardRenderSystem);
