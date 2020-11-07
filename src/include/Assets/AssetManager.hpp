@@ -11,11 +11,14 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <dr/dr_wav.h>
+#include <util/sgl_audio.hpp>
 
 #include <Assets/Texture.hpp>
 #include <Assets/TiledTexture.hpp>
 #include <Assets/Model.hpp>
 #include <Assets/Mesh.hpp>
+
 
 class AssetManager {
 public:
@@ -37,6 +40,7 @@ public:
 	
 	Model *getModel(std::string path);
 	
+	sgl::audio *getAudio(std::string path);
 	
 private:
 	std::string base_path;
@@ -44,6 +48,7 @@ private:
 	std::unordered_map<std::string, Texture *> textures;
 	std::map<std::tuple<std::string, unsigned int, unsigned int, int, int>, TiledTexture *> tiledtextures;
 	std::unordered_map<std::string, Model *> models;
+	std::unordered_map<std::string, sgl::audio *> audios;
 	std::vector<Mesh *> meshes;
 	
 	// loading data
@@ -52,9 +57,12 @@ private:
 		unsigned int tiles_w, unsigned int tiles_h, int tile_x = 0, int tile_y = 0,
 		Texture::Flags flags = Texture::Flags::NONE);
 	bool loadModel(std::string path);
-	
+	bool loadAudio(std::string path);
+
+	// load different formats
+	bool loadAudioWAV(std::string path);
+
 	Mesh *collectMesh(Mesh *m);
-	
 	void collectMeshes(Model &model, aiNode *node, const aiScene *scene);
 	Mesh *convertAndCollectMesh(aiMesh *mesh, const aiScene *scene);
 	std::vector<Texture *> convertAndCollectMaterialTextures(
