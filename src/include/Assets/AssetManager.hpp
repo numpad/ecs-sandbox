@@ -12,7 +12,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <dr/dr_wav.h>
-#include <util/sgl_audio.hpp>
+#include <sgl/sgl_audio.hpp>
 
 #include <Assets/Texture.hpp>
 #include <Assets/TiledTexture.hpp>

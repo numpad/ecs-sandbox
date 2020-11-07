@@ -12,7 +12,7 @@
 #include <glm/glm.hpp>
 #include <GL/gl3w.h>
 
-#include <util/sgl_shader.hpp>
+#include <sgl/sgl_shader.hpp>
 
 using namespace glm;
 

@@ -8,9 +8,9 @@
 
 #include <entt/entt.hpp>
 #include <dr/dr_wav.h>
-#include <util/sgl_audio_listener.hpp>
-#include <util/sgl_audio_source.hpp>
-#include <util/sgl_audio.hpp>
+#include <sgl/sgl_audio_listener.hpp>
+#include <sgl/sgl_audio_source.hpp>
+#include <sgl/sgl_audio.hpp>
 
 #include <ecs/systems/BaseUpdateSystem.hpp>
 #include <ecs/events.hpp>

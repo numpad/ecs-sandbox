@@ -5,7 +5,7 @@
 #include <GL/gl3w.h>
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
-#include <util/sgl_shader.hpp>
+#include <sgl/sgl_shader.hpp>
 #include <ecs/systems.hpp>
 #include <ecs/components.hpp>
 #include <ecs/events.hpp>

@@ -17,7 +17,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <entt/entt.hpp>
-#include <util/sgl_shader.hpp>
+#include <sgl/sgl_shader.hpp>
 
 #include <Grid2D.hpp>
 

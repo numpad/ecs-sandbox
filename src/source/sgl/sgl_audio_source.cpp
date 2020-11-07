@@ -1,4 +1,4 @@
-#include "sgl_audio_source.hpp"
+#include "sgl/sgl_audio_source.hpp"
 
 ////////////
 // PUBLIC //

@@ -11,7 +11,7 @@
 #include <Terrain/CubeMarcher.hpp>
 #include <Util/Math3d.hpp>
 #include <Grid2D.hpp>
-#include <util/sgl_shader.hpp>
+#include <sgl/sgl_shader.hpp>
 
 using namespace glm;
 

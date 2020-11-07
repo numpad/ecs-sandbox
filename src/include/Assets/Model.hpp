@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <util/sgl_shader.hpp>
+#include <sgl/sgl_shader.hpp>
 #include <Assets/Mesh.hpp>
 
 class Model {

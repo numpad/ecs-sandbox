@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
 #include <imgui/imgui.h>
-#include <util/sgl_shader.hpp>
+#include <sgl/sgl_shader.hpp>
 
 #include <ecs/systems/BaseUpdateSystem.hpp>
 #include <ecs/systems/BaseRenderSystem.hpp>

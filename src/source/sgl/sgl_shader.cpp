@@ -1,4 +1,4 @@
-#include "sgl_shader.hpp"
+#include "sgl/sgl_shader.hpp"
 
 sgl::shader::shader(std::string fname_vert, std::string fname_frag)
 {
