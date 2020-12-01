@@ -87,14 +87,14 @@ public:
 private:
 	entt::registry registry;
 	std::shared_ptr<Camera> camera;
-	
+	GLFWwindow *m_window;
+
 	// loading
 	bool loaded = false; // is the terrain etc. loaded?
 	
 	// grid
 	Grid2D<SignedDistTerrain> tileGrid;
-	ChunkedWorld chunkedWorld;
-	sgl::shader chunkShader;
+	std::shared_ptr<ChunkedWorld> chunkedWorld;
 		
 	// entities
 	entt::entity player = entt::null,
@@ -105,7 +105,6 @@ private:
 	// systems
 	std::vector<std::shared_ptr<BaseUpdateSystem>> updateSystems;
 	std::vector<std::shared_ptr<BaseRenderSystem>> renderSystems;
-	CharacterController charControllerSystem;
 	std::unique_ptr<LogSystem> logEventSystem;
 	
 	void loadSystems();
@@ -114,7 +113,6 @@ private:
 	sgl::shader floorShader;
 	void setupFloor();
 	void destroyFloor();
-	void drawFloor();
 	
 	AssetManager assetManager;
 	

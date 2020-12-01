@@ -4,20 +4,13 @@ using namespace glm;
 
 World::World(GLFWwindow *window, std::shared_ptr<Camera> camera)
 	: camera(camera),
-	chunkedWorld(vec3(2.f)),
-	charControllerSystem(window)
+	m_window{window}
 {
 	registry.set<entt::dispatcher>();
-	
+	chunkedWorld = std::make_shared<ChunkedWorld>(vec3(2.f, 1.f, 2.f));
+
 	// load systems
 	loadSystems();
-	
-	// load terrain shader
-	chunkShader.load("res/glsl/proto/terrain_vert.glsl", sgl::shader::VERTEX);
-	chunkShader.load("res/glsl/proto/terrain_frag.glsl", sgl::shader::FRAGMENT);
-	chunkShader.compile();
-	chunkShader.link();
-	Blackboard::write("chunkShader", &chunkShader);
 }
 
 World::~World() {
@@ -122,9 +115,6 @@ void World::load() {
 }
 
 void World::update() {
-	// update systems
-	charControllerSystem.update(registry, -camera->getToTarget());
-	
 	#if CFG_DEBUG
 		Benchmark update_benchmark;
 		static std::unordered_map<const char *, std::vector<double>> exec_time;
@@ -214,8 +204,8 @@ void World::draw() {
 		}
 		
 		if (ImGui::Button("Edit")) {
-			ivec2 chunkPos = chunkedWorld.getTerrain().worldPosToChunk(pos);
-			SignedDistTerrain *e = (SignedDistTerrain *)chunkedWorld.getTerrain().getChunkGrid().at(chunkPos);
+			ivec2 chunkPos = chunkedWorld->getTerrain().worldPosToChunk(pos);
+			SignedDistTerrain *e = (SignedDistTerrain *)chunkedWorld->getTerrain().getChunkGrid().at(chunkPos);
 			if (!e) {
 				e = new SignedDistTerrain();
 			}
@@ -225,13 +215,12 @@ void World::draw() {
 			} else if (vtype == vcube) {
 				e->box(pos, r, (SignedDistTerrain::Op)vop);
 			}
-			chunkedWorld.update(chunkPos, e);
+			chunkedWorld->update(chunkPos, e);
 		}
 	}
 	ImGui::End();
 	
 	//BM_START(rendering, 30);
-	drawFloor();
 	for (auto &sys : renderSystems) sys->draw();
 	//BM_STOP(rendering);
 	
@@ -264,6 +253,7 @@ void World::loadSystems() {
 	auto primitiveRenderer = std::make_shared<PrimitiveRenderSystem>(registry, camera);
 	
 	// create update systems
+	updateSystems.emplace_back(new CharacterControllerSystem(registry, m_window, &camera));
 	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f, tileGrid));
 	updateSystems.emplace_back(new RandomJumpSystem(registry, 0.003f));
 	updateSystems.push_back(wayfindSystem);
@@ -275,6 +265,8 @@ void World::loadSystems() {
 	updateSystems.emplace_back(new AudioSystem(registry, assetManager));
 	
 	// and render systems
+	renderSystems.emplace_back(new TerrainRenderSystem(registry, camera, assetManager, chunkedWorld));
+	renderSystems.emplace_back(new DecalRenderSystem(registry, camera));
 	renderSystems.push_back(billboardRenderSystem);
 	renderSystems.push_back(textRenderSystem);
 	renderSystems.push_back(wayfindSystem);
@@ -302,7 +294,7 @@ void World::setupFloor() {
 				sd->sphere(vec3(.0f, .3f, .0f), 0.7f, SignedDistTerrain::Op::DIFF);
 			}
 			
-			chunkedWorld.set(ivec2(x, y), sd);
+			chunkedWorld->set(ivec2(x, y), sd);
 		}
 		auto rng = r();
 		if (rng < 0.25) x--;
@@ -311,17 +303,15 @@ void World::setupFloor() {
 		else y++;
 		if (tileGrid.at(x, y) != nullptr) i--;
 		else {
-			for (int j = 0; j < int(r() * 4.f); ++j) {
-				spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
-			}
+			spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
 		}
 	}
 	
 	double starttime = glfwGetTime();
 	size_t i = 0;
-	chunkedWorld.getTerrain().getChunkGrid().each([this, &i, gen_n_chunks](int x, int y, Terrain *terrain) {
+	chunkedWorld->getTerrain().getChunkGrid().each([this, &i, gen_n_chunks](int x, int y, Terrain *terrain) {
 		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generating chunk " + std::to_string(i++) + "/" + std::to_string(gen_n_chunks), LogEvent::LOG);
-		this->chunkedWorld.polygonizeChunk(ivec2(x, y));
+		this->chunkedWorld->polygonizeChunk(ivec2(x, y));
 	});
 	#if CFG_DEBUG
 		double endtime = glfwGetTime();
@@ -331,27 +321,5 @@ void World::setupFloor() {
 }
 
 void World::destroyFloor() {
-	chunkedWorld.destroy();
-}
-
-void World::drawFloor() {
-	chunkShader["uProj"] = camera->getProjection();
-	chunkShader["uView"] = camera->getView();
-	chunkShader["uModel"] = glm::mat4(1.f);
-	chunkShader["uTextureTopdownScale"] = 2.0f;
-	chunkShader["uTextureSideScale"] = 2.0f;
-	chunkShader["uTextureTopdown"] = 0;
-	chunkShader["uTextureSide"] = 1;
-	chunkShader["uTime"] = (float)glfwGetTime();
-	
-	glActiveTexture(GL_TEXTURE0);
-	assetManager.getTexture("res/images/textures/floor.png")->setWrapMode(Texture::WrapMode::REPEAT);
-	assetManager.getTexture("res/images/textures/floor.png")->bind();
-	
-	glActiveTexture(GL_TEXTURE1);
-	assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
-	assetManager.getTexture("res/images/textures/wall.png")->bind();
-	
-	chunkedWorld.draw(chunkShader);
-	
+	chunkedWorld->destroy();
 }

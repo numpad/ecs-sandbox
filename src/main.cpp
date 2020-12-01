@@ -150,13 +150,15 @@ int main(int, char**) {
 	//ScriptBinder::luaTest();
 	
 	// deferred rendering
-	sgl::texture color_buffer, position_buffer, normal_buffer;
-	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgb, nullptr, sgl::texture::format::rgba, sgl::texture::datatype::u8);
+	sgl::texture color_buffer, position_buffer, normal_buffer, depth_buffer;
+	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba, nullptr, sgl::texture::format::rgba, sgl::texture::datatype::u8);
 	position_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
 	position_buffer.set_filter(sgl::texture::filter::nearest);
 	normal_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
 	normal_buffer.set_filter(sgl::texture::filter::nearest);
-	
+	depth_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
+	depth_buffer.set_filter(sgl::texture::filter::nearest);
+
 	sgl::renderbuffer depthstencil_buffer;
 	depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
 	
@@ -169,6 +171,7 @@ int main(int, char**) {
 	screen_fbo.attach(color_buffer, sgl::attachment::color(0));
 	screen_fbo.attach(position_buffer, sgl::attachment::color(1));
 	screen_fbo.attach(normal_buffer, sgl::attachment::color(2));
+	screen_fbo.attach(depth_buffer, sgl::attachment::color(3));
 	screen_fbo.attach(depthstencil_buffer, sgl::attachment::depth_stencil());
 	screen_fbo.targets();
 	
@@ -212,6 +215,7 @@ int main(int, char**) {
 	screen_shader["uTexColor"] = 0;
 	screen_shader["uTexPosition"] = 1;
 	screen_shader["uTexNormal"] = 2;
+	screen_shader["uTexDepth"] = 3;
 	
 	/* draw loop */
 	double msLastTime = glfwGetTime();
@@ -220,7 +224,7 @@ int main(int, char**) {
 		// poll events
 		glfwPollEvents();
 		imguiBeforeFrame();
-		
+
 		// calc time
 		double msCurrentTime = glfwGetTime();
 		static float msPerFrame = 0.0f;
@@ -277,6 +281,7 @@ int main(int, char**) {
 		color_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
 		position_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
 		normal_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
+		depth_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
 		depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
 		
 		// rendering
@@ -285,6 +290,11 @@ int main(int, char**) {
 		glClearColor(.231f, .275f, .302f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		// TODO: dont hardcode this, also referenced in DecalRenderSystem::draw().
+		//       the gbuffer should be easily available in all BaseRenderSystems
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_2D, position_buffer);
+
 		// actual rendering
 		if (world.is_loaded()) {
 			world.update();
@@ -302,9 +312,12 @@ int main(int, char**) {
 			screen_shader["uTexColor"] = 0;
 			screen_shader["uTexPosition"] = 1;
 			screen_shader["uTexNormal"] = 2;
+			screen_shader["uTexDepth"] = 3;
 		#else
 			const GLint display_texture = color_buffer;
 		#endif
+		screen_shader["uTime"] = (float)glfwGetTime();
+
 		GLint pmode;
 		glGetIntegerv(GL_POLYGON_MODE, &pmode);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -320,6 +333,8 @@ int main(int, char**) {
 		glBindTexture(GL_TEXTURE_2D, position_buffer);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, normal_buffer);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, depth_buffer);
 		glActiveTexture(GL_TEXTURE5);
 		glBindTexture(GL_TEXTURE_2D, display_texture);
 		

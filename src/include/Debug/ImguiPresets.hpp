@@ -106,6 +106,25 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			registry.remove<CHealth>(entity);
 		}
 	}
+
+	if (registry.has<CDecal>(entity)) {
+		Text("Decal");
+		auto &decal = registry.get<CDecal>(entity);
+		DragFloat3("size##sizedecal", &decal.size[0], 0.001f);
+		if (Button("X##9")) {
+			registry.remove<CDecal>(entity);
+		}
+	}
+
+	if (registry.has<COrientation>(entity)) {
+		auto &orient = registry.get<COrientation>(entity);
+		SliderFloat3("Orient", &orient.orientation[0], -1.f, 1.f);
+		SliderFloat("Amount", &orient.amount, 0.f, 1.f);
+		if (Button("X##10")) {
+			registry.remove<COrientation>(entity);
+		}
+	}
+
 	if (Button("Send Message")) {
 		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(entity, vec3(0.f, .25f, 0.f), L"Hello", 60 * 4);
 	}
@@ -132,7 +151,12 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	static int spawnamount = 1;
 	static float spawnveloff = 0.02f;
 	static int max_hp = 10;
-	
+	static glm::vec3 size(1.f);
+	static char decal_texpath[512] = "res/images/decals/explosion.png";
+	static glm::vec4 subrect(0.f, 0.f, 1.f, 1.f);
+	static glm::vec3 orient(0.f, 1.f, 0.f);
+	static float orient_amount = 0.f;
+
 	static bool haspos = true,
 				hasvel = true,
 				hasgrav = true,
@@ -143,7 +167,9 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				haskeyboard = false,
 				hasspawn = false,
 				hasjumper = true,
-				hashealth = true;
+				hashealth = true,
+				hasdecal = false,
+				hasorientation = false;
 	
 	if (BeginMenu("Spawn...")) {
 		Checkbox("CPosition", &haspos);
@@ -156,6 +182,8 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		Checkbox("CSpawnPoint", &hasspawn);
 		Checkbox("CJumpTimer", &hasjumper);
 		Checkbox("CHealth", &hashealth);
+		Checkbox("CDecal", &hasdecal);
+		Checkbox("COrientation", &hasorientation);
 		
 		Separator();
 		
@@ -215,6 +243,21 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				EndMenu();
 			}
 		}
+		if (hasdecal) {
+			if (BeginMenu("CDecal")) {
+				DragFloat3("Size", &size[0], 0.001f);
+				InputText("Path", decal_texpath, 512);
+				SliderFloat4("Subrect", &subrect[0], 0.f, 1.f);
+				EndMenu();
+			}
+		}
+		if (hasorientation) {
+			if (BeginMenu("COrientation")) {
+				SliderFloat3("Orient", &orient[0], -1.f, 1.f);
+				SliderFloat("Amount", &orient_amount, 0.f, 1.f);
+				EndMenu();
+			}
+		}
 		
 		Separator();
 		SliderInt("Amount", &spawnamount, 1, 50);
@@ -255,6 +298,8 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 			if (hasspawn) registry.emplace<CSpawnPoint>(entity, spawnpoint);
 			if (hasjumper) registry.emplace<CJumpTimer>(entity);
 			if (hashealth) registry.emplace<CHealth>(entity, max_hp);
+			if (hasdecal) registry.emplace<CDecal>(entity, size, world.getAssetManager().getTexture(decal_texpath), subrect);
+			if (hasorientation) registry.emplace<COrientation>(entity, orient, orient_amount);
 		}
 	}
 }
@@ -293,9 +338,11 @@ void imguiRenderMenuBar(GLFWwindow *window, World &world, glm::vec3 &crosspos, s
 			sgl::shader *chunkShader = Blackboard::read<sgl::shader>("chunkShader");
 			sgl::shader *billboardShader = Blackboard::read<sgl::shader>("billboardShader");
 			sgl::shader *deferredShader = Blackboard::read<sgl::shader>("deferredShader");
+			sgl::shader *decalShader = Blackboard::read<sgl::shader>("decalShader");
 			if (chunkShader) chunkShader->reload();
 			if (billboardShader) billboardShader->reload();
 			if (deferredShader) deferredShader->reload();
+			if (decalShader) decalShader->reload();
 		}
 		
 		// Cameras
@@ -323,6 +370,7 @@ void imguiRenderMenuBar(GLFWwindow *window, World &world, glm::vec3 &crosspos, s
 			if (ImGui::RadioButton("Color Buffer", &settings_attachment, GL_COLOR_ATTACHMENT0)) { settings_attachment_change = true; };
 			if (ImGui::RadioButton("Position Buffer", &settings_attachment, GL_COLOR_ATTACHMENT1)) { settings_attachment_change = true; };
 			if (ImGui::RadioButton("Normal Buffer", &settings_attachment, GL_COLOR_ATTACHMENT2)) { settings_attachment_change = true; };
+			if (ImGui::RadioButton("Depth Buffer", &settings_attachment, GL_COLOR_ATTACHMENT3)) { settings_attachment_change = true; };
 			
 			// switch to darkmode when viewing result rendering.
 			if (settings_attachment_change) {

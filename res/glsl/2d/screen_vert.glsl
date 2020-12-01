@@ -1,5 +1,7 @@
 #version 450 core
 
+uniform vec2 uScreenSize;
+
 layout(location = 0) in vec2 aPosition;
 layout(location = 1) in vec2 aTexCoord;
 
