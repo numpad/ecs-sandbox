@@ -33,40 +33,8 @@ include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_INCLUDE_DIR}")
 include_directories ("${PROJECT_INCLUDE_DIR}/*")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/entt/single_include")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/examples")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/include")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/assimp/code")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/sol2/single/include")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/glm/glm/")
 
-# glfw
-set (GLFW_BUILD_DOCS OFF)
-set (GLFW_INSTALL OFF)
-add_subdirectory (lib/glfw)
-
-# assimp
-set (ZLIB_LIBRARIES zlibstatic)
-set (BUILD_SHARED_LIBS OFF)
-set (ASSIMP_NO_EXPORT ON)
-set (ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-set (ASSIMP_BUILD_TESTS OFF)
-set (ASSIMP_INSTALL OFF)
-add_subdirectory (lib/assimp)
-
-# openal
-set (ALSOFT_UTILS OFF)
-set (ALSOFT_EXAMPLES OFF)
-set (ALSOFT_INSTALL OFF)
-set (ALSOFT_INSTALL_CONFIG OFF)
-set (ALSOFT_INSTALL_HRTF_DEFS OFF)
-set (ALSOFT_INSTALL_AMBDEC_PRESETS OFF)
-set (ALSOFT_INSTALL_EXAMPLES OFF)
-set (ALSOFT_INSTALL_UTILS OFF)
-set (ALSOFT_UPDATE_BUILD_VERSION OFF)
-add_subdirectory (lib/openal_soft)
 
 file (GLOB source_files
 	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
@@ -79,23 +47,41 @@ file (GLOB source_files
 
 set (OpenGL_GL_PREFERENCE GLVND)
 find_package (OpenGL REQUIRED)
-find_package (Lua REQUIRED)
-find_package (Freetype REQUIRED)
+
+# vcpkg libs
+find_package(OpenAL CONFIG REQUIRED)
+target_link_libraries(main PRIVATE OpenAL::OpenAL)
+
+find_package(imgui CONFIG REQUIRED)
+target_link_libraries(main PRIVATE imgui::imgui)
+
+find_package(assimp CONFIG REQUIRED)
+target_link_libraries(main PRIVATE assimp::assimp)
+
+find_package(cereal CONFIG REQUIRED)
+target_link_libraries(main PRIVATE cereal)
+
+find_package(EnTT CONFIG REQUIRED)
+target_link_libraries(main PRIVATE EnTT::EnTT)
+
+find_package(glfw3 CONFIG REQUIRED)
+target_link_libraries(main PRIVATE glfw)
+
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(main PRIVATE glm)
+
+find_package(sol2 CONFIG REQUIRED)
+target_link_libraries(main PRIVATE sol2::sol2)
+
+find_package(freetype CONFIG REQUIRED)
+target_link_libraries(main PRIVATE freetype)
 
 add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
 target_link_libraries (${CMAKE_PROJECT_NAME}
                        OpenGL
-                       glfw
-                       lua
                        dl
-                       assimp
                        pthread
-                       openal
-                       ${LUA_LIBRARIES}
-                       ${FREETYPE_LIBRARIES}
 )
-
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${FREETYPE_INCLUDE_DIRS})
 
 add_custom_target (
 	run ALL
