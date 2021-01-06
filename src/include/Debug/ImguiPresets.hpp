@@ -159,7 +159,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		
 		Separator();
 		
-		if (hasvel) if (BeginMenu("CVelocity")) { DragFloat3("##CVelocity", &vel[0], 0.001f); EndMenu(); }
+		if (hasvel) if (BeginMenu("CVelocity")) { DragFloat3("##CVelocity", &vel[0], 0.001f); ImGui::EndMenu(); }
 		//if (hasgrav) Text("Gravity: enabled");
 		if (hasbb) {
 			if (BeginMenu("CBillboard")) {
@@ -171,7 +171,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 					DragInt2("Tile pos", &tilepos[0], 1);
 				Checkbox("Random?", &bbrandom);
 				
-				EndMenu();
+				ImGui::EndMenu();
 			}
 		}
 		if (hasruntt) {
@@ -184,26 +184,26 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				SliderFloat("Speed", &rttforce, 0.0f, 0.01f);
 				SliderFloat("Near", &rttnear, 0.0f, 1.0f);
 				
-				EndMenu();
+				ImGui::EndMenu();
 			}
 		}
 		if (haspresser) {
 			if (BeginMenu("CSphereCollider")) {
 				DragFloat("Radius", &pressrad, 0.0f, 0.1f);
 				DragFloat("Force", &pressforce, 0.0f, 0.05f);
-				EndMenu();
+				ImGui::EndMenu();
 			}
 		}
 		if (haskeyboard) {
 			if (BeginMenu("CKeyboardControllable")) {
 				DragFloat("control speed", &keycontrolspeed, 0.0005f, 0.0035f);
-				EndMenu();
+				ImGui::EndMenu();
 			}
 		}
 		if (hasspawn) {
 			if (BeginMenu("CSpawnPoint")) {
 				DragFloat3("SpawnPoint", &spawnpoint[0], 0.001f);
-				EndMenu();
+				ImGui::EndMenu();
 			}
 		}
 		if (hasjumper) {
@@ -212,7 +212,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		if (hashealth) {
 			if (BeginMenu("CHealth")) {
 				DragInt("Max. HP", &max_hp, 1);
-				EndMenu();
+				ImGui::EndMenu();
 			}
 		}
 		
@@ -220,7 +220,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		SliderInt("Amount", &spawnamount, 1, 50);
 		SliderFloat("Velocity", &spawnveloff, 0.0f, 0.05f);
 		
-		EndMenu();
+		ImGui::EndMenu();
 	}
 	
 	

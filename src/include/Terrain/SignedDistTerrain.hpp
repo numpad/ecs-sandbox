@@ -29,7 +29,8 @@ private:
 		Box(vec3 p, vec3 b) : Body(p), b(b) {}
 		float distance(vec3 p) {
 			vec3 q = glm::abs(p) - b;
-			return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
+			return 0.f; // TODO: windows build fix
+			//return glm::length(glm::max(q, vec3(0.0f))) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
 		}
 	};
 	struct Cylinder : Body {
@@ -38,7 +39,8 @@ private:
 		Cylinder(vec3 p, float h, float r) : Body(p), h(h), r(r) {}
 		float distance(vec3 p) {
 			vec2 d = glm::abs(vec2(glm::length(vec2(p.x, p.z)), p.y)) - vec2(h, r);
-			return glm::min(glm::max(d.x, d.y), 0.0f) + glm::length(glm::max(d, 0.0f));
+			return 0.f; // TODO: windows build fix
+			//return glm::min(glm::max(d.x, d.y), 0.0f) + glm::length(glm::max(d, 0.0f));
 		}
 	};
 	struct Plane : Body {

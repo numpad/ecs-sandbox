@@ -33,8 +33,9 @@ include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_INCLUDE_DIR}")
 include_directories ("${PROJECT_INCLUDE_DIR}/*")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/examples")
-
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/FastNoise/")
 
 file (GLOB source_files
 	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
@@ -48,40 +49,50 @@ file (GLOB source_files
 set (OpenGL_GL_PREFERENCE GLVND)
 find_package (OpenGL REQUIRED)
 
-# vcpkg libs
-find_package(OpenAL CONFIG REQUIRED)
-target_link_libraries(main PRIVATE OpenAL::OpenAL)
-
-find_package(imgui CONFIG REQUIRED)
-target_link_libraries(main PRIVATE imgui::imgui)
-
-find_package(assimp CONFIG REQUIRED)
-target_link_libraries(main PRIVATE assimp::assimp)
-
-find_package(cereal CONFIG REQUIRED)
-target_link_libraries(main PRIVATE cereal)
-
-find_package(EnTT CONFIG REQUIRED)
-target_link_libraries(main PRIVATE EnTT::EnTT)
-
-find_package(glfw3 CONFIG REQUIRED)
-target_link_libraries(main PRIVATE glfw)
-
-find_package(glm CONFIG REQUIRED)
-target_link_libraries(main PRIVATE glm)
-
-find_package(sol2 CONFIG REQUIRED)
-target_link_libraries(main PRIVATE sol2::sol2)
-
-find_package(freetype CONFIG REQUIRED)
-target_link_libraries(main PRIVATE freetype)
 
 add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
-target_link_libraries (${CMAKE_PROJECT_NAME}
-                       OpenGL
-                       dl
-                       pthread
-)
+
+# vcpkg libs
+
+include(C:/Users/Chris/Desktop/ecs-sandbox/vcpkg/scripts/buildsystems/vcpkg.cmake)
+
+find_package(OpenAL CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL::OpenAL)
+
+# find_package(imgui CONFIG REQUIRED)
+# target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE imgui::imgui)
+
+find_package(assimp CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE assimp::assimp)
+
+find_package(cereal CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE cereal)
+
+find_package(EnTT CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE EnTT::EnTT)
+
+find_package(glfw3 CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glfw)
+
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
+
+include(FindLua)
+find_package(Lua REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES})
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
+
+find_package(sol2 CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE sol2::sol2)
+
+find_package(freetype CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE freetype)
+
+if (MSVC)
+	target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE opengl32)
+else (MSVC)
+	target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenGL dl pthread)
+endif (MSVC)
 
 add_custom_target (
 	run ALL
@@ -91,7 +102,7 @@ add_custom_target (
 )
 
 if (MSVC)
-	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /WX)
+	# target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /WX)
 else (MSVC)
 	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wno-implicit-fallthrough -Wno-unused-parameter)
 endif (MSVC)

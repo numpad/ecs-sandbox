@@ -46,8 +46,6 @@
 #include <Util/Benchmark.hpp>
 #include <Util/Blackboard.hpp>
 
-#include <Script/ScriptBinder.hpp>
-
 #if CFG_DEBUG
 	#include <Debug/ImguiPresets.hpp>
 #endif

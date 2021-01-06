@@ -73,6 +73,7 @@ void Font::destroy() {
 	}
 }
 
+#undef min
 vec2 Font::getSize(std::wstring str, float scale) {
 	vec2 size(0.f, std::numeric_limits<float>::min());
 	
