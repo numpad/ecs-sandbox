@@ -3,8 +3,14 @@ cmake_minimum_required (VERSION 3.1)
 project (synthlike LANGUAGES CXX)
 
 set (CMAKE_BUILD_TYPE RelWithDebInfo)
-set (CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
-set (CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
+
+if (MSVC)
+	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+	set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+else (MSVC)
+	set (CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb")
+	set (CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
+endif (MSVC)
 
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
