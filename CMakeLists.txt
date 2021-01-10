@@ -46,7 +46,7 @@ file (GLOB source_files
 	"${PROJECT_LIBRARY_DIR}/imgui/examples/imgui_impl_opengl3.cpp"
 )
 
-set (OpenGL_GL_PREFERENCE GLVND)
+# set (OpenGL_GL_PREFERENCE GLVND)
 find_package (OpenGL REQUIRED)
 
 
@@ -102,7 +102,7 @@ add_custom_target (
 )
 
 if (MSVC)
-	# target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /WX)
+	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE /W4 /O2)
 else (MSVC)
 	target_compile_options (${CMAKE_PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wno-implicit-fallthrough -Wno-unused-parameter)
 endif (MSVC)

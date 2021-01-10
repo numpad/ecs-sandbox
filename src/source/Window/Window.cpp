@@ -133,7 +133,6 @@ bool Window::create(int width, int height) {
 	glCullFace(GL_BACK);
 	
 	// improved wireframe rendering
-	glLineWidth(2.f);
 	glEnable(GL_LINE_SMOOTH);
 	
 	/* check if debug enabled */
