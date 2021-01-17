@@ -27,11 +27,11 @@ Version | Screenshot & Notable features
 Keep track of the current development status on the [feature board](https://github.com/numpad/ecs-sandbox/projects/1).
 Planned, in-development and implemented features will be listed there.
 
-Less frequently updated but still important is the [bug tracker](https://github.com/numpad/ecs-sandbox/projects/2).
+Less frequently updated but still important is the [bug tracker](https://github.com/numpad/ecs-sandbox/projects/3).
 This serves as a catch-all for noting any kind of bugs appearing. While not required, a detailed description of the bug and it's cause is greatly appreciated.
 
 ### v0.2 - (unreleased)
- - _wip_
+ - Added decal render system & components
 
 ### v0.1 - (2020-07-10)
 - Added changelog and version tracking
