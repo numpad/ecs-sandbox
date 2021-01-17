@@ -37,6 +37,7 @@ public:
 	inline vec3 getToTarget() const { return this->dirToTarget; };
 	inline int getScreenWidth()  const { return this->screen_width; };
 	inline int getScreenHeight() const { return this->screen_height; };
+	inline vec2 getScreenSize() const { return vec2(float(this->screen_width), float(this->screen_height)); };
 	
 	const mat4& getProjection() const;
 	const mat4& getHudProjection() const;
@@ -52,7 +53,7 @@ private:
 	
 	int screen_width, screen_height;
 	float fov, aspect;
-	float znear = .1f, zfar = 1000.f;
+	float znear = 1.f, zfar = 100.f;
 	vec3 world_up = vec3(0.f, 1.f, 0.f);
 	vec3 position, targetpos;
 	

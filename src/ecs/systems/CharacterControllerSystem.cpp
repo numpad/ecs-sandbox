@@ -1,9 +1,17 @@
-#include <ecs/systems/CharacterController.hpp>
+#include <ecs/systems/CharacterControllerSystem.hpp>
 
-void CharacterController::update(entt::registry &registry, glm::vec3 viewDir) {
+CharacterControllerSystem::CharacterControllerSystem(entt::registry &registry, GLFWwindow *window, std::shared_ptr<Camera> *camera)
+	: BaseUpdateSystem(registry), m_window{window}, m_camera{camera}
+{
+
+}
+
+void CharacterControllerSystem::update() {
 	
+	glm::vec3 viewDir = -((*this->m_camera)->getToTarget());
+
 	registry.view<CPosition, CVelocity, const CKeyboardControllable>().each(
-		[this, &registry, viewDir](auto entity,
+		[this, viewDir](auto entity,
 			auto &pos, auto &vel, const auto &controller) {
 		
 		const glm::vec3 noYAxis(1.0f, 0.0f, 1.0f);
@@ -18,17 +26,17 @@ void CharacterController::update(entt::registry &registry, glm::vec3 viewDir) {
 		if (registry.has<CBillboard>(entity))
 			billboard = &registry.get<CBillboard>(entity);
 		
-		if (glfwGetKey(this->window, controller.up) == GLFW_PRESS) {
+		if (glfwGetKey(this->m_window, controller.up) == GLFW_PRESS) {
 			dir -= viewDirXZ;
 		}
-		if (glfwGetKey(this->window, controller.down) == GLFW_PRESS) {
+		if (glfwGetKey(this->m_window, controller.down) == GLFW_PRESS) {
 			dir += viewDirXZ;
 		}
-		if (glfwGetKey(this->window, controller.left) == GLFW_PRESS) {
+		if (glfwGetKey(this->m_window, controller.left) == GLFW_PRESS) {
 			dir -= right;
 			if (billboard) billboard->setFlipped(true);
 		}
-		if (glfwGetKey(this->window, controller.right) == GLFW_PRESS) {
+		if (glfwGetKey(this->m_window, controller.right) == GLFW_PRESS) {
 			dir += right;
 			if (billboard) billboard->setFlipped(false);
 		}
