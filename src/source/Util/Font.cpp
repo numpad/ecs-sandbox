@@ -5,7 +5,7 @@
 ////////////
 
 FT_Library Font::ft = nullptr;
-sgl::shader Font::defaultShader;
+sgl::shader* Font::defaultShader = nullptr;
 
 void Font::Init() {
 	if (Font::ft != nullptr) {
@@ -21,14 +21,16 @@ void Font::Init() {
 	}
 	
 	// load default shader
-	Font::defaultShader.load("res/glsl/2d/font_vert.glsl", sgl::shader::VERTEX);
-	Font::defaultShader.load("res/glsl/2d/font_frag.glsl", sgl::shader::FRAGMENT);
-	Font::defaultShader.compile(sgl::shader::VERTEX);
-	Font::defaultShader.compile(sgl::shader::FRAGMENT);
-	Font::defaultShader.link();
+	Font::defaultShader = new sgl::shader;
+	Font::defaultShader->load("res/glsl/2d/font_vert.glsl", sgl::shader::VERTEX);
+	Font::defaultShader->load("res/glsl/2d/font_frag.glsl", sgl::shader::FRAGMENT);
+	Font::defaultShader->compile(sgl::shader::VERTEX);
+	Font::defaultShader->compile(sgl::shader::FRAGMENT);
+	Font::defaultShader->link();
 }
 
 void Font::Destroy() {
+	delete Font::defaultShader;
 	FT_Done_FreeType(Font::ft);
 }
 
@@ -98,10 +100,10 @@ void Font::drawString(mat4 uProj, std::wstring str, float x, float y, float scal
 	glGetIntegerv(GL_BLEND, &blendEnabled);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	Font::defaultShader.use();
-	Font::defaultShader["uTextColor"] = color;
-	Font::defaultShader["uTexture"] = 0;
-	Font::defaultShader["uProjection"] = uProj;
+	Font::defaultShader->use();
+	(*Font::defaultShader)["uTextColor"] = color;
+	(*Font::defaultShader)["uTexture"] = 0;
+	(*Font::defaultShader)["uProjection"] = uProj;
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 	
