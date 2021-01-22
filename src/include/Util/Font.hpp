@@ -46,5 +46,5 @@ private:
 	void loadChar(wchar_t chr);
 	
 	static FT_Library ft;
-	static sgl::shader defaultShader;
+	static sgl::shader *defaultShader;
 };
