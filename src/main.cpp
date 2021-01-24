@@ -9,7 +9,6 @@
 #include <string>
 
 #include <GLFW/glfw3.h>
-#include <FastNoise/FastNoise.h>
 #include <stb/stb_image.h>
 #include <sgl/sgl_shader.hpp>
 #include <sgl/sgl_framebuffer.hpp>
