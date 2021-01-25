@@ -4,7 +4,7 @@
 
 struct LogEvent {
 	enum LogLevel {
-		ERROR = 1,
+		ERR = 1,
 		WARN  = 2,
 		LOG  = 4,
 		DEBUG = 8

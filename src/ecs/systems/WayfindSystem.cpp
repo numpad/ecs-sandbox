@@ -34,7 +34,7 @@ WayfindSystem::~WayfindSystem() {
 
 void WayfindSystem::update() {
 	registry.view<CPosition, CRunningToTarget>().each([&registry = registry]
-		(auto &entity, auto &pos, auto &runToTarget) {
+		(auto entity, auto &pos, auto &runToTarget) {
 			glm::vec3 dirToTarget = runToTarget.getTargetPosition(registry) - pos.pos;
 			
 			if (glm::length(dirToTarget) > runToTarget.closeEnough) {
@@ -57,7 +57,7 @@ void WayfindSystem::update() {
 
 void WayfindSystem::draw() {
 	std::vector<vec3> lines;
-	registry.view<CPosition, CRunningToTarget>().each([&registry = registry, &lines](auto &entity, auto &pos, auto &runToTarget) {
+	registry.view<CPosition, CRunningToTarget>().each([&registry = registry, &lines](auto entity, auto &pos, auto &runToTarget) {
 		lines.push_back(pos.pos);
 		lines.push_back(runToTarget.getTargetPosition(registry));
 	});
