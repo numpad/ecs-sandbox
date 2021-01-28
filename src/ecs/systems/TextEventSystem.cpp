@@ -2,7 +2,7 @@
 
 TextEventSystem::TextEventSystem(entt::registry &registry, std::shared_ptr<Camera> camera)
 	: BaseUpdateSystem(registry), BaseRenderSystem(registry, camera),
-	textfont("res/fonts/escalope_2.ttf", 42) {
+	textfont("res/fonts/humble_fonts/futile-pro-v1/FutilePro.ttf", 42) {
 	
 	registry.ctx<entt::dispatcher>().sink<WorldTextEvent>().connect<&TextEventSystem::receive>(*this);
 }

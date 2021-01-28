@@ -1,4 +1,4 @@
-// db5e70924e9c560f7c8a34892a57e67e8de40b43
+// 9195e625ebd10fe61b3ab61191a16a8cff6fda5d
 #pragma once
 
 #include <ecs/components/CVelocity.hpp>
@@ -9,6 +9,7 @@
 #include <ecs/components/CBillboard.hpp>
 #include <ecs/components/COrientation.hpp>
 #include <ecs/components/CJumpTimer.hpp>
+#include <ecs/components/CTerrainCollider.hpp>
 #include <ecs/components/CSpawnPoint.hpp>
 #include <ecs/components/CKeyboardControllable.hpp>
 #include <ecs/components/CRunningToTarget.hpp>

@@ -10,20 +10,13 @@
 class GravitySystem : public BaseUpdateSystem {
 public:
 	
-	GravitySystem(entt::registry &registry, float gravity, Grid2D<SignedDistTerrain> &tileGrid);
+	GravitySystem(entt::registry &registry, float gravity);
 	
 	void update();
-	
-	// TODO: put event listener in other system
-	void entityKilled(const KillEntityEvent &e);
 	
 	inline float getGravity() const { return gravity; }
 	
 private:
 	float gravity;
-	// below which height are entities killed
-	float voidHeight = -5.f;
-	
-	Grid2D<SignedDistTerrain> &tileGrid;
-	
+		
 };

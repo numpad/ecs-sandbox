@@ -81,19 +81,13 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL::OpenAL)
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
 
-# lua
-include(FindLua)
-find_package(Lua REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_LIBRARIES})
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
+# luajit
+# WIP
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE luajit-5.1)
 
 # stb
 #find_path(STB_INCLUDE_DIRS "stb.h")
 #target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${STB_INCLUDE_DIRS})
-
-# sol2
-find_package(sol2 CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE sol2::sol2)
 
 # freetype2
 find_package(freetype CONFIG REQUIRED)

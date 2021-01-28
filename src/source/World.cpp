@@ -8,6 +8,9 @@ World::World(GLFWwindow *window, std::shared_ptr<Camera> camera)
 {
 	registry.set<entt::dispatcher>();
 	chunkedWorld = std::make_shared<ChunkedWorld>(vec3(2.f, 1.f, 2.f));
+	
+	// initialize lua
+	setupLua();
 
 	// load systems
 	loadSystems();
@@ -22,6 +25,34 @@ void World::destroy() {
 	renderSystems.clear();
 	destroyFloor();
 	registry.clear();
+	destroyLua();
+}
+
+void World::setupLua() {
+	// create a new state
+	lua_State *L = luaL_newstate();
+	if (!L) {
+		std::cerr << "[LUA] Error: Could not initialize lua state!" << std::endl;
+		return;
+	}
+	luaL_openlibs(L);
+
+	luaL_dostring(L, "package.path = package.path .. ';res/scripts/modules/?.lua'");
+
+	lua_pushlightuserdata(L, this);
+	lua_setglobal(L, "_World");
+	lua_pushlightuserdata(L, &tileGrid);
+	lua_setglobal(L, "_tileGrid");
+	lua_pushlightuserdata(L, chunkedWorld.get());
+	lua_setglobal(L, "_chunkedWorld");
+	lua_pushlightuserdata(L, &chunkedWorld->getTerrain());
+	lua_setglobal(L, "_chunkedTerrain");
+
+	m_luaState = L;
+}
+
+void World::destroyLua() {
+	lua_close(m_luaState);
 }
 
 entt::entity World::getNearestEntity(vec3 posNear) {
@@ -59,6 +90,7 @@ entt::entity World::spawnDefaultEntity(vec3 pos) {
 	registry.emplace<CSphereCollider>(entity, 0.045f, 0.01f);
 	registry.emplace<CJumpTimer>(entity, 0);
 	registry.emplace<CHealth>(entity, 10);
+	registry.emplace<CTerrainCollider>(entity, false);
 	if (registry.valid(this->player)) {
 		//registry.emplace<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
 	}
@@ -84,14 +116,16 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	registry.emplace_or_replace<CBillboard>(this->player,
 		playertex, 
 		vec2(0.2f, 0.2f), vec3(0.961f, 0.8f, 0.545f));
-	registry.get<CBillboard>(this->player).setSubRect(1.0f * 16.0f, 0.0f * 16.0f,
-		16.0f, 16.0f, 48, 16);
+	registry.get<CBillboard>(this->player).setSubRect(0.0f * 16.0f, 0.0f * 16.0f,
+		16.0f, 16.0f, 96, 16);
 	
 	registry.remove<CJumpTimer>(this->player);
 	
 	registry.emplace_or_replace<CSpawnPoint>(this->player, vec3(0.0f, 0.5f, 0.0f));
 	registry.emplace_or_replace<CHealth>(this->player, 12);
 	
+	registry.emplace_or_replace<CTerrainCollider>(this->player, false);
+
 	// world pos crosshair
 	worldCrosshair = registry.create();
 	registry.emplace<CPosition>(worldCrosshair, vec3(0.0f));
@@ -210,10 +244,11 @@ void World::draw() {
 				e = new SignedDistTerrain();
 			}
 			
+			vec3 localPos = chunkedWorld->getTerrain().worldPosToLocalChunkPos(pos);
 			if (vtype == vsphere) {
-				e->sphere(pos, r.x, (SignedDistTerrain::Op)vop);
+				e->sphere(localPos, r.x, (SignedDistTerrain::Op)vop);
 			} else if (vtype == vcube) {
-				e->box(pos, r, (SignedDistTerrain::Op)vop);
+				e->box(localPos, r, (SignedDistTerrain::Op)vop);
 			}
 			chunkedWorld->update(chunkPos, e);
 		}
@@ -253,8 +288,9 @@ void World::loadSystems() {
 	auto primitiveRenderer = std::make_shared<PrimitiveRenderSystem>(registry, camera);
 	
 	// create update systems
+	updateSystems.emplace_back(new TerrainCollisionSystem(registry, chunkedWorld));
 	updateSystems.emplace_back(new CharacterControllerSystem(registry, m_window, &camera));
-	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f, tileGrid));
+	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f));
 	updateSystems.emplace_back(new RandomJumpSystem(registry, 0.003f));
 	updateSystems.push_back(wayfindSystem);
 	updateSystems.emplace_back(new PressAwaySystem(registry));
@@ -262,6 +298,7 @@ void World::loadSystems() {
 	updateSystems.push_back(billboardRenderSystem);
 	updateSystems.push_back(textRenderSystem);
 	updateSystems.push_back(primitiveRenderer);
+	updateSystems.emplace_back(new DespawnSystem(registry));
 	updateSystems.emplace_back(new AudioSystem(registry, assetManager));
 	
 	// and render systems
@@ -274,50 +311,25 @@ void World::loadSystems() {
 }
 
 void World::setupFloor() {
-	
-	// mapgen
-	int x = 0, y = 0;
-	Random r;
-	const int gen_n_chunks = 4;
-	for (int i = 0; i < gen_n_chunks; ++i) {
-		if (tileGrid.at(x, y) == nullptr) {
-			SignedDistTerrain *sd = new SignedDistTerrain();
-			tileGrid.set(x, y, (SignedDistTerrain *)1);
-			sd->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-			float rand = r();
-			if (rand < .2f) {
-				sd->sphere(vec3(0.f), 0.4f);
-				sd->sphere(vec3(0.f, .5f, 0.f), 0.4f);
-			} else if (rand < .4f) {
-				sd->box(vec3(0.f), vec3(0.8f), SignedDistTerrain::Op::DIFF);
-			} else {
-				sd->sphere(vec3(.0f, .3f, .0f), 0.7f, SignedDistTerrain::Op::DIFF);
-			}
-			
-			chunkedWorld->set(ivec2(x, y), sd);
-		}
-		auto rng = r();
-		if (rng < 0.25) x--;
-		else if (rng < 0.5) x++;
-		else if (rng < 0.75) y--;
-		else y++;
-		if (tileGrid.at(x, y) != nullptr) i--;
-		else {
-			spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
-		}
+	if (luaL_dofile(m_luaState, "res/scripts/world/mapgen.lua") != 0) {
+		std::cerr << "[LUA] Error: " << lua_tostring(m_luaState, -1) << std::endl;
+		lua_pop(m_luaState, 1);
 	}
+
+	spawnDefaultEntity(vec3(.5f, 1.f, .5f));
+	
 	
 	double starttime = glfwGetTime();
 	size_t i = 0;
-	chunkedWorld->getTerrain().getChunkGrid().each([this, &i, gen_n_chunks](int x, int y, Terrain *terrain) {
-		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generating chunk " + std::to_string(i++) + "/" + std::to_string(gen_n_chunks), LogEvent::LOG);
+	chunkedWorld->getTerrain().getChunkGrid().each([this, &i](int x, int y, Terrain *terrain) {
+		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generating chunk " + std::to_string(i++), LogEvent::LOG);
 		this->chunkedWorld->polygonizeChunk(ivec2(x, y));
 	});
 	#if CFG_DEBUG
 		double endtime = glfwGetTime();
 		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generated chunks in " + std::to_string(endtime - starttime) + "s.", LogEvent::LOG);
 	#endif
-	
+
 }
 
 void World::destroyFloor() {

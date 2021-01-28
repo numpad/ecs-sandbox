@@ -1,4 +1,4 @@
-// 759a8271c5a2b6d3503510844130d47a6db6c659
+// c128c011bdb74024e47450f17237880717e18238
 #pragma once
 
 #include <ecs/systems/PositionUpdateSystem.hpp>
@@ -6,6 +6,7 @@
 #include <ecs/systems/BaseUpdateSystem.hpp>
 #include <ecs/systems/TextEventSystem.hpp>
 #include <ecs/systems/PressAwaySystem.hpp>
+#include <ecs/systems/DespawnSystem.hpp>
 #include <ecs/systems/PrimitiveRenderSystem.hpp>
 #include <ecs/systems/DecalRenderSystem.hpp>
 #include <ecs/systems/AudioSystem.hpp>
@@ -15,5 +16,6 @@
 #include <ecs/systems/BaseRenderSystem.hpp>
 #include <ecs/systems/RandomJumpSystem.hpp>
 #include <ecs/systems/BillboardRenderSystem.hpp>
+#include <ecs/systems/TerrainCollisionSystem.hpp>
 #include <ecs/systems/CharacterControllerSystem.hpp>
 #include <ecs/systems/CHealthbarRenderSystem.hpp>
