@@ -33,13 +33,4 @@ function Terrain.box(self, x, y, z, a, b, c, add_or_sub)
 	ffi.C.signeddistterrain_box(self.super, x, y, z, a, b, c, add_or_sub)
 end
 
--- run mapgen
-for i = 0, 3 do
-	local t = Terrain.new(i / 2, i % 2)
-	t:plane(0)
-	if math.random() < 0.65 then
-		t:sphere(0, 0, 0, 0.5, false)
-	else
-		--t:box(0, 0, 0, 0.5, 0.5, 0.5)
-	end
-end
+return Terrain

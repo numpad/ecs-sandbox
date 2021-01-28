@@ -297,6 +297,8 @@ void World::setupFloor() {
 	if (!L) std::cerr << "[LUA] Error: could not create world loading state." << std::endl;
 	luaL_openlibs(L);
 
+	luaL_dostring(L, "package.path = package.path .. ';res/scripts/modules/?.lua'");
+
 	lua_pushlightuserdata(L, this);
 	lua_setglobal(L, "_World");
 	lua_pushlightuserdata(L, &tileGrid);
