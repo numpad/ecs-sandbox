@@ -45,7 +45,7 @@
 #include <Util/Benchmark.hpp>
 #include <Util/Blackboard.hpp>
 
-#include <Script/ScriptBinder.hpp>
+#include <luajit-2.0/lua.hpp>
 
 #if CFG_DEBUG
 	#include <Debug/ImguiPresets.hpp>
@@ -147,7 +147,11 @@ int main(int, char**) {
 	
 	
 	//ScriptBinder::luaTest();
-	
+	lua_State *L = luaL_newstate();
+	if (!L) std::cerr << "[WARN] Could not open lua state." << std::endl;
+
+	luaL_openlibs(L);
+
 	// deferred rendering
 	sgl::texture color_buffer, position_buffer, normal_buffer, depth_buffer;
 	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba, nullptr, sgl::texture::format::rgba, sgl::texture::datatype::u8);
@@ -274,6 +278,22 @@ int main(int, char**) {
 		#if CFG_IMGUI_ENABLED
 			static int settings_attachment = 0;
 			imguiRenderMenuBar(window, world, crosspos, topdown, camera, msPerFrame, settings_attachment);
+
+			if (ImGui::Begin("luajit")) {
+				constexpr size_t buf_size = 2048;
+				static char buf[buf_size] = "local ffi = require('ffi')\nffi.cdef[[\n\n]]\n\n";
+				ImVec2 win_size = ImGui::GetWindowSize();
+				win_size.y -= 58;
+				ImGui::InputTextMultiline("##editor", buf, buf_size, win_size);
+				if (ImGui::Button("Evaluate")) {
+					if (luaL_dostring(L, buf) != 0) {
+						std::cerr << "[LUA] Error: " << lua_tostring(L, -1) << std::endl;
+						lua_pop(L, 1);
+					}
+				}
+				
+			}
+			ImGui::End();
 		#endif
 		
 		// TODO: find a better way to resize fbo attachments
@@ -359,6 +379,7 @@ int main(int, char**) {
 	Font::Destroy();
 	Window::Destroy();
 	imguiDestroy();
+	lua_close(L);
 	std::cout << "[SYS]" << "cleanup complete, quitting now..." << std::endl;
 	return 0;
 }

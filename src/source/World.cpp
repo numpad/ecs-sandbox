@@ -273,44 +273,49 @@ void World::loadSystems() {
 	renderSystems.push_back(primitiveRenderer);
 }
 
-void World::setupFloor() {
-	
-	// mapgen
-	int x = 0, y = 0;
-	Random r;
-	const int gen_n_chunks = 4;
-	for (int i = 0; i < gen_n_chunks; ++i) {
-		if (tileGrid.at(x, y) == nullptr) {
-			SignedDistTerrain *sd = new SignedDistTerrain();
-			tileGrid.set(x, y, (SignedDistTerrain *)1);
-			sd->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), 0.f);
-			float rand = r();
-			if (rand < .2f) {
-				sd->sphere(vec3(0.f), 0.4f);
-				sd->sphere(vec3(0.f, .5f, 0.f), 0.4f);
-			} else if (rand < .4f) {
-				sd->box(vec3(0.f), vec3(0.8f), SignedDistTerrain::Op::DIFF);
-			} else {
-				sd->sphere(vec3(.0f, .3f, .0f), 0.7f, SignedDistTerrain::Op::DIFF);
-			}
-			
-			chunkedWorld->set(ivec2(x, y), sd);
-		}
-		auto rng = r();
-		if (rng < 0.25) x--;
-		else if (rng < 0.5) x++;
-		else if (rng < 0.75) y--;
-		else y++;
-		if (tileGrid.at(x, y) != nullptr) i--;
-		else {
-			spawnDefaultEntity(vec3(x * 2.0f, 0.3f, y * 2.0f));
-		}
+extern "C" {
+	SignedDistTerrain* signeddistterrain_new() {
+		return new SignedDistTerrain();
 	}
+	void signeddistterrain_plane(SignedDistTerrain *terrain, float h) {
+		terrain->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), h);
+	}
+	void signeddistterrain_sphere(SignedDistTerrain *terrain, float x, float y, float z, float r, bool add_or_sub) {
+		terrain->sphere(vec3(x, y, z), r, add_or_sub ? SignedDistTerrain::Op::UNION : SignedDistTerrain::Op::DIFF);
+	}
+	void signeddistterrain_box(SignedDistTerrain *terrain, float x, float y, float z, float a, float b, float c, bool add_or_sub) {
+		terrain->box(vec3(x, y, z), vec3(a, b, c), add_or_sub ? SignedDistTerrain::Op::UNION : SignedDistTerrain::Op::DIFF);
+	}
+	void chunkedworld_set(ChunkedWorld *world, void *grid, int x, int y, SignedDistTerrain *terrain) {
+		world->set(ivec2(x, y), terrain);
+		((Grid2D<SignedDistTerrain> *)grid)->set(x, y, (SignedDistTerrain *)1);
+	}
+}
+
+void World::setupFloor() {
+	lua_State *L = luaL_newstate();
+	if (!L) std::cerr << "[LUA] Error: could not create world loading state." << std::endl;
+	luaL_openlibs(L);
+
+	lua_pushlightuserdata(L, this);
+	lua_setglobal(L, "_World");
+	lua_pushlightuserdata(L, &tileGrid);
+	lua_setglobal(L, "_tileGrid");
+	lua_pushlightuserdata(L, chunkedWorld.get());
+	lua_setglobal(L, "_chunkedWorld");
+	
+	if (luaL_dofile(L, "res/scripts/world/mapgen.lua") != 0) {
+		std::cerr << "[LUA] Error: " << lua_tostring(L, -1) << std::endl;
+		lua_pop(L, 1);
+	}
+
+	spawnDefaultEntity(vec3(.5f, 1.f, .5f));
+	
 	
 	double starttime = glfwGetTime();
 	size_t i = 0;
-	chunkedWorld->getTerrain().getChunkGrid().each([this, &i, gen_n_chunks](int x, int y, Terrain *terrain) {
-		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generating chunk " + std::to_string(i++) + "/" + std::to_string(gen_n_chunks), LogEvent::LOG);
+	chunkedWorld->getTerrain().getChunkGrid().each([this, &i](int x, int y, Terrain *terrain) {
+		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generating chunk " + std::to_string(i++), LogEvent::LOG);
 		this->chunkedWorld->polygonizeChunk(ivec2(x, y));
 	});
 	#if CFG_DEBUG
@@ -318,6 +323,7 @@ void World::setupFloor() {
 		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generated chunks in " + std::to_string(endtime - starttime) + "s.", LogEvent::LOG);
 	#endif
 	
+	lua_close(L);
 }
 
 void World::destroyFloor() {
