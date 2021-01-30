@@ -19,6 +19,9 @@ extern "C" {
 	void FFI_signeddistterrain_box(SignedDistTerrain *terrain, glm::vec3 pos, glm::vec3 size, bool add_or_sub) {
 		terrain->box(pos, size, add_or_sub ? SignedDistTerrain::Op::UNION : SignedDistTerrain::Op::DIFF);
 	}
+	void FFI_signeddistterrain_cylinder(SignedDistTerrain *terrain, glm::vec3 pos, float h, float r, bool add_or_sub) {
+		terrain->cylinder(pos, h, r, add_or_sub ? SignedDistTerrain::Op::UNION : SignedDistTerrain::Op::DIFF);
+	}
 	void FFI_chunkedworld_set(ChunkedWorld *world, void *grid, int x, int y, SignedDistTerrain *terrain) {
 		world->set(ivec2(x, y), terrain);
 		((Grid2D<SignedDistTerrain> *)grid)->set(x, y, (SignedDistTerrain *)1);
