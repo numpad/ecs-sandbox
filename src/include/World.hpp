@@ -73,6 +73,7 @@ public:
 	inline entt::dispatcher &getDispatcher() { return registry.ctx<entt::dispatcher>(); }
 	inline AssetManager &getAssetManager() { return assetManager; }
 	inline const std::shared_ptr<Camera> getCamera() const { return camera; }
+	inline lua_State *getLuaState() const { return m_luaState; }
 	inline bool is_loaded()  const { return loaded; }
 	inline entt::entity getPlayer() const {
 		if (registry.valid(player))
@@ -89,6 +90,7 @@ private:
 	entt::registry registry;
 	std::shared_ptr<Camera> camera;
 	GLFWwindow *m_window;
+	lua_State *m_luaState = nullptr;
 
 	// loading
 	bool loaded = false; // is the terrain etc. loaded?
@@ -110,6 +112,9 @@ private:
 	
 	void loadSystems();
 	
+	void setupLua();
+	void destroyLua();
+
 	// shader & models
 	sgl::shader floorShader;
 	void setupFloor();

@@ -143,14 +143,7 @@ int main(int, char**) {
 	
 	//AssetManager &assetManager = world.getAssetManager();
 	
-	Font defaultFont("res/fonts/FSmono.ttf", 48);
-	
-	
-	//ScriptBinder::luaTest();
-	lua_State *L = luaL_newstate();
-	if (!L) std::cerr << "[WARN] Could not open lua state." << std::endl;
-
-	luaL_openlibs(L);
+	//Font defaultFont("res/fonts/FSmono.ttf", 48);
 
 	// deferred rendering
 	sgl::texture color_buffer, position_buffer, normal_buffer, depth_buffer;
@@ -280,8 +273,10 @@ int main(int, char**) {
 			imguiRenderMenuBar(window, world, crosspos, topdown, camera, msPerFrame, settings_attachment);
 
 			if (ImGui::Begin("luajit")) {
+				lua_State *L = world.getLuaState();
+
 				constexpr size_t buf_size = 2048;
-				static char buf[buf_size] = "local ffi = require('ffi')\nffi.cdef[[\n\n]]\n\n";
+				static char buf[buf_size] = "";
 				ImVec2 win_size = ImGui::GetWindowSize();
 				win_size.y -= 58;
 				ImGui::InputTextMultiline("##editor", buf, buf_size, win_size);
@@ -370,7 +365,7 @@ int main(int, char**) {
 
 	/* cleanup */
 	world.destroy();
-	defaultFont.destroy();
+	//defaultFont.destroy();
 	window.destroy();
 	
 	glDeleteBuffers(1, &svbo);
@@ -379,7 +374,6 @@ int main(int, char**) {
 	Font::Destroy();
 	Window::Destroy();
 	imguiDestroy();
-	lua_close(L);
 	std::cout << "[SYS]" << "cleanup complete, quitting now..." << std::endl;
 	return 0;
 }

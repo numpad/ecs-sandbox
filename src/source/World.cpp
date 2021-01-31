@@ -8,6 +8,9 @@ World::World(GLFWwindow *window, std::shared_ptr<Camera> camera)
 {
 	registry.set<entt::dispatcher>();
 	chunkedWorld = std::make_shared<ChunkedWorld>(vec3(2.f, 1.f, 2.f));
+	
+	// initialize lua
+	setupLua();
 
 	// load systems
 	loadSystems();
@@ -22,6 +25,32 @@ void World::destroy() {
 	renderSystems.clear();
 	destroyFloor();
 	registry.clear();
+	destroyLua();
+}
+
+void World::setupLua() {
+	// create a new state
+	lua_State *L = luaL_newstate();
+	if (!L) {
+		std::cerr << "[LUA] Error: Could not initialize lua state!" << std::endl;
+		return;
+	}
+	luaL_openlibs(L);
+
+	luaL_dostring(L, "package.path = package.path .. ';res/scripts/modules/?.lua'");
+
+	lua_pushlightuserdata(L, this);
+	lua_setglobal(L, "_World");
+	lua_pushlightuserdata(L, &tileGrid);
+	lua_setglobal(L, "_tileGrid");
+	lua_pushlightuserdata(L, chunkedWorld.get());
+	lua_setglobal(L, "_chunkedWorld");
+
+	m_luaState = L;
+}
+
+void World::destroyLua() {
+	lua_close(m_luaState);
 }
 
 entt::entity World::getNearestEntity(vec3 posNear) {
@@ -274,22 +303,9 @@ void World::loadSystems() {
 }
 
 void World::setupFloor() {
-	lua_State *L = luaL_newstate();
-	if (!L) std::cerr << "[LUA] Error: could not create world loading state." << std::endl;
-	luaL_openlibs(L);
-
-	luaL_dostring(L, "package.path = package.path .. ';res/scripts/modules/?.lua'");
-
-	lua_pushlightuserdata(L, this);
-	lua_setglobal(L, "_World");
-	lua_pushlightuserdata(L, &tileGrid);
-	lua_setglobal(L, "_tileGrid");
-	lua_pushlightuserdata(L, chunkedWorld.get());
-	lua_setglobal(L, "_chunkedWorld");
-	
-	if (luaL_dofile(L, "res/scripts/world/mapgen.lua") != 0) {
-		std::cerr << "[LUA] Error: " << lua_tostring(L, -1) << std::endl;
-		lua_pop(L, 1);
+	if (luaL_dofile(m_luaState, "res/scripts/world/mapgen.lua") != 0) {
+		std::cerr << "[LUA] Error: " << lua_tostring(m_luaState, -1) << std::endl;
+		lua_pop(m_luaState, 1);
 	}
 
 	spawnDefaultEntity(vec3(.5f, 1.f, .5f));
@@ -305,8 +321,7 @@ void World::setupFloor() {
 		double endtime = glfwGetTime();
 		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: Generated chunks in " + std::to_string(endtime - starttime) + "s.", LogEvent::LOG);
 	#endif
-	
-	lua_close(L);
+
 }
 
 void World::destroyFloor() {
