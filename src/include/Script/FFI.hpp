@@ -10,8 +10,8 @@ extern "C" {
 	SignedDistTerrain* FFI_signeddistterrain_new() {
 		return new SignedDistTerrain();
 	}
-	void FFI_signeddistterrain_plane(SignedDistTerrain *terrain, float h) {
-		terrain->plane(vec3(0.f), vec3(0.f, 1.f, 0.f), h);
+	void FFI_signeddistterrain_plane(SignedDistTerrain *terrain, glm::vec3 p, glm::vec3 n, float h) {
+		terrain->plane(p, n, h);
 	}
 	void FFI_signeddistterrain_sphere(SignedDistTerrain *terrain, glm::vec3 pos, float r, bool add_or_sub) {
 		terrain->sphere(pos, r, add_or_sub ? SignedDistTerrain::Op::UNION : SignedDistTerrain::Op::DIFF);
@@ -54,6 +54,9 @@ extern "C" {
 	}
 	float FFI_vec3_len(glm::vec3 a) {
 		return glm::length(a);
+	}
+	glm::vec3 FFI_vec3_normalize(glm::vec3 a) {
+		return glm::normalize(a);
 	}
 	
 }

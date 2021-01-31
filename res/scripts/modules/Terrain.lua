@@ -5,7 +5,7 @@ ffi.cdef[[
 	typedef struct { float x, y, z; } vec3;
 	
 	SignedDistTerrain* FFI_signeddistterrain_new();
-	void FFI_signeddistterrain_plane(SignedDistTerrain *terrain, float h);
+	void FFI_signeddistterrain_plane(SignedDistTerrain *terrain, vec3 pos, vec3 normal, float h);
 	void FFI_signeddistterrain_sphere(SignedDistTerrain *terrain, vec3 pos, float r, bool add_or_sub);
 	void FFI_signeddistterrain_box(SignedDistTerrain *terrain, vec3 pos, vec3 size, bool add_or_sub);
 	void FFI_signeddistterrain_cylinder(SignedDistTerrain *terrain, vec3 pos, float h, float r, bool add_or_sub);
@@ -26,10 +26,18 @@ function Terrain.new(x, y)
 	return setmetatable(self, Terrain)
 end
 
+--- Adds a plane to the terrain, everything below is solid.
+-- @param p (vec3) The position of the plane.
+-- @param n (vec3) The upwards facing normal of the plane.
+-- @param h (number) The height of the floor.
+function Terrain.plane(self, p, n, h)
+	ffi.C.FFI_signeddistterrain_plane(self.super, p, n, h)
+end
+
 --- Adds a floor to the terrain, everything below is solid.
 -- @param h (number) The height of the floor.
-function Terrain.plane(self, h)
-	ffi.C.FFI_signeddistterrain_plane(self.super, h)
+function Terrain.floor(self, h)
+	ffi.C.FFI_signeddistterrain_plane(self.super, Vec3(0, 0, 0), Vec3(0, 1, 0), h)
 end
 
 --- Adds or subtracts a sphere to/from the terrain.

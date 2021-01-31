@@ -85,7 +85,9 @@ public:
 			return worldCrosshair;
 		return entt::null;
 	}
-	
+	inline ChunkedWorld* getChunkedWorld() const {
+		return chunkedWorld.get();
+	}
 private:
 	entt::registry registry;
 	std::shared_ptr<Camera> camera;

@@ -11,6 +11,7 @@ ffi.cdef[[
 	float FFI_vec3_dot(vec3 a, vec3 s);
 	vec3 FFI_vec3_cross(vec3 a, vec3 b);
 	float FFI_vec3_len(vec3 a);
+	vec3 FFI_vec3_normalize(vec3 a);
 ]]
 
 local Vec3
@@ -29,7 +30,8 @@ local glm_vec3 = {
 	__index = {
 		length = ffi.C.FFI_vec3_len,
 		dot = ffi.C.FFI_vec3_dot,
-		cross = ffi.C.FFI_vec3_cross
+		cross = ffi.C.FFI_vec3_cross,
+		normal = ffi.C.FFI_vec3_normalize
 	}
 }
 

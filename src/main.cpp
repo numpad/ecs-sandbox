@@ -213,6 +213,11 @@ int main(int, char**) {
 	screen_shader["uTexNormal"] = 2;
 	screen_shader["uTexDepth"] = 3;
 	
+	entt::entity rayend = world.getRegistry().create();
+	world.getRegistry().emplace<CPosition>(rayend, glm::vec3(0.f));
+	world.getRegistry().emplace<CBillboard>(rayend, world.getAssetManager().getTexture("res/images/textures/dungeon.png"), glm::vec2(0.2f), glm::vec3(1.f));
+	world.getRegistry().get<CBillboard>(rayend).setSubRect(1.0f * 16.0f, 10.0f * 16.0f, 16.0f, 16.0f, 256, 256);
+
 	/* draw loop */
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
@@ -266,6 +271,12 @@ int main(int, char**) {
 
 		if (world.getRegistry().valid(worldCrosshair)) {
 			world.getRegistry().get<CPosition>(worldCrosshair).pos = crosspos;
+			glm::vec3 rp = world.getChunkedWorld()->raycast(crosspos, glm::vec3(0.f, -0.005f, 0.f), 4.f);
+			if (glm::distance(rp, crosspos) < 0.001f) {
+				world.getRegistry().get<CPosition>(rayend) = glm::vec3(100.f);
+			} else {
+				world.getRegistry().get<CPosition>(rayend) = rp;
+			}
 		}
 		
 		#if CFG_IMGUI_ENABLED
