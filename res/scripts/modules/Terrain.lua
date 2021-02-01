@@ -30,32 +30,40 @@ end
 -- @param p (vec3) The position of the plane.
 -- @param n (vec3) The upwards facing normal of the plane.
 -- @param h (number) The height of the floor.
+-- @return The terrain object itself for chaining operations.
 function Terrain.plane(self, p, n, h)
 	ffi.C.FFI_signeddistterrain_plane(self.super, p, n, h)
+	return self
 end
 
 --- Adds a floor to the terrain, everything below is solid.
 -- @param h (number) The height of the floor.
+-- @return The terrain object itself for chaining operations.
 function Terrain.floor(self, h)
 	ffi.C.FFI_signeddistterrain_plane(self.super, Vec3(0, 0, 0), Vec3(0, 1, 0), h)
+	return self
 end
 
 --- Adds or subtracts a sphere to/from the terrain.
 -- @param pos (vec3) The position inside the chunk.
 -- @param r (float) The spheres radius.
 -- @param add_or_sub (bool) Decides if the sphere should be added to or subtracted from the terrain.
+-- @return The terrain object itself for chaining operations.
 function Terrain.sphere(self, pos, r, add_or_sub)
 	add_or_sub = add_or_sub ~= false -- optional, defaults to true.
 	ffi.C.FFI_signeddistterrain_sphere(self.super, pos, r, add_or_sub)
+	return self
 end
 
 --- Adds or subtracts a box to/from the terrain.
 -- @param pos (vec3) The position inside the chunk.
 -- @param size (vec3) The size of the box.
 -- @param add_or_sub (bool) Decides if the box should be added to or subtracted from the terrain.
+-- @return The terrain object itself for chaining operations.
 function Terrain.box(self, pos, size, add_or_sub)
 	add_or_sub = add_or_sub ~= false -- optional, defaults to true.
 	ffi.C.FFI_signeddistterrain_box(self.super, pos, size, add_or_sub)
+	return self
 end
 
 --- Adds or subtracts a cylinder to/from the terrain.
@@ -64,9 +72,11 @@ end
 -- @param h (float) The height of the cylinder.
 -- @param r (float) The radius of the cylinder.
 -- @param add_or_sub (bool) Decides if the cylinder should be added to or subtracted from the terrain.
+-- @return The terrain object itself for chaining operations.
 function Terrain.cylinder(self, pos, h, r, add_or_sub)
 	add_or_sub = add_or_sub ~= false -- optional, defaults to true.
 	ffi.C.FFI_signeddistterrain_cylinder(self.super, pos, r, h, add_or_sub)
+	return self
 end
 
 return Terrain

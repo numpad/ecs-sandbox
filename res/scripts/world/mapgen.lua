@@ -21,6 +21,14 @@ end
 Room4Doors(0, 0)
 Room4Doors(0, 1)
 
-local t = Terrain.new(1, 0)
-t:plane(Vec3(0, 0, 0), Vec3(0.5, 1, 0):normal(), -0.85)
+-- downward slopes
+Terrain.new(1, 0)
+	:plane(Vec3(0, 0, 0), Vec3(0.5, 1, 0):normal(), -0.9)
+	:floor(-1)
 
+Terrain.new(1, 1)
+	:plane(Vec3(0, 0, 0), Vec3(0.5, 1, 0):normal(), -0.9)
+	:floor(-0.5)
+	:box(Vec3(0.5, -1, -1.5), Vec3(0.4, 0.3, 0.5), false)
+	:floor(-1)
+	:cylinder(Vec3(-0.5, -1, 0), 1, 0.5, false)
