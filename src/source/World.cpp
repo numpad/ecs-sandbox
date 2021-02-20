@@ -121,6 +121,8 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	registry.emplace_or_replace<CSpawnPoint>(this->player, vec3(0.0f, 0.5f, 0.0f));
 	registry.emplace_or_replace<CHealth>(this->player, 12);
 	
+	registry.emplace_or_replace<CTerrainCollider>(this->player, false);
+
 	// world pos crosshair
 	worldCrosshair = registry.create();
 	registry.emplace<CPosition>(worldCrosshair, vec3(0.0f));
@@ -291,6 +293,7 @@ void World::loadSystems() {
 	updateSystems.push_back(billboardRenderSystem);
 	updateSystems.push_back(textRenderSystem);
 	updateSystems.push_back(primitiveRenderer);
+	updateSystems.emplace_back(new DespawnSystem(registry));
 	updateSystems.emplace_back(new AudioSystem(registry, assetManager));
 	
 	// and render systems

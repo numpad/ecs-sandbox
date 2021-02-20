@@ -9,25 +9,6 @@ GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<Sig
 	: BaseUpdateSystem(registry), gravity(gravity), tileGrid(tileGrid)
 {
 	
-	registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().connect<&GravitySystem::entityKilled>(*this);
-	
-}
-
-void GravitySystem::entityKilled(const KillEntityEvent &e) {
-	registry.ctx<entt::dispatcher>().trigger<LogEvent>("Entity killed: " + e.how, LogEvent::LOG);
-	static Random random(0.8f, 1.2f);
-	registry.ctx<entt::dispatcher>().trigger<PlaySoundEvent>("res/audio/sfx/ouch.wav", random());
-	
-	if (registry.has<CSpawnPoint>(e.which)) {
-		auto [pos, vel] = registry.get<CPosition, CVelocity>(e.which);
-		pos.pos = registry.get<CSpawnPoint>(e.which).getPosition(registry);
-		vel.vel = glm::vec3(0.0f);
-		
-		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(e.which, vec3(0.f, .32f, 0.f), L"Ouch...", 60 * 2);
-	
-	} else {
-		registry.destroy(e.which);
-	}
 }
 
 void GravitySystem::update() {
@@ -52,10 +33,6 @@ void GravitySystem::update() {
 			} else {
 				vel.vel.x = vel.vel.z = 0.0f;
 			}
-		}
-		
-		if (pos.pos.y < voidHeight) {
-			registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Fell down.");
 		}
 	});
 }
