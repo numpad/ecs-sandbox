@@ -40,6 +40,10 @@ public:
 		return chunkedTerrain.raycast(origin, dir, max_length);
 	}
 
+	float raycastd(vec3 origin, vec3 dir, float max_length = 4.f) {
+		return chunkedTerrain.raycastd(origin, dir, max_length);
+	}
+
 private:
 	CubeMarcher marcher;
 	

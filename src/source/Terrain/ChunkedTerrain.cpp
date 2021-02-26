@@ -54,6 +54,26 @@ vec3 ChunkedTerrain::worldPosToLocalChunkPos(vec3 p) const {
 	return p;
 }
 
+vec3 ChunkedTerrain::raycast(vec3 origin, vec3 dir, float max_length) {
+	for (float dist = 0.f; dist <= max_length; dist += glm::length(dir)) {
+		vec3 p = origin + glm::normalize(dir) * dist;
+		if (sampleValue(p) < 0.f) {
+			return p;
+		}
+	}
+	return origin;
+}
+
+float ChunkedTerrain::raycastd(vec3 origin, vec3 dir, float max_length) {
+	for (float dist = 0.f; dist <= max_length; dist += glm::length(dir)) {
+		vec3 p = origin + glm::normalize(dir) * dist;
+		if (sampleValue(p) < 0.f) {
+			return dist;
+		}
+	}
+	return -1.0f;
+}
+
 ///////////////
 // PROTECTED //
 ///////////////

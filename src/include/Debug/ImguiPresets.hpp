@@ -125,6 +125,21 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		}
 	}
 
+	if (registry.has<CTerrainCollider>(entity)) {
+		auto &collider = registry.get<CTerrainCollider>(entity);
+		Text("On floor:");
+		SameLine();
+		if (collider.is_grounded) {
+			TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "yes");
+		} else {
+			TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "no");
+		}
+
+		if (Button("X##11")) {
+			registry.remove<CTerrainCollider>(entity);
+		}
+	}
+
 	if (Button("Send Message")) {
 		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(entity, vec3(0.f, .25f, 0.f), L"Hello", 60 * 4);
 	}
@@ -169,7 +184,8 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				hasjumper = true,
 				hashealth = true,
 				hasdecal = false,
-				hasorientation = false;
+				hasorientation = false,
+				hasterraincollider = false;
 	
 	if (BeginMenu("Spawn...")) {
 		Checkbox("CPosition", &haspos);
@@ -184,6 +200,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		Checkbox("CHealth", &hashealth);
 		Checkbox("CDecal", &hasdecal);
 		Checkbox("COrientation", &hasorientation);
+		Checkbox("CTerrainCollider", &hasterraincollider);
 		
 		Separator();
 		
@@ -258,6 +275,9 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				ImGui::EndMenu();
 			}
 		}
+		if (hasterraincollider) {
+
+		}
 		
 		Separator();
 		SliderInt("Amount", &spawnamount, 1, 50);
@@ -300,6 +320,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 			if (hashealth) registry.emplace<CHealth>(entity, max_hp);
 			if (hasdecal) registry.emplace<CDecal>(entity, size, world.getAssetManager().getTexture(decal_texpath), subrect);
 			if (hasorientation) registry.emplace<COrientation>(entity, orient, orient_amount);
+			if (hasterraincollider) registry.emplace<CTerrainCollider>(entity, false);
 		}
 	}
 }

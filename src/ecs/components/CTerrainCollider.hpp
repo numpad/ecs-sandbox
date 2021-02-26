@@ -1,5 +1,5 @@
 #pragma once
 
 struct CTerrainCollider {
-	bool is_falling;
+	bool is_grounded;
 };

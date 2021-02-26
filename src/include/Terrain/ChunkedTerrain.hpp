@@ -28,15 +28,9 @@ public:
 	
 	Grid2D<Terrain> &getChunkGrid() { return this->chunks; }
 
-	vec3 raycast(vec3 origin, vec3 dir, float max_length = 4.f) {
-		for (float dist = 0.f; dist <= max_length; dist += glm::length(dir)) {
-			vec3 p = origin + glm::normalize(dir) * dist;
-			if (sampleValue(p) < 0.f) {
-				return p;
-			}
-		}
-		return origin;
-	}
+	vec3 raycast(vec3 origin, vec3 dir, float max_length = 4.f);
+	float raycastd(vec3 origin, vec3 dir, float max_length = 4.f);
+
 protected:
 	
 	float sampleValue(vec3 p) const;
