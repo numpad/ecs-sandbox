@@ -88,6 +88,7 @@ entt::entity World::spawnDefaultEntity(vec3 pos) {
 	registry.emplace<CSphereCollider>(entity, 0.045f, 0.01f);
 	registry.emplace<CJumpTimer>(entity, 0);
 	registry.emplace<CHealth>(entity, 10);
+	registry.emplace<CTerrainCollider>(entity, false);
 	if (registry.valid(this->player)) {
 		//registry.emplace<CRunningToTarget>(entity, this->player, 0.001f, 0.2f);
 	}

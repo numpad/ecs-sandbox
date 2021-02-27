@@ -21,7 +21,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	COMP_TOGGLE(CVelocity);
 	//COMP_TOGGLE(CBillboard);
 	COMP_TOGGLE(CGravity);
-	//COMP_TOGGLE(CSphereCollider);
+	COMP_TOGGLE(CSphereCollider);
 	//COMP_TOGGLE(CKeyboardControllable);
 	//COMP_TOGGLE(CRunningToTarget);
 	COMP_TOGGLE(CHealth);
@@ -226,7 +226,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				hashealth = true,
 				hasdecal = false,
 				hasorientation = false,
-				hasterraincollider = false;
+				hasterraincollider = true;
 	
 	if (BeginMenu("Spawn...")) {
 		Checkbox("CPosition", &haspos);

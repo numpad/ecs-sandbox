@@ -13,7 +13,34 @@ GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<Sig
 
 void GravitySystem::update() {
 	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry = registry](auto entity, auto &pos, auto &vel, auto &gravity) {
+		bool is_grounded = false;
+
+		if (registry.has<CTerrainCollider>(entity)) {
+			auto collider = registry.get<CTerrainCollider>(entity);
+			is_grounded = collider.is_grounded;
+		}
+		
+		if (is_grounded) {
+			if (vel.vel.y < 0.0f || vel.acc.y < 0.0f) {
+				vel.vel.y = 0.0f;
+				vel.acc.y = 0.0f;
+				if (abs(vel.vel.y) < 0.00001f) vel.vel.y = 0.0f;
+			}
 			
+			glm::vec2 xz(vel.vel.x, vel.vel.z);
+			float xzlen = glm::length(xz);
+			glm::vec2 force = -glm::normalize(xz) * 0.0008f;
+			if (glm::length(force) < xzlen) {
+				vel.acc.x += force.x;
+				vel.acc.z += force.y;
+			} else {
+				vel.vel.x = vel.vel.z = 0.0f;
+			}
+		} else {
+			vel.acc.y -= this->gravity;
+		}
+
+		/*	
 		if (tileGrid.at(tilePosRound(pos.pos.x), tilePosRound(pos.pos.z)) == nullptr || pos.pos.y > 0.0f)
 			vel.acc.y -= this->gravity;
 		else if (pos.pos.y <= 0.0f && pos.pos.y >= -0.2f) {
@@ -34,5 +61,6 @@ void GravitySystem::update() {
 				vel.vel.x = vel.vel.z = 0.0f;
 			}
 		}
+		*/
 	});
 }
