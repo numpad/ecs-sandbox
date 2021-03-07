@@ -10,7 +10,7 @@
 class GravitySystem : public BaseUpdateSystem {
 public:
 	
-	GravitySystem(entt::registry &registry, float gravity, Grid2D<SignedDistTerrain> &tileGrid);
+	GravitySystem(entt::registry &registry, float gravity);
 	
 	void update();
 	
@@ -18,7 +18,5 @@ public:
 	
 private:
 	float gravity;
-	
-	Grid2D<SignedDistTerrain> &tileGrid;
-	
+		
 };

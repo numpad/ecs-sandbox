@@ -41,6 +41,14 @@ void CharacterControllerSystem::update() {
 			if (billboard) billboard->setFlipped(false);
 		}
 		
+		if (registry.has<CTerrainCollider>(entity)) {
+			auto &collider = registry.get<CTerrainCollider>(entity);
+			if (!collider.is_grounded) {
+				dir.x *= 0.f;
+				dir.z *= 0.f;
+			}
+		}
+
 		if (dir.x != 0.0f || dir.y != 0.0f || dir.z != 0.0f) {
 			glm::vec3 nv = vel.vel;
 			if (glm::length(vel.vel) > 0.001f)

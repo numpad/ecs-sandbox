@@ -28,7 +28,6 @@ public:
 	
 	Grid2D<Terrain> &getChunkGrid() { return this->chunks; }
 
-	vec3 raycast(vec3 origin, vec3 dir, float max_length = 4.f);
 	float raycastd(vec3 origin, vec3 dir, float max_length = 4.f);
 
 protected:

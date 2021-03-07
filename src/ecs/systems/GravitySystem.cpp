@@ -5,8 +5,8 @@ static inline int tilePosRound(float v) {
 	return (v < 0.0f) ? (int)floor(floor(v) * 0.5f + 0.5f) : int(((float)int(v)) * 0.5f + 0.5f);
 }
 
-GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<SignedDistTerrain> &tileGrid)
-	: BaseUpdateSystem(registry), gravity(gravity), tileGrid(tileGrid)
+GravitySystem::GravitySystem(entt::registry &registry, float gravity)
+	: BaseUpdateSystem(registry), gravity(gravity)
 {
 	
 }
@@ -39,28 +39,5 @@ void GravitySystem::update() {
 		} else {
 			vel.acc.y -= this->gravity;
 		}
-
-		/*	
-		if (tileGrid.at(tilePosRound(pos.pos.x), tilePosRound(pos.pos.z)) == nullptr || pos.pos.y > 0.0f)
-			vel.acc.y -= this->gravity;
-		else if (pos.pos.y <= 0.0f && pos.pos.y >= -0.2f) {
-			pos.pos.y = 0.0f;
-			if (vel.vel.y < 0.0f || vel.acc.y < 0.0f) {
-				vel.vel.y = 0.0f;
-				vel.acc.y = 0.0f;
-				if (abs(vel.vel.y) < 0.00001f) vel.vel.y = 0.0f;
-			}
-			
-			glm::vec2 xz(vel.vel.x, vel.vel.z);
-			float xzlen = glm::length(xz);
-			glm::vec2 force = -glm::normalize(xz) * 0.0008f;
-			if (glm::length(force) < xzlen) {
-				vel.acc.x += force.x;
-				vel.acc.z += force.y;
-			} else {
-				vel.vel.x = vel.vel.z = 0.0f;
-			}
-		}
-		*/
 	});
 }

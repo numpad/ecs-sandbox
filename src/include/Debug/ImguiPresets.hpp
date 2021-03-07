@@ -145,13 +145,16 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	if (registry.has<CTerrainCollider>(entity)) {
 		if (BeginMenu("CTerrainCollider")) {
 			auto &collider = registry.get<CTerrainCollider>(entity);
-			Text("On floor:");
+			Text("On floor: ");
 			SameLine();
 			if (collider.is_grounded) {
 				TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "yes");
 			} else {
 				TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "no");
 			}
+			Text("Dist to dir: ");
+			SameLine();
+			Text("%g", collider.dist_to_dir);
 			EndMenu();
 		}
 	}
