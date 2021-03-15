@@ -7,7 +7,6 @@ CharacterControllerSystem::CharacterControllerSystem(entt::registry &registry, G
 }
 
 void CharacterControllerSystem::update() {
-	
 	glm::vec3 viewDir = -((*this->m_camera)->getToTarget());
 
 	registry.view<CPosition, CVelocity, const CKeyboardControllable>().each(

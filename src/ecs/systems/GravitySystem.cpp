@@ -1,10 +1,5 @@
 #include <ecs/systems/GravitySystem.hpp>
 
-static inline int tilePosRound(float v) {
-	v /= 2.f; // tile size
-	return (v < 0.0f) ? (int)floor(floor(v) * 0.5f + 0.5f) : int(((float)int(v)) * 0.5f + 0.5f);
-}
-
 GravitySystem::GravitySystem(entt::registry &registry, float gravity)
 	: BaseUpdateSystem(registry), gravity(gravity)
 {
@@ -18,6 +13,10 @@ void GravitySystem::update() {
 		if (registry.has<CTerrainCollider>(entity)) {
 			auto collider = registry.get<CTerrainCollider>(entity);
 			is_grounded = collider.is_grounded;
+
+			if (collider.stair_height < collider.max_stair_height) {
+				pos.pos.y += collider.stair_height;
+			}
 		}
 		
 		if (is_grounded) {

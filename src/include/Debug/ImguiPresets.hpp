@@ -155,6 +155,8 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			Text("Dist to dir: ");
 			SameLine();
 			Text("%g", collider.dist_to_dir);
+			Text("Stair Height: ");
+			Text("%g", collider.stair_height);
 			EndMenu();
 		}
 	}

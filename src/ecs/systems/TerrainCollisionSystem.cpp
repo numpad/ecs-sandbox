@@ -14,7 +14,12 @@ void TerrainCollisionSystem::update() {
 	registry.view<CPosition, CVelocity, CTerrainCollider>().each([this](auto entity, auto &pos, auto &vel, auto &collider) {
 		float to_floor = m_chunkedWorld->raycastd(pos.pos, glm::vec3(0.f, -0.001f, 0.f), 0.001f);
 		float to_dir = m_chunkedWorld->raycastd(pos.pos + glm::vec3(0.f, 0.01f, 0.f), vel.vel * .1f, glm::length(vel.vel));
+
+		glm::vec3 maxStairEnd = pos.pos + vel.vel;
+		glm::vec3 maxStairStart = maxStairEnd + glm::vec3(0.f, collider.max_stair_height, 0.f);
+		float to_stair = m_chunkedWorld->raycastd(maxStairStart, glm::normalize(maxStairEnd - maxStairStart) * 0.001f, collider.max_stair_height * 2.5f);
 		collider.is_grounded = (to_floor >= 0.f);
 		collider.dist_to_dir = to_dir;
+		collider.stair_height = collider.max_stair_height - to_stair;
 	});
 }
