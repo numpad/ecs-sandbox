@@ -49,8 +49,8 @@ vec3 ChunkedTerrain::worldPosToLocalChunkPos(vec3 p) const {
 	vec3 signs = glm::sign(p);
 	
 	// 0.0001f actually
-	p.x = glm::sign(p.x - chunk.x * (chunkSize.x * 2.f)) * glm::mod(glm::abs(p.x - chunk.x * (chunkSize.x * 2.f)), chunkSize.x + 0.000f);
-	p.z = glm::sign(p.z - chunk.y * (chunkSize.z * 2.f)) * glm::mod(glm::abs(p.z - chunk.y * (chunkSize.z * 2.f)), chunkSize.z + 0.000f);
+	p.x = glm::sign(p.x - chunk.x * (chunkSize.x * 2.f)) * glm::mod(glm::abs(p.x - chunk.x * (chunkSize.x * 2.f)), chunkSize.x + 0.0001f);
+	p.z = glm::sign(p.z - chunk.y * (chunkSize.z * 2.f)) * glm::mod(glm::abs(p.z - chunk.y * (chunkSize.z * 2.f)), chunkSize.z + 0.0001f);
 	return p;
 }
 

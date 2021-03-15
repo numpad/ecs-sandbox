@@ -242,10 +242,11 @@ void World::draw() {
 				e = new SignedDistTerrain();
 			}
 			
+			vec3 localPos = chunkedWorld->getTerrain().worldPosToLocalChunkPos(pos);
 			if (vtype == vsphere) {
-				e->sphere(pos, r.x, (SignedDistTerrain::Op)vop);
+				e->sphere(localPos, r.x, (SignedDistTerrain::Op)vop);
 			} else if (vtype == vcube) {
-				e->box(pos, r, (SignedDistTerrain::Op)vop);
+				e->box(localPos, r, (SignedDistTerrain::Op)vop);
 			}
 			chunkedWorld->update(chunkPos, e);
 		}
