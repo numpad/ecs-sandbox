@@ -45,6 +45,8 @@ void World::setupLua() {
 	lua_setglobal(L, "_tileGrid");
 	lua_pushlightuserdata(L, chunkedWorld.get());
 	lua_setglobal(L, "_chunkedWorld");
+	lua_pushlightuserdata(L, &chunkedWorld->getTerrain());
+	lua_setglobal(L, "_chunkedTerrain");
 
 	m_luaState = L;
 }

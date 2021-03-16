@@ -30,6 +30,10 @@ public:
 
 	float raycastd(vec3 origin, vec3 dir, float max_length = 4.f);
 
+	float sampleValueAt(vec3 p) const {
+		return sampleValue(p);
+	}
+
 protected:
 	
 	float sampleValue(vec3 p) const;

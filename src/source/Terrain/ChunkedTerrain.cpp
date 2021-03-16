@@ -57,11 +57,14 @@ vec3 ChunkedTerrain::worldPosToLocalChunkPos(vec3 p) const {
 float ChunkedTerrain::raycastd(vec3 origin, vec3 dir, float max_length) {
 	// if `dir` is not set, just test the `origin`
 	if (glm::length(dir) == 0.f) max_length = 0.f;
+	else dir = glm::normalize(dir);
 
-	float dist;
-	for (dist = 0.f; dist <= max_length; dist += glm::length(dir)) {
-		vec3 p = origin + glm::normalize(dir) * dist;
-		if (sampleValue(p) < 0.f) {
+	float nearest; // distance to the nearest point of the terrain (result of SDF)
+	float dist; // distance we traveled on the ray
+	for (dist = 0.f; dist <= max_length; dist += nearest) {
+		vec3 p = origin + dir * dist;
+		nearest = sampleValue(p);
+		if (nearest <= 0.f) {
 			return dist;
 		}
 		// prevent infinite loop
@@ -70,7 +73,7 @@ float ChunkedTerrain::raycastd(vec3 origin, vec3 dir, float max_length) {
 
 	// if we didn't exactly reach `max_length`, test it too.
 	if (dist < max_length) {
-		if (sampleValue(origin + glm::normalize(dir) * max_length) < 0.f) return max_length;
+		if (sampleValue(origin + dir * max_length) <= 0.f) return max_length;
 	}
 	return -1.0f;
 }

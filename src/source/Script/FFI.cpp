@@ -24,6 +24,14 @@ extern "C" {
 		((Grid2D<SignedDistTerrain> *)grid)->set(x, y, (SignedDistTerrain *)1);
 	}
 
+	float FFI_chunkedTerrain_raycast(ChunkedTerrain *terrain, glm::vec3 p, glm::vec3 d, float max_len) {
+		return terrain->raycastd(p, d, max_len);
+	}
+
+	float FFI_chunkedTerrain_sampleValue(ChunkedTerrain *terrain, glm::vec3 p) {
+		return terrain->sampleValueAt(p);
+	}
+
 	// Math / Vec3
 	glm::vec3 FFI_vec3_add(glm::vec3 a, glm::vec3 b) {
 		return a + b;
