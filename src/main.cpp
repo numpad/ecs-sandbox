@@ -45,7 +45,7 @@
 #include <Util/Benchmark.hpp>
 #include <Util/Blackboard.hpp>
 
-#include <Script/ScriptBinder.hpp>
+#include <luajit-2.0/lua.hpp>
 
 #if CFG_DEBUG
 	#include <Debug/ImguiPresets.hpp>
@@ -143,11 +143,8 @@ int main(int, char**) {
 	
 	//AssetManager &assetManager = world.getAssetManager();
 	
-	Font defaultFont("res/fonts/FSmono.ttf", 48);
-	
-	
-	//ScriptBinder::luaTest();
-	
+	//Font defaultFont("res/fonts/FSmono.ttf", 48);
+
 	// deferred rendering
 	sgl::texture color_buffer, position_buffer, normal_buffer, depth_buffer;
 	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba, nullptr, sgl::texture::format::rgba, sgl::texture::datatype::u8);
@@ -215,7 +212,7 @@ int main(int, char**) {
 	screen_shader["uTexPosition"] = 1;
 	screen_shader["uTexNormal"] = 2;
 	screen_shader["uTexDepth"] = 3;
-	
+
 	/* draw loop */
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
@@ -274,6 +271,24 @@ int main(int, char**) {
 		#if CFG_IMGUI_ENABLED
 			static int settings_attachment = 0;
 			imguiRenderMenuBar(window, world, crosspos, topdown, camera, msPerFrame, settings_attachment);
+
+			if (ImGui::Begin("luajit")) {
+				lua_State *L = world.getLuaState();
+
+				constexpr size_t buf_size = 2048;
+				static char buf[buf_size] = "";
+				ImVec2 win_size = ImGui::GetWindowSize();
+				win_size.y -= 58;
+				ImGui::InputTextMultiline("##editor", buf, buf_size, win_size);
+				if (ImGui::Button("Evaluate")) {
+					if (luaL_dostring(L, buf) != 0) {
+						std::cerr << "[LUA] Error: " << lua_tostring(L, -1) << std::endl;
+						lua_pop(L, 1);
+					}
+				}
+				
+			}
+			ImGui::End();
 		#endif
 		
 		// TODO: find a better way to resize fbo attachments
@@ -350,7 +365,7 @@ int main(int, char**) {
 
 	/* cleanup */
 	world.destroy();
-	defaultFont.destroy();
+	//defaultFont.destroy();
 	window.destroy();
 	
 	glDeleteBuffers(1, &svbo);

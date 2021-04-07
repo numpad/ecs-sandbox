@@ -10,123 +10,184 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	using namespace ImGui;
 	
 	if (entity == entt::null || !registry.valid(entity)) {
-		TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "null-Entity");
+		TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "No entity selected");
 		return;
 	}
 	
+	// Add/remove components
+	#define COMP_TOGGLE(C) do { bool has_##C = registry.has<C>(entity); if (Checkbox(#C, &has_##C)) { if (!has_##C) registry.remove<C>(entity); else registry.emplace<C>(entity); }} while (0)
+
+	COMP_TOGGLE(CPosition);
+	COMP_TOGGLE(CVelocity);
+	//COMP_TOGGLE(CBillboard);
+	COMP_TOGGLE(CGravity);
+	COMP_TOGGLE(CSphereCollider);
+	//COMP_TOGGLE(CKeyboardControllable);
+	//COMP_TOGGLE(CRunningToTarget);
+	COMP_TOGGLE(CHealth);
+	COMP_TOGGLE(CDecal);
+	COMP_TOGGLE(COrientation);
+	COMP_TOGGLE(CTerrainCollider);
+
+	#undef COMP_TOGGLE
+	
+
+	// Edit component values
 	if (registry.has<CPosition>(entity)) {
-		glm::vec3 &pos = registry.get<CPosition>(entity).pos;
-		DragFloat3("pos", &pos[0], 0.005f);
-		SameLine();
-		if (Button("X##1")) {
-			registry.remove<CPosition>(entity);
+		if (BeginMenu("CPosition")) {
+			glm::vec3 &pos = registry.get<CPosition>(entity).pos;
+			DragFloat3("Position", &pos[0], 0.005f);
+			EndMenu();
 		}
 	}
 	if (registry.has<CVelocity>(entity)) {
-		glm::vec3 &vel = registry.get<CVelocity>(entity).vel;
-		glm::vec3 &acc = registry.get<CVelocity>(entity).acc;
-		float &maxvel = registry.get<CVelocity>(entity).maxvel;
-		
-		Text("velocity = %.5f", glm::length(vel));
-		DragFloat3("vel", &vel[0], 0.001f);
-		DragFloat3("acceleration", &acc[0], 0.001f);
-		DragFloat("max velocity", &maxvel, 0.0001f);
-		static glm::vec3 impulse;
-		DragFloat3("##apply_impulse", &impulse[0], 0.001f);
-		SameLine();
-		if (Button("impulse")) {
-			acc += impulse;
-		}
-		SameLine();
-		if (Button("X##2")) {
-			registry.remove<CVelocity>(entity);
+		if (BeginMenu("CVelocity")) {
+			glm::vec3 &vel = registry.get<CVelocity>(entity).vel;
+			glm::vec3 &acc = registry.get<CVelocity>(entity).acc;
+			float &maxvel = registry.get<CVelocity>(entity).maxvel;
+			
+			Text("velocity = %.5f", glm::length(vel));
+			DragFloat3("Velocity", &vel[0], 0.001f);
+			DragFloat3("Acceleration", &acc[0], 0.001f);
+			DragFloat("Max. velocity", &maxvel, 0.0001f);
+			static glm::vec3 impulse;
+			DragFloat3("##apply_impulse", &impulse[0], 0.001f);
+			SameLine();
+			if (Button("Apply impulse")) {
+				acc += impulse;
+			}
+
+			EndMenu();
 		}
 	}
 	if (registry.has<CBillboard>(entity)) {
-		glm::vec2 &size = registry.get<CBillboard>(entity).size;
-		glm::vec3 &color = registry.get<CBillboard>(entity).color;
-		glm::vec4 &texoffset = registry.get<CBillboard>(entity).texture_offset;
-		DragFloat2("size", &size[0], 0.001f);
-		ColorEdit3("tint", &color[0]);
-		SliderFloat2("texoffset", &texoffset[0], 0.0f, 1.0f);
-		SliderFloat2("texscale", &texoffset[2], 0.0f, 1.0f);
-		static int srstart[2] = {0};
-		const int texw = 256, texh = 256, tilesize = 16;
-		
-		bool a = SliderInt2("tilepos", srstart, 0, (texw / tilesize) - 1);
-		if (a) registry.get<CBillboard>(entity).setSubRect(
-			float(srstart[0]) * float(tilesize), float(srstart[1]) * float(tilesize),
-			float(tilesize), float(tilesize), texw, texh);
-		
-		SameLine();
-		if (Button("X##3")) {
-			registry.remove<CBillboard>(entity);
+		if (BeginMenu("CBillboard")) {
+			glm::vec2 &size = registry.get<CBillboard>(entity).size;
+			glm::vec3 &color = registry.get<CBillboard>(entity).color;
+			glm::vec4 &texoffset = registry.get<CBillboard>(entity).texture_offset;
+			DragFloat2("Size", &size[0], 0.001f);
+			ColorEdit3("Color", &color[0]);
+			SliderFloat2("Texture offset", &texoffset[0], 0.0f, 1.0f);
+			SliderFloat2("Texture scale", &texoffset[2], 0.0f, 1.0f);
+			static int srstart[2] = {0};
+			const int texw = 256, texh = 256, tilesize = 16;
+			
+			bool a = SliderInt2("Tile pos", srstart, 0, (texw / tilesize) - 1);
+			if (a) registry.get<CBillboard>(entity).setSubRect(
+				float(srstart[0]) * float(tilesize), float(srstart[1]) * float(tilesize),
+				float(tilesize), float(tilesize), texw, texh);
+			
+			EndMenu();
 		}
 	}
 	if (registry.has<CGravity>(entity)) {
-		Text("Gravity: enabled");
-		SameLine();
-		if (Button("X##4")) {
-			registry.remove<CGravity>(entity);
+		if (BeginMenu("CGravity")) {
+			Text("Gravity: enabled");
+
+			EndMenu();
 		}
 	}
 	if (registry.has<CSphereCollider>(entity)) {
-		float &radius = registry.get<CSphereCollider>(entity).radius;
-		float &force = registry.get<CSphereCollider>(entity).force;
-		
-		DragFloat("radius", &radius, 0.0005f, 0.0f);
-		DragFloat("force", &force, 0.0005f);
-		SameLine();
-		if (Button("X##5")) {
-			registry.remove<CSphereCollider>(entity);
+		if (BeginMenu("CSphereCollider")) {
+			float &radius = registry.get<CSphereCollider>(entity).radius;
+			float &force = registry.get<CSphereCollider>(entity).force;
+			
+			DragFloat("Radius", &radius, 0.0005f, 0.0f);
+			DragFloat("Force", &force, 0.0005f);
+			
+			EndMenu();
 		}
 	}
 	if (registry.has<CKeyboardControllable>(entity)) {
-		float &speed = registry.get<CKeyboardControllable>(entity).speed;
-		
-		DragFloat("char speed", &speed, 0.000001f, 0.0000000001f, 0.1f, "%g");
-		SameLine();
-		if (Button("X##6")) {
-			registry.remove<CKeyboardControllable>(entity);
+		if (BeginMenu("CKeyboardControllable")) {
+			float &speed = registry.get<CKeyboardControllable>(entity).speed;
+			
+			DragFloat("Speed", &speed, 0.000001f, 0.0000000001f, 0.1f, "%g");
+			EndMenu();
 		}
 	}
 	if (registry.has<CRunningToTarget>(entity)) {
-		auto &rtt = registry.get<CRunningToTarget>(entity);
-		DragFloat("speed", &rtt.force, 0.001f);
-		DragFloat("closeEnough", &rtt.closeEnough, 0.001f);
-		if (Button("X##7")) {
-			registry.remove<CRunningToTarget>(entity);
+		if (BeginMenu("CRunningToTarget")) {
+			auto &rtt = registry.get<CRunningToTarget>(entity);
+			DragFloat("Speed", &rtt.force, 0.001f);
+			DragFloat("Goal range", &rtt.closeEnough, 0.001f);
+			
+			EndMenu();
 		}
 	}
 	
 	if (registry.has<CHealth>(entity)) {
-		auto &health = registry.get<CHealth>(entity);
-		SliderInt("health", &health.hp, 0, health.max_hp);
-		if (Button("X##8")) {
-			registry.remove<CHealth>(entity);
+		if (BeginMenu("CHealth")) {
+			auto &health = registry.get<CHealth>(entity);
+			SliderInt("HP", &health.hp, 0, health.max_hp);
+			DragInt("Max. HP", &health.max_hp);
+			EndMenu();
 		}
 	}
 
 	if (registry.has<CDecal>(entity)) {
-		Text("Decal");
-		auto &decal = registry.get<CDecal>(entity);
-		DragFloat3("size##sizedecal", &decal.size[0], 0.001f);
-		if (Button("X##9")) {
-			registry.remove<CDecal>(entity);
+		if (BeginMenu("CDecal")) {
+			auto &decal = registry.get<CDecal>(entity);
+			DragFloat3("Size##sizedecal", &decal.size[0], 0.001f);
+			EndMenu();
 		}
 	}
 
 	if (registry.has<COrientation>(entity)) {
-		auto &orient = registry.get<COrientation>(entity);
-		SliderFloat3("Orient", &orient.orientation[0], -1.f, 1.f);
-		SliderFloat("Amount", &orient.amount, 0.f, 1.f);
-		if (Button("X##10")) {
-			registry.remove<COrientation>(entity);
+		if (BeginMenu("COrientation")) {
+			auto &orient = registry.get<COrientation>(entity);
+			SliderFloat3("Rotation", &orient.orientation[0], -1.f, 1.f);
+			SliderFloat("Amount", &orient.amount, 0.f, 1.f);
+			EndMenu();
+		}
+	}
+
+	if (registry.has<CTerrainCollider>(entity)) {
+		if (BeginMenu("CTerrainCollider")) {
+			auto &collider = registry.get<CTerrainCollider>(entity);
+			Text("On floor: ");
+			SameLine();
+			if (collider.is_grounded) {
+				TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "yes");
+			} else {
+				TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "no");
+			}
+			Text("Dist to dir: ");
+			SameLine();
+			Text("%g", collider.dist_to_dir);
+			Text("Stair Height: ");
+			Text("%g", collider.stair_height);
+			EndMenu();
 		}
 	}
 
 	if (Button("Send Message")) {
 		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(entity, vec3(0.f, .25f, 0.f), L"Hello", 60 * 4);
+	}
+}
+
+void imguiEntityEditor(World &world, bool pickingactive, glm::vec3 crosspos) {
+	using namespace ImGui;
+
+	if (BeginMenu("Edit...")) {
+		static bool pickingMode = false;
+		static entt::entity selected = entt::null;
+		if (selected == entt::null) {
+			Checkbox("Pick entity", &pickingMode);
+		} else {
+			if (Button("Clear selection")) {
+				selected = entt::null;
+			}
+		}
+		Separator();
+		if (pickingMode && pickingactive) {
+			selected = world.getNearestEntity(crosspos);
+			pickingMode = false;
+		}
+		
+		// entity editor
+		imguiEntityEdit(world.getRegistry(), selected);
+		EndMenu();
 	}
 }
 
@@ -169,7 +230,8 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				hasjumper = true,
 				hashealth = true,
 				hasdecal = false,
-				hasorientation = false;
+				hasorientation = false,
+				hasterraincollider = true;
 	
 	if (BeginMenu("Spawn...")) {
 		Checkbox("CPosition", &haspos);
@@ -184,6 +246,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		Checkbox("CHealth", &hashealth);
 		Checkbox("CDecal", &hasdecal);
 		Checkbox("COrientation", &hasorientation);
+		Checkbox("CTerrainCollider", &hasterraincollider);
 		
 		Separator();
 		
@@ -258,6 +321,9 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				ImGui::EndMenu();
 			}
 		}
+		if (hasterraincollider) {
+
+		}
 		
 		Separator();
 		SliderInt("Amount", &spawnamount, 1, 50);
@@ -300,28 +366,18 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 			if (hashealth) registry.emplace<CHealth>(entity, max_hp);
 			if (hasdecal) registry.emplace<CDecal>(entity, size, world.getAssetManager().getTexture(decal_texpath), subrect);
 			if (hasorientation) registry.emplace<COrientation>(entity, orient, orient_amount);
+			if (hasterraincollider) registry.emplace<CTerrainCollider>(entity, false);
 		}
 	}
 }
 
 void imguiRenderMenuBar(GLFWwindow *window, World &world, glm::vec3 &crosspos, std::shared_ptr<Camera> topdown, std::shared_ptr<Camera> camera, float &msPerFrame, int &settings_attachment) {
-	if (ImGui::Begin("world")) {
-		static bool pickingMode = false;
-		ImGui::Checkbox("Entity picker", &pickingMode);
-		static entt::entity selected = entt::null;
-		if (pickingMode && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-			selected = world.getNearestEntity(crosspos);
-			pickingMode = false;
-		}
-		
-		// entity editor
-		imguiEntityEdit(world.getRegistry(), selected);
-	}
-	ImGui::End();
-
 	if (ImGui::BeginMainMenuBar()) {
 		// Spawn entity
 		imguiEntitySpawn(world, (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS), crosspos);
+		// Edit entity
+		imguiEntityEditor(world, (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS), crosspos);
+
 		// Shaders
 		static bool shaders_reload = false;
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) shaders_reload = true;

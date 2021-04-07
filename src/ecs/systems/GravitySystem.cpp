@@ -1,42 +1,25 @@
 #include <ecs/systems/GravitySystem.hpp>
 
-static inline int tilePosRound(float v) {
-	v /= 2.f; // tile size
-	return (v < 0.0f) ? (int)floor(floor(v) * 0.5f + 0.5f) : int(((float)int(v)) * 0.5f + 0.5f);
-}
-
-GravitySystem::GravitySystem(entt::registry &registry, float gravity, Grid2D<SignedDistTerrain> &tileGrid)
-	: BaseUpdateSystem(registry), gravity(gravity), tileGrid(tileGrid)
+GravitySystem::GravitySystem(entt::registry &registry, float gravity)
+	: BaseUpdateSystem(registry), gravity(gravity)
 {
 	
-	registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().connect<&GravitySystem::entityKilled>(*this);
-	
-}
-
-void GravitySystem::entityKilled(const KillEntityEvent &e) {
-	registry.ctx<entt::dispatcher>().trigger<LogEvent>("Entity killed: " + e.how, LogEvent::LOG);
-	static Random random(0.8f, 1.2f);
-	registry.ctx<entt::dispatcher>().trigger<PlaySoundEvent>("res/audio/sfx/ouch.wav", random());
-	
-	if (registry.has<CSpawnPoint>(e.which)) {
-		auto [pos, vel] = registry.get<CPosition, CVelocity>(e.which);
-		pos.pos = registry.get<CSpawnPoint>(e.which).getPosition(registry);
-		vel.vel = glm::vec3(0.0f);
-		
-		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(e.which, vec3(0.f, .32f, 0.f), L"Ouch...", 60 * 2);
-	
-	} else {
-		registry.destroy(e.which);
-	}
 }
 
 void GravitySystem::update() {
 	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry = registry](auto entity, auto &pos, auto &vel, auto &gravity) {
-			
-		if (tileGrid.at(tilePosRound(pos.pos.x), tilePosRound(pos.pos.z)) == nullptr || pos.pos.y > 0.0f)
-			vel.acc.y -= this->gravity;
-		else if (pos.pos.y <= 0.0f && pos.pos.y >= -0.2f) {
-			pos.pos.y = 0.0f;
+		bool is_grounded = false;
+
+		if (registry.has<CTerrainCollider>(entity)) {
+			auto collider = registry.get<CTerrainCollider>(entity);
+			is_grounded = collider.is_grounded;
+
+			if (collider.stair_height < collider.max_stair_height && glm::abs(collider.stair_height) > 0.001f) {
+				pos.pos.y += collider.stair_height;
+			}
+		}
+		
+		if (is_grounded) {
 			if (vel.vel.y < 0.0f || vel.acc.y < 0.0f) {
 				vel.vel.y = 0.0f;
 				vel.acc.y = 0.0f;
@@ -52,10 +35,8 @@ void GravitySystem::update() {
 			} else {
 				vel.vel.x = vel.vel.z = 0.0f;
 			}
-		}
-		
-		if (pos.pos.y < voidHeight) {
-			registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Fell down.");
+		} else {
+			vel.acc.y -= this->gravity;
 		}
 	});
 }
