@@ -100,8 +100,14 @@ void Window::Destroy() {
 // PUBLIC //
 ////////////
 
-bool Window::create(int width, int height) {
-	glfw_window = glfwCreateWindow(width, height, "main", nullptr, nullptr);
+bool Window::create(int width, int height, FullscreenMode fullscreenMode) {
+	GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+	if (width < 0) width = mode->width;
+	if (height < 0) height = mode->height;
+	if (fullscreenMode == FullscreenMode::NONE) monitor = nullptr;
+
+	glfw_window = glfwCreateWindow(width, height, "main", monitor, nullptr);
 	glfwMakeContextCurrent(glfw_window);
 	glfwSwapInterval(1);
 	glfwSetFramebufferSizeCallback(glfw_window, onResize);
@@ -132,10 +138,6 @@ bool Window::create(int width, int height) {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	
-	// improved wireframe rendering
-	glLineWidth(2.f);
-	glEnable(GL_LINE_SMOOTH);
-	
 	/* check if debug enabled */
 	#if CFG_DEBUG
 	GLint flags;
@@ -155,4 +157,23 @@ bool Window::create(int width, int height) {
 
 void Window::destroy() {
 	glfwDestroyWindow(glfw_window);
+}
+
+glm::ivec2 Window::getMousePosition() const {
+	double mouseX, mouseY;
+	glfwGetCursorPos(glfw_window, &mouseX, &mouseY);
+	return glm::ivec2((int)mouseX, (int)mouseY);
+}
+
+glm::vec2 Window::getNormalizedMousePosition() const {
+	double mouseX, mouseY;
+	glfwGetCursorPos(glfw_window, &mouseX, &mouseY);
+	glm::ivec2 window_size = getSize();
+	return glm::vec2(mouseX / (float)window_size.x, mouseY / (float)window_size.y) * 2.0f - 1.0f;
+}
+
+glm::ivec2 Window::getSize() const {
+	int screenX, screenY;
+	glfwGetWindowSize(glfw_window, &screenX, &screenY);
+	return glm::ivec2(screenX, screenY);
 }

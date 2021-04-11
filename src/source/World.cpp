@@ -1,10 +1,11 @@
 #include <World.hpp>
+#include <Engine/Engine.hpp>
 
 using namespace glm;
 
-World::World(GLFWwindow *window, std::shared_ptr<Camera> camera)
-	: camera(camera),
-	m_window{window}
+World::World(Engine *engine, std::shared_ptr<Camera> tcamera)
+	: camera(tcamera),
+	m_engine(engine)
 {
 	registry.set<entt::dispatcher>();
 	chunkedWorld = std::make_shared<ChunkedWorld>(vec3(2.f, 1.f, 2.f));
@@ -25,19 +26,10 @@ void World::destroy() {
 	renderSystems.clear();
 	destroyFloor();
 	registry.clear();
-	destroyLua();
 }
 
 void World::setupLua() {
-	// create a new state
-	lua_State *L = luaL_newstate();
-	if (!L) {
-		std::cerr << "[LUA] Error: Could not initialize lua state!" << std::endl;
-		return;
-	}
-	luaL_openlibs(L);
-
-	luaL_dostring(L, "package.path = package.path .. ';res/scripts/modules/?.lua'");
+	lua_State *L = m_engine->getLuaState();
 
 	lua_pushlightuserdata(L, this);
 	lua_setglobal(L, "_World");
@@ -48,11 +40,6 @@ void World::setupLua() {
 	lua_pushlightuserdata(L, &chunkedWorld->getTerrain());
 	lua_setglobal(L, "_chunkedTerrain");
 
-	m_luaState = L;
-}
-
-void World::destroyLua() {
-	lua_close(m_luaState);
 }
 
 entt::entity World::getNearestEntity(vec3 posNear) {
@@ -289,7 +276,7 @@ void World::loadSystems() {
 	
 	// create update systems
 	updateSystems.emplace_back(new TerrainCollisionSystem(registry, chunkedWorld));
-	updateSystems.emplace_back(new CharacterControllerSystem(registry, m_window, &camera));
+	updateSystems.emplace_back(new CharacterControllerSystem(registry, m_engine->getWindow(), &camera));
 	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f));
 	updateSystems.emplace_back(new RandomJumpSystem(registry, 0.003f));
 	updateSystems.push_back(wayfindSystem);
@@ -311,9 +298,9 @@ void World::loadSystems() {
 }
 
 void World::setupFloor() {
-	if (luaL_dofile(m_luaState, "res/scripts/world/mapgen.lua") != 0) {
-		std::cerr << "[LUA] Error: " << lua_tostring(m_luaState, -1) << std::endl;
-		lua_pop(m_luaState, 1);
+	if (luaL_dofile(m_engine->getLuaState(), "res/scripts/world/mapgen.lua") != 0) {
+		std::cerr << "[LUA] Error: " << lua_tostring(m_engine->getLuaState(), -1) << std::endl;
+		lua_pop(m_engine->getLuaState(), 1);
 	}
 
 	spawnDefaultEntity(vec3(.5f, 1.f, .5f));
@@ -334,4 +321,8 @@ void World::setupFloor() {
 
 void World::destroyFloor() {
 	chunkedWorld->destroy();
+}
+
+lua_State *World::getLuaState() const {
+	return m_engine->getLuaState();
 }

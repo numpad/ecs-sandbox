@@ -8,7 +8,6 @@
 #include <thread>
 #include <string>
 
-#include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
 #include <sgl/sgl_shader.hpp>
 #include <sgl/sgl_framebuffer.hpp>
@@ -16,11 +15,15 @@
 #include <sgl/sgl_renderbuffer.hpp>
 #include <sgl/sgl_attachment.hpp>
 #include <imgui/imgui.h>
-#include <imgui/examples/imgui_impl_glfw.h>
-#include <imgui/examples/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <GLFW/glfw3.h>
 #include <entt/entt.hpp>
 
+#include <Engine/Engine.hpp>
+
 #include <Window/Window.hpp>
+#include <Window/Screen.hpp>
 
 #include <Assets/Texture.hpp>
 #include <Assets/AssetManager.hpp>
@@ -35,6 +38,7 @@
 
 #include <RenderObject/Camera.hpp>
 #include <RenderObject/ChunkedWorld.hpp>
+#include <RenderObject/GBuffer.hpp>
 
 #include <cereal/types/memory.hpp>
 #include <cereal/archives/json.hpp>
@@ -47,333 +51,23 @@
 
 #include <luajit-2.0/lua.hpp>
 
+#include <scenes/ui/MainMenuScene.hpp>
+
 #if CFG_DEBUG
 	#include <Debug/ImguiPresets.hpp>
 #endif
 
-inline void imguiInit(GLFWwindow *window) {
-	#if CFG_IMGUI_ENABLED
-		// init imgui
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO &io = ImGui::GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		ImGui::StyleColorsLight();
-		// imgui glfw init
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init("#version 450");
-		printf("[INIT] dear imgui %s\n", ImGui::GetVersion());
-	#endif
-}
-inline void imguiBeforeFrame() {
-	#if CFG_IMGUI_ENABLED
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-	#endif
-}
-inline void imguiRender() {
-	#if CFG_IMGUI_ENABLED
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	#endif
-}
-inline void imguiDestroy() {
-	#if CFG_IMGUI_ENABLED
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
-	#endif
-}
-
-float getWindowAspectRatio(GLFWwindow *window) {
-	int iw, ih;
-	glfwGetWindowSize(window, &iw, &ih);
-	return (float)iw / (float)ih;
-}
-
-glm::vec3 calcCamPos(GLFWwindow *window) {
-	// calculate view & projection matrix
-	static float angle = 0.0f,
-		angle_vel = 0.0f,
-		angle_acc = 0.3f,
-		cam_dist = 4.5f,
-		cam_y = 3.2f;
-	
-	angle_vel *= 0.9f;
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		angle_vel += angle_acc;
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		angle_vel -= angle_acc;
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		cam_dist -= 0.1f;
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		cam_dist += 0.1f;
-	angle += angle_vel;
-	if (cam_dist < 0.05f) cam_dist = 0.05f;
-	
-	glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
-		cam_y, glm::sin(glm::radians(angle)) * cam_dist);
-	
-	return campos;
-}
-
 int main(int, char**) {
-	// disable buffering for stdout (fixes sublime text console)
-	#if CFG_DEBUG
-		setbuf(stdout, nullptr);
-	#endif
-	
-	// init gl and window
-	Window window;
-	if (!Window::Init()) std::cerr << "[INIT] Window::Init() failed." << std::endl;
-	if (!window.create(930, 640)) std::cerr << "[INIT] window.create() failed." << std::endl;
-	imguiInit(window);
 
-	// init game
-	Camera::Init(window);
-	Font::Init();
-	
-	std::shared_ptr<Camera> camera = std::make_shared<Camera>(vec3(0.f));
-	std::shared_ptr<Camera> topdown = std::make_shared<Camera>(vec3(7.f, 5.f, -4.f));
-	topdown->setTarget(vec3(0.f, 0.f, 0.f));
-	World world(window, camera);
-	
-	world.load();
-	
-	//AssetManager &assetManager = world.getAssetManager();
-	
-	//Font defaultFont("res/fonts/FSmono.ttf", 48);
+	Engine engine;
 
-	// deferred rendering
-	sgl::texture color_buffer, position_buffer, normal_buffer, depth_buffer;
-	color_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba, nullptr, sgl::texture::format::rgba, sgl::texture::datatype::u8);
-	position_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
-	position_buffer.set_filter(sgl::texture::filter::nearest);
-	normal_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
-	normal_buffer.set_filter(sgl::texture::filter::nearest);
-	depth_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(), sgl::texture::internalformat::rgba16f);
-	depth_buffer.set_filter(sgl::texture::filter::nearest);
+	if (engine.initialize()) {
+		engine.setActiveScene(new MainMenuScene());
 
-	sgl::renderbuffer depthstencil_buffer;
-	depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
-	
-	// sgl::texture depthstencil_buffer;
-	//depthstencil_buffer.load(camera->getScreenWidth(), camera->getScreenHeight(),
-	//	sgl::texture::internalformat::depth24_stencil8, nullptr,
-	//	sgl::texture::format::depth_stencil, sgl::texture::datatype::u24_8);
-
-	sgl::framebuffer screen_fbo;
-	screen_fbo.attach(color_buffer, sgl::attachment::color(0));
-	screen_fbo.attach(position_buffer, sgl::attachment::color(1));
-	screen_fbo.attach(normal_buffer, sgl::attachment::color(2));
-	screen_fbo.attach(depth_buffer, sgl::attachment::color(3));
-	screen_fbo.attach(depthstencil_buffer, sgl::attachment::depth_stencil());
-	screen_fbo.targets();
-	
-	// build screen mesh
-	GLfloat vertices[] = {
-		-1.f, -1.f,
-		 1.f, -1.f,
-		-1.f,  1.f,
-		-1.f,  1.f,
-		 1.f, -1.f,
-		 1.f,  1.f,
-		 
-		 0.f, 0.f,
-		 1.f, 0.f,
-		 0.f, 1.f,
-		 0.f, 1.f,
-		 1.f, 0.f,
-		 1.f, 1.f
-	};
-	GLuint svao, svbo;
-	glGenBuffers(1, &svbo);
-	glGenVertexArrays(1, &svao);
-	
-	glBindVertexArray(svao);
-	glBindBuffer(GL_ARRAY_BUFFER, svbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 24, vertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void *)(sizeof(GLfloat) * 12));
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	
-	sgl::shader screen_shader;
-	screen_shader.load("res/glsl/2d/screen_vert.glsl", sgl::shader::VERTEX);
-	screen_shader.load("res/glsl/2d/screen_frag.glsl", sgl::shader::FRAGMENT);
-	screen_shader.compile();
-	screen_shader.link();
-	Blackboard::write("deferredShader", &screen_shader);
-	
-	screen_shader["uTexColor"] = 0;
-	screen_shader["uTexPosition"] = 1;
-	screen_shader["uTexNormal"] = 2;
-	screen_shader["uTexDepth"] = 3;
-
-	/* draw loop */
-	double msLastTime = glfwGetTime();
-	int msFrames = 0;
-	while (!glfwWindowShouldClose(window)) {
-		// poll events
-		glfwPollEvents();
-		imguiBeforeFrame();
-
-		// calc time
-		double msCurrentTime = glfwGetTime();
-		static float msPerFrame = 0.0f;
-		msFrames++;
-		if (msCurrentTime - msLastTime >= 1.0) {
-			msPerFrame = 1000.0f / (float)msFrames;
-			msFrames = 0;
-			msLastTime += 1.0;
-		}
-		
-		// input
-		double mouseX, mouseY;
-		glfwGetCursorPos(window, &mouseX, &mouseY);
-		int screenX, screenY;
-		glfwGetWindowSize(window, &screenX, &screenY);
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			glfwSetWindowShouldClose(window, true);
-		glm::vec2 normalizedMouse = glm::vec2(mouseX / (float)screenX,
-			mouseY / (float)screenY) * 2.0f - 1.0f;
-		
-		// orbit camera calculations
-		static glm::vec3 camtarget(0.0f);
-		const float camToTargetSpeed = 0.12f;
-		// ease camera to player or origin
-		glm::vec3 targetPos;
-		if (world.getPlayer() != entt::null && world.getRegistry().has<CPosition>(world.getPlayer())) {
-			targetPos = world.getRegistry().get<CPosition>(world.getPlayer()).pos * glm::vec3(1.0f, 0.0f, 1.0f);
-		} else { targetPos = glm::vec3(0.0f); }
-		glm::vec3 toTarget = (targetPos - camtarget) * camToTargetSpeed;
-		camtarget += toTarget;
-		
-		glm::vec3 campos = targetPos + calcCamPos(window);
-		camera->setPos(campos);
-		camera->setTarget(camtarget);
-				
-		// calculate player aim
-		entt::entity worldCrosshair = world.getCrosshair();
-		
-		m3d::ray mcRay = world.getCamera()->raycast(normalizedMouse);
-		m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::vec3 crosspos = m3d::raycast(mcRay, mcFloor);
-		bool mouseRightDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
-
-		if (world.getRegistry().valid(worldCrosshair)) {
-			world.getRegistry().get<CPosition>(worldCrosshair).pos = crosspos;
-		}
-		
-		#if CFG_IMGUI_ENABLED
-			static int settings_attachment = 0;
-			imguiRenderMenuBar(window, world, crosspos, topdown, camera, msPerFrame, settings_attachment);
-
-			if (ImGui::Begin("luajit")) {
-				lua_State *L = world.getLuaState();
-
-				constexpr size_t buf_size = 2048;
-				static char buf[buf_size] = "";
-				ImVec2 win_size = ImGui::GetWindowSize();
-				win_size.y -= 58;
-				ImGui::InputTextMultiline("##editor", buf, buf_size, win_size);
-				if (ImGui::Button("Evaluate")) {
-					if (luaL_dostring(L, buf) != 0) {
-						std::cerr << "[LUA] Error: " << lua_tostring(L, -1) << std::endl;
-						lua_pop(L, 1);
-					}
-				}
-				
-			}
-			ImGui::End();
-		#endif
-		
-		// TODO: find a better way to resize fbo attachments
-		color_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
-		position_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
-		normal_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
-		depth_buffer.resize(camera->getScreenWidth(), camera->getScreenHeight());
-		depthstencil_buffer.create(camera->getScreenWidth(), camera->getScreenHeight(), sgl::renderbuffer::internalformat::depth24_stencil8);
-		
-		// rendering
-		screen_fbo.bind();
-		
-		glClearColor(.231f, .275f, .302f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		// TODO: dont hardcode this, also referenced in DecalRenderSystem::draw().
-		//       the gbuffer should be easily available in all BaseRenderSystems
-		glActiveTexture(GL_TEXTURE7);
-		glBindTexture(GL_TEXTURE_2D, position_buffer);
-
-		// actual rendering
-		if (world.is_loaded()) {
-			world.update();
-			world.draw();
-		}
-		screen_fbo.unbind();
-		
-		// render framebuffer to screen
-		#if CFG_IMGUI_ENABLED
-			screen_shader["uTexChoiceActive"] = (settings_attachment != 0);
-			GLint display_texture = color_buffer;
-			if (settings_attachment != 0) {
-				glGetNamedFramebufferAttachmentParameteriv(screen_fbo, settings_attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &display_texture);
-			}
-			screen_shader["uTexColor"] = 0;
-			screen_shader["uTexPosition"] = 1;
-			screen_shader["uTexNormal"] = 2;
-			screen_shader["uTexDepth"] = 3;
-		#else
-			const GLint display_texture = color_buffer;
-		#endif
-		screen_shader["uTime"] = (float)glfwGetTime();
-
-		GLint pmode;
-		glGetIntegerv(GL_POLYGON_MODE, &pmode);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		
-		screen_shader.use();
-		glDisable(GL_DEPTH_TEST);
-		glBindVertexArray(svao);
-		glBindBuffer(GL_ARRAY_BUFFER, svbo);
-		
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, color_buffer);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, position_buffer);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, normal_buffer);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, depth_buffer);
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, display_texture);
-		
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-		glEnable(GL_DEPTH_TEST);
-		glPolygonMode(GL_FRONT_AND_BACK, pmode);
-		
-		// present rendered
-		imguiRender();
-		glfwSwapBuffers(window);
-		// poll events here?
+		engine.run();
 	}
 
-	/* cleanup */
-	world.destroy();
-	//defaultFont.destroy();
-	window.destroy();
-	
-	glDeleteBuffers(1, &svbo);
-	glDeleteVertexArrays(1, &svao);
-	
-	Font::Destroy();
-	Window::Destroy();
-	imguiDestroy();
-	std::cout << "[SYS]" << "cleanup complete, quitting now..." << std::endl;
+	engine.destroy();
+
 	return 0;
 }

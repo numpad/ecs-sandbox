@@ -104,6 +104,23 @@ namespace sgl {
 		/**
 		 * @brief Get the OpenGL texture name.
 		 * 
+		 * @code{.cpp}
+		 *     #include <sgl_texture.hpp>
+		 *     
+		 *     sgl::texture texture;
+		 *     texture.load(512, 512, nullptr);
+		 *     
+		 *     // Use the sgl::texture object as raw GLuint.
+		 *     glBindTexture(GL_TEXTURE_2D, texture.get_texture());
+		 *     
+		 * @endcode
+		 * @return The OpenGL texture name as GLuint.
+		 */
+		 GLuint get_texture() const;
+		 
+		 /**
+		 * @brief Get the OpenGL texture name.
+		 * 
 		 * Implicit cast the sgl::texture to its respective OpenGL texture object.
 		 * 
 		 * @code{.cpp}

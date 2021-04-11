@@ -66,7 +66,6 @@ void WayfindSystem::draw() {
 	glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
 	glBufferData(GL_ARRAY_BUFFER, lines.size() * sizeof(GLfloat) * 3, &lines[0], GL_STATIC_DRAW);
 	
-	glLineWidth(4.f);
 	lineShader["uProjection"] = camera->getProjection();
 	lineShader["uView"] = camera->getView();
 	lineShader["uColor"] = vec3(1.0, 0.0, 0.0);

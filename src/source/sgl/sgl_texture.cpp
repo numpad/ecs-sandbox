@@ -58,6 +58,10 @@ void sgl::texture::resize(int width, int height) {
 	unbind();
 }
 
+GLuint sgl::texture::get_texture() const {
+	return m_handle;
+}
+
 sgl::texture::operator GLuint() const {
 	return m_handle;
 }
