@@ -7,7 +7,6 @@ sgl::audio::audio() {
 
 sgl::audio::~audio() {
 	alDeleteBuffers(1, &m_buffer);
-	std::cout << "--- audio destructed" << std::endl;
 }
 
 void sgl::audio::load(format loaderformat, ALsizei frequency, ALsizei size, void *data) {
