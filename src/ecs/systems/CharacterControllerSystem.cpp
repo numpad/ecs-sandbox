@@ -1,12 +1,12 @@
 #include <ecs/systems/CharacterControllerSystem.hpp>
 
 CharacterControllerSystem::CharacterControllerSystem(entt::registry &registry, GLFWwindow *window, std::shared_ptr<Camera> *camera)
-	: BaseUpdateSystem(registry), m_window{window}, m_camera{camera}
+	: IUpdateSystem(registry), m_window{window}, m_camera{camera}
 {
 
 }
 
-void CharacterControllerSystem::update() {
+void CharacterControllerSystem::update(float dt) {
 	glm::vec3 viewDir = -((*this->m_camera)->getToTarget());
 
 	registry.view<CPosition, CVelocity, const CKeyboardControllable>().each(

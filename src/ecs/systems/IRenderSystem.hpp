@@ -6,13 +6,13 @@
 
 #include <RenderObject/Camera.hpp>
 
-class BaseRenderSystem {
+class IRenderSystem {
 public:
 	
-	BaseRenderSystem(const entt::registry &cregistry, std::shared_ptr<Camera> camera)
+	IRenderSystem(const entt::registry &cregistry, std::shared_ptr<Camera> camera)
 		: cregistry(cregistry), camera(camera) {}
 	
-	virtual ~BaseRenderSystem() { }
+	virtual ~IRenderSystem() { }
 	virtual void draw() = 0;
 	
 	// setters

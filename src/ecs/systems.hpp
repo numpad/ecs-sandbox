@@ -1,19 +1,19 @@
-// c128c011bdb74024e47450f17237880717e18238
+// cfdf7238ad58710492dc79998bb70ddbf3200945
 #pragma once
 
+#include <ecs/systems/IUpdateSystem.hpp>
 #include <ecs/systems/PositionUpdateSystem.hpp>
 #include <ecs/systems/WayfindSystem.hpp>
-#include <ecs/systems/BaseUpdateSystem.hpp>
 #include <ecs/systems/TextEventSystem.hpp>
 #include <ecs/systems/PressAwaySystem.hpp>
 #include <ecs/systems/DespawnSystem.hpp>
+#include <ecs/systems/IRenderSystem.hpp>
 #include <ecs/systems/PrimitiveRenderSystem.hpp>
 #include <ecs/systems/DecalRenderSystem.hpp>
 #include <ecs/systems/AudioSystem.hpp>
 #include <ecs/systems/TerrainRenderSystem.hpp>
 #include <ecs/systems/LogSystem.hpp>
 #include <ecs/systems/GravitySystem.hpp>
-#include <ecs/systems/BaseRenderSystem.hpp>
 #include <ecs/systems/RandomJumpSystem.hpp>
 #include <ecs/systems/BillboardRenderSystem.hpp>
 #include <ecs/systems/TerrainCollisionSystem.hpp>

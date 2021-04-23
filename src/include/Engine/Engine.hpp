@@ -47,7 +47,7 @@ public:
 	// getters
 	Window &getWindow() { return m_window; }
 	lua_State *getLuaState() { return m_lua; }
-	entt::registry &getRegistry() { return m_registry; }
+	IScene *getScene() { return m_scene; }
 
 private:
 	// engine specific
@@ -60,7 +60,6 @@ private:
 	GBuffer m_gbuffer;
 
 	// scripting & registry
-	entt::registry m_registry;
 	lua_State *m_lua = nullptr;
 
 	// application specific

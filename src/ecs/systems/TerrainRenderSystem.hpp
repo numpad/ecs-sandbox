@@ -9,9 +9,9 @@
 #include <Util/Blackboard.hpp>
 #include <RenderObject/ChunkedWorld.hpp>
 #include <RenderObject/Camera.hpp>
-#include <ecs/systems/BaseRenderSystem.hpp>
+#include <ecs/systems/IRenderSystem.hpp>
 
-class TerrainRenderSystem : public BaseRenderSystem {
+class TerrainRenderSystem : public IRenderSystem {
 public:
 
 	TerrainRenderSystem(const entt::registry &registry, std::shared_ptr<Camera> camera, AssetManager &assetManager, std::shared_ptr<ChunkedWorld> chunkedWorld);

@@ -1,7 +1,7 @@
 #include <ecs/systems/WayfindSystem.hpp>
 
 WayfindSystem::WayfindSystem(entt::registry &registry, std::shared_ptr<Camera> camera)
-	: BaseUpdateSystem(registry), BaseRenderSystem(registry, camera) {
+	: IUpdateSystem(registry), IRenderSystem(registry, camera) {
 	
 	// generate VAOs for debug rendering
 	glGenVertexArrays(1, &lineVAO);
@@ -32,7 +32,7 @@ WayfindSystem::~WayfindSystem() {
 	glDeleteBuffers(1, &lineVBO);
 }
 
-void WayfindSystem::update() {
+void WayfindSystem::update(float dt) {
 	registry.view<CPosition, CRunningToTarget>().each([&registry = registry]
 		(auto entity, auto &pos, auto &runToTarget) {
 			glm::vec3 dirToTarget = runToTarget.getTargetPosition(registry) - pos.pos;

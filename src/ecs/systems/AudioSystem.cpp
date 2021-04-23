@@ -1,7 +1,7 @@
 #include <ecs/systems/AudioSystem.hpp>
 
 AudioSystem::AudioSystem(entt::registry &registry, AssetManager &assetManager)
-	: BaseUpdateSystem(registry), m_assetManager{assetManager}
+	: IUpdateSystem(registry), m_assetManager{assetManager}
 {
 	registry.ctx<entt::dispatcher>().sink<PlaySoundEvent>().connect<&AudioSystem::play_sound>(*this);
 
@@ -21,7 +21,7 @@ AudioSystem::~AudioSystem() {
 	registry.ctx<entt::dispatcher>().sink<PlaySoundEvent>().disconnect<&AudioSystem::play_sound>(*this);
 }
 
-void AudioSystem::update() {
+void AudioSystem::update(float dt) {
 
 }
 

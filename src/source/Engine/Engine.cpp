@@ -98,7 +98,7 @@ void Engine::run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// TODO: dont hardcode this, also referenced in DecalRenderSystem::draw().
-		//       the gbuffer should be easily available in all BaseRenderSystems
+		//       the gbuffer should be easily available in all IRenderSystems
 		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D, *m_gbuffer.m_position);
 
@@ -180,9 +180,12 @@ void Engine::switchScene() {
 	// try and create new scene
 	if (m_scene) {
 		if (!m_scene->onCreate()) {
+			// scene failed to initialize, destroy it and shutdown.
 			m_scene->onDestroy();
 			delete m_scene;
 			m_scene = nullptr;
+			init_error("Scene initialization failed, running dry!");
+			quit();
 		}
 	}
 }
@@ -227,8 +230,13 @@ bool Engine::luastate_init() {
 
 	if (!m_lua) return init_error("Failed initializing Lua state.");
 
+	// open stdlib, add modules path
 	luaL_openlibs(m_lua);
 	luaL_dostring(m_lua, "package.path = package.path .. ';res/scripts/modules/?.lua'");
+
+	// register reference to engine
+	lua_pushlightuserdata(m_lua, this);
+	lua_setglobal(m_lua, "_Engine");
 
 	return true;
 }

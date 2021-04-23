@@ -1,7 +1,7 @@
 #include <ecs/systems/PrimitiveRenderSystem.hpp>
 
 PrimitiveRenderSystem::PrimitiveRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera)
-	: BaseUpdateSystem(registry), BaseRenderSystem(registry, camera) {
+	: IUpdateSystem(registry), IRenderSystem(registry, camera) {
 	
 	// register
 	registry.ctx<entt::dispatcher>().sink<DrawPrimitiveEvent>().connect<&PrimitiveRenderSystem::receive>(*this);
@@ -38,7 +38,7 @@ void PrimitiveRenderSystem::receive(const DrawPrimitiveEvent &event) {
 	
 }
 
-void PrimitiveRenderSystem::update() {
+void PrimitiveRenderSystem::update(float dt) {
 	
 }
 

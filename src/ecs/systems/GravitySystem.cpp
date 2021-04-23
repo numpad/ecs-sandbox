@@ -1,12 +1,12 @@
 #include <ecs/systems/GravitySystem.hpp>
 
 GravitySystem::GravitySystem(entt::registry &registry, float gravity)
-	: BaseUpdateSystem(registry), gravity(gravity)
+	: IUpdateSystem(registry), gravity(gravity)
 {
 	
 }
 
-void GravitySystem::update() {
+void GravitySystem::update(float dt) {
 	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry = registry](auto entity, auto &pos, auto &vel, auto &gravity) {
 		bool is_grounded = false;
 

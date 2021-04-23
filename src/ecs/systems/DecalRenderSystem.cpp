@@ -7,7 +7,7 @@
 
 
 DecalRenderSystem::DecalRenderSystem(const entt::registry &registry, std::shared_ptr<Camera> camera)
- : BaseRenderSystem(registry, camera) {
+ : IRenderSystem(registry, camera) {
 
 	m_shader.load("res/glsl/proto/decal_instance_vert.glsl", sgl::shader::VERTEX);
 	m_shader.load("res/glsl/proto/decal_instance_frag.glsl", sgl::shader::FRAGMENT);

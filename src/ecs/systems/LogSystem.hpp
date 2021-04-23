@@ -4,10 +4,10 @@
 
 #include <entt/entt.hpp>
 
-#include <ecs/systems/BaseUpdateSystem.hpp>
+#include <ecs/systems/IUpdateSystem.hpp>
 #include <ecs/events.hpp>
 
-class LogSystem : public BaseUpdateSystem {
+class LogSystem : public IUpdateSystem {
 public:
 	
 	LogSystem(entt::registry &registry);
@@ -17,7 +17,7 @@ public:
 	
 	void receive(const LogEvent &event);
 	
-	void update();
+	void update(float dt);
 	
 private:
 	

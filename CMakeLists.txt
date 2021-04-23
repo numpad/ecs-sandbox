@@ -37,7 +37,6 @@ configure_file (
 include_directories ("${PROJECT_BASE_SRC}/")
 include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_INCLUDE_DIR}")
-include_directories ("${PROJECT_INCLUDE_DIR}/*")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/gl3w/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")

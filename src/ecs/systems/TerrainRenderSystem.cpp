@@ -1,7 +1,7 @@
 #include "ecs/systems/TerrainRenderSystem.hpp"
 
 TerrainRenderSystem::TerrainRenderSystem(const entt::registry &registry, std::shared_ptr<Camera> camera, AssetManager &assetManager, std::shared_ptr<ChunkedWorld> chunkedWorld)
-	: BaseRenderSystem(registry, camera), m_assetManager{assetManager}, m_chunkedWorld{chunkedWorld}
+	: IRenderSystem(registry, camera), m_assetManager{assetManager}, m_chunkedWorld{chunkedWorld}
 {
 	
 	loadShader();

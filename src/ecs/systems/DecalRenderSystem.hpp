@@ -15,7 +15,7 @@
 #include <RenderObject/Camera.hpp>
 #include <Util/Blackboard.hpp>
 
-class DecalRenderSystem : public BaseRenderSystem {
+class DecalRenderSystem : public IRenderSystem {
 public:
 
 	DecalRenderSystem(const entt::registry &registry, std::shared_ptr<Camera> camera);

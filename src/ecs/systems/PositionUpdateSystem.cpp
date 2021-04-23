@@ -1,11 +1,11 @@
 #include <ecs/systems/PositionUpdateSystem.hpp>
 
 PositionUpdateSystem::PositionUpdateSystem(entt::registry &registry)
-	: BaseUpdateSystem(registry) {
+	: IUpdateSystem(registry) {
 	
 }
 
-void PositionUpdateSystem::update() {
+void PositionUpdateSystem::update(float dt) {
 	registry.view<CPosition, CVelocity>().each([](auto entity, auto &pos, auto &vel) {
 		const glm::vec3 noY(1.0f, 0.0f, 1.0f);
 		

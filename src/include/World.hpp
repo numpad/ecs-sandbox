@@ -109,8 +109,8 @@ private:
 	entt::entity spawnPlayer(vec3 pos = vec3(0.0f, 0.2f, 0.0f));
 	
 	// systems
-	std::vector<std::shared_ptr<BaseUpdateSystem>> updateSystems;
-	std::vector<std::shared_ptr<BaseRenderSystem>> renderSystems;
+	std::vector<std::shared_ptr<IUpdateSystem>> updateSystems;
+	std::vector<std::shared_ptr<IRenderSystem>> renderSystems;
 	std::unique_ptr<LogSystem> logEventSystem;
 	
 	void loadSystems();

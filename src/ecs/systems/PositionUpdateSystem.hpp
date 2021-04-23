@@ -3,14 +3,14 @@
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
 #include <ecs/components.hpp>
-#include <ecs/systems/BaseUpdateSystem.hpp>
+#include <ecs/systems/IUpdateSystem.hpp>
 
-class PositionUpdateSystem : public BaseUpdateSystem {
+class PositionUpdateSystem : public IUpdateSystem {
 public:
 	
 	PositionUpdateSystem(entt::registry &registry);
 	
-	void update();
+	void update(float dt);
 	
 private:
 		

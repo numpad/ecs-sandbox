@@ -5,19 +5,19 @@
 #include <glm/glm.hpp>
 #include <sgl/sgl_shader.hpp>
 #include <ecs/components.hpp>
-#include <ecs/systems/BaseUpdateSystem.hpp>
-#include <ecs/systems/BaseRenderSystem.hpp>
+#include <ecs/systems/IUpdateSystem.hpp>
+#include <ecs/systems/IRenderSystem.hpp>
 
 using namespace glm;
 
-class WayfindSystem : public BaseUpdateSystem, public BaseRenderSystem {
+class WayfindSystem : public IUpdateSystem, public IRenderSystem {
 public:
 	
 	WayfindSystem(entt::registry &registry, std::shared_ptr<Camera> camera);
 	WayfindSystem(const WayfindSystem &copy) = delete;
 	~WayfindSystem() override;
 	
-	void update() override;
+	void update(float dt) override;
 	void draw() override;
 	
 private:

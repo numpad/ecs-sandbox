@@ -5,6 +5,7 @@
 class Engine;
 
 class IScene {
+	friend class Engine;
 public:
 
 	virtual ~IScene() {}
@@ -26,7 +27,9 @@ public:
 	virtual void onUpdate(float dt) = 0;
 	virtual void onRender() = 0;
 
+protected:
 	Engine *m_engine = nullptr;
+
 private:
 
 };

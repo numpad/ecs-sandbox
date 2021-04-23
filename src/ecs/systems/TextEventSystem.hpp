@@ -8,8 +8,8 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 
-#include <ecs/systems/BaseUpdateSystem.hpp>
-#include <ecs/systems/BaseRenderSystem.hpp>
+#include <ecs/systems/IUpdateSystem.hpp>
+#include <ecs/systems/IRenderSystem.hpp>
 #include <ecs/events.hpp>
 #include <ecs/components.hpp>
 
@@ -19,7 +19,7 @@
 
 using namespace glm;
 
-class TextEventSystem : public BaseUpdateSystem, public BaseRenderSystem {
+class TextEventSystem : public IUpdateSystem, public IRenderSystem {
 public:
 	
 	TextEventSystem(entt::registry &registry, std::shared_ptr<Camera> camera);
@@ -27,7 +27,7 @@ public:
 	
 	void receive(const WorldTextEvent &e);
 	
-	void update();
+	void update(float dt);
 	void draw();
 	
 private:

@@ -12,7 +12,7 @@
 
 using namespace glm;
 
-class PrimitiveRenderSystem : public BaseUpdateSystem, public BaseRenderSystem {
+class PrimitiveRenderSystem : public IUpdateSystem, public IRenderSystem {
 public:
 	
 	PrimitiveRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera);
@@ -20,7 +20,7 @@ public:
 	
 	void receive(const DrawPrimitiveEvent &event);
 	
-	void update();
+	void update(float dt);
 	void draw();
 	
 private:

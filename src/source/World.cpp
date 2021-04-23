@@ -146,7 +146,7 @@ void World::update() {
 			update_benchmark.start();
 		#endif
 
-		sys->update();
+		sys->update(1.f / 60.f);
 		
 		#if CFG_DEBUG
 			update_benchmark.stop();

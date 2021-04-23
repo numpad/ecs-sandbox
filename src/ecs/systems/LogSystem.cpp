@@ -1,7 +1,7 @@
 #include <ecs/systems/LogSystem.hpp>
 
 LogSystem::LogSystem(entt::registry &registry)
-	: BaseUpdateSystem(registry) {
+	: IUpdateSystem(registry) {
 	
 	registry.ctx<entt::dispatcher>().sink<LogEvent>().connect<&LogSystem::receive>(*this);
 }
@@ -18,6 +18,6 @@ void LogSystem::receive(const LogEvent &event) {
 	this->logFunc(event);
 }
 
-void LogSystem::update() {
+void LogSystem::update(float dt) {
 	
 }

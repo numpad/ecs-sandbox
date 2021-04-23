@@ -12,8 +12,8 @@
 #include <imgui/imgui.h>
 #include <sgl/sgl_shader.hpp>
 
-#include <ecs/systems/BaseUpdateSystem.hpp>
-#include <ecs/systems/BaseRenderSystem.hpp>
+#include <ecs/systems/IUpdateSystem.hpp>
+#include <ecs/systems/IRenderSystem.hpp>
 #include <ecs/components.hpp>
 #include <ecs/events.hpp>
 
@@ -22,14 +22,14 @@
 
 #include <Util/Blackboard.hpp>
 
-class BillboardRenderSystem : public BaseUpdateSystem, public BaseRenderSystem {
+class BillboardRenderSystem : public IUpdateSystem, public IRenderSystem {
 public:
 	
 	BillboardRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera);
 	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
 	~BillboardRenderSystem();
 	
-	void update();
+	void update(float dt);
 	void draw();
 	
 		

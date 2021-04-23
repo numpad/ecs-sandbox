@@ -1,7 +1,7 @@
 #include <ecs/systems/TextEventSystem.hpp>
 
 TextEventSystem::TextEventSystem(entt::registry &registry, std::shared_ptr<Camera> camera)
-	: BaseUpdateSystem(registry), BaseRenderSystem(registry, camera),
+	: IUpdateSystem(registry), IRenderSystem(registry, camera),
 	textfont("res/fonts/humble_fonts/futile-pro-v1/FutilePro.ttf", 42) {
 	
 	registry.ctx<entt::dispatcher>().sink<WorldTextEvent>().connect<&TextEventSystem::receive>(*this);
@@ -18,7 +18,7 @@ void TextEventSystem::receive(const WorldTextEvent &e) {
 }
 
 
-void TextEventSystem::update() {
+void TextEventSystem::update(float dt) {
 	for (auto &te : textEvents) {
 		switch (te.animation) {
 			case TextEventEntry::Animation::ZOOM: {

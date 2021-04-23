@@ -1,7 +1,7 @@
 #include <ecs/systems/BillboardRenderSystem.hpp>
 
 BillboardRenderSystem::BillboardRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera)
-	: BaseUpdateSystem(registry), BaseRenderSystem(registry, camera)
+	: IUpdateSystem(registry), IRenderSystem(registry, camera)
 {
 	glGenBuffers(1, &instanceBuffer);
 	
@@ -19,7 +19,7 @@ BillboardRenderSystem::~BillboardRenderSystem() {
 	registry.ctx<entt::dispatcher>().trigger<LogEvent>("BillboardRenderSystem: destructed.", LogEvent::DEBUG);
 }
 
-void BillboardRenderSystem::update() {
+void BillboardRenderSystem::update(float dt) {
 	
 	// depthsort
 	registry.sort<CPosition>([this](const auto &lhs, const auto &rhs) {

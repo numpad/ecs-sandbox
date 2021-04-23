@@ -4,18 +4,18 @@
 #include <GLFW/glfw3.h>
 #include <entt/entt.hpp>
 #include <ecs/components.hpp>
-#include <ecs/systems/BaseUpdateSystem.hpp>
+#include <ecs/systems/IUpdateSystem.hpp>
 #include <Util/Random.hpp>
 
-class RandomJumpSystem : public BaseUpdateSystem {
+class RandomJumpSystem : public IUpdateSystem {
 public:
 	
 	RandomJumpSystem(entt::registry &registry, float chanceToJump = 0.01f)
-		: BaseUpdateSystem(registry), chanceToJump(chanceToJump), chanceToFlip(chanceToJump)
+		: IUpdateSystem(registry), chanceToJump(chanceToJump), chanceToFlip(chanceToJump)
 	{
 	}
 	
-	void update();
+	void update(float dt);
 	
 private:
 	float chanceToJump, chanceToFlip;

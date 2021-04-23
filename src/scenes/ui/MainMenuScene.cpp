@@ -70,9 +70,13 @@ void MainMenuScene::onRender() {
 					--m_modeindex;
 				}
 				ImGui::TableSetColumnIndex(1);
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0, 0.0, 0.0, 0.0));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0, 0.0, 0.0, 0.0));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0, 0.0, 0.0, 0.0));
 				if (ImGui::Button(m_modenames[m_modeindex % m_modenames.size()].c_str(), button_size)) {
 					
 				}
+				ImGui::PopStyleColor(3);
 				ImGui::TableSetColumnIndex(2);
 				if (ImGui::Button(">", button_size)) {
 					++m_modeindex;

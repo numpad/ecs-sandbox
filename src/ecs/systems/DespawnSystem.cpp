@@ -1,7 +1,7 @@
 #include <ecs/systems/DespawnSystem.hpp>
 
 DespawnSystem::DespawnSystem(entt::registry &registry)
- : BaseUpdateSystem(registry)
+ : IUpdateSystem(registry)
 {
 	registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().connect<&DespawnSystem::entityKilled>(*this);
 }
@@ -10,7 +10,7 @@ DespawnSystem::~DespawnSystem() {
 
 }
 
-void DespawnSystem::update() {
+void DespawnSystem::update(float dt) {
 	registry.view<CPosition>().each([this](auto entity, auto &pos) {
 		// despawn entities who fell into the void
 		if (pos.pos.y < voidHeight) {
