@@ -14,6 +14,10 @@ extern "C" {
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
 	}
+
+	void ffi_TowerScene_toMainMenu(Engine *engine) {
+		engine->setActiveScene(new MainMenuScene());
+	}
 }
 
 bool TowerScene::onCreate() {
@@ -22,9 +26,8 @@ bool TowerScene::onCreate() {
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
 
-	ffi_TowerScene_spawnPlayer(m_engine, glm::vec3(-1.f, 0.f, 0.f), glm::vec3(0.f), 8.f, 14.f);
-	ffi_TowerScene_spawnPlayer(m_engine, glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f), 7.f, 14.f);
-
+	ffi_TowerScene_spawnPlayer(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 8.f, 14.f);
+	ffi_TowerScene_spawnPlayer(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 7.f, 14.f);
 	loadSystems();
 
 	return true;
@@ -35,7 +38,7 @@ void TowerScene::onDestroy() {
 }
 
 void TowerScene::onUpdate(float dt) {
-	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [](auto &usys) { usys->update(1.f / 60.f); });
+	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt); });
 
 }
 

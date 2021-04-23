@@ -13,6 +13,9 @@
 #include <RenderObject/Camera.hpp>
 #include <Assets/AssetManager.hpp>
 #include <Debug/ImguiPresets.hpp>
+#include <ImprovedTerrain/DynamicTerrain.hpp>
+#include <ImprovedTerrain/ISignedDistanceBody.hpp>
+#include <ImprovedTerrain/SphereBody.hpp>
 
 class TowerScene : public IScene {
 public:
@@ -24,6 +27,7 @@ public:
 
 	entt::registry m_registry;
 	AssetManager m_assetmanager;
+	DynamicTerrain m_terrain;
 
 private:
 	std::shared_ptr<Camera> m_camera;

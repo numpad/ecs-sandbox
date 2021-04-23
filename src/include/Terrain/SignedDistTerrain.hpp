@@ -22,7 +22,7 @@ private:
 	struct Sphere : Body {
 		float r;
 		Sphere(vec3 p, float r) : Body(p), r(r) {}
-		float distance(vec3 p) { return glm::length(p) - r; }
+		float distance(vec3 mp) { return glm::length(mp) - r; }
 	};
 	struct Box : Body {
 		vec3 b;
