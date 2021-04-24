@@ -8,6 +8,10 @@ public:
 
 	}
 
+	virtual ~ISignedDistanceBody() {
+
+	}
+
 	// evaluate the SDF
 	float get_distance(glm::vec3 p) const { return signed_distance_function(p); }
 
