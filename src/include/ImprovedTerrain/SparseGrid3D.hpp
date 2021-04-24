@@ -1,6 +1,8 @@
 #pragma once
 
 #include <unordered_map>
+#include <functional>
+
 #include <glm/glm.hpp>
 
 #include <ImprovedTerrain/ISignedDistanceFunction.hpp>
@@ -25,6 +27,12 @@ public:
 		if (found != nullptr) set(p, nullptr);
 		return found;
 	}
+
+	void each(std::function<void (glm::ivec3, T *)> func) {
+		for (auto iter : m_grid)
+			func(iter.first, iter.second);
+	}
+	
 
 private:
 	struct ivec3_hash {

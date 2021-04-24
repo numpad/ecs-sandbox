@@ -47,6 +47,8 @@ void TowerScene::onRender() {
 
 	imguiLuaJitConsole(m_engine->getLuaState());
 
+	m_terrain.draw(*m_camera);
+
 }
 
 /////////////

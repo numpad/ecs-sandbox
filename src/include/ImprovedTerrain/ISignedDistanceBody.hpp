@@ -1,8 +1,9 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <ImprovedTerrain/ISignedDistanceFunction.hpp>
 
-class ISignedDistanceBody {
+class ISignedDistanceBody : public ISignedDistanceFunction {
 public:
 	ISignedDistanceBody(glm::vec3 position) : m_position{position} {
 
