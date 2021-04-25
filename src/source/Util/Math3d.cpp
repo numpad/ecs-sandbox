@@ -30,6 +30,13 @@ namespace m3d {
 		return ray.origin + ray.dir * t;
 	}
 	
+	imat2x3 get_affected_chunks(mat2x3 aabb, vec3 chunksize) {
+		return imat2x3(
+			ivec3(floor(aabb[0] / chunksize)),
+			ivec3(ceil(aabb[1] / chunksize)) - 1
+		);
+	}
+
 	int solve_ballistic_arc(vec3 proj_pos, float proj_speed, vec3 target, float gravity, vec3 &s0, vec3 &s1) {
 
         // Handling these cases is up to your project's coding standards

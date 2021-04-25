@@ -31,7 +31,7 @@ public:
 
 private:
 	std::shared_ptr<Camera> m_camera;
-
+	sgl::shader m_chunkshader;
 
 	// systems
 	std::vector<std::shared_ptr<IUpdateSystem>> m_updatesystems;
@@ -39,4 +39,6 @@ private:
 	std::unique_ptr<LogSystem> m_logsystem;
 	void loadSystems();
 
+	void loadTerrainShader();
+	void updateTerrainShader();
 };

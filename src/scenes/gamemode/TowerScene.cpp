@@ -29,6 +29,7 @@ bool TowerScene::onCreate() {
 	ffi_TowerScene_spawnPlayer(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 8.f, 14.f);
 	ffi_TowerScene_spawnPlayer(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 7.f, 14.f);
 	loadSystems();
+	loadTerrainShader();
 
 	return true;
 }
@@ -47,7 +48,8 @@ void TowerScene::onRender() {
 
 	imguiLuaJitConsole(m_engine->getLuaState());
 
-	m_terrain.draw(*m_camera);
+	updateTerrainShader();
+	m_terrain.draw(&m_chunkshader);
 
 }
 
@@ -89,4 +91,30 @@ void TowerScene::loadSystems() {
 	m_rendersystems.push_back(textRenderSystem);
 	m_rendersystems.push_back(wayfindSystem);
 	m_rendersystems.push_back(primitiveRenderer);
+}
+
+void TowerScene::loadTerrainShader() {
+	m_chunkshader.load("res/glsl/proto/terrain_vert.glsl", sgl::shader::VERTEX);
+	m_chunkshader.load("res/glsl/proto/terrain_frag.glsl", sgl::shader::FRAGMENT);
+	m_chunkshader.compile();
+	m_chunkshader.link();
+}
+
+void TowerScene::updateTerrainShader() {
+	m_chunkshader["uProj"] = m_camera->getProjection();
+	m_chunkshader["uView"] = m_camera->getView();
+	m_chunkshader["uModel"] = glm::mat4(1.f);
+	m_chunkshader["uTextureTopdownScale"] = 2.0f;
+	m_chunkshader["uTextureSideScale"] = 2.0f;
+	m_chunkshader["uTextureTopdown"] = 0;
+	m_chunkshader["uTextureSide"] = 1;
+	m_chunkshader["uTime"] = (float)glfwGetTime();
+
+	glActiveTexture(GL_TEXTURE0);
+	m_assetmanager.getTexture("res/images/textures/floor.png")->setWrapMode(Texture::WrapMode::REPEAT);
+	m_assetmanager.getTexture("res/images/textures/floor.png")->bind();
+	
+	glActiveTexture(GL_TEXTURE1);
+	m_assetmanager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
+	m_assetmanager.getTexture("res/images/textures/wall.png")->bind();
 }

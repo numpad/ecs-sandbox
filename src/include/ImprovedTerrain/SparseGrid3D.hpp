@@ -32,6 +32,19 @@ public:
 		for (auto iter : m_grid)
 			func(iter.first, iter.second);
 	}
+
+	void each_inside(glm::imat2x3 chunks_aabb, std::function<void (glm::ivec3, T *)> func) {
+		const glm::ivec3 min = chunks_aabb[0];
+		const glm::ivec3 max = chunks_aabb[1];
+
+		for (int x = min.x; x <= max.x; ++x) {
+			for (int y = min.y; y <= max.y; ++y) {
+				for (int z = min.z; z <= max.z; ++z) {
+					func(glm::ivec3(x, y, z), at(glm::ivec3(x, y, z)));
+				}
+			}
+		}
+	}
 	
 
 private:

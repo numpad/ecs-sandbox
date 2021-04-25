@@ -30,7 +30,7 @@ namespace m3d {
 		
 		plane(vec3 n, float d = 0.0f) : normal(normalize(n)), dist(d) {}
 	};
-		
+
 }
 
 
@@ -44,7 +44,7 @@ namespace m3d {
 	// cast a ray onto a plane
 	vec3 raycast(ray r, plane p);
 	
-
+	imat2x3 get_affected_chunks(mat2x3 aabb, vec3 chunksize);
 	
 	int solve_ballistic_arc(glm::vec3 proj_pos, float proj_speed, glm::vec3 target, float gravity, glm::vec3 &s0, glm::vec3 &s1);
 	 
