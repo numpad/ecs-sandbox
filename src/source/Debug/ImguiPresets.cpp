@@ -462,7 +462,7 @@ void imguiRenderMenuBar(GLFWwindow *window, World &world, glm::vec3 &crosspos, s
 void imguiLuaJitConsole(lua_State *L) {
 	if (ImGui::Begin("LuaJIT")) {
 		constexpr size_t buf_size = 2048;
-		static char buf[buf_size] = "local ffi = require('ffi')\nffi.cdef[[\n\t\n]]\n\n";
+		static char buf[buf_size] = "local ffi = require('ffi')\nlocal vec3 = require('Vec3')\nffi.cdef[[\n  typedef struct { float x, y, z; } vec3;\n  \n]]\n\n";
 		ImVec2 win_size = ImGui::GetWindowSize();
 		win_size.y -= 58;
 		ImGui::InputTextMultiline("##editor", buf, buf_size, win_size);

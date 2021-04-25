@@ -26,6 +26,11 @@ extern "C" {
 	void ffi_TowerScene_subSphere(Engine *engine, glm::vec3 p, float r) {
 		((TowerScene *)engine->getScene())->m_terrain.sub_body(new SphereBody(p, r));
 	}
+
+	// tmp shortcuts:
+	void srem(Engine *engine, glm::vec3 p, float r) {
+		((TowerScene *)engine->getScene())->m_terrain.sub_body(new SphereBody(p, r));
+	}
 }
 
 bool TowerScene::onCreate() {
@@ -57,12 +62,12 @@ void TowerScene::onUpdate(float dt) {
 }
 
 void TowerScene::onRender() {
+	updateTerrainShader();
+	m_terrain.draw(&m_chunkshader);
+	
 	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](auto &rsys) { rsys->draw(); });
 
 	imguiLuaJitConsole(m_engine->getLuaState());
-
-	updateTerrainShader();
-	m_terrain.draw(&m_chunkshader);
 
 }
 
