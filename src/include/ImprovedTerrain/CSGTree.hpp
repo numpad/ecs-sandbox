@@ -21,10 +21,10 @@ public:
 	Operator m_op;
 
 protected:
-	static inline float sdf_union(float a, float b) { return glm::min(a, b); }
-	static inline float sdf_diff(float a, float b) { return glm::max(a, -b); }
-	static inline float sdf_intersect(float a, float b) { return glm::max(a, b); }
 
 	float signed_distance_function(glm::vec3 p) const;
 
+private:
+
+	float combine(float a, float b) const;
 };

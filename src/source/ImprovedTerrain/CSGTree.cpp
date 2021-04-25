@@ -46,11 +46,19 @@ glm::mat2x3 CSGNode::get_bounding_box() const {
 ///////////////
 
 float CSGNode::signed_distance_function(glm::vec3 p) const {
-	switch (m_op) {
-		case Operator::UNION:     return sdf_union(m_left->get_distance(p), m_right->get_distance(p));
-		case Operator::INTERSECT: return sdf_intersect(m_left->get_distance(p), m_right->get_distance(p));
-		case Operator::DIFF:      return sdf_diff(m_left->get_distance(p), m_right->get_distance(p));
-	};
+	return combine(m_left->get_distance(p), m_right->get_distance(p));
+}
 
-	return 1.f;
+
+/////////////
+// PRIVATE //
+/////////////
+
+float CSGNode::combine(float a, float b) const {
+	switch (m_op) {
+		default:
+		case Operator::UNION:     return glm::min(a, b);
+		case Operator::INTERSECT: return glm::max(a, b);
+		case Operator::DIFF:      return glm::max(a, -b);
+	};
 }

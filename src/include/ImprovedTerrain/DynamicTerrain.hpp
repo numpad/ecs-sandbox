@@ -22,19 +22,19 @@ public:
 
 	DynamicTerrain() {		
 		SphereBody *s1 = new SphereBody(glm::vec3(0.f), 0.5f);
-		CubeBody *c1 = new CubeBody(glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.8f, 0.5f, 0.5f));
-		CSGNode *s = new CSGNode(c1, s1, CSGNode::Operator::UNION);
+		CubeBody *c1 = new CubeBody(glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.1f, 0.5f, 0.5f));
+		CSGNode *s = new CSGNode(s1, c1, CSGNode::Operator::UNION);
 
 		glm::imat2x3 affected = m3d::get_affected_chunks(s->get_bounding_box(), m_chunksize);
 		m_chunks.each_inside(affected, [this, s](glm::ivec3 chunk_idx, ISignedDistanceFunction *sdf) {
 			m_chunks.set(chunk_idx, s);
-			std::cout << "" << std::endl;
+			std::cout << "setting " << chunk_idx.x << ",\t" << chunk_idx.y << ",\t" << chunk_idx.z << std::endl;
 		});
 
 		Benchmark b;
 		m_chunks.each([this](glm::ivec3 chunk_idx, ISignedDistanceFunction *) { polygonize(chunk_idx); });
 		b.stop();
-		std::cout << "took " << b.ms() << std::endl;
+		std::cout << "took " << b.ms() << "ms" << std::endl;
 	}
 	~DynamicTerrain() {
 		// TODO: delete all in m_chunks?
@@ -44,6 +44,20 @@ public:
 	void draw(sgl::shader *chunkshader) {
 		m_chunkmeshes.each([this, chunkshader](glm::ivec3 chunk_idx, Mesh *mesh) {
 			mesh->draw(*chunkshader);
+		});
+	}
+
+	void add_body(ISignedDistanceBody *body) {
+		glm::imat2x3 affected = m3d::get_affected_chunks(body->get_bounding_box(), m_chunksize);
+		m_chunks.each_inside(affected, [this, body](glm::ivec3 chunk_idx, ISignedDistanceFunction *sdf) {
+			if (sdf == nullptr) {
+				m_chunks.set(chunk_idx, body);
+			} else {
+				// TODO: this is not always a SDBody, maybe change m_chunks from SDF* to SDB* ??
+				m_chunks.set(chunk_idx, new CSGNode((ISignedDistanceBody*)m_chunks.pop(chunk_idx), body, CSGNode::Operator::UNION));
+			}
+			std::cout << "setting " << chunk_idx.x << ",\t" << chunk_idx.y << ",\t" << chunk_idx.z << std::endl;
+			polygonize(chunk_idx);
 		});
 	}
 

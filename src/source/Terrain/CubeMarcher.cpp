@@ -226,9 +226,9 @@ int CubeMarcher::polygonizeCube(const ISignedDistanceFunction &sdf, vec3 cellSta
 			vertices[TRIANGLE_TABLE[cubeindex][i + 2]]
 		};
 		vec3 n = m3d::triangleCalcNormal(p);
-		triangleVertices.push_back(Vertex(p[0], n));
-		triangleVertices.push_back(Vertex(p[1], n));
-		triangleVertices.push_back(Vertex(p[2], n));
+		triangleVertices.emplace_back(p[0], n);
+		triangleVertices.emplace_back(p[1], n);
+		triangleVertices.emplace_back(p[2], n);
 		++tricount;
 	}
 	

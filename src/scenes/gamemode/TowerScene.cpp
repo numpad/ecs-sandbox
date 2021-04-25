@@ -18,6 +18,10 @@ extern "C" {
 	void ffi_TowerScene_toMainMenu(Engine *engine) {
 		engine->setActiveScene(new MainMenuScene());
 	}
+
+	void ffi_TowerScene_addSphere(Engine *engine, glm::vec3 p, float r) {
+		((TowerScene *)engine->getScene())->m_terrain.add_body(new SphereBody(p, r));
+	}
 }
 
 bool TowerScene::onCreate() {
@@ -39,6 +43,11 @@ void TowerScene::onDestroy() {
 }
 
 void TowerScene::onUpdate(float dt) {
+	static float angle = 0.f;
+	static float basedist = 8.f;
+	float dist = basedist + glm::sin(angle * 3.8f + 3.f) * 0.4f;
+	angle += 0.0092f;
+	m_camera->setPos(glm::vec3(glm::cos(angle) * dist, 5.f, glm::sin(angle) * dist));
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt); });
 
 }
