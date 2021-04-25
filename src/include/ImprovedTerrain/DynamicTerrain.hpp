@@ -49,7 +49,9 @@ public:
 
 	void add_body(ISignedDistanceBody *body) {
 		glm::imat2x3 affected = m3d::get_affected_chunks(body->get_bounding_box(), m_chunksize);
-		m_chunks.each_inside(affected, [this, body](glm::ivec3 chunk_idx, ISignedDistanceFunction *sdf) {
+		int debug_count = 0;
+		Benchmark debug_b;
+		m_chunks.each_inside(affected, [this, body, &debug_count](glm::ivec3 chunk_idx, ISignedDistanceFunction *sdf) {
 			if (sdf == nullptr) {
 				m_chunks.set(chunk_idx, body);
 			} else {
@@ -57,8 +59,28 @@ public:
 				m_chunks.set(chunk_idx, new CSGNode((ISignedDistanceBody*)m_chunks.pop(chunk_idx), body, CSGNode::Operator::UNION));
 			}
 			std::cout << "setting " << chunk_idx.x << ",\t" << chunk_idx.y << ",\t" << chunk_idx.z << std::endl;
+			++debug_count;
 			polygonize(chunk_idx);
 		});
+		debug_b.stop();
+		std::cout << "Took " << debug_b.ms() << "ms for " << debug_count << " chunks." << std::endl;
+	}
+
+	void sub_body(ISignedDistanceBody *body) {
+		glm::imat2x3 affected = m3d::get_affected_chunks(body->get_bounding_box(), m_chunksize);
+		int debug_count = 0;
+		Benchmark debug_b;
+		m_chunks.each_inside(affected, [this, body, &debug_count](glm::ivec3 chunk_idx, ISignedDistanceFunction *sdf) {
+			if (sdf) {
+				// TODO: this is not always a SDBody, maybe change m_chunks from SDF* to SDB* ??
+				m_chunks.set(chunk_idx, new CSGNode((ISignedDistanceBody*)m_chunks.pop(chunk_idx), body, CSGNode::Operator::DIFF));
+			}
+			std::cout << "setting " << chunk_idx.x << ",\t" << chunk_idx.y << ",\t" << chunk_idx.z << std::endl;
+			++debug_count;
+			polygonize(chunk_idx); // TODO: if this didn't produce any vertices we can just delete the whole chunk?
+		});
+		debug_b.stop();
+		std::cout << "Took " << debug_b.ms() << "ms for " << debug_count << " chunks." << std::endl;
 	}
 
 protected:

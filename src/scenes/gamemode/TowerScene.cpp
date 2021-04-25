@@ -22,6 +22,10 @@ extern "C" {
 	void ffi_TowerScene_addSphere(Engine *engine, glm::vec3 p, float r) {
 		((TowerScene *)engine->getScene())->m_terrain.add_body(new SphereBody(p, r));
 	}
+
+	void ffi_TowerScene_subSphere(Engine *engine, glm::vec3 p, float r) {
+		((TowerScene *)engine->getScene())->m_terrain.sub_body(new SphereBody(p, r));
+	}
 }
 
 bool TowerScene::onCreate() {
