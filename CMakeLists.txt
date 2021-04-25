@@ -42,12 +42,11 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/gl3w/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/backends")
 
-file (GLOB source_files
-	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
-	"${PROJECT_BASE_SRC}/scenes/*.cpp"
-	"${PROJECT_BASE_SRC}/scenes/**/*.cpp"
-	"${PROJECT_SOURCE_DIR}/*.cpp"
-	"${PROJECT_SOURCE_DIR}/*/*.cpp"
+file (GLOB_RECURSE source_files
+	"${PROJECT_BASE_SRC}/*.cpp"
+)
+
+file (GLOB library_source_files
 	"${PROJECT_LIBRARY_DIR}/*/*.cpp"
 	"${PROJECT_LIBRARY_DIR}/gl3w/src/gl3w.cpp" # TODO: bad fix, work this out!
 	"${PROJECT_LIBRARY_DIR}/imgui/backends/imgui_impl_glfw.cpp"
@@ -56,7 +55,7 @@ file (GLOB source_files
 
 include(${CMAKE_TOOLCHAIN_FILE})
 
-add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
+add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files} ${library_source_files})
 
 # glfw
 find_package(glfw3 CONFIG REQUIRED)

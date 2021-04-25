@@ -1,4 +1,4 @@
-#include "ImprovedTerrain/CubeBody.hpp"
+#include "ImprovedTerrain/Bodies/CubeBody.hpp"
 
 CubeBody::CubeBody(glm::vec3 position, glm::vec3 size)
  : ISignedDistanceBody(position), m_size{size}

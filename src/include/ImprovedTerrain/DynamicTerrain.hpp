@@ -7,8 +7,8 @@
 #include <ImprovedTerrain/ISignedDistanceBody.hpp>
 #include <ImprovedTerrain/SparseGrid3D.hpp>
 #include <ImprovedTerrain/CSGTree.hpp>
-#include <ImprovedTerrain/SphereBody.hpp>
-#include <ImprovedTerrain/CubeBody.hpp>
+#include <ImprovedTerrain/Bodies/SphereBody.hpp>
+#include <ImprovedTerrain/Bodies/CubeBody.hpp>
 #include <Terrain/CubeMarcher.hpp>
 #include <Assets/Mesh.hpp>
 #include <Assets/AssetManager.hpp>

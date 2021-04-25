@@ -15,7 +15,7 @@
 #include <Debug/ImguiPresets.hpp>
 #include <ImprovedTerrain/DynamicTerrain.hpp>
 #include <ImprovedTerrain/ISignedDistanceBody.hpp>
-#include <ImprovedTerrain/SphereBody.hpp>
+#include <ImprovedTerrain/Bodies/SphereBody.hpp>
 
 class TowerScene : public IScene {
 public:

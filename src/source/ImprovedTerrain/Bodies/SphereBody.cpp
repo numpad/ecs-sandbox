@@ -1,4 +1,4 @@
-#include "ImprovedTerrain/SphereBody.hpp"
+#include "ImprovedTerrain/Bodies/SphereBody.hpp"
 
 SphereBody::SphereBody(glm::vec3 position, float radius)
  : ISignedDistanceBody(position), m_radius{radius}
