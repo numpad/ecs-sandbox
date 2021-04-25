@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <Util/Random.hpp>
+#include <ImprovedTerrain/ISignedDistanceFunction.hpp>
 
 using namespace glm;
 
@@ -43,6 +44,8 @@ namespace m3d {
 	
 	// cast a ray onto a plane
 	vec3 raycast(ray r, plane p);
+	
+	float raycast(ISignedDistanceFunction &sdf, glm::vec3 origin, glm::vec3 dir, float max_length);
 	
 	imat2x3 get_affected_chunks(mat2x3 aabb, vec3 chunksize);
 	

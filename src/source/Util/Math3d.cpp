@@ -30,6 +30,33 @@ namespace m3d {
 		return ray.origin + ray.dir * t;
 	}
 	
+	float raycast(ISignedDistanceFunction &sdf, vec3 origin, vec3 dir, float max_length) {
+		// if `dir` is not set, just test the `origin`
+		if (length(dir) == 0.f) max_length = 0.f;
+		else dir = normalize(dir);
+
+		float nearest; // distance to the nearest point of the terrain (result of SDF)
+		float dist; // distance we traveled on the ray
+		int iteration = 0;
+		constexpr int max_iterations = 100;
+		for (dist = 0.f; dist <= max_length && iteration < max_iterations; dist += nearest) {
+			vec3 p = origin + dir * dist;
+			nearest = sdf.get_distance(p);
+			if (nearest <= 0.f) {
+				return dist;
+			}
+			// prevent infinite loop
+			if (max_length == 0.f) return -1.f;
+			iteration++;
+		}
+
+		// if we didn't exactly reach `max_length`, test it too.
+		if (dist < max_length) {
+			if (sdf.get_distance(origin + dir * max_length) <= 0.f) return max_length;
+		}
+		return -1.0f;
+	}
+
 	imat2x3 get_affected_chunks(mat2x3 aabb, vec3 chunksize) {
 		return imat2x3(
 			ivec3(floor(aabb[0] / chunksize)),
@@ -86,9 +113,9 @@ namespace m3d {
         
         vec3 groundDir = normalize(diffXZ);
         vec3 UP(0.0f, 1.0f, 0.0f);
-        s0 = groundDir*glm::cos(lowAng)*proj_speed + UP*glm::sin(lowAng)*proj_speed;
+        s0 = groundDir*cos(lowAng)*proj_speed + UP*sin(lowAng)*proj_speed;
         if (numSolutions > 1)
-            s1 = groundDir*glm::cos(highAng)*proj_speed + UP*glm::sin(highAng)*proj_speed;
+            s1 = groundDir*cos(highAng)*proj_speed + UP*sin(highAng)*proj_speed;
 
         return numSolutions;
     }
@@ -103,7 +130,7 @@ namespace m3d {
 		//   (2) y = initial_height + (speed * time * sin O) - (.5 * gravity*time*time)
 		//   (3) via quadratic: t = (speed*sin O)/gravity + sqrt(speed*speed*sin O + 2*gravity*initial_height)/gravity	[ignore smaller root]
 		//   (4) solution: range = x = (speed*cos O)/gravity * sqrt(speed*speed*sin O + 2*gravity*initial_height)	[plug t back into x=speed*time*cos O]
-		float angle = glm::radians(45.0f); // no air resistence, so 45 degrees provides maximum range
+		float angle = radians(45.0f); // no air resistence, so 45 degrees provides maximum range
 		float cosp = cos(angle);
 		float sinp = sin(angle);
 
@@ -111,7 +138,7 @@ namespace m3d {
 		return range;
 	}
 	
-	bool solve_ballistic_arc_lateral(glm::vec3 proj_pos, float lateral_speed, glm::vec3 target_pos, float max_height, glm::vec3 &fire_velocity, float &gravity) {
+	bool solve_ballistic_arc_lateral(vec3 proj_pos, float lateral_speed, vec3 target_pos, float max_height, vec3 &fire_velocity, float &gravity) {
 	
 		// Handling these cases is up to your project's coding standards
 		assert(proj_pos != target_pos && lateral_speed > 0 && max_height > proj_pos.y);

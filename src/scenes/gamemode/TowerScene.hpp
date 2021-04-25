@@ -33,6 +33,8 @@ private:
 	std::shared_ptr<Camera> m_camera;
 	sgl::shader m_chunkshader;
 
+	std::vector<entt::entity> m_players;
+
 	// systems
 	std::vector<std::shared_ptr<IUpdateSystem>> m_updatesystems;
 	std::vector<std::shared_ptr<IRenderSystem>> m_rendersystems;

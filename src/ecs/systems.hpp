@@ -1,4 +1,4 @@
-// cfdf7238ad58710492dc79998bb70ddbf3200945
+// 4495fce21e302a28513ddcab8d1477292653a6a9
 #pragma once
 
 #include <ecs/systems/IUpdateSystem.hpp>
@@ -12,6 +12,7 @@
 #include <ecs/systems/DecalRenderSystem.hpp>
 #include <ecs/systems/AudioSystem.hpp>
 #include <ecs/systems/TerrainRenderSystem.hpp>
+#include <ecs/systems/DistanceFunctionCollisionSystem.hpp>
 #include <ecs/systems/LogSystem.hpp>
 #include <ecs/systems/GravitySystem.hpp>
 #include <ecs/systems/RandomJumpSystem.hpp>

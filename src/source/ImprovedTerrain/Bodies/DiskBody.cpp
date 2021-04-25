@@ -17,7 +17,5 @@ glm::mat2x3 DiskBody::get_bounding_box() const {
 
 float DiskBody::signed_distance_function(glm::vec3 p) const {
 	glm::vec3 lp = m_position - p;
-	//return glm::max(glm::length(lp * glm::vec3(1.f, 0.f, 1.f)) - m_radius, glm::abs(lp.y) - m_height);
-	glm::vec2 d = glm::abs(glm::vec2(glm::length(lp * glm::vec3(1.f, 0.f, 1.f)), lp.y)) - glm::vec2(m_radius, m_height);
-	return glm::min(glm::max(d.x, d.y), 0.f) + glm::length(glm::max(d, 0.f));
+	return glm::max(glm::length(lp * glm::vec3(1.f, 0.f, 1.f)) - m_radius, glm::abs(lp.y) - m_height);
 }

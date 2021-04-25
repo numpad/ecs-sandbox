@@ -1,7 +1,7 @@
 #include "scenes/gamemode/TowerScene.hpp"
 
 extern "C" {
-	void ffi_TowerScene_spawnPlayer(Engine *engine, glm::vec3 pos, glm::vec3 vel, float sx, float sy) {
+	entt::entity ffi_TowerScene_spawnDefaultEntity(Engine *engine, glm::vec3 pos, glm::vec3 vel, float sx, float sy) {
 		entt::registry &m_registry = ((TowerScene *)engine->getScene())->m_registry;
 		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
 
@@ -13,6 +13,7 @@ extern "C" {
 		m_registry.get<CBillboard>(entity).setSubRect(sx * 16.0f, sy * 16.0f, 16.0f, 16.0f, 256, 256);
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
+		return entity;
 	}
 
 	void ffi_TowerScene_toMainMenu(Engine *engine) {
@@ -28,8 +29,8 @@ extern "C" {
 	}
 
 	// tmp shortcuts:
-	void srem(Engine *engine, glm::vec3 p, float r) {
-		((TowerScene *)engine->getScene())->m_terrain.sub_body(new SphereBody(p, r));
+	void srem(Engine *engine, glm::vec3 p, float r, float h) {
+		((TowerScene *)engine->getScene())->m_terrain.sub_body(new DiskBody(p, r, h));
 	}
 }
 
@@ -39,8 +40,8 @@ bool TowerScene::onCreate() {
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
 
-	ffi_TowerScene_spawnPlayer(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 8.f, 14.f);
-	ffi_TowerScene_spawnPlayer(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 7.f, 14.f);
+	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 8.f, 14.f));
+	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 7.f, 14.f));
 	loadSystems();
 	loadTerrainShader();
 
@@ -89,7 +90,7 @@ void TowerScene::loadSystems() {
 	auto primitiveRenderer = std::make_shared<PrimitiveRenderSystem>(m_registry, m_camera);
 	
 	// create update systems
-	//m_updatesystems.emplace_back(new TerrainCollisionSystem(m_registry, chunkedWorld));
+	m_updatesystems.emplace_back(new DistanceFunctionCollisionSystem(m_registry, m_terrain));
 	m_updatesystems.emplace_back(new CharacterControllerSystem(m_registry, m_engine->getWindow(), &m_camera));
 	m_updatesystems.emplace_back(new GravitySystem(m_registry, 0.000981f));
 	m_updatesystems.emplace_back(new RandomJumpSystem(m_registry, 0.003f));
