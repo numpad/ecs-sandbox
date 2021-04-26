@@ -476,3 +476,30 @@ void imguiLuaJitConsole(lua_State *L) {
 	}
 	ImGui::End();
 }
+
+void imguiGamepadInfo() {
+	using namespace ImGui;
+	if (Begin("Gamepad Info")) {
+		BeginTable("gamepad_info", 3, ImGuiTableFlags_Hideable | ImGuiTableFlags_Borders);
+
+		for (int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
+			TableNextRow();
+
+			TableNextColumn();
+			glfwJoystickIsGamepad(i) ? TextColored(ImVec4(0.35, 0.25, 0.74, 1.0), "Gamepad #%d", i) : Text("Joystick #%d", i);
+
+			TableNextColumn();
+			if (glfwJoystickPresent(i)) {
+				TextColored(ImVec4(0.54, 0.7, 0.55, 1.0), "(connected)");
+			} else {
+				TextColored(ImVec4(0.64, 0.4, 0.4, 1.0), "(disconnected)");
+			}
+
+			TableNextColumn();
+			Text("\"%s\"", glfwGetGamepadName(i));
+		}
+
+		EndTable();
+	}
+	End();
+}

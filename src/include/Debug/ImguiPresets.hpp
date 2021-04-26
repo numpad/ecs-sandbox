@@ -13,3 +13,5 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity);
 void imguiEntityEditor(World &world, bool pickingactive, glm::vec3 crosspos);
 void imguiRenderMenuBar(GLFWwindow *window, World &world, glm::vec3 &crosspos, std::shared_ptr<Camera> topdown, std::shared_ptr<Camera> camera, float &msPerFrame, int &settings_attachment);
 void imguiLuaJitConsole(lua_State *L);
+
+void imguiGamepadInfo();

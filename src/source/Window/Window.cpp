@@ -73,6 +73,9 @@ bool Window::Init(int glmajor, int glminor) {
 
 	std::cout << "[INIT] " << CFG_PROJECT_NAME << " version: " << CFG_VERSION_MAJOR << "." << CFG_VERSION_MINOR << " (" << cfg_debug_state << ")" << std::endl;
 
+	// glfw init hints
+	glfwInitHint(GLFW_JOYSTICK_HAT_BUTTONS, GLFW_FALSE);
+
 	if (!glfwInit()) {
 		fprintf(stderr, "glfwInit() failed.\n");
 		std::cerr << "[INIT] glfwInit() failed." << std::endl;

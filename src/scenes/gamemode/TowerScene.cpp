@@ -89,6 +89,8 @@ void TowerScene::onRender() {
 
 	imguiLuaJitConsole(m_engine->getLuaState());
 
+	imguiGamepadInfo();
+
 }
 
 /////////////
