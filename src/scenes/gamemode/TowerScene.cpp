@@ -15,6 +15,13 @@ extern "C" {
 		m_registry.emplace<CTerrainCollider>(entity, false);
 		return entity;
 	}
+	entt::entity ffi_TowerScene_spawnBomb(Engine *engine, glm::vec3 pos, glm::vec3 vel) {
+		entt::registry &m_registry = ((TowerScene *)engine->getScene())->m_registry;
+		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
+
+		auto entity = ffi_TowerScene_spawnDefaultEntity(engine, pos, vel, 15.f, 3.f);
+		return entity;
+	}
 
 	void ffi_TowerScene_toMainMenu(Engine *engine) {
 		engine->setActiveScene(new MainMenuScene());
@@ -53,11 +60,23 @@ void TowerScene::onDestroy() {
 }
 
 void TowerScene::onUpdate(float dt) {
+	// testing: rotate camera around origin
 	static float angle = 0.f;
 	static float basedist = 8.f;
 	float dist = basedist + glm::sin(angle * 3.8f + 3.f) * 0.4f;
 	angle += 0.0092f;
 	m_camera->setPos(glm::vec3(glm::cos(angle) * dist, 5.f, glm::sin(angle) * dist));
+	
+	// testing: spawn bombs, replace with lua script later on
+	static Random bomb_random(-1.f, 1.f);
+	static float dt_sum = 0.f;
+	constexpr float dt_max = 2.7f;
+	dt_sum += dt;
+	while (dt_sum >= dt_max) {
+		dt_sum -= dt_max;
+		entt::entity bomb = ffi_TowerScene_spawnBomb(m_engine, glm::vec3(bomb_random() * 2.f, .5f, bomb_random() * 2.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f));
+	}
+
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt); });
 
 }

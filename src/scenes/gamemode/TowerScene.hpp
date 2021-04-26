@@ -16,6 +16,7 @@
 #include <ImprovedTerrain/DynamicTerrain.hpp>
 #include <ImprovedTerrain/ISignedDistanceBody.hpp>
 #include <ImprovedTerrain/Bodies/SphereBody.hpp>
+#include <Util/Random.hpp>
 
 class TowerScene : public IScene {
 public:
