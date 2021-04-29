@@ -1,15 +1,5 @@
 #include <Window/Window.hpp>
 
-static void onResize(GLFWwindow *, int width, int height) {
-	glViewport(0, 0, width, height);
-	for (Camera *cam : Camera::CAMERAS) {
-		if (cam->windowAspectLocked) {
-			cam->setScreenSize(width, height);
-			cam->windowAspectLocked = true;
-		}
-	}
-}
-
 static void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
                             GLuint id,
@@ -71,7 +61,7 @@ bool Window::Init(int glmajor, int glminor) {
 		const char *cfg_debug_state = "Release build";
 	#endif
 
-	std::cout << "[INIT] " << CFG_PROJECT_NAME << " version: " << CFG_VERSION_MAJOR << "." << CFG_VERSION_MINOR << " (" << cfg_debug_state << ")" << std::endl;
+	std::cout << "[INIT] " << CFG_PROJECT_NAME << " version: " << CFG_VERSION_MAJOR << "." << CFG_VERSION_MINOR << " (" << cfg_debug_state << ") " << "[" << CFG_CMAKE_BUILD_TYPE << "]" << std::endl;
 
 	// glfw init hints
 	glfwInitHint(GLFW_JOYSTICK_HAT_BUTTONS, GLFW_FALSE);
@@ -113,7 +103,6 @@ bool Window::create(int width, int height, FullscreenMode fullscreenMode) {
 	glfw_window = glfwCreateWindow(width, height, "main", monitor, nullptr);
 	glfwMakeContextCurrent(glfw_window);
 	glfwSwapInterval(1);
-	glfwSetFramebufferSizeCallback(glfw_window, onResize);
 
 	if (gl3wInit()) {
 		fprintf(stderr, "gl3wInit() failed.\n");
@@ -146,7 +135,7 @@ bool Window::create(int width, int height, FullscreenMode fullscreenMode) {
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-		printf("OpenGL debug context enabled!\n");
+		printf("[INIT] OpenGL debug context enabled!\n");
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(glDebugOutput, nullptr);

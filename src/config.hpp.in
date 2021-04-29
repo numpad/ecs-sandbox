@@ -4,6 +4,7 @@
 #define CFG_VERSION_MINOR @CFG_VERSION_MINOR@
 #define CFG_DEBUG @CFG_DEBUG@
 #define CFG_IMGUI_ENABLED @CFG_IMGUI_ENABLED@
+#define CFG_CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
 #define return_if(r)         \
 	do {                     \

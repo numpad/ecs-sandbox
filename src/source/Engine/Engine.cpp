@@ -1,5 +1,35 @@
 #include "Engine/Engine.hpp"
 
+static void callback_framebuffer_resized(GLFWwindow *window, int width, int height) {
+	Engine *engine = static_cast<Engine *>(glfwGetWindowUserPointer(window));
+
+	engine->getDispatcher().enqueue<WindowResizeEvent>(width, height);
+
+	glViewport(0, 0, width, height);
+	for (Camera *cam : Camera::CAMERAS) {
+		if (cam->windowAspectLocked) {
+			cam->setScreenSize(width, height);
+			cam->windowAspectLocked = true;
+		}
+	}
+}
+
+static void callback_window_close(GLFWwindow *window) {
+	Engine *engine = static_cast<Engine *>(glfwGetWindowUserPointer(window));
+
+	engine->getDispatcher().enqueue<WindowCloseEvent>();
+}
+
+static void callback_joystick_connected(int joystick_id, int connected) {
+	Engine *engine = static_cast<Engine *>(glfwGetWindowUserPointer(Engine::getMainWindow()));
+
+	engine->getDispatcher().enqueue<GamepadConnectedEvent>(joystick_id, connected == GLFW_CONNECTED);
+}
+
+////////////
+// PUBLIC //
+////////////
+
 Engine::Engine(EngineConfig config)
  : m_config(config)
 {
@@ -13,6 +43,17 @@ bool Engine::initialize() {
 	// initialize window
 	if (!Window::Init()) return init_error("Failed initializing window.");
 	if (!m_window.create(m_config.window_width, m_config.window_height)) return init_error("Failed creating window.");
+
+	glfwSetWindowUserPointer(m_window, this);
+	// connect callbacks
+	glfwSetFramebufferSizeCallback(m_window, callback_framebuffer_resized);
+	glfwSetWindowCloseCallback(m_window, callback_window_close);
+	glfwSetJoystickCallback(callback_joystick_connected);
+
+	// set global main window
+	if (Engine::m_main_window == nullptr) {
+		Engine::m_main_window = &m_window;
+	}
 
 	// initialize global stuff
 	Camera::Init(m_window);
@@ -60,15 +101,6 @@ void Engine::run() {
 	double msLastTime = glfwGetTime();
 	int msFrames = 0;
 	while (!glfwWindowShouldClose(m_window)) {
-		// switch to next scene if required
-		if (m_next_scene) {
-			switchScene();
-		}
-
-		// poll events
-		glfwPollEvents();
-		imgui_prepareframe();
-
 		// calc time
 		double msCurrentTime = glfwGetTime();
 		static float msPerFrame = 0.0f;
@@ -78,6 +110,18 @@ void Engine::run() {
 			msFrames = 0;
 			msLastTime += 1.0;
 		}
+
+		// switch to next scene if required
+		if (m_next_scene) {
+			switchScene();
+		}
+
+		// poll events
+		glfwPollEvents();
+		// emit all events enqueued
+		m_dispatcher.update();
+
+		imgui_prepareframe();
 		
 		// input
 		int screenX, screenY;

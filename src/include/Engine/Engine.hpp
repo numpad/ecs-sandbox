@@ -17,6 +17,7 @@
 #include <sgl/sgl_attachment.hpp>
 
 #include <Engine/EngineConfig.hpp>
+#include <Engine/IScene.hpp>
 
 #include <Util/Math3d.hpp>
 #include <Util/Font.hpp>
@@ -26,8 +27,9 @@
 
 #include <Window/Window.hpp>
 #include <Window/Screen.hpp>
-#include <Engine/IScene.hpp>
 #include <RenderObject/GBuffer.hpp>
+
+#include <ecs/events.hpp>
 
 class Engine {
 public:
@@ -46,14 +48,17 @@ public:
 
 	// getters
 	Window &getWindow() { return m_window; }
+	static Window &getMainWindow() { return *Engine::m_main_window; }
 	lua_State *getLuaState() { return m_lua; }
 	IScene *getScene() { return m_scene; }
+	entt::dispatcher &getDispatcher() { return m_dispatcher; };
 
 private:
 	// engine specific
 	EngineConfig m_config;
 
 	// graphics
+	static inline Window *m_main_window = nullptr;
 	Window m_window;
 	Screen m_screen;
 	sgl::shader m_screenshader;
@@ -61,6 +66,7 @@ private:
 
 	// scripting & registry
 	lua_State *m_lua = nullptr;
+	entt::dispatcher m_dispatcher;
 
 	// application specific
 	IScene *m_scene = nullptr;
