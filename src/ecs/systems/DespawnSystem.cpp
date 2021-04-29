@@ -32,6 +32,7 @@ void DespawnSystem::entityKilled(const KillEntityEvent &e) {
 		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(e.which, vec3(0.f, .32f, 0.f), L"Ouch...", 60 * 2);
 	
 	} else {
-		registry.destroy(e.which);
+		//registry.destroy(e.which);
+		registry.emplace<CDeletable>(e.which);
 	}
 }

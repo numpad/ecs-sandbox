@@ -44,4 +44,7 @@ private:
 
 	void loadTerrainShader();
 	void updateTerrainShader();
+
+	// event listener
+	void onEntityKilled(const KillEntityEvent &event);
 };

@@ -14,4 +14,9 @@ struct CKeyboardControllable {
 	CKeyboardControllable(float speed) : speed(speed)
 	{
 	}
+
+	CKeyboardControllable(float speed, int up, int down, int left, int right, int jump)
+	 : up(up), down(down), left(left), right(right), jump(jump), speed(speed)
+	{
+	}
 };

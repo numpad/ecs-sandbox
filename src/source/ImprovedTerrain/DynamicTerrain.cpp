@@ -96,6 +96,7 @@ void DynamicTerrain::polygonize(glm::ivec3 chunk_idx) {
 	m_cubemarcher.setSampleDetail(m_chunkdetail);
 
 	auto vertices = m_cubemarcher.polygonize(*chunk); // TODO: what happens when vertices is empty?
+	if (vertices.size() == 0) std::cout << "ZERO ZERO\nZERO ZERO\n" << std::endl;
 	Mesh *mesh = new Mesh(vertices, false);
 
 	m_chunkmeshes.set(chunk_idx, mesh);

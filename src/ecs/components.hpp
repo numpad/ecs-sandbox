@@ -1,10 +1,11 @@
-// 1a82507d906006138dc38ff2fb52f7b810c6b2c7
+// 172cced17c972ec5ded06e26d1de0bf936651fd1
 #pragma once
 
 #include <ecs/components/CVelocity.hpp>
 #include <ecs/components/CSphereCollider.hpp>
 #include <ecs/components/CGravity.hpp>
 #include <ecs/components/CPosition.hpp>
+#include <ecs/components/CDeletable.hpp>
 #include <ecs/components/CDecal.hpp>
 #include <ecs/components/CBillboard.hpp>
 #include <ecs/components/COrientation.hpp>

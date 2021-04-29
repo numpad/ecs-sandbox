@@ -44,11 +44,16 @@ extern "C" {
 bool TowerScene::onCreate() {
 	m_registry.set<entt::dispatcher>();
 
+	m_registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().connect<&TowerScene::onEntityKilled>(this);
+
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
 
 	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 8.f, 14.f));
 	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 7.f, 14.f));
+	m_registry.emplace<CKeyboardControllable>(m_players[0], 0.01f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_X);
+	m_registry.emplace<CKeyboardControllable>(m_players[1], 0.01f, GLFW_KEY_I, GLFW_KEY_K, GLFW_KEY_J, GLFW_KEY_L, GLFW_KEY_M);
+
 	loadSystems();
 	loadTerrainShader();
 
@@ -111,6 +116,7 @@ void TowerScene::loadSystems() {
 	auto primitiveRenderer = std::make_shared<PrimitiveRenderSystem>(m_registry, m_camera);
 	
 	// create update systems
+	m_updatesystems.emplace_back(new EntityDeleteSystem(m_registry));
 	m_updatesystems.emplace_back(new DistanceFunctionCollisionSystem(m_registry, m_terrain));
 	m_updatesystems.emplace_back(new CharacterControllerSystem(m_registry, m_engine->getWindow(), &m_camera));
 	m_updatesystems.emplace_back(new GravitySystem(m_registry, 0.000981f));
@@ -157,4 +163,12 @@ void TowerScene::updateTerrainShader() {
 	glActiveTexture(GL_TEXTURE1);
 	m_assetmanager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
 	m_assetmanager.getTexture("res/images/textures/wall.png")->bind();
+}
+
+void TowerScene::onEntityKilled(const KillEntityEvent &event) {
+	auto found = std::find(m_players.begin(), m_players.end(), event.which);
+	if (found != m_players.end()) {
+		std::cout << "\nKILLED A PLAYER\n\n" << std::endl;
+		m_players.erase(found);
+	}
 }
