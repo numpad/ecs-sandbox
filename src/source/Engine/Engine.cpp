@@ -26,6 +26,15 @@ static void callback_joystick_connected(int joystick_id, int connected) {
 	engine->getDispatcher().enqueue<GamepadConnectedEvent>(joystick_id, connected == GLFW_CONNECTED);
 }
 
+static void callback_key_pressed(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	Engine *engine = static_cast<Engine *>(glfwGetWindowUserPointer(Engine::getMainWindow()));
+	
+	// toggle debug ui
+	if (key == GLFW_KEY_I && action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL)) {
+		engine->getConfig().imgui_enabled = !engine->getConfig().imgui_enabled;
+	}
+}
+
 ////////////
 // PUBLIC //
 ////////////
@@ -49,6 +58,7 @@ bool Engine::initialize() {
 	glfwSetFramebufferSizeCallback(m_window, callback_framebuffer_resized);
 	glfwSetWindowCloseCallback(m_window, callback_window_close);
 	glfwSetJoystickCallback(callback_joystick_connected);
+	glfwSetKeyCallback(m_window, callback_key_pressed);
 
 	// set global main window
 	if (Engine::m_main_window == nullptr) {
@@ -186,8 +196,11 @@ void Engine::run() {
 		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, pmode);
 		
+		// draw imgui (if enabled)
+		if (m_config.imgui_enabled)
+			imgui_render();
+		
 		// present rendered
-		imgui_render();
 		glfwSwapBuffers(m_window);
 	}
 }

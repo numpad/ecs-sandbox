@@ -9,4 +9,5 @@ struct EngineConfig {
 	int window_height = 600;
 	WindowMode windowMode = WindowMode::WINDOW;
 
+	bool imgui_enabled = true;
 };

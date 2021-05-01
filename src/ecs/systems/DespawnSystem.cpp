@@ -15,8 +15,6 @@ void DespawnSystem::update(float dt) {
 		// despawn entities who fell into the void
 		if (pos.pos.y < voidHeight) {
 			registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Fell down.");
-			static Random random(0.8f, 1.2f);
-			registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/ouch.wav", random());
 		}
 	});
 }

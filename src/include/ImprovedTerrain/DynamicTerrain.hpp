@@ -22,7 +22,7 @@ class DynamicTerrain : public ISignedDistanceFunction {
 public:
 
 	DynamicTerrain() {		
-		ISignedDistanceBody *s = new DiskBody(glm::vec3(0.f), 2.f, 0.1f);
+		ISignedDistanceBody *s = new DiskBody(glm::vec3(0.f), 2.8f, 0.1f);
 
 		glm::imat2x3 affected = m3d::get_affected_chunks(s->get_bounding_box(), m_chunksize);
 		m_chunks.each_inside(affected, [this, s](glm::ivec3 chunk_idx, ISignedDistanceBody *sdf) {

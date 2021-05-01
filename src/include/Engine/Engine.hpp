@@ -51,7 +51,8 @@ public:
 	static Window &getMainWindow() { return *Engine::m_main_window; }
 	lua_State *getLuaState() { return m_lua; }
 	IScene *getScene() { return m_scene; }
-	entt::dispatcher &getDispatcher() { return m_dispatcher; };
+	entt::dispatcher &getDispatcher() { return m_dispatcher; }
+	EngineConfig &getConfig() { return m_config; }
 
 private:
 	// engine specific

@@ -18,10 +18,10 @@ extern "C" {
 	entt::entity ffi_TowerScene_spawnBomb(Engine *engine, glm::vec3 pos, glm::vec3 vel) {
 		entt::registry &m_registry = ((TowerScene *)engine->getScene())->m_registry;
 		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
-
+		static Random fuse(-0.22f, 0.15f);
 		auto entity = ffi_TowerScene_spawnDefaultEntity(engine, pos, vel, 15.f, 3.f);
-		m_registry.emplace<CHealth>(entity, 3);
-		m_registry.emplace<CDamageOverTime>(entity, 1, 1.f, 99999.f);
+		m_registry.emplace<CHealth>(entity, 1);
+		m_registry.emplace<CDamageOverTime>(entity, 1, 2.f + fuse(), 99999.f);
 		static Random random_size(0.25f, 0.45f);
 		m_registry.emplace<CExplosive>(entity, random_size());
 		return entity;
@@ -73,19 +73,27 @@ void TowerScene::onDestroy() {
 void TowerScene::onUpdate(float dt) {
 	// testing: rotate camera around origin
 	static float angle = 0.f;
-	static float basedist = 8.f;
-	float dist = basedist + glm::sin(angle * 3.8f + 3.f) * 0.4f;
-	angle += 0.0092f;
-	m_camera->setPos(glm::vec3(glm::cos(angle) * dist, 5.f, glm::sin(angle) * dist));
+	static float basedist = 6.5f;
+	static float rotation_speed = 0.004f;
+	static float height = 3.5f;
+	float dist = basedist + glm::sin(angle * 3.8f + 3.f) * 0.15f;
+	angle += rotation_speed;
+	m_camera->setPos(glm::vec3(glm::cos(angle) * dist, height, glm::sin(angle) * dist));
 	
+	if (ImGui::Begin("camera")) {
+		ImGui::SliderFloat("Distance", &basedist, 1.f, 10.f);
+		ImGui::DragFloat("Rotation", &rotation_speed, 0.0002f);
+		ImGui::SliderFloat("Height", &height, 0.f, 7.f);
+	} ImGui::End();
+
 	// testing: spawn bombs, replace with lua script later on
 	static Random bomb_random(-1.f, 1.f);
 	static float dt_sum = 0.f;
-	constexpr float dt_max = 2.7f;
+	static float dt_max = 2.7f;
 	dt_sum += dt;
-	while (dt_sum >= dt_max) {
+	if (dt_sum >= dt_max) {
 		dt_sum -= dt_max;
-		entt::entity bomb = ffi_TowerScene_spawnBomb(m_engine, glm::vec3(bomb_random() * 2.f, .5f, bomb_random() * 2.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f) * 0.1f);
+		ffi_TowerScene_spawnBomb(m_engine, glm::vec3(bomb_random() * 2.f, .5f, bomb_random() * 2.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f) * 0.1f);
 	}
 
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt); });
@@ -176,6 +184,11 @@ void TowerScene::updateTerrainShader() {
 void TowerScene::onEntityKilled(const KillEntityEvent &event) {
 	auto found = std::find(m_players.begin(), m_players.end(), event.which);
 	if (found != m_players.end()) {
+		// play sound
+		static Random random(0.8f, 1.2f);
+		m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/ouch.wav", random());
+		
+		// remove player
 		m_players.erase(found);
 
 		// switch to main menu once a player won
@@ -186,5 +199,9 @@ void TowerScene::onEntityKilled(const KillEntityEvent &event) {
 }
 
 void TowerScene::onBombExplodes(const ExplosionEvent &event) {
+	// remove terrain
 	ffi_TowerScene_subSphere(m_engine, event.position, event.radius);
+
+	// play sound
+	m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/explode.wav", 1.3f - event.radius * 0.92f);
 }

@@ -12,7 +12,7 @@ struct CDamageOverTime {
 	float _elapsed_since_beginning = 0.f;
 
 	CDamageOverTime(int damage_per_tick, float frequency, float duration)
-	 : damage_per_tick{damage_per_tick}, frequency{frequency}, duration{duration}
+	 : damage_per_tick{damage_per_tick}, frequency{frequency}, duration{duration}, _elapsed_since_tick{0.f}, _elapsed_since_beginning{0.f}
 	{
 
 	}
