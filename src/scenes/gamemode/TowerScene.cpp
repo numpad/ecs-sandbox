@@ -20,6 +20,10 @@ extern "C" {
 		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
 
 		auto entity = ffi_TowerScene_spawnDefaultEntity(engine, pos, vel, 15.f, 3.f);
+		m_registry.emplace<CHealth>(entity, 3);
+		m_registry.emplace<CDamageOverTime>(entity, 1, 1.f, 99999.f);
+		static Random random_size(0.25f, 0.45f);
+		m_registry.emplace<CExplosive>(entity, random_size());
 		return entity;
 	}
 
@@ -45,6 +49,7 @@ bool TowerScene::onCreate() {
 	m_registry.set<entt::dispatcher>();
 
 	m_registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().connect<&TowerScene::onEntityKilled>(this);
+	m_registry.ctx<entt::dispatcher>().sink<ExplosionEvent>().connect<&TowerScene::onBombExplodes>(this);
 
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
@@ -61,7 +66,8 @@ bool TowerScene::onCreate() {
 }
 
 void TowerScene::onDestroy() {
-
+	m_registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().disconnect(this);
+	m_registry.ctx<entt::dispatcher>().sink<ExplosionEvent>().disconnect(this);
 }
 
 void TowerScene::onUpdate(float dt) {
@@ -79,10 +85,11 @@ void TowerScene::onUpdate(float dt) {
 	dt_sum += dt;
 	while (dt_sum >= dt_max) {
 		dt_sum -= dt_max;
-		entt::entity bomb = ffi_TowerScene_spawnBomb(m_engine, glm::vec3(bomb_random() * 2.f, .5f, bomb_random() * 2.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f));
+		entt::entity bomb = ffi_TowerScene_spawnBomb(m_engine, glm::vec3(bomb_random() * 2.f, .5f, bomb_random() * 2.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f) * 0.1f);
 	}
 
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt); });
+	m_registry.ctx<entt::dispatcher>().update();
 
 }
 
@@ -124,6 +131,7 @@ void TowerScene::loadSystems() {
 	m_updatesystems.push_back(wayfindSystem);
 	m_updatesystems.emplace_back(new PressAwaySystem(m_registry));
 	m_updatesystems.emplace_back(new PositionUpdateSystem(m_registry));
+	m_updatesystems.emplace_back(new DamageSystem(m_registry));
 	m_updatesystems.push_back(billboardRenderSystem);
 	m_updatesystems.push_back(textRenderSystem);
 	m_updatesystems.push_back(primitiveRenderer);
@@ -168,7 +176,15 @@ void TowerScene::updateTerrainShader() {
 void TowerScene::onEntityKilled(const KillEntityEvent &event) {
 	auto found = std::find(m_players.begin(), m_players.end(), event.which);
 	if (found != m_players.end()) {
-		std::cout << "\nKILLED A PLAYER\n\n" << std::endl;
 		m_players.erase(found);
+
+		// switch to main menu once a player won
+		if (m_players.size() == 1) {
+			m_engine->setActiveScene(new MainMenuScene());
+		}
 	}
+}
+
+void TowerScene::onBombExplodes(const ExplosionEvent &event) {
+	ffi_TowerScene_subSphere(m_engine, event.position, event.radius);
 }

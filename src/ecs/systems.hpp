@@ -1,6 +1,7 @@
-// f04afad38e73e9e95f9addd5499d3be82cc798ce
+// d6e5e2a3db324e7492dfaea73001a21762f85973
 #pragma once
 
+#include <ecs/systems/DamageSystem.hpp>
 #include <ecs/systems/IUpdateSystem.hpp>
 #include <ecs/systems/PositionUpdateSystem.hpp>
 #include <ecs/systems/WayfindSystem.hpp>

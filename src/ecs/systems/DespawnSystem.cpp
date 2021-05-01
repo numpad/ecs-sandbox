@@ -15,21 +15,21 @@ void DespawnSystem::update(float dt) {
 		// despawn entities who fell into the void
 		if (pos.pos.y < voidHeight) {
 			registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Fell down.");
+			static Random random(0.8f, 1.2f);
+			registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/ouch.wav", random());
 		}
 	});
 }
 
 void DespawnSystem::entityKilled(const KillEntityEvent &e) {
-	registry.ctx<entt::dispatcher>().trigger<LogEvent>("Entity killed: " + e.how, LogEvent::LOG);
-	static Random random(0.8f, 1.2f);
-	registry.ctx<entt::dispatcher>().trigger<PlaySoundEvent>("res/audio/sfx/ouch.wav", random());
+	registry.ctx<entt::dispatcher>().enqueue<LogEvent>("Entity killed: " + e.how, LogEvent::LOG);
 	
 	if (registry.has<CSpawnPoint>(e.which)) {
 		auto [pos, vel] = registry.get<CPosition, CVelocity>(e.which);
 		pos.pos = registry.get<CSpawnPoint>(e.which).getPosition(registry);
 		vel.vel = glm::vec3(0.0f);
 		
-		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(e.which, vec3(0.f, .32f, 0.f), L"Ouch...", 60 * 2);
+		registry.ctx<entt::dispatcher>().enqueue<WorldTextEvent>(e.which, vec3(0.f, .32f, 0.f), L"Ouch...", 60 * 2);
 	
 	} else {
 		//registry.destroy(e.which);

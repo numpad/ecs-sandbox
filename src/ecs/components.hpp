@@ -1,14 +1,16 @@
-// 172cced17c972ec5ded06e26d1de0bf936651fd1
+// 3a3b6ded311cf34641ab0de20460e786d055dbc1
 #pragma once
 
 #include <ecs/components/CVelocity.hpp>
 #include <ecs/components/CSphereCollider.hpp>
 #include <ecs/components/CGravity.hpp>
 #include <ecs/components/CPosition.hpp>
+#include <ecs/components/CExplosive.hpp>
 #include <ecs/components/CDeletable.hpp>
 #include <ecs/components/CDecal.hpp>
 #include <ecs/components/CBillboard.hpp>
 #include <ecs/components/COrientation.hpp>
+#include <ecs/components/CDamageOverTime.hpp>
 #include <ecs/components/CJumpTimer.hpp>
 #include <ecs/components/CCamera.hpp>
 #include <ecs/components/CTerrainCollider.hpp>
