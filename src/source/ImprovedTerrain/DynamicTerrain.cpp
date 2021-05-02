@@ -33,9 +33,6 @@ void DynamicTerrain::add_body(ISignedDistanceBody *body) {
 
 void DynamicTerrain::sub_body(ISignedDistanceBody *body) {
 	glm::mat2x3 aabb = body->get_bounding_box();
-	// increase the bounding box by a percentage of the Terrains voxel size to fix bugs near chunk borders
-	aabb[0] -= m_chunkdetail * 0.1f;
-	aabb[1] += m_chunkdetail * 0.1f;
 
 	glm::imat2x3 affected = m3d::get_affected_chunks(aabb, m_chunksize);
 	int debug_count = 0;

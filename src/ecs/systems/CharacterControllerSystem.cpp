@@ -22,7 +22,7 @@ void CharacterControllerSystem::update(float dt) {
 		
 		// billboard component
 		CBillboard *billboard = nullptr;
-		if (registry.has<CBillboard>(entity))
+		if (registry.try_get<CBillboard>(entity))
 			billboard = &registry.get<CBillboard>(entity);
 		
 		if (glfwGetKey(this->m_window, controller.up) == GLFW_PRESS) {
@@ -40,7 +40,7 @@ void CharacterControllerSystem::update(float dt) {
 			if (billboard) billboard->setFlipped(false);
 		}
 		
-		if (registry.has<CTerrainCollider>(entity)) {
+		if (registry.try_get<CTerrainCollider>(entity)) {
 			auto &collider = registry.get<CTerrainCollider>(entity);
 			if (!collider.is_grounded) {
 				dir.x *= 0.f;

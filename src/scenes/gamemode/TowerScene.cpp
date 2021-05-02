@@ -56,11 +56,15 @@ bool TowerScene::onCreate() {
 
 	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 8.f, 14.f));
 	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 7.f, 14.f));
+	std::for_each(m_players.begin(), m_players.end(), [this](auto &player) { m_registry.remove<CGravity>(player); });
 	m_registry.emplace<CKeyboardControllable>(m_players[0], 0.01f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_X);
 	m_registry.emplace<CKeyboardControllable>(m_players[1], 0.01f, GLFW_KEY_I, GLFW_KEY_K, GLFW_KEY_J, GLFW_KEY_L, GLFW_KEY_M);
 
 	loadSystems();
 	loadTerrainShader();
+
+	static Random bomb_random(-1.f, 1.f);
+	ffi_TowerScene_spawnBomb(m_engine, glm::vec3(0.f, 0.5f, 0.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f) * 0.1f);
 
 	return true;
 }
@@ -73,14 +77,15 @@ void TowerScene::onDestroy() {
 void TowerScene::onUpdate(float dt) {
 	// testing: rotate camera around origin
 	static float angle = 0.f;
-	static float basedist = 6.5f;
-	static float rotation_speed = 0.004f;
-	static float height = 3.5f;
+	static float basedist = 10.f; // 6.5f;
+	static float rotation_speed = 0.f; // 0.004f;
+	static float height = 0.f; // 3.5f;
 	float dist = basedist + glm::sin(angle * 3.8f + 3.f) * 0.15f;
 	angle += rotation_speed;
 	m_camera->setPos(glm::vec3(glm::cos(angle) * dist, height, glm::sin(angle) * dist));
 	
 	if (ImGui::Begin("camera")) {
+		ImGui::Text("Registry size: %d", m_registry.size());
 		ImGui::SliderFloat("Distance", &basedist, 1.f, 10.f);
 		ImGui::DragFloat("Rotation", &rotation_speed, 0.0002f);
 		ImGui::SliderFloat("Height", &height, 0.f, 7.f);
@@ -89,15 +94,18 @@ void TowerScene::onUpdate(float dt) {
 	// testing: spawn bombs, replace with lua script later on
 	static Random bomb_random(-1.f, 1.f);
 	static float dt_sum = 0.f;
-	static float dt_max = 2.7f;
+	static float dt_max = 1.f;
 	dt_sum += dt;
 	if (dt_sum >= dt_max) {
 		dt_sum -= dt_max;
-		ffi_TowerScene_spawnBomb(m_engine, glm::vec3(bomb_random() * 2.f, .5f, bomb_random() * 2.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f) * 0.1f);
+		auto b1 = ffi_TowerScene_spawnBomb(m_engine, glm::vec3(0.f) + glm::vec3(-1.f, .5f, 0.f) + glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f));
+		auto b2 = ffi_TowerScene_spawnBomb(m_engine, glm::vec3(0.f) + glm::vec3(1.f, .5f, 0.f), glm::vec3(0.f));
+		m_registry.get<CBillboard>(b1).setSubRect(4 * 16.0f, 12 * 16.0f, 16.0f, 16.0f, 256, 256);
+		m_registry.get<CBillboard>(b2).setSubRect(5 * 16.0f, 12 * 16.0f, 16.0f, 16.0f, 256, 256);
 	}
 
-	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt); });
 	m_registry.ctx<entt::dispatcher>().update();
+	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt); });
 
 }
 
@@ -126,33 +134,22 @@ void TowerScene::loadSystems() {
 	
 	// initialize update and render systems
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(m_registry, m_camera);
-	auto textRenderSystem = std::make_shared<TextEventSystem>(m_registry, m_camera);
-	auto wayfindSystem = std::make_shared<WayfindSystem>(m_registry, m_camera);
-	auto primitiveRenderer = std::make_shared<PrimitiveRenderSystem>(m_registry, m_camera);
 	
 	// create update systems
-	m_updatesystems.emplace_back(new EntityDeleteSystem(m_registry));
 	m_updatesystems.emplace_back(new DistanceFunctionCollisionSystem(m_registry, m_terrain));
 	m_updatesystems.emplace_back(new CharacterControllerSystem(m_registry, m_engine->getWindow(), &m_camera));
 	m_updatesystems.emplace_back(new GravitySystem(m_registry, 0.000981f));
-	m_updatesystems.emplace_back(new RandomJumpSystem(m_registry, 0.003f));
-	m_updatesystems.push_back(wayfindSystem);
-	m_updatesystems.emplace_back(new PressAwaySystem(m_registry));
 	m_updatesystems.emplace_back(new PositionUpdateSystem(m_registry));
-	m_updatesystems.emplace_back(new DamageSystem(m_registry));
 	m_updatesystems.push_back(billboardRenderSystem);
-	m_updatesystems.push_back(textRenderSystem);
-	m_updatesystems.push_back(primitiveRenderer);
-	m_updatesystems.emplace_back(new DespawnSystem(m_registry));
+	m_updatesystems.emplace_back(new DamageSystem(m_registry));
+	m_updatesystems.emplace_back(new DespawnSystem(m_registry, -1.f));
+	m_updatesystems.emplace_back(new EntityDeleteSystem(m_registry));
 	m_updatesystems.emplace_back(new AudioSystem(m_registry, m_assetmanager));
 	
 	// and render systems
 	//m_rendersystems.emplace_back(new TerrainRenderSystem(m_registry, m_camera, assetManager, chunkedWorld));
 	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera));
 	m_rendersystems.push_back(billboardRenderSystem);
-	m_rendersystems.push_back(textRenderSystem);
-	m_rendersystems.push_back(wayfindSystem);
-	m_rendersystems.push_back(primitiveRenderer);
 }
 
 void TowerScene::loadTerrainShader() {
@@ -183,7 +180,9 @@ void TowerScene::updateTerrainShader() {
 
 void TowerScene::onEntityKilled(const KillEntityEvent &event) {
 	auto found = std::find(m_players.begin(), m_players.end(), event.which);
-	if (found != m_players.end()) {
+	bool is_player = (found != m_players.end());
+
+	if (is_player) {
 		// play sound
 		static Random random(0.8f, 1.2f);
 		m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/ouch.wav", random());
@@ -192,15 +191,19 @@ void TowerScene::onEntityKilled(const KillEntityEvent &event) {
 		m_players.erase(found);
 
 		// switch to main menu once a player won
-		if (m_players.size() == 1) {
+		//if (m_players.size() == 1) {
 			m_engine->setActiveScene(new MainMenuScene());
-		}
+		//}
 	}
 }
 
 void TowerScene::onBombExplodes(const ExplosionEvent &event) {
 	// remove terrain
 	ffi_TowerScene_subSphere(m_engine, event.position, event.radius);
+	static Random bomb_random(-1.f, 1.f);
+	int bomb_amount = 3;
+	for (int i = 0; i < bomb_amount; ++i)
+		ffi_TowerScene_spawnBomb(m_engine, event.position, glm::vec3(bomb_random() * 0.1f, (bomb_random() * .5f + 1.f) * 0.1f, bomb_random() * 0.1f) * 0.3f);
 
 	// play sound
 	m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/explode.wav", 1.3f - event.radius * 0.92f);

@@ -11,11 +11,14 @@ bool MainMenuScene::onCreate() {
 	m_logo->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgba, sgl::texture::datatype::u8);
 	stbi_image_free(data);
 
+	m_engine->getConfig().imgui_enabled = true; // hotfix as long as imgui is used as menu renderer
 	return true;
 }
 
 void MainMenuScene::onDestroy() {
 	delete m_logo;
+
+	m_engine->getConfig().imgui_enabled = false; // hotfix as long as imgui is used as menu renderer
 }
 
 void MainMenuScene::onUpdate(float dt) {

@@ -9,7 +9,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	}
 	
 	// Add/remove components
-	#define COMP_TOGGLE(C) do { bool has_##C = registry.has<C>(entity); if (Checkbox(#C, &has_##C)) { if (!has_##C) registry.remove<C>(entity); else registry.emplace<C>(entity); }} while (0)
+	#define COMP_TOGGLE(C) do { bool has_##C = registry.try_get<C>(entity); if (Checkbox(#C, &has_##C)) { if (!has_##C) registry.remove<C>(entity); else registry.emplace<C>(entity); }} while (0)
 
 	COMP_TOGGLE(CPosition);
 	COMP_TOGGLE(CVelocity);
@@ -27,14 +27,14 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	
 
 	// Edit component values
-	if (registry.has<CPosition>(entity)) {
+	if (registry.try_get<CPosition>(entity)) {
 		if (BeginMenu("CPosition")) {
 			glm::vec3 &pos = registry.get<CPosition>(entity).pos;
 			DragFloat3("Position", &pos[0], 0.005f);
 			EndMenu();
 		}
 	}
-	if (registry.has<CVelocity>(entity)) {
+	if (registry.try_get<CVelocity>(entity)) {
 		if (BeginMenu("CVelocity")) {
 			glm::vec3 &vel = registry.get<CVelocity>(entity).vel;
 			glm::vec3 &acc = registry.get<CVelocity>(entity).acc;
@@ -54,7 +54,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			EndMenu();
 		}
 	}
-	if (registry.has<CBillboard>(entity)) {
+	if (registry.try_get<CBillboard>(entity)) {
 		if (BeginMenu("CBillboard")) {
 			glm::vec2 &size = registry.get<CBillboard>(entity).size;
 			glm::vec3 &color = registry.get<CBillboard>(entity).color;
@@ -74,14 +74,14 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			EndMenu();
 		}
 	}
-	if (registry.has<CGravity>(entity)) {
+	if (registry.try_get<CGravity>(entity)) {
 		if (BeginMenu("CGravity")) {
 			Text("Gravity: enabled");
 
 			EndMenu();
 		}
 	}
-	if (registry.has<CSphereCollider>(entity)) {
+	if (registry.try_get<CSphereCollider>(entity)) {
 		if (BeginMenu("CSphereCollider")) {
 			float &radius = registry.get<CSphereCollider>(entity).radius;
 			float &force = registry.get<CSphereCollider>(entity).force;
@@ -92,7 +92,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			EndMenu();
 		}
 	}
-	if (registry.has<CKeyboardControllable>(entity)) {
+	if (registry.try_get<CKeyboardControllable>(entity)) {
 		if (BeginMenu("CKeyboardControllable")) {
 			float &speed = registry.get<CKeyboardControllable>(entity).speed;
 			
@@ -100,7 +100,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			EndMenu();
 		}
 	}
-	if (registry.has<CRunningToTarget>(entity)) {
+	if (registry.try_get<CRunningToTarget>(entity)) {
 		if (BeginMenu("CRunningToTarget")) {
 			auto &rtt = registry.get<CRunningToTarget>(entity);
 			DragFloat("Speed", &rtt.force, 0.001f);
@@ -110,7 +110,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		}
 	}
 	
-	if (registry.has<CHealth>(entity)) {
+	if (registry.try_get<CHealth>(entity)) {
 		if (BeginMenu("CHealth")) {
 			auto &health = registry.get<CHealth>(entity);
 			SliderInt("HP", &health.hp, 0, health.max_hp);
@@ -119,7 +119,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		}
 	}
 
-	if (registry.has<CDecal>(entity)) {
+	if (registry.try_get<CDecal>(entity)) {
 		if (BeginMenu("CDecal")) {
 			auto &decal = registry.get<CDecal>(entity);
 			DragFloat3("Size##sizedecal", &decal.size[0], 0.001f);
@@ -127,7 +127,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		}
 	}
 
-	if (registry.has<COrientation>(entity)) {
+	if (registry.try_get<COrientation>(entity)) {
 		if (BeginMenu("COrientation")) {
 			auto &orient = registry.get<COrientation>(entity);
 			SliderFloat3("Rotation", &orient.orientation[0], -1.f, 1.f);
@@ -136,7 +136,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 		}
 	}
 
-	if (registry.has<CTerrainCollider>(entity)) {
+	if (registry.try_get<CTerrainCollider>(entity)) {
 		if (BeginMenu("CTerrainCollider")) {
 			auto &collider = registry.get<CTerrainCollider>(entity);
 			Text("On floor: ");

@@ -17,7 +17,7 @@ struct CSpawnPoint {
 	}
 	
 	glm::vec3 getPosition(entt::registry &registry) {
-		if (registry.valid(entity) && registry.has<CPosition>(entity))
+		if (registry.valid(entity) && registry.try_get<CPosition>(entity))
 			return registry.get<CPosition>(entity).pos;
 		
 		return pos;

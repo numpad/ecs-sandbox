@@ -12,6 +12,8 @@ EntityDeleteSystem::~EntityDeleteSystem() {
 
 void EntityDeleteSystem::update(float dt) {
 	registry.view<CDeletable>().each([this](auto entity, auto &deletable) {
-		registry.destroy(entity);
+		if (registry.valid(entity)) {
+			registry.destroy(entity);
+		}
 	});
 }

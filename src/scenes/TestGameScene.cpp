@@ -49,7 +49,7 @@ void TestGameScene::onUpdate(float dt) {
 	const float camToTargetSpeed = 0.12f;
 	// ease camera to player or origin
 	glm::vec3 targetPos;
-	if (m_world->getPlayer() != entt::null && m_world->getRegistry().has<CPosition>(m_world->getPlayer())) {
+	if (m_world->getPlayer() != entt::null && m_world->getRegistry().try_get<CPosition>(m_world->getPlayer())) {
 		targetPos = m_world->getRegistry().get<CPosition>(m_world->getPlayer()).pos * glm::vec3(1.0f, 0.0f, 1.0f);
 	} else { targetPos = glm::vec3(0.0f); }
 	glm::vec3 toTarget = (targetPos - camtarget) * camToTargetSpeed;

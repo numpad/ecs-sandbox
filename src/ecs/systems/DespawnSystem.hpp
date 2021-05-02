@@ -8,7 +8,7 @@
 class DespawnSystem : public IUpdateSystem {
 public:
 
-	DespawnSystem(entt::registry &registry);
+	DespawnSystem(entt::registry &registry, float voidHeight = -5.f);
 	~DespawnSystem();
 
 	void update(float dt) override;

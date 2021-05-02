@@ -10,7 +10,7 @@ void GravitySystem::update(float dt) {
 	registry.view<CPosition, CVelocity, CGravity>().each([this, &registry = registry](auto entity, auto &pos, auto &vel, auto &gravity) {
 		bool is_grounded = false;
 
-		if (registry.has<CTerrainCollider>(entity)) {
+		if (registry.try_get<CTerrainCollider>(entity)) {
 			auto collider = registry.get<CTerrainCollider>(entity);
 			is_grounded = collider.is_grounded;
 

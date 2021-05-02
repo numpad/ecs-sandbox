@@ -12,7 +12,7 @@ void RandomJumpSystem::update(float dt) {
 			vel.acc.y += randJumpVel();
 		
 		// flip texture horizontally
-		if (registry.has<CBillboard>(entity) && randIfFlip() < chanceToFlip) {
+		if (registry.try_get<CBillboard>(entity) && randIfFlip() < chanceToFlip) {
 			auto &bb = registry.get<CBillboard>(entity);
 			bb.setFlipped(!bb.isFlipped());
 		}

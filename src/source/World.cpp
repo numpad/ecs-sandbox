@@ -86,7 +86,7 @@ entt::entity World::spawnDefaultEntity(vec3 pos) {
 
 void World::resetEntities() {
 	vec3 spawnPos;
-	if (registry.has<CPosition>(getPlayer()))
+	if (registry.try_get<CPosition>(getPlayer()))
 		spawnPos = registry.get<CPosition>(getPlayer()).pos;
 	
 	registry.clear();

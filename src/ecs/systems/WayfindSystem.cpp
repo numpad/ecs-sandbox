@@ -38,7 +38,7 @@ void WayfindSystem::update(float dt) {
 			glm::vec3 dirToTarget = runToTarget.getTargetPosition(registry) - pos.pos;
 			
 			if (glm::length(dirToTarget) > runToTarget.closeEnough) {
-				if (registry.has<CVelocity>(entity)) {
+				if (registry.try_get<CVelocity>(entity)) {
 					auto &vel = registry.get<CVelocity>(entity);
 					if (glm::length(vel.vel) < 0.009f)
 						vel.acc += glm::normalize(dirToTarget) * runToTarget.force;

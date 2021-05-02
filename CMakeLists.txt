@@ -70,8 +70,7 @@ find_package(assimp CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE assimp::assimp)
 
 # entt
-find_package(EnTT CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE EnTT::EnTT)
+include_directories("${PROJECT_LIBRARY_DIR}/")
 
 # openal soft
 find_package(OpenAL CONFIG REQUIRED)

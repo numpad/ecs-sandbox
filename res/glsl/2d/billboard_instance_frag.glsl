@@ -47,6 +47,7 @@ void main() {
 		else
 			pixel = vec4(1.0, 1.0, 1.0, 1.0);
 	}
+	if (pixel.a < 0.9) discard;
 	
 	Color = pixel; 
 	Position = vec4(vPosition, pixel.a);

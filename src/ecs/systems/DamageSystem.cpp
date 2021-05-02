@@ -22,11 +22,6 @@ void DamageSystem::update(float dt) {
 			
 			// TODO: fire DamageEvent?
 		}
-		
-		// remove once time is over
-		if (dot._elapsed_since_beginning >= dot.duration) {
-			registry.remove<CDamageOverTime>(entity);
-		}
 
 		// despawn the entity if dead
 		if (health.hp <= 0) {
@@ -36,7 +31,12 @@ void DamageSystem::update(float dt) {
 				registry.ctx<entt::dispatcher>().enqueue<ExplosionEvent>(has_position->pos, is_explosive->radius);
 			}
 
-			registry.ctx<entt::dispatcher>().trigger<KillEntityEvent>(entity, "Killed by a wound.");
+			registry.ctx<entt::dispatcher>().enqueue<KillEntityEvent>(entity, "Killed by a wound.");
+		}
+
+		// remove once time is over
+		if (dot._elapsed_since_beginning >= dot.duration) {
+			registry.remove<CDamageOverTime>(entity);
 		}
 	});
 }

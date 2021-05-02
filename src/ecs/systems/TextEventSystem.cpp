@@ -62,7 +62,7 @@ void TextEventSystem::update(float dt) {
 void TextEventSystem::draw() {
 	for (auto &te : textEvents) {
 		vec3 pos = vec3(0.f);
-		if (registry.valid(te.event.who) && registry.has<CPosition>(te.event.who))
+		if (registry.valid(te.event.who) && registry.try_get<CPosition>(te.event.who))
 			pos = registry.get<CPosition>(te.event.who).pos;
 		pos += te.event.offset;
 		
