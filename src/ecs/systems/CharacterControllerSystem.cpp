@@ -20,11 +20,11 @@ void CharacterControllerSystem::update(float dt) {
 		glm::vec3 dir = glm::vec3(0.0f);
 		glm::vec3 right = glm::cross(up, viewDirXZ);
 		
-		// billboard component
-		CBillboard *billboard = nullptr;
-		if (registry.try_get<CBillboard>(entity))
-			billboard = &registry.get<CBillboard>(entity);
-		
+		// get optional components
+		COrientedTexture *orientation = registry.try_get<COrientedTexture>(entity);
+		CBillboard *billboard = registry.try_get<CBillboard>(entity);
+		CTerrainCollider *collider = registry.try_get<CTerrainCollider>(entity);
+
 		if (glfwGetKey(this->m_window, controller.up) == GLFW_PRESS) {
 			dir -= viewDirXZ;
 		}
@@ -33,16 +33,19 @@ void CharacterControllerSystem::update(float dt) {
 		}
 		if (glfwGetKey(this->m_window, controller.left) == GLFW_PRESS) {
 			dir -= right;
-			if (billboard) billboard->setFlipped(true);
+			if (billboard && !orientation) billboard->setFlipped(true);
 		}
 		if (glfwGetKey(this->m_window, controller.right) == GLFW_PRESS) {
 			dir += right;
-			if (billboard) billboard->setFlipped(false);
+			if (billboard && !orientation) billboard->setFlipped(false);
 		}
 		
-		if (registry.try_get<CTerrainCollider>(entity)) {
-			auto &collider = registry.get<CTerrainCollider>(entity);
-			if (!collider.is_grounded) {
+		if (orientation) {
+			orientation->angle = std::atan2(dir.z, dir.x);
+		}
+
+		if (collider) {
+			if (!collider->is_grounded) {
 				dir.x *= 0.f;
 				dir.z *= 0.f;
 			}

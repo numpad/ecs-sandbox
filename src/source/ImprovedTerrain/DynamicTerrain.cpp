@@ -13,9 +13,7 @@ void DynamicTerrain::draw(sgl::shader *chunkshader) {
 
 void DynamicTerrain::add_body(ISignedDistanceBody *body) {
 	glm::imat2x3 affected = m3d::get_affected_chunks(body->get_bounding_box(), m_chunksize);
-	int debug_count = 0;
-	Benchmark debug_b;
-	m_chunks.each_inside(affected, [this, body, &debug_count](glm::ivec3 chunk_idx, ISignedDistanceBody *sdf) {
+	m_chunks.each_inside(affected, [this, body](glm::ivec3 chunk_idx, ISignedDistanceBody *sdf) {
 		if (sdf == nullptr) {
 			m_chunks.set(chunk_idx, body);
 		} else {
@@ -23,32 +21,20 @@ void DynamicTerrain::add_body(ISignedDistanceBody *body) {
 			ISignedDistanceBody *new_chunk = new CSGNode(previous_chunk, body, CSGNode::Operator::UNION);
 			m_chunks.set(chunk_idx, new_chunk);
 		}
-		std::cout << "setting " << chunk_idx.x << ",\t" << chunk_idx.y << ",\t" << chunk_idx.z << std::endl;
-		++debug_count;
 		polygonize(chunk_idx);
 	});
-	debug_b.stop();
-	std::cout << "Took " << debug_b.ms() << "ms for " << debug_count << " chunks." << std::endl;
 }
 
 void DynamicTerrain::sub_body(ISignedDistanceBody *body) {
-	glm::mat2x3 aabb = body->get_bounding_box();
-
-	glm::imat2x3 affected = m3d::get_affected_chunks(aabb, m_chunksize);
-	int debug_count = 0;
-	Benchmark debug_b;
-	m_chunks.each_inside(affected, [this, body, &debug_count](glm::ivec3 chunk_idx, ISignedDistanceBody *sdf) {
+	glm::imat2x3 affected = m3d::get_affected_chunks(body->get_bounding_box(), m_chunksize);
+	m_chunks.each_inside(affected, [this, body](glm::ivec3 chunk_idx, ISignedDistanceBody *sdf) {
 		if (sdf) {
 			ISignedDistanceBody *previous_chunk = m_chunks.pop(chunk_idx);
 			ISignedDistanceBody *new_chunk = new CSGNode(previous_chunk, body, CSGNode::Operator::DIFF);
 			m_chunks.set(chunk_idx, new_chunk);
 		}
-		std::cout << "setting " << chunk_idx.x << ",\t" << chunk_idx.y << ",\t" << chunk_idx.z << std::endl;
-		++debug_count;
 		polygonize(chunk_idx); // TODO: if this didn't produce any vertices we can just delete the whole chunk?
 	});
-	debug_b.stop();
-	std::cout << "Took " << debug_b.ms() << "ms for " << debug_count << " chunks." << std::endl;
 }
 
 ///////////////
@@ -93,7 +79,6 @@ void DynamicTerrain::polygonize(glm::ivec3 chunk_idx) {
 	m_cubemarcher.setSampleDetail(m_chunkdetail);
 
 	auto vertices = m_cubemarcher.polygonize(*chunk); // TODO: what happens when vertices is empty?
-	if (vertices.size() == 0) std::cout << "ZERO ZERO\nZERO ZERO\n" << std::endl;
 	Mesh *mesh = new Mesh(vertices, false);
 
 	m_chunkmeshes.set(chunk_idx, mesh);

@@ -1,10 +1,11 @@
-// 3a3b6ded311cf34641ab0de20460e786d055dbc1
+// 61e1a83358fb5d953f32a35d0984eb8bd1ed2e71
 #pragma once
 
 #include <ecs/components/CVelocity.hpp>
 #include <ecs/components/CSphereCollider.hpp>
 #include <ecs/components/CGravity.hpp>
 #include <ecs/components/CPosition.hpp>
+#include <ecs/components/COrientedTexture.hpp>
 #include <ecs/components/CExplosive.hpp>
 #include <ecs/components/CDeletable.hpp>
 #include <ecs/components/CDecal.hpp>

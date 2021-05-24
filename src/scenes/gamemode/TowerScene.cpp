@@ -5,12 +5,13 @@ extern "C" {
 		entt::registry &m_registry = ((TowerScene *)engine->getScene())->m_registry;
 		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
 
-		auto entity = m_registry.create();
+		entt::entity entity = m_registry.create();
+
 		m_registry.emplace<CPosition>(entity, pos);
 		m_registry.emplace<CVelocity>(entity, vel);
 		m_registry.emplace<CBillboard>(entity,
-			m_assetmanager.getTexture("res/images/textures/dungeon.png"), glm::vec2(0.2f), glm::vec3(0.f));
-		m_registry.get<CBillboard>(entity).setSubRect(sx * 16.0f, sy * 16.0f, 16.0f, 16.0f, 256, 256);
+			m_assetmanager.getTexture("res/images/sprites/people_frames.png"), glm::vec2(0.2f), glm::vec3(0.f));
+		m_registry.get<CBillboard>(entity).setSubRect(sx * 16.0f, sy * 16.0f, 16.0f, 16.0f, 96, 96);
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
 		return entity;
@@ -19,7 +20,17 @@ extern "C" {
 		entt::registry &m_registry = ((TowerScene *)engine->getScene())->m_registry;
 		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
 		static Random fuse(-0.22f, 0.15f);
-		auto entity = ffi_TowerScene_spawnDefaultEntity(engine, pos, vel, 15.f, 3.f);
+
+		entt::entity entity = m_registry.create();
+
+		m_registry.emplace<CPosition>(entity, pos);
+		m_registry.emplace<CVelocity>(entity, vel);
+		m_registry.emplace<CBillboard>(entity,
+			m_assetmanager.getTexture("res/images/textures/dungeon.png"), glm::vec2(0.2f), glm::vec3(0.f));
+		m_registry.get<CBillboard>(entity).setSubRect(15.f * 16.0f, 3.f * 16.0f, 16.0f, 16.0f, 256, 256);
+		m_registry.emplace<CGravity>(entity);
+		m_registry.emplace<CTerrainCollider>(entity, false);
+
 		m_registry.emplace<CHealth>(entity, 1);
 		m_registry.emplace<CDamageOverTime>(entity, 1, 2.f + fuse(), 99999.f);
 		static Random random_size(0.25f, 0.45f);
@@ -40,7 +51,7 @@ extern "C" {
 	}
 
 	// tmp shortcuts:
-	void srem(Engine *engine, glm::vec3 p, float r, float h) {
+	void ffi_TowerScene_subDisk(Engine *engine, glm::vec3 p, float r, float h) {
 		((TowerScene *)engine->getScene())->m_terrain.sub_body(new DiskBody(p, r, h));
 	}
 }
@@ -54,11 +65,13 @@ bool TowerScene::onCreate() {
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
 
-	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 8.f, 14.f));
-	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 7.f, 14.f));
-	std::for_each(m_players.begin(), m_players.end(), [this](auto &player) { m_registry.remove<CGravity>(player); });
-	m_registry.emplace<CKeyboardControllable>(m_players[0], 0.01f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_X);
-	m_registry.emplace<CKeyboardControllable>(m_players[1], 0.01f, GLFW_KEY_I, GLFW_KEY_K, GLFW_KEY_J, GLFW_KEY_L, GLFW_KEY_M);
+	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 2.f, 0.f));
+	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 2.f, 1.f));
+	m_registry.emplace<CKeyboardControllable>(m_players[0], 0.0007f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_X);
+	m_registry.emplace<CKeyboardControllable>(m_players[1], 0.0007f, GLFW_KEY_I, GLFW_KEY_K, GLFW_KEY_J, GLFW_KEY_L, GLFW_KEY_M);
+
+	// testing orientation:
+	m_registry.emplace<COrientedTexture>(m_players[0], 6, 0.f);
 
 	loadSystems();
 	loadTerrainShader();
@@ -77,35 +90,40 @@ void TowerScene::onDestroy() {
 void TowerScene::onUpdate(float dt) {
 	// testing: rotate camera around origin
 	static float angle = 0.f;
-	static float basedist = 10.f; // 6.5f;
-	static float rotation_speed = 0.f; // 0.004f;
-	static float height = 0.f; // 3.5f;
+	static float basedist = 6.5f;
+	static float rotation_speed = 0.0024f;
+	static float height = 3.5f;
 	float dist = basedist + glm::sin(angle * 3.8f + 3.f) * 0.15f;
 	angle += rotation_speed;
 	m_camera->setPos(glm::vec3(glm::cos(angle) * dist, height, glm::sin(angle) * dist));
 	
-	if (ImGui::Begin("camera")) {
+	static float timescale = 1.f;
+
+	if (ImGui::Begin("Towers")) {
+		ImGui::Text("Camera");
 		ImGui::Text("Registry size: %d", m_registry.size());
 		ImGui::SliderFloat("Distance", &basedist, 1.f, 10.f);
 		ImGui::DragFloat("Rotation", &rotation_speed, 0.0002f);
 		ImGui::SliderFloat("Height", &height, 0.f, 7.f);
+		ImGui::Text("Settings");
+		ImGui::SliderFloat("Time scale [WIP]", &timescale, 0.f, 2.f);
 	} ImGui::End();
 
 	// testing: spawn bombs, replace with lua script later on
 	static Random bomb_random(-1.f, 1.f);
 	static float dt_sum = 0.f;
-	static float dt_max = 1.f;
+	static float dt_max = 4.3f;
 	dt_sum += dt;
 	if (dt_sum >= dt_max) {
 		dt_sum -= dt_max;
-		auto b1 = ffi_TowerScene_spawnBomb(m_engine, glm::vec3(0.f) + glm::vec3(-1.f, .5f, 0.f) + glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f));
-		auto b2 = ffi_TowerScene_spawnBomb(m_engine, glm::vec3(0.f) + glm::vec3(1.f, .5f, 0.f), glm::vec3(0.f));
-		m_registry.get<CBillboard>(b1).setSubRect(4 * 16.0f, 12 * 16.0f, 16.0f, 16.0f, 256, 256);
-		m_registry.get<CBillboard>(b2).setSubRect(5 * 16.0f, 12 * 16.0f, 16.0f, 16.0f, 256, 256);
+		// spawn bomb at player pos so they dont camp, randomize time until next bomb a bit
+		dt_max = 3.f + bomb_random() * 1.4f;
+		//ffi_TowerScene_spawnBomb(m_engine, m_registry.get<CPosition>(m_players[0]).pos + glm::vec3(0.f, .5f, 0.f) + glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f));
+		//ffi_TowerScene_spawnBomb(m_engine, m_registry.get<CPosition>(m_players[1]).pos + glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f));
 	}
 
 	m_registry.ctx<entt::dispatcher>().update();
-	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt); });
+	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto &usys) { usys->update(dt * timescale); });
 
 }
 
@@ -191,9 +209,9 @@ void TowerScene::onEntityKilled(const KillEntityEvent &event) {
 		m_players.erase(found);
 
 		// switch to main menu once a player won
-		//if (m_players.size() == 1) {
+		if (m_players.size() == 1) {
 			m_engine->setActiveScene(new MainMenuScene());
-		//}
+		}
 	}
 }
 
@@ -201,8 +219,8 @@ void TowerScene::onBombExplodes(const ExplosionEvent &event) {
 	// remove terrain
 	ffi_TowerScene_subSphere(m_engine, event.position, event.radius);
 	static Random bomb_random(-1.f, 1.f);
-	int bomb_amount = 3;
-	for (int i = 0; i < bomb_amount; ++i)
+	static Random bomb_amount(1.f, 2.f);
+	for (int i = 0; i < int(bomb_amount()); ++i)
 		ffi_TowerScene_spawnBomb(m_engine, event.position, glm::vec3(bomb_random() * 0.1f, (bomb_random() * .5f + 1.f) * 0.1f, bomb_random() * 0.1f) * 0.3f);
 
 	// play sound

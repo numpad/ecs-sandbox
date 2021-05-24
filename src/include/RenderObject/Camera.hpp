@@ -21,6 +21,7 @@ public:
 	static void Init(GLFWwindow *window);
 		
 	Camera(vec3 pos, float fov = 32.f);
+	Camera(const Camera&) = delete; // no copy constructor
 	~Camera();
 	
 	// setters
@@ -35,6 +36,7 @@ public:
 	inline float getZNear()   const { return this->znear; };
 	inline float getZFar()    const { return this->zfar; };
 	inline vec3 getToTarget() const { return this->dirToTarget; };
+	inline float getFoV()     const { return this->fov; };
 	inline int getScreenWidth()  const { return this->screen_width; };
 	inline int getScreenHeight() const { return this->screen_height; };
 	inline vec2 getScreenSize() const { return vec2(float(this->screen_width), float(this->screen_height)); };
