@@ -104,7 +104,14 @@ void Camera::updateHudProj() {
 }
 
 void Camera::updateProj() {
-	projection = perspective(fov, aspect, znear, zfar);	
+	projection = perspective(fov, aspect, znear, zfar);
+
+	// For orthographic projection:
+	//float w = screen_width;
+	//float h = screen_height;
+	//float factor = 2.f;
+	//float aspect = (w/h) * factor;
+	//projection = ortho(-aspect, aspect, -factor, factor, znear, zfar);
 }
 
 void Camera::updateView() {
