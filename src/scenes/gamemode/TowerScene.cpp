@@ -10,7 +10,7 @@ extern "C" {
 		m_registry.emplace<CPosition>(entity, pos);
 		m_registry.emplace<CVelocity>(entity, vel);
 		m_registry.emplace<CBillboard>(entity,
-			m_assetmanager.getTexture("res/images/sprites/people_frames.png"), glm::vec2(0.2f), glm::vec3(0.f));
+			m_assetmanager.getTexture("res/images/sprites/people_frames.png"), glm::vec2(0.2f));
 		m_registry.get<CBillboard>(entity).setSubRect(sx * 16.0f, sy * 16.0f, 16.0f, 16.0f, 96, 96);
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
@@ -26,7 +26,7 @@ extern "C" {
 		m_registry.emplace<CPosition>(entity, pos);
 		m_registry.emplace<CVelocity>(entity, vel);
 		m_registry.emplace<CBillboard>(entity,
-			m_assetmanager.getTexture("res/images/textures/dungeon.png"), glm::vec2(0.2f), glm::vec3(0.f));
+			m_assetmanager.getTexture("res/images/textures/dungeon.png"), glm::vec2(0.2f));
 		m_registry.get<CBillboard>(entity).setSubRect(15.f * 16.0f, 3.f * 16.0f, 16.0f, 16.0f, 256, 256);
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
@@ -220,8 +220,8 @@ void TowerScene::onBombExplodes(const ExplosionEvent &event) {
 	ffi_TowerScene_subSphere(m_engine, event.position, event.radius);
 	static Random bomb_random(-1.f, 1.f);
 	static Random bomb_amount(1.f, 2.f);
-	for (int i = 0; i < int(bomb_amount()); ++i)
-		ffi_TowerScene_spawnBomb(m_engine, event.position, glm::vec3(bomb_random() * 0.1f, (bomb_random() * .5f + 1.f) * 0.1f, bomb_random() * 0.1f) * 0.3f);
+	//for (int i = 0; i < int(bomb_amount()); ++i)
+	//	ffi_TowerScene_spawnBomb(m_engine, event.position, glm::vec3(bomb_random() * 0.1f, (bomb_random() * .5f + 1.f) * 0.1f, bomb_random() * 0.1f) * 0.3f);
 
 	// play sound
 	m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/explode.wav", 1.3f - event.radius * 0.92f);

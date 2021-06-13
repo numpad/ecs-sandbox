@@ -57,10 +57,8 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	if (registry.try_get<CBillboard>(entity)) {
 		if (BeginMenu("CBillboard")) {
 			glm::vec2 &size = registry.get<CBillboard>(entity).size;
-			glm::vec3 &color = registry.get<CBillboard>(entity).color;
 			glm::vec4 &texoffset = registry.get<CBillboard>(entity).texture_offset;
 			DragFloat2("Size", &size[0], 0.001f);
-			ColorEdit3("Color", &color[0]);
 			SliderFloat2("Texture offset", &texoffset[0], 0.0f, 1.0f);
 			SliderFloat2("Texture scale", &texoffset[2], 0.0f, 1.0f);
 			static int srstart[2] = {0};
@@ -192,7 +190,6 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 	//static glm::vec3 pos(0.0f);
 	static glm::vec3 vel(0.0f);
 	static glm::vec2 bbsize(0.2f, 0.2f);
-	static glm::vec3 bbcolor(1.0f);
 	static bool bbrandom = true;
 	static float rttforce = 0.01f;
 	static float rttnear = 0.1f;
@@ -249,7 +246,6 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 		if (hasbb) {
 			if (BeginMenu("CBillboard")) {
 				DragFloat2("Size", &bbsize[0], 0.001f);
-				ColorEdit3("Color", &bbcolor[0]);
 				InputText("Texture", texpath, 512);
 				DragInt2("Tiles", &tiles[0], 1);
 				if (!bbrandom)
@@ -344,7 +340,7 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 				}
 				registry.emplace<CBillboard>(entity,
 					world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y),
-					bbsize, bbcolor);
+					bbsize);
 			}
 			if (hasruntt) {
 				if (runttToPlayer) {

@@ -7,13 +7,12 @@
 
 struct CBillboard {
 	glm::vec2 size;
-	glm::vec3 color;
 	
 	Texture *texture;
 	glm::vec4 texture_offset; // xy = offset , zw = scale
 	
-	CBillboard(Texture *texture, glm::vec2 size, glm::vec3 color = glm::vec3(1.0f))
-		:  size(size), color(color), texture(texture), texture_offset(texture->getSubRect())
+	CBillboard(Texture *texture, glm::vec2 size)
+		:  size(size), texture(texture), texture_offset(texture->getSubRect())
 	{
 		
 	}

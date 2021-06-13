@@ -46,7 +46,6 @@ void BillboardRenderSystem::draw() {
 	
 	// collect per instance data
 	aInstanceModels.clear();
-	aInstanceColors.clear();
 	aInstanceTexOffsets.clear();
 	aInstanceTextures.clear();
 	boundTextures.clear();
@@ -58,7 +57,6 @@ void BillboardRenderSystem::draw() {
 		glm::mat4 modelmatrix = Billboard::calcModelMatrix(this->camera->getView(), pos.pos, bb.size);
 		
 		this->aInstanceModels.push_back(modelmatrix);
-		this->aInstanceColors.push_back(bb.color);
 		this->aInstanceTexOffsets.push_back(bb.getSubRect());
 		
 		// collect required entitiy textures to bind
@@ -125,7 +123,6 @@ void BillboardRenderSystem::draw() {
 		glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
 		glBufferData(GL_ARRAY_BUFFER,
 			aInstanceModels.size() * sizeof(glm::mat4)
-			+ aInstanceColors.size() * sizeof(glm::vec3)
 			+ aInstanceTexOffsets.size() * sizeof(glm::vec4)
 			+ aInstanceTextures.size() * sizeof(GLuint),
 			nullptr, GL_DYNAMIC_DRAW);
@@ -136,39 +133,31 @@ void BillboardRenderSystem::draw() {
 	// fill model matrices
 	glBufferSubData(GL_ARRAY_BUFFER, 0,
 		aInstanceModels.size() * sizeof(glm::mat4), aInstanceModels.data());
-	// fill colors
-	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4),
-		aInstanceColors.size() * sizeof(glm::vec3), aInstanceColors.data());
 	// fill texoffsets
-	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4) + aInstanceColors.size() * sizeof(glm::vec3),
+	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4),
 		aInstanceTexOffsets.size() * sizeof(glm::vec4), aInstanceTexOffsets.data());
 	// fill textures
-	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4) + aInstanceColors.size() * sizeof(glm::vec3) + aInstanceTexOffsets.size() * sizeof(glm::vec4),
+	glBufferSubData(GL_ARRAY_BUFFER, aInstanceModels.size() * sizeof(glm::mat4) + aInstanceTexOffsets.size() * sizeof(glm::vec4),
 		aInstanceTextures.size() * sizeof(GLuint), aInstanceTextures.data());
 	
 	// bind vao
 	glBindVertexArray(billboardRO.getVAO());
 	// enable instancing on vertex attrib
 	GLuint attribInstanceMatrix = 2;
-	GLuint attribInstanceColor = 6;
-	GLuint attribInstanceTexOff = 7;
-	GLuint attribInstanceTextures = 8;
+	GLuint attribInstanceTexOff = 6;
+	GLuint attribInstanceTextures = 7;
 	// model matrix
 	for (GLuint i = 0; i < 4; ++i) {
 		glVertexAttribPointer(attribInstanceMatrix + i, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(i * sizeof(glm::vec4)));
 		glEnableVertexAttribArray(attribInstanceMatrix + i);
 		glVertexAttribDivisor(attribInstanceMatrix + i, 1);
 	}
-	// color
-	glVertexAttribPointer(attribInstanceColor, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *)(aInstanceModels.size() * sizeof(glm::mat4)));
-	glEnableVertexAttribArray(attribInstanceColor);
-	glVertexAttribDivisor(attribInstanceColor, 1);
 	// texoffsets
-	glVertexAttribPointer(attribInstanceTexOff, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)(aInstanceModels.size() * sizeof(glm::mat4) + aInstanceColors.size() * sizeof(glm::vec3)));
+	glVertexAttribPointer(attribInstanceTexOff, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)(aInstanceModels.size() * sizeof(glm::mat4)));
 	glEnableVertexAttribArray(attribInstanceTexOff);
 	glVertexAttribDivisor(attribInstanceTexOff, 1);
 	// textures
-	glVertexAttribIPointer(attribInstanceTextures, 1, GL_UNSIGNED_INT, sizeof(GLuint), (void *)(aInstanceModels.size() * sizeof(glm::mat4) + aInstanceColors.size() * sizeof(glm::vec3) + aInstanceTexOffsets.size() * sizeof(glm::vec4)));
+	glVertexAttribIPointer(attribInstanceTextures, 1, GL_UNSIGNED_INT, sizeof(GLuint), (void *)(aInstanceModels.size() * sizeof(glm::mat4) + aInstanceTexOffsets.size() * sizeof(glm::vec4)));
 	glEnableVertexAttribArray(attribInstanceTextures);
 	glVertexAttribDivisor(attribInstanceTextures, 1);
 

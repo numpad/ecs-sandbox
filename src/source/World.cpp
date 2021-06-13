@@ -64,14 +64,12 @@ entt::entity World::getNearestEntity(vec3 posNear) {
 entt::entity World::spawnDefaultEntity(vec3 pos) {
 	static Random rand;
 	vec2 rsize(0.2f, 0.2f);
-	
-	vec3 rcol(rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f, rand() * 0.5f + 0.5f);
-	
+		
 	auto entity = registry.create();
 	registry.emplace<CPosition>(entity, pos);
 	registry.emplace<CVelocity>(entity, vec3(0.f));
 	registry.emplace<CBillboard>(entity,
-		this->assetManager.getTexture("res/images/textures/dungeon.png"), rsize, rcol);
+		this->assetManager.getTexture("res/images/textures/dungeon.png"), rsize);
 	registry.get<CBillboard>(entity).setSubRect(1.0f * 16.0f, 10.0f * 16.0f, 16.0f, 16.0f, 256, 256);
 	registry.emplace<CGravity>(entity);
 	registry.emplace<CSphereCollider>(entity, 0.045f, 0.01f);
@@ -102,7 +100,7 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	TiledTexture *playertex = assetManager.getTiledTexture("res/images/sprites/guy_stand_frames.png", 16, 16, 0, 0);
 	registry.emplace_or_replace<CBillboard>(this->player,
 		playertex, 
-		vec2(0.2f, 0.2f), vec3(0.961f, 0.8f, 0.545f));
+		vec2(0.2f, 0.2f));
 	registry.get<CBillboard>(this->player).setSubRect(0.0f * 16.0f, 0.0f * 16.0f,
 		16.0f, 16.0f, 96, 16);
 	
