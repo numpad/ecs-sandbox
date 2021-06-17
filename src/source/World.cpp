@@ -64,13 +64,14 @@ entt::entity World::getNearestEntity(vec3 posNear) {
 entt::entity World::spawnDefaultEntity(vec3 pos) {
 	static Random rand;
 	vec2 rsize(0.2f, 0.2f);
-		
+
+	Texture *texture = this->assetManager.getTexture("res/images/textures/dungeon.png");
+
 	auto entity = registry.create();
 	registry.emplace<CPosition>(entity, pos);
 	registry.emplace<CVelocity>(entity, vec3(0.f));
-	registry.emplace<CBillboard>(entity,
-		this->assetManager.getTexture("res/images/textures/dungeon.png"), rsize);
-	registry.get<CBillboard>(entity).setSubRect(1.0f * 16.0f, 10.0f * 16.0f, 16.0f, 16.0f, 256, 256);
+	registry.emplace<CBillboard>(entity, texture, rsize);
+	registry.emplace<CTextureRegion>(entity, 1.0f * 16.0f, 10.0f * 16.0f, 16.0f, 16.0f, 256, 256);
 	registry.emplace<CGravity>(entity);
 	registry.emplace<CSphereCollider>(entity, 0.045f, 0.01f);
 	registry.emplace<CJumpTimer>(entity, 0);
@@ -101,8 +102,7 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	registry.emplace_or_replace<CBillboard>(this->player,
 		playertex, 
 		vec2(0.2f, 0.2f));
-	registry.get<CBillboard>(this->player).setSubRect(0.0f * 16.0f, 0.0f * 16.0f,
-		16.0f, 16.0f, 96, 16);
+	registry.emplace_or_replace<CTextureRegion>(this->player, 0.0f * 16.0f, 0.0f * 16.0f, 16.0f, 16.0f, 96, 16);
 	
 	registry.remove<CJumpTimer>(this->player);
 	
@@ -119,6 +119,7 @@ entt::entity World::spawnPlayer(vec3 pos) {
 	//	vec2(0.2f, 0.2f), vec3(0.0f, 1.0f, 0.0f));
 	TiledTexture *tiledtex = assetManager.getTiledTexture("res/images/sprites/arrows.png", 64, 64, 0, 0);
 	registry.emplace<CBillboard>(worldCrosshair, tiledtex, vec2(0.4f, 0.4f));
+	registry.emplace<CTextureRegion>(worldCrosshair, tiledtex->getSubRect());
 	
 	return this->player;
 }

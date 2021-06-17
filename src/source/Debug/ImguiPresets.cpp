@@ -57,10 +57,11 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	if (registry.try_get<CBillboard>(entity)) {
 		if (BeginMenu("CBillboard")) {
 			glm::vec2 &size = registry.get<CBillboard>(entity).size;
-			glm::vec4 &texoffset = registry.get<CBillboard>(entity).texture_offset;
+			//glm::vec4 &texoffset = registry.get<CBillboard>(entity).texture_offset;
 			DragFloat2("Size", &size[0], 0.001f);
-			SliderFloat2("Texture offset", &texoffset[0], 0.0f, 1.0f);
-			SliderFloat2("Texture scale", &texoffset[2], 0.0f, 1.0f);
+			Text("TODO: handle CTextureRegion");
+			//SliderFloat2("Texture offset", &texoffset[0], 0.0f, 1.0f);
+			//SliderFloat2("Texture scale", &texoffset[2], 0.0f, 1.0f);
 			static int srstart[2] = {0};
 			const int texw = 256, texh = 256, tilesize = 16;
 			
@@ -338,9 +339,9 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 					tilepos.x = int(r()*5.f);
 					tilepos.y = 11+int(r()*3.f);
 				}
-				registry.emplace<CBillboard>(entity,
-					world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y),
-					bbsize);
+				Texture *texture = world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y);
+				registry.emplace<CBillboard>(entity, texture, bbsize);
+				registry.emplace<CTextureRegion>(entity, texture->getSubRect());
 			}
 			if (hasruntt) {
 				if (runttToPlayer) {

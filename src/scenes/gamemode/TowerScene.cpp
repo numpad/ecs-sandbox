@@ -7,11 +7,11 @@ extern "C" {
 
 		entt::entity entity = m_registry.create();
 
+		Texture *texture = m_assetmanager.getTexture("res/images/sprites/people_frames.png");
 		m_registry.emplace<CPosition>(entity, pos);
 		m_registry.emplace<CVelocity>(entity, vel);
-		m_registry.emplace<CBillboard>(entity,
-			m_assetmanager.getTexture("res/images/sprites/people_frames.png"), glm::vec2(0.2f));
-		m_registry.get<CBillboard>(entity).setSubRect(sx * 16.0f, sy * 16.0f, 16.0f, 16.0f, 96, 96);
+		m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f));
+		m_registry.emplace<CTextureRegion>(entity, sx * 16.0f, sy * 16.0f, 16.0f, 16.0f, 96, 96);
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
 		return entity;
@@ -23,11 +23,11 @@ extern "C" {
 
 		entt::entity entity = m_registry.create();
 
+		Texture *texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
 		m_registry.emplace<CPosition>(entity, pos);
 		m_registry.emplace<CVelocity>(entity, vel);
-		m_registry.emplace<CBillboard>(entity,
-			m_assetmanager.getTexture("res/images/textures/dungeon.png"), glm::vec2(0.2f));
-		m_registry.get<CBillboard>(entity).setSubRect(15.f * 16.0f, 3.f * 16.0f, 16.0f, 16.0f, 256, 256);
+		m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f));
+		m_registry.emplace<CTextureRegion>(entity, 15.f * 16.0f, 3.f * 16.0f, 16.0f, 16.0f, 256, 256);
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
 

@@ -54,10 +54,17 @@ void BillboardRenderSystem::draw() {
 	cregistry.view<const CPosition, const CBillboard>().each(
 		[this](auto entity, auto &pos, auto &bb) {
 		
+		// optional texture region
+		glm::vec4 texture_region = glm::vec4(0.f, 0.f, 1.f, 1.f);
+		const CTextureRegion *texture_region_component = cregistry.try_get<CTextureRegion>(entity);
+		if (texture_region_component) {
+			texture_region = texture_region_component->region;
+		}
+
 		glm::mat4 modelmatrix = Billboard::calcModelMatrix(this->camera->getView(), pos.pos, bb.size);
 		
 		this->aInstanceModels.push_back(modelmatrix);
-		this->aInstanceTexOffsets.push_back(bb.getSubRect());
+		this->aInstanceTexOffsets.push_back(texture_region);
 		
 		// collect required entitiy textures to bind
 		const Texture *texture = bb.texture;

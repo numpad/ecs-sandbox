@@ -1,4 +1,4 @@
-// 61e1a83358fb5d953f32a35d0984eb8bd1ed2e71
+// 5c9de16a63fe282a4eabcb53804cf6cc5ac06598
 #pragma once
 
 #include <ecs/components/CVelocity.hpp>
@@ -8,6 +8,7 @@
 #include <ecs/components/COrientedTexture.hpp>
 #include <ecs/components/CExplosive.hpp>
 #include <ecs/components/CDeletable.hpp>
+#include <ecs/components/CTextureRegion.hpp>
 #include <ecs/components/CDecal.hpp>
 #include <ecs/components/CBillboard.hpp>
 #include <ecs/components/COrientation.hpp>

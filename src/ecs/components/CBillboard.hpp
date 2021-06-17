@@ -12,13 +12,9 @@ struct CBillboard {
 	glm::vec4 texture_offset; // xy = offset , zw = scale
 	
 	CBillboard(Texture *texture, glm::vec2 size)
-		:  size(size), texture(texture), texture_offset(texture->getSubRect())
+		:  size(size), texture(texture)
 	{
 		
-	}
-	
-	glm::vec4 getSubRect() const {
-		return texture_offset;
 	}
 	
 	void setSubRect(float x, float y, float w, float h, int texw, int texh, bool flip_x = false) {
@@ -30,9 +26,6 @@ struct CBillboard {
 		
 		if (flip_x) texture_offset = glm::vec4(ox + ow, oy, -ow, oh);
 		else        texture_offset = glm::vec4(ox     , oy,  ow, oh);
-	}
-	void resetSubRect() {
-		texture_offset = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
 	}
 	
 	// flip 
