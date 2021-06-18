@@ -22,7 +22,6 @@ void CharacterControllerSystem::update(float dt) {
 		
 		// get optional components
 		COrientedTexture *orientation = registry.try_get<COrientedTexture>(entity);
-		CBillboard *billboard = registry.try_get<CBillboard>(entity);
 		CTerrainCollider *collider = registry.try_get<CTerrainCollider>(entity);
 
 		if (glfwGetKey(this->m_window, controller.up) == GLFW_PRESS) {
@@ -38,7 +37,7 @@ void CharacterControllerSystem::update(float dt) {
 			dir += right;
 		}
 		
-		if (orientation) {
+		if (orientation && glm::length2(dir) > 0.1f) {
 			orientation->angle = std::atan2(dir.z, dir.x);
 		}
 

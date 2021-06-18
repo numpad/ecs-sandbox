@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/integer.hpp>
 #include <entt/entt.hpp>
 #include <imgui/imgui.h>
 #include <sgl/sgl_shader.hpp>

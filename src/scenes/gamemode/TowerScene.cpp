@@ -7,7 +7,7 @@ extern "C" {
 
 		entt::entity entity = m_registry.create();
 
-		Texture *texture = m_assetmanager.getTexture("res/images/sprites/people_frames.png");
+		Texture *texture = m_assetmanager.getTexture("res/images/sprites/people_oriented.png");
 		m_registry.emplace<CPosition>(entity, pos);
 		m_registry.emplace<CVelocity>(entity, vel);
 		m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f));
@@ -65,8 +65,8 @@ bool TowerScene::onCreate() {
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
 
-	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 2.f, 0.f));
-	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 2.f, 1.f));
+	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 0.f, 0.f));
+	m_players.push_back(ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3( 1.f, .5f, 0.f), glm::vec3(0.f), 0.f, 1.f));
 	m_registry.emplace<CKeyboardControllable>(m_players[0], 0.0007f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_X);
 	m_registry.emplace<CKeyboardControllable>(m_players[1], 0.0007f, GLFW_KEY_I, GLFW_KEY_K, GLFW_KEY_J, GLFW_KEY_L, GLFW_KEY_M);
 
@@ -91,7 +91,7 @@ void TowerScene::onUpdate(float dt) {
 	// testing: rotate camera around origin
 	static float angle = 0.f;
 	static float basedist = 6.5f;
-	static float rotation_speed = 0.0024f;
+	static float rotation_speed = 0.0024f * 0.f;
 	static float height = 3.5f;
 	float dist = basedist + glm::sin(angle * 3.8f + 3.f) * 0.15f;
 	angle += rotation_speed;
@@ -156,6 +156,7 @@ void TowerScene::loadSystems() {
 	// create update systems
 	m_updatesystems.emplace_back(new DistanceFunctionCollisionSystem(m_registry, m_terrain));
 	m_updatesystems.emplace_back(new CharacterControllerSystem(m_registry, m_engine->getWindow(), &m_camera));
+	m_updatesystems.emplace_back(new TextureOrientationSystem(m_registry, m_camera));
 	m_updatesystems.emplace_back(new GravitySystem(m_registry, 0.000981f));
 	m_updatesystems.emplace_back(new PositionUpdateSystem(m_registry));
 	m_updatesystems.push_back(billboardRenderSystem);

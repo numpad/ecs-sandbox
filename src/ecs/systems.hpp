@@ -1,4 +1,4 @@
-// d6e5e2a3db324e7492dfaea73001a21762f85973
+// 8a211edbecc6ea3dc7629de39c3538476dc533b3
 #pragma once
 
 #include <ecs/systems/DamageSystem.hpp>
@@ -19,6 +19,7 @@
 #include <ecs/systems/GravitySystem.hpp>
 #include <ecs/systems/RandomJumpSystem.hpp>
 #include <ecs/systems/BillboardRenderSystem.hpp>
+#include <ecs/systems/TextureOrientationSystem.hpp>
 #include <ecs/systems/TerrainCollisionSystem.hpp>
 #include <ecs/systems/CharacterControllerSystem.hpp>
 #include <ecs/systems/CHealthbarRenderSystem.hpp>

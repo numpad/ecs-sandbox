@@ -35,9 +35,9 @@ void BillboardRenderSystem::update(float dt) {
 }
 
 void BillboardRenderSystem::draw() {
-	
+
 	#if CFG_IMGUI_ENABLED
-		if (ImGui::Begin("bbRenderSystem")) {
+		if (ImGui::Begin("BillboardRenderSystem")) {
 			ImGui::Text("DrawMode: glDrawElementsInstanced");
 			ImGui::Text("#entities: %zu / %d", aInstanceModels.size(), lastMaxInstanceCount);
 		}
@@ -57,8 +57,12 @@ void BillboardRenderSystem::draw() {
 		// optional texture region
 		glm::vec4 texture_region = glm::vec4(0.f, 0.f, 1.f, 1.f);
 		const CTextureRegion *texture_region_component = cregistry.try_get<CTextureRegion>(entity);
+		const COrientedTexture *oriented_texture_component = cregistry.try_get<COrientedTexture>(entity);
 		if (texture_region_component) {
 			texture_region = texture_region_component->region;
+			if (oriented_texture_component) {
+				texture_region.x += texture_region.z * glm::mod(oriented_texture_component->get_direction(), 6); //oriented_texture_component->get_direction();
+			}
 		}
 
 		glm::mat4 modelmatrix = Billboard::calcModelMatrix(this->camera->getView(), pos.pos, bb.size);
