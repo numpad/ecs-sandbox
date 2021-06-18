@@ -33,11 +33,9 @@ void CharacterControllerSystem::update(float dt) {
 		}
 		if (glfwGetKey(this->m_window, controller.left) == GLFW_PRESS) {
 			dir -= right;
-			if (billboard && !orientation) billboard->setFlipped(true);
 		}
 		if (glfwGetKey(this->m_window, controller.right) == GLFW_PRESS) {
 			dir += right;
-			if (billboard && !orientation) billboard->setFlipped(false);
 		}
 		
 		if (orientation) {

@@ -66,9 +66,9 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 			const int texw = 256, texh = 256, tilesize = 16;
 			
 			bool a = SliderInt2("Tile pos", srstart, 0, (texw / tilesize) - 1);
-			if (a) registry.get<CBillboard>(entity).setSubRect(
-				float(srstart[0]) * float(tilesize), float(srstart[1]) * float(tilesize),
-				float(tilesize), float(tilesize), texw, texh);
+			//if (a) registry.get<CBillboard>(entity).setSubRect(
+			//	float(srstart[0]) * float(tilesize), float(srstart[1]) * float(tilesize),
+			//	float(tilesize), float(tilesize), texw, texh);
 			
 			EndMenu();
 		}
