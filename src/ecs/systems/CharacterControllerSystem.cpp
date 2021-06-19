@@ -18,7 +18,7 @@ void CharacterControllerSystem::update(float dt) {
 		const glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 		
 		glm::vec3 dir = glm::vec3(0.0f);
-		glm::vec3 right = glm::cross(up, viewDirXZ);
+		glm::vec3 right = glm::normalize(glm::cross(up, viewDirXZ));
 		
 		// get optional components
 		COrientedTexture *orientation = registry.try_get<COrientedTexture>(entity);
@@ -37,8 +37,9 @@ void CharacterControllerSystem::update(float dt) {
 			dir += right;
 		}
 		
-		if (orientation && glm::length2(dir) > 0.1f) {
-			orientation->angle = std::atan2(dir.z, dir.x);
+		if (orientation) {
+			if (glm::length2(dir) > 0.01f) orientation->angle = std::atan2(dir.z, dir.x);
+			orientation->camera_angle = std::atan2(viewDirXZ.z, viewDirXZ.x);
 		}
 
 		if (collider) {

@@ -61,7 +61,7 @@ void BillboardRenderSystem::draw() {
 		if (texture_region_component) {
 			texture_region = texture_region_component->region;
 			if (oriented_texture_component) {
-				texture_region.x += texture_region.z * glm::mod(oriented_texture_component->get_direction(), 6); //oriented_texture_component->get_direction();
+				texture_region.x += texture_region.z * oriented_texture_component->get_sprite_offset();
 			}
 		}
 

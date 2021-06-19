@@ -2,18 +2,12 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtx/integer.hpp>
 
 struct COrientedTexture {
 	int directions;
 	float angle;
+	float camera_angle;
 
-	int get_direction() const {
-		float rad = angle;
-		int deg = int(glm::degrees(angle));
-		if (glm::abs(deg) == 45) {
-			rad += glm::sign(deg) * 0.4f;
-		}
-
-		return int((rad / (glm::pi<float>() * 2.f)) * directions);
-	}
+	int get_sprite_offset() const;
 };

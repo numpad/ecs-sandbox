@@ -11,7 +11,7 @@ extern "C" {
 		m_registry.emplace<CPosition>(entity, pos);
 		m_registry.emplace<CVelocity>(entity, vel);
 		m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f));
-		m_registry.emplace<CTextureRegion>(entity, sx * 16.0f, sy * 16.0f, 16.0f, 16.0f, 96, 96);
+		m_registry.emplace<CTextureRegion>(entity, sx * 16.0f, sy * 16.0f, 16.0f, 16.0f, 128, 128);
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
 		return entity;
@@ -70,8 +70,8 @@ bool TowerScene::onCreate() {
 	m_registry.emplace<CKeyboardControllable>(m_players[0], 0.0007f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_X);
 	m_registry.emplace<CKeyboardControllable>(m_players[1], 0.0007f, GLFW_KEY_I, GLFW_KEY_K, GLFW_KEY_J, GLFW_KEY_L, GLFW_KEY_M);
 
-	// testing orientation:
-	m_registry.emplace<COrientedTexture>(m_players[0], 6, 0.f);
+	m_registry.emplace<COrientedTexture>(m_players[0], 8, 0.f);
+	m_registry.emplace<COrientedTexture>(m_players[1], 8, 0.f);
 
 	loadSystems();
 	loadTerrainShader();
