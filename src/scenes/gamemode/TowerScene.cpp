@@ -236,6 +236,7 @@ void TowerScene::onMouseButtonInput(const MouseButtonEvent &event) {
 	m3d::ray ray = m_camera->raycast(mpos);
 	float dist = m3d::raycast(m_terrain, ray.origin, ray.dir, 90.f);
 
-	if (dist > 0.f)
+	if (dist > 0.f) {
 		ffi_TowerScene_spawnBomb(m_engine, ray.origin + ray.dir * dist, glm::vec3(0.f));
+	}
 }

@@ -11,7 +11,7 @@ DamageSystem::~DamageSystem() {
 }
 
 void DamageSystem::update(float dt) {
-	registry.view<CHealth, CDamageOverTime>().each([this, dt](auto entity, auto &health, auto &dot) {
+	registry.view<CHealth, CDamageOverTime>(entt::exclude<CDeletable>).each([this, dt](auto entity, auto &health, auto &dot) {
 		// time step
 		dot._elapsed_since_beginning += dt;
 		dot._elapsed_since_tick += dt;
