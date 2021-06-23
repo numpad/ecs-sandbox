@@ -38,11 +38,12 @@ namespace m3d {
 		float nearest; // distance to the nearest point of the terrain (result of SDF)
 		float dist; // distance we traveled on the ray
 		int iteration = 0;
-		constexpr int max_iterations = 100;
+		constexpr int max_iterations = 100; // abort after this many iterations
+		constexpr float epsilon = 1e-6; // TODO: better way to calculate epsilon?
 		for (dist = 0.f; dist <= max_length && iteration < max_iterations; dist += nearest) {
 			vec3 p = origin + dir * dist;
 			nearest = sdf.get_distance(p);
-			if (nearest <= 0.f) {
+			if (nearest <= epsilon) {
 				return dist;
 			}
 			// prevent infinite loop
@@ -52,7 +53,7 @@ namespace m3d {
 
 		// if we didn't exactly reach `max_length`, test it too.
 		if (dist < max_length) {
-			if (sdf.get_distance(origin + dir * max_length) <= 0.f) return max_length;
+			if (sdf.get_distance(origin + dir * max_length) <= epsilon) return max_length;
 		}
 		return -1.0f;
 	}

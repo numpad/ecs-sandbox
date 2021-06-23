@@ -35,6 +35,14 @@ static void callback_key_pressed(GLFWwindow* window, int key, int scancode, int 
 	}
 }
 
+static void callback_mouse_input(GLFWwindow *window, int button, int action, int mods) {
+	Engine *engine = static_cast<Engine *>(glfwGetWindowUserPointer(window));
+	double mx, my;
+	glfwGetCursorPos(window, &mx, &my);
+
+	engine->getDispatcher().enqueue<MouseButtonEvent>(button, action == GLFW_PRESS, mods, glm::vec2(float(mx), float(my)));
+}
+
 ////////////
 // PUBLIC //
 ////////////
@@ -59,6 +67,7 @@ bool Engine::initialize() {
 	glfwSetWindowCloseCallback(m_window, callback_window_close);
 	glfwSetJoystickCallback(callback_joystick_connected);
 	glfwSetKeyCallback(m_window, callback_key_pressed);
+	glfwSetMouseButtonCallback(m_window, callback_mouse_input);
 
 	// set global main window
 	if (Engine::m_main_window == nullptr) {

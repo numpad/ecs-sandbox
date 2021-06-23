@@ -46,7 +46,10 @@ float DynamicTerrain::signed_distance_function(glm::vec3 world_pos) const {
 	ISignedDistanceFunction *sdf = m_chunks.at(chunk_idx);
 	if (sdf) return sdf->get_distance(world_pos);
 
-	return 1.0f; // TODO: what to return for empty chunk?
+	// TODO: what to return for empty chunk?
+	// smallest component of `chunk_size` is a good start,
+	// but maybe distance to next chunk is better if easily calculated?
+	return 1.0f;
 }
 
 /////////////

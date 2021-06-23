@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/component_wise.hpp>
 
 #include <ImprovedTerrain/ISignedDistanceFunction.hpp>
 #include <ImprovedTerrain/ISignedDistanceBody.hpp>
@@ -21,7 +22,7 @@
 class DynamicTerrain : public ISignedDistanceFunction {
 public:
 
-	DynamicTerrain() {		
+	DynamicTerrain() {
 		ISignedDistanceBody *s = new DiskBody(glm::vec3(0.f), 2.8f, 0.1f);
 
 		glm::imat2x3 affected = m3d::get_affected_chunks(s->get_bounding_box(), m_chunksize);
@@ -55,8 +56,13 @@ private:
 	SparseGrid3D<ISignedDistanceBody> m_chunks;
 	SparseGrid3D<Mesh> m_chunkmeshes;
 	glm::vec3 m_chunksize = glm::vec3(1.f);
+	float m_chunksize_min = glm::compMin(m_chunksize);
 	float m_chunkdetail = 0.1f;
 	
 	CubeMarcher m_cubemarcher;
 
+	void set_chunksize(glm::vec3 size) {
+		m_chunksize = size;
+		m_chunksize_min = glm::compMin(size);
+	}
 };

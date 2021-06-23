@@ -19,22 +19,21 @@ extern "C" {
 	entt::entity ffi_TowerScene_spawnBomb(Engine *engine, glm::vec3 pos, glm::vec3 vel) {
 		entt::registry &m_registry = ((TowerScene *)engine->getScene())->m_registry;
 		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
-		static Random fuse(-0.22f, 0.15f);
+
+		static Random random_size(0.25f, 0.45f);
+		Texture *texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
 
 		entt::entity entity = m_registry.create();
-
-		Texture *texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
 		m_registry.emplace<CPosition>(entity, pos);
 		m_registry.emplace<CVelocity>(entity, vel);
 		m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f));
 		m_registry.emplace<CTextureRegion>(entity, 15.f * 16.0f, 3.f * 16.0f, 16.0f, 16.0f, 256, 256);
 		m_registry.emplace<CGravity>(entity);
 		m_registry.emplace<CTerrainCollider>(entity, false);
-
 		m_registry.emplace<CHealth>(entity, 1);
-		m_registry.emplace<CDamageOverTime>(entity, 1, 2.f + fuse(), 99999.f);
-		static Random random_size(0.25f, 0.45f);
+		m_registry.emplace<CDamageOverTime>(entity, 1, 2.f, 99999.f);
 		m_registry.emplace<CExplosive>(entity, random_size());
+
 		return entity;
 	}
 
@@ -61,6 +60,7 @@ bool TowerScene::onCreate() {
 
 	m_registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().connect<&TowerScene::onEntityKilled>(this);
 	m_registry.ctx<entt::dispatcher>().sink<ExplosionEvent>().connect<&TowerScene::onBombExplodes>(this);
+	m_engine->getDispatcher().sink<MouseButtonEvent>().connect<&TowerScene::onMouseButtonInput>(this);
 
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
@@ -85,13 +85,14 @@ bool TowerScene::onCreate() {
 void TowerScene::onDestroy() {
 	m_registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().disconnect(this);
 	m_registry.ctx<entt::dispatcher>().sink<ExplosionEvent>().disconnect(this);
+	m_engine->getDispatcher().sink<MouseButtonEvent>().disconnect(this);
 }
 
 void TowerScene::onUpdate(float dt) {
 	// testing: rotate camera around origin
 	static float angle = 0.f;
 	static float basedist = 6.5f;
-	static float rotation_speed = 0.0024f * 0.f;
+	static float rotation_speed = 0.0024f;
 	static float height = 3.5f;
 	float dist = basedist + glm::sin(angle * 3.8f + 3.f) * 0.15f;
 	angle += rotation_speed;
@@ -226,4 +227,15 @@ void TowerScene::onBombExplodes(const ExplosionEvent &event) {
 
 	// play sound
 	m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/explode.wav", 1.3f - event.radius * 0.92f);
+}
+
+void TowerScene::onMouseButtonInput(const MouseButtonEvent &event) {
+	if (!event.is_down) return;
+
+	glm::vec2 mpos = m_engine->getWindow().getNormalizedMousePosition();
+	m3d::ray ray = m_camera->raycast(mpos);
+	float dist = m3d::raycast(m_terrain, ray.origin, ray.dir, 90.f);
+
+	if (dist > 0.f)
+		ffi_TowerScene_spawnBomb(m_engine, ray.origin + ray.dir * dist, glm::vec3(0.f));
 }

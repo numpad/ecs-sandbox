@@ -48,4 +48,5 @@ private:
 	// event listener
 	void onEntityKilled(const KillEntityEvent &event);
 	void onBombExplodes(const ExplosionEvent &event);
+	void onMouseButtonInput(const MouseButtonEvent &event);
 };
