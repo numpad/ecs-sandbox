@@ -38,6 +38,7 @@ namespace m3d {
 // util functions
 namespace m3d {
 	vec3 randomizeVec3(vec3 v, float change);
+	vec2 angleToDirection(float radians);
 	
 	vec3 mouseToCameraRay(const mat4 &uProjection,
 		const mat4 &uView, const vec2 ndcPoint);

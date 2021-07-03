@@ -37,6 +37,60 @@ extern "C" {
 		return entity;
 	}
 
+	void ffi_TowerScene_spawnExplosionParticles(Engine *engine, glm::vec3 pos) {
+		entt::registry &m_registry = ((TowerScene *)engine->getScene())->m_registry;
+		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
+
+		Texture *texture = m_assetmanager.getTiledTexture("res/images/particles/smoke.png", 8, 8, 0, 0);
+
+
+		constexpr float TWO_PI = glm::pi<float>() * 2.f;
+		static Random random_range(0.f, 1.f);
+		// ring
+		const float ring_particles = 24.f * engine->getConfig().particle_amount;
+		for (float angle = 0.f; angle < TWO_PI; angle += TWO_PI / ring_particles) {
+			const glm::vec2 dir = m3d::angleToDirection(angle);
+
+			entt::entity entity = m_registry.create();
+			m_registry.emplace<CPosition>(entity, pos);
+			m_registry.emplace<CVelocity>(entity, glm::vec3(dir.x, 0.f, dir.y));
+			m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f));
+			m_registry.emplace<CTextureRegion>(entity, 0.f * 16.0f, 0.f * 16.0f, 16.0f, 16.0f, 128, 128);
+			m_registry.emplace<CHealth>(entity, 1);
+			m_registry.emplace<CDamageOverTime>(entity, 1, 0.5f);
+		}
+		return;
+		// center
+		const float center_particles = 50.f * engine->getConfig().particle_amount;
+		for (float angle = 0.f; angle < TWO_PI; angle += TWO_PI / center_particles) {
+			glm::vec3 dir = glm::normalize(m3d::randomizeVec3(glm::vec3(0.f), 1.f));
+			dir.y = glm::abs(dir.y);
+
+			entt::entity entity = m_registry.create();
+			m_registry.emplace<CPosition>(entity, pos);
+			m_registry.emplace<CVelocity>(entity, glm::vec3(dir.x, dir.y, dir.z) * random_range() * 0.08f);
+			m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f));
+			m_registry.emplace<CTextureRegion>(entity, 0.f * 16.0f, 0.f * 16.0f, 16.0f, 16.0f, 128, 128);
+			m_registry.emplace<CHealth>(entity, 1);
+			m_registry.emplace<CDamageOverTime>(entity, 1, 0.5f);
+		}
+		// debris
+		const float debris_particles = 4.f * engine->getConfig().particle_amount;
+		for (float angle = 0.f; angle < TWO_PI; angle += TWO_PI / debris_particles) {
+			glm::vec3 dir = glm::normalize(m3d::randomizeVec3(glm::vec3(0.f), 1.f));
+			dir.y = glm::abs(dir.y);
+
+			entt::entity entity = m_registry.create();
+			m_registry.emplace<CPosition>(entity, pos);
+			m_registry.emplace<CVelocity>(entity, glm::vec3(dir.x, dir.y, dir.z) * random_range() * 0.08f);
+			m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f));
+			m_registry.emplace<CTextureRegion>(entity, 0.f * 16.0f, 0.f * 16.0f, 16.0f, 16.0f, 128, 128);
+			m_registry.emplace<CGravity>(entity);
+			m_registry.emplace<CHealth>(entity, 1);
+			m_registry.emplace<CDamageOverTime>(entity, 1, 2.5f);
+		}
+	}
+
 	void ffi_TowerScene_toMainMenu(Engine *engine) {
 		engine->setActiveScene(new MainMenuScene());
 	}
@@ -227,6 +281,7 @@ void TowerScene::onBombExplodes(const ExplosionEvent &event) {
 
 	// play sound
 	m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/explode.wav", 1.3f - event.radius * 0.92f);
+	ffi_TowerScene_spawnExplosionParticles(m_engine, event.position);
 }
 
 void TowerScene::onMouseButtonInput(const MouseButtonEvent &event) {

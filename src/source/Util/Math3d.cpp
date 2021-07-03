@@ -8,6 +8,10 @@ namespace m3d {
 		static Random rand(-1.0f, 1.0f);
 		return v + vec3(rand(), rand(), rand()) * change;
 	}
+
+	vec2 angleToDirection(float radians) {
+		return vec2(glm::cos(radians), glm::sin(radians));
+	}
 	
 	vec3 mouseToCameraRay(const mat4 &uProjection,
 		const mat4 &uView, const vec2 ndcPoint)
