@@ -57,7 +57,7 @@ void SplashScreenScene::onRender() {
 	m_logoShader->use();
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glDrawArrays(GL_TRIANGLES, 0, 24);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void SplashScreenScene::createLogo() {
