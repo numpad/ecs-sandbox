@@ -51,7 +51,7 @@
 
 #include <luajit-2.0/lua.hpp>
 
-#include <scenes/ui/MainMenuScene.hpp>
+#include <scenes/cutscenes/splashscreen/SplashScreenScene.hpp>
 
 #if CFG_DEBUG
 	#include <Debug/ImguiPresets.hpp>
@@ -62,7 +62,7 @@ int main(int, char**) {
 	Engine engine;
 
 	if (engine.initialize()) {
-		engine.setActiveScene(new MainMenuScene());
+		engine.setActiveScene(new SplashScreenScene());
 
 		engine.run();
 	}
