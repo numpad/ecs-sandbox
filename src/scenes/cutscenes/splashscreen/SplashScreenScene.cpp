@@ -1,7 +1,7 @@
 #include <scenes/cutscenes/splashscreen/SplashScreenScene.hpp>
 
 bool SplashScreenScene::onCreate() {
-	m_camera = new Camera{glm::vec3(0.0f, 0.0f, -1.0f)};
+	m_camera = new Camera{glm::vec3(0.0f, 0.0f, 1.0f)};
 	m_camera->setTarget(glm::vec3(0.0f));
 
 	// load texture
@@ -47,10 +47,10 @@ void SplashScreenScene::onRender() {
 
 	float width = m_camera->getScreenWidth();
 	float height = m_camera->getScreenHeight();
-	m_logoShader->operator[]("uProjection") = m_camera->getHudProjection();
+	m_logoShader->operator[]("uProjection") = glm::ortho(0.0f, width, height, 0.0f); //m_camera->getHudProjection();
 	m_logoShader->operator[]("uView") = glm::mat4(1.0f);
 	auto model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(3.0f, 3.0f, 0.0f));
+	model = glm::translate(model, glm::vec3(3.f, 3.f, 0.0f));
 	model = glm::scale(model, glm::vec3(300.0f, 150.0f, 1.0f));
 	m_logoShader->operator[]("uModel") = model;
 
@@ -65,12 +65,12 @@ void SplashScreenScene::createLogo() {
 	glGenBuffers(1, &m_vbo);
 
 	GLfloat vertices[] = {
+		0.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
 		0.0f, 0.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f
+		0.0f, 0.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f, 1.0f, 0.0f
 	};
 
 	glBindVertexArray(m_vao);

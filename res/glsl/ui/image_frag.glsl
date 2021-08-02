@@ -1,10 +1,10 @@
 #version 450 core
 
-in vec2 aTexCoord;
+in vec2 vTexCoord;
 
 out vec4 Color;
 
 void main() {
 
-	Color = vec4(0.0, 1.0, 0.0, 1.0);
+	Color = vec4(vTexCoord, 0.0, 1.0);
 }
