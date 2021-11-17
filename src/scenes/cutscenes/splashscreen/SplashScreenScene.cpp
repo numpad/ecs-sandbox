@@ -36,7 +36,7 @@ void SplashScreenScene::onUpdate(float dt) {
 	m_elapsedTime += (double)dt;
 
 	// switch to next scene
-	if (m_elapsedTime > 2.5f) {
+	if (m_elapsedTime > 1.5f) {
 		m_engine->setActiveScene(new MainMenuScene{});
 	}
 }
