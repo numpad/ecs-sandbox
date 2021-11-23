@@ -78,7 +78,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL::OpenAL)
 
 # glm
 find_package(glm CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
+#target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
 
 # luajit
 # WIP

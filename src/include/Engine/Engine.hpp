@@ -10,7 +10,7 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
-#include <luajit-2.0/lua.hpp>
+#include <luajit-2.1/lua.hpp>
 
 #include <sgl/sgl_shader.hpp>
 #include <sgl/sgl_framebuffer.hpp>

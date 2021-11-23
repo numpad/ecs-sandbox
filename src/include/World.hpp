@@ -18,7 +18,7 @@
 #include <assimp/postprocess.h>
 #include <entt/entt.hpp>
 #include <sgl/sgl_shader.hpp>
-#include <luajit-2.0/lua.hpp>
+#include <luajit-2.1/lua.hpp>
 
 #include <Grid2D.hpp>
 
