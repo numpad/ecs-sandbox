@@ -5,6 +5,8 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <fmt/core.h>
+#include <fmt/color.h>
 
 #include <RenderObject/Camera.hpp>
 

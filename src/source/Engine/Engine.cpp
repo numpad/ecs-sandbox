@@ -54,12 +54,44 @@ Engine::Engine(EngineConfig config)
 }
 
 bool Engine::initialize() {
+	#if CFG_DEBUG
+		const char *cfg_debug_state = "DEBUG";
+	#else
+		const char *cfg_debug_state = "Release build";
+	#endif
+	fmt::print(fmt::fg(fmt::color::white) | fmt::emphasis::bold, "{} v{}.{} ({}) [{}]\n", CFG_PROJECT_NAME, CFG_VERSION_MAJOR, CFG_VERSION_MINOR, cfg_debug_state, CFG_CMAKE_BUILD_TYPE);
+
 	// initialize scripting
-	luastate_init();
+	if (luastate_init()) {
+		lua_getglobal(m_lua, "_VERSION");
+		const char *luaversion = lua_tostring(m_lua, -1);
+		lua_pop(m_lua, 1);
+		fmt::print(fmt::fg(fmt::terminal_color::green), "{}", luaversion);
+		// check if LuaJIT is available
+		lua_getglobal(m_lua, "jit");
+		if (lua_istable(m_lua, -1)) {
+			lua_getfield(m_lua, -1, "version");
+			const char *jitversion = lua_tostring(m_lua, -1);
+			fmt::print(fmt::fg(fmt::terminal_color::green), " ({})", jitversion);
+			lua_pop(m_lua, 1);
+		}
+		fmt::print("\n");
+	} else {
+		fmt::print(fmt::fg(fmt::terminal_color::red), "Failed initializing Lua\n");
+		// TODO: Should we return here? Most things won't work without lua...
+	}
 
 	// initialize window
-	if (!Window::Init()) return init_error("Failed initializing window.");
-	if (!m_window.create(m_config.window_width, m_config.window_height)) return init_error("Failed creating window.");
+	if (!Window::Init()) {
+		fmt::print(fmt::fg(fmt::terminal_color::red), "glfwInit() failed\n");
+		return false;	
+	}
+	fmt::print(fmt::fg(fmt::terminal_color::green), "GLFW {}\n", glfwGetVersionString());
+
+	if (!m_window.create(m_config.window_width, m_config.window_height)) {
+		fmt::print(fmt::fg(fmt::terminal_color::red), "Error creating window\n");
+		return false;
+	}
 
 	glfwSetWindowUserPointer(m_window, this);
 	// connect callbacks
@@ -99,6 +131,7 @@ bool Engine::initialize() {
 }
 
 void Engine::destroy() {
+	fmt::print(fmt::fg(fmt::terminal_color::white) | fmt::emphasis::bold, "Destroying engine...\n");
 	// cleanup user
 	setActiveScene(nullptr);
 
@@ -250,7 +283,7 @@ void Engine::switchScene() {
 			m_scene->onDestroy();
 			delete m_scene;
 			m_scene = nullptr;
-			init_error("Scene initialization failed, running dry!");
+			fmt::print(fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold, "Scene initialization failed, running dry...\n");
 			quit();
 		}
 	}
@@ -267,7 +300,7 @@ void Engine::imgui_init(GLFWwindow *window) {
 		// imgui glfw init
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 450");
-		printf("[INIT] dear imgui %s\n", ImGui::GetVersion());
+		fmt::print(fmt::fg(fmt::terminal_color::green), "dear imgui {}\n", ImGui::GetVersion());
 	#endif
 }
 void Engine::imgui_prepareframe() {
@@ -294,7 +327,9 @@ void Engine::imgui_destroy() {
 bool Engine::luastate_init() {
 	m_lua = luaL_newstate();
 
-	if (!m_lua) return init_error("Failed initializing Lua state.");
+	if (!m_lua) {
+		return false;
+	}
 
 	// open stdlib, add modules path
 	luaL_openlibs(m_lua);

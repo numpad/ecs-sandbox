@@ -5,8 +5,9 @@
 
 #include <iostream>
 
+#include <fmt/core.h>
+#include <fmt/color.h>
 #include <glm/glm.hpp>
-
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
@@ -86,8 +87,4 @@ private:
 	bool luastate_init();
 	void luastate_destroy();
 
-	bool init_error(std::string error_details) {
-		std::cerr << "\x1b[31m[INI]\x1b[0m " << error_details << std::endl;
-		return false;
-	}
 };

@@ -133,6 +133,20 @@ bool TowerScene::onCreate() {
 	static Random bomb_random(-1.f, 1.f);
 	ffi_TowerScene_spawnBomb(m_engine, glm::vec3(0.f, 0.5f, 0.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f) * 0.1f);
 
+	lua_State *L = m_engine->getLuaState();
+	if (luaL_dofile(L, "res/scripts/tower_scene.lua")) {
+		const char *err = lua_tostring(L, -1);
+		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n", err);
+		lua_pop(L, 1);
+		return false;
+	}
+
+	lua_State *T = lua_newthread(L);
+	lua_getglobal(T, "update");
+	lua_resume(T, 0);
+	lua_resume(T, 0);
+
+
 	return true;
 }
 
@@ -276,8 +290,8 @@ void TowerScene::onBombExplodes(const ExplosionEvent &event) {
 	ffi_TowerScene_subSphere(m_engine, event.position, event.radius);
 	static Random bomb_random(-1.f, 1.f);
 	static Random bomb_amount(1.f, 2.f);
-	for (int i = 0; i < int(bomb_amount()); ++i)
-		ffi_TowerScene_spawnBomb(m_engine, event.position, glm::vec3(bomb_random() * 0.1f, (bomb_random() * .5f + 1.f) * 0.1f, bomb_random() * 0.1f) * 0.3f);
+	//for (int i = 0; i < int(bomb_amount()); ++i)
+	//	ffi_TowerScene_spawnBomb(m_engine, event.position, glm::vec3(bomb_random() * 0.1f, (bomb_random() * .5f + 1.f) * 0.1f, bomb_random() * 0.1f) * 0.3f);
 
 	// play sound
 	m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/explode.wav", 1.3f - event.radius * 0.92f);

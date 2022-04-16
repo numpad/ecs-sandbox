@@ -14,40 +14,40 @@ static void APIENTRY glDebugOutput(GLenum source,
     // ignore non-significant error/warning codes
     if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return; 
 
-    std::cout << "---------------" << std::endl;
-    std::cout << "Debug message (" << id << "): " <<  message << std::endl;
+	std::string source_string = "";
+    switch (source) {
+        case GL_DEBUG_SOURCE_API:             source_string = "API"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   source_string = "Window System"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: source_string = "Shader Compiler"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:     source_string = "Third Party"; break;
+        case GL_DEBUG_SOURCE_APPLICATION:     source_string = "Application"; break;
+        case GL_DEBUG_SOURCE_OTHER:           source_string = "Other"; break;
+    }
 
-    switch (source)
-    {
-        case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
-        case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
-        case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
-    } std::cout << std::endl;
-
-    switch (type)
-    {
-        case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break; 
-        case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
-        case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
-        case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
-        case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
-        case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
-        case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
-    } std::cout << std::endl;
+	fmt::text_style style;
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR:               style = fmt::fg(fmt::terminal_color::red); break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: style = fmt::fg(fmt::terminal_color::yellow); break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  style = fmt::fg(fmt::terminal_color::red); break; 
+        case GL_DEBUG_TYPE_PORTABILITY:         style = fmt::fg(fmt::terminal_color::yellow); break;
+        case GL_DEBUG_TYPE_PERFORMANCE:         style = fmt::fg(fmt::terminal_color::yellow); break;
+        case GL_DEBUG_TYPE_MARKER:              style = fmt::fg(fmt::terminal_color::blue); break;
+        case GL_DEBUG_TYPE_PUSH_GROUP:          style = fmt::fg(fmt::terminal_color::white); break;
+        case GL_DEBUG_TYPE_POP_GROUP:           style = fmt::fg(fmt::terminal_color::white); break;
+        case GL_DEBUG_TYPE_OTHER:               style = fmt::fg(fmt::terminal_color::white); break;
+    }
     
+	std::string severity_string = "";
     switch (severity)
     {
-        case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
-        case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
-        case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
-        case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
-    } std::cout << std::endl;
-    std::cout << std::endl;
+        case GL_DEBUG_SEVERITY_HIGH:         severity_string = "high"; break;
+        case GL_DEBUG_SEVERITY_MEDIUM:       severity_string = "medium"; break;
+        case GL_DEBUG_SEVERITY_LOW:          severity_string = "low"; break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION: severity_string = "info"; break;
+    }
+
+	fmt::print(style | fmt::emphasis::bold, "[{}] OpenGL error #{} from [{}]:\n", severity_string, id, source_string);
+	fmt::print(style, "{}\n", message);
 }
 
 ////////////
@@ -55,24 +55,12 @@ static void APIENTRY glDebugOutput(GLenum source,
 ////////////
 
 bool Window::Init(int glmajor, int glminor) {
-	#if CFG_DEBUG
-		const char *cfg_debug_state = "DEBUG";
-	#else
-		const char *cfg_debug_state = "Release build";
-	#endif
-
-	std::cout << "[INIT] " << CFG_PROJECT_NAME << " version: " << CFG_VERSION_MAJOR << "." << CFG_VERSION_MINOR << " (" << cfg_debug_state << ") " << "[" << CFG_CMAKE_BUILD_TYPE << "]" << std::endl;
-
 	// glfw init hints
 	glfwInitHint(GLFW_JOYSTICK_HAT_BUTTONS, GLFW_FALSE);
 
-	if (!glfwInit()) {
-		fprintf(stderr, "glfwInit() failed.\n");
-		std::cerr << "[INIT] glfwInit() failed." << std::endl;
+	if (!glfwInit()) {	
 		return false;
 	}
-
-	std::cout << "[INIT] GLFW " << glfwGetVersionString() << std::endl;
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glmajor);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glminor);
@@ -105,12 +93,10 @@ bool Window::create(int width, int height, FullscreenMode fullscreenMode) {
 	glfwSwapInterval(1);
 
 	if (gl3wInit()) {
-		fprintf(stderr, "gl3wInit() failed.\n");
+		fmt::print(fmt::fg(fmt::terminal_color::red), "gl3wInit() failed.\n");
 		return false;
 	}
-	printf("[INIT] OpenGL %s, GLSL %s\n",
-		glGetString(GL_VERSION),
-		glGetString(GL_SHADING_LANGUAGE_VERSION));
+	fmt::print(fmt::fg(fmt::terminal_color::green), "OpenGL {} with GLSL {}\n", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
 	
 	// msaa
 	//glEnable(GL_MULTISAMPLE);
@@ -135,7 +121,7 @@ bool Window::create(int width, int height, FullscreenMode fullscreenMode) {
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-		printf("[INIT] OpenGL debug context enabled!\n");
+		fmt::print(fmt::fg(fmt::terminal_color::yellow), "OpenGL debug context enabled\n");
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(glDebugOutput, nullptr);

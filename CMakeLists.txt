@@ -63,7 +63,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glfw)
 
 # cereal
 find_package(cereal CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE cereal)
 
 # assimp
 find_package(assimp CONFIG REQUIRED)
@@ -74,7 +73,7 @@ include_directories("${PROJECT_LIBRARY_DIR}/")
 
 # openal soft
 find_package(OpenAL CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL::OpenAL)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL\:\:OpenAL)
 
 # glm
 find_package(glm CONFIG REQUIRED)
@@ -91,6 +90,11 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE luajit-5.1)
 # freetype2
 find_package(freetype CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE freetype)
+
+# fmt
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE fmt::fmt-header-only)
+
 
 # OpenGL
 set (OpenGL_GL_PREFERENCE GLVND)

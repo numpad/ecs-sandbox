@@ -7,7 +7,7 @@
 #include <Engine/IScene.hpp>
 
 #include <sgl/sgl_texture.hpp>
-#include <scenes/TestGameScene.hpp>
+#include <scenes/testing/TestGameScene.hpp>
 #include <scenes/gamemode/TowerScene.hpp>
 
 class MainMenuScene : public IScene {

@@ -1,4 +1,4 @@
-#include "scenes/TestGameScene.hpp"
+#include "scenes/testing/TestGameScene.hpp"
 
 inline glm::vec3 calcCamPos(GLFWwindow *window) {
 	// calculate view & projection matrix
