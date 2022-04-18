@@ -41,6 +41,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/gl3w/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/backends")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/yoga")
 
 file (GLOB_RECURSE source_files
 	"${PROJECT_BASE_SRC}/*.cpp"
@@ -51,6 +52,8 @@ file (GLOB library_source_files
 	"${PROJECT_LIBRARY_DIR}/gl3w/src/gl3w.cpp" # TODO: bad fix, work this out!
 	"${PROJECT_LIBRARY_DIR}/imgui/backends/imgui_impl_glfw.cpp"
 	"${PROJECT_LIBRARY_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
+	"${PROJECT_LIBRARY_DIR}/yoga/yoga/*.cpp"
+	"${PROJECT_LIBRARY_DIR}/yoga/yoga/*/*.cpp"
 )
 
 include(${CMAKE_TOOLCHAIN_FILE})

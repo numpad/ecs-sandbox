@@ -61,6 +61,7 @@ All libraries included and/or required for the game. Some libraries are not yet 
 [stb_image.h](https://github.com/nothings/stb)    |  2.22   | public domain / MIT | Image loading library.
 [FreeType 2](https://www.freetype.org/)           |  2.?    | GPLv2 / FTL         | Font rasterization library.
 [OpenAL-soft](https://openal-soft.org/)           |    ?    | LGPLv2              | A software implementation of the OpenAL 3D audio API.
+[Yoga](https://github.com/facebook/yoga)          | 1.19.0  | MIT                 | Layout engine implementing flexbox.
 
 
 ## Assets
@@ -91,6 +92,8 @@ An (incomplete) list of the resources I used in no particular order.
 [decals](https://mtnphil.wordpress.com/2014/05/24/decals-deferred-rendering/)   | Drawing decals using deferred rendering. 
 [more decals](http://broniac.blogspot.com/2011/06/deferred-decals.html)         | More information about drawing decals and their weak spots.
 [even more decals](https://martindevans.me/game-development/2015/02/27/Drawing-Stuff-On-Other-Stuff-With-Deferred-Screenspace-Decals/) | Even more decal information.
+
+
 ## License
 I have not yet decided on a license.  
 The goal of this project is mostly for learning purposes, both for me and other developers in a similar position.

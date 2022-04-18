@@ -78,7 +78,7 @@ bool Engine::initialize() {
 		fmt::print("\n");
 	} else {
 		fmt::print(fmt::fg(fmt::terminal_color::red), "Failed initializing Lua\n");
-		// TODO: Should we return here? Most things won't work without lua...
+		return false;
 	}
 
 	// initialize window
@@ -126,6 +126,15 @@ bool Engine::initialize() {
 	m_screenshader["uTexPosition"] = 1;
 	m_screenshader["uTexNormal"] = 2;
 	m_screenshader["uTexDepth"] = 3;
+
+	if (luaL_dofile(m_lua, "res/scripts/engine/init.lua")) {
+		const char *luaerror = lua_tostring(m_lua, -1);
+		fmt::print(fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold, "Lua Error:\n");
+		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n", luaerror);
+		lua_pop(m_lua, 1);
+
+		return false;
+	}
 
 	return true;
 }
@@ -333,7 +342,7 @@ bool Engine::luastate_init() {
 
 	// open stdlib, add modules path
 	luaL_openlibs(m_lua);
-	luaL_dostring(m_lua, "package.path = package.path .. ';res/scripts/modules/?.lua'");
+	luaL_dostring(m_lua, "package.path = package.path .. ';res/scripts/modules/?.lua;res/scripts/?.lua'");
 
 	// register reference to engine
 	lua_pushlightuserdata(m_lua, this);

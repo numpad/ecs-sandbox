@@ -1,6 +1,8 @@
--- engine settings
+-- init.lua - Executed when the engine is initialized
 
-window = {
-	size = {930, 640},
-	mode = 'windowed', -- 'windowed', 'borderless' or 'fullscreen'
-}
+-- Abort initialization by calling error()
+-- error('Something bad happened, aborting...')
+
+local Yoga = require('Yoga')
+
+local splashlayout = require('layout.splash')

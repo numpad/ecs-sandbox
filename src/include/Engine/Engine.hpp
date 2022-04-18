@@ -12,6 +12,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <luajit-2.1/lua.hpp>
+#include <yoga/Yoga.h>
 
 #include <sgl/sgl_shader.hpp>
 #include <sgl/sgl_framebuffer.hpp>
