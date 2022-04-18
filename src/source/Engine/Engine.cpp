@@ -59,7 +59,7 @@ bool Engine::initialize() {
 	#else
 		const char *cfg_debug_state = "Release build";
 	#endif
-	fmt::print(fmt::fg(fmt::color::white) | fmt::emphasis::bold, "{} v{}.{} ({}) [{}]\n", CFG_PROJECT_NAME, CFG_VERSION_MAJOR, CFG_VERSION_MINOR, cfg_debug_state, CFG_CMAKE_BUILD_TYPE);
+	fmt::print(fmt::emphasis::bold, "{} v{}.{} ({}) [{}]\n", CFG_PROJECT_NAME, CFG_VERSION_MAJOR, CFG_VERSION_MINOR, cfg_debug_state, CFG_CMAKE_BUILD_TYPE);
 
 	// initialize scripting
 	if (luastate_init()) {

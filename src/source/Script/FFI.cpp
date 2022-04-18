@@ -2,6 +2,10 @@
 
 
 extern "C" {
+	// Engine
+	void FFI_Engine_setActiveScene(Engine *engine, IScene *scene) {
+		engine->setActiveScene(scene);
+	}
 
 	// Map generation / Terrain
 	SignedDistTerrain* FFI_signeddistterrain_new() {

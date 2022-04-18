@@ -203,17 +203,22 @@ function Yoga.layout(layout)
 		else
 			local assignable = Yoga['set_' .. prop]
 			if prop == 'position' then
-				-- some edge-cases:
+				-- Edge case to stay close to the HTML/CSS definition "position: absolute;"
 				Yoga.set_positiontype(root, value)
 			elseif prop == 'left' or prop == 'right' or prop == 'top' or prop == 'bottom' or prop == 'horizontal' or prop == 'vertical' or prop == 'start' or prop == 'end' or  prop == 'all' then
+				-- Also to stay close to HTML/CSS...
 				print('\x1b[33m' .. prop .. '\x1b[0m' .. ': ' .. value)
 				Yoga.set_position(root, value, prop)
-			elseif assignable then
-				-- directly assignable
+			elseif type(assignable) == 'function' then
+				-- Anything directly assignable
 				print('\x1b[32m' .. prop .. '\x1b[0m' .. ': ' .. value)
 				assignable(root, value)
+			elseif string.sub(prop, 0, 1) == '_' then
+				-- Ignore props with underscore. (maybe do something with it later)
+				print('\x1b[36m' .. prop .. '\x1b[0m' .. ': ' .. value)
 			else
-				error('Property "' .. prop .. '" does not exist!', 4)
+				-- Everything else is an error!
+				error('Property "' .. prop .. '" does not exist!')
 			end
 		end
 	end

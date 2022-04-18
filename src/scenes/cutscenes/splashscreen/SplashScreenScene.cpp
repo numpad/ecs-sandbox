@@ -36,7 +36,7 @@ void SplashScreenScene::onUpdate(float dt) {
 	m_elapsedTime += (double)dt;
 
 	// switch to next scene
-	if (m_elapsedTime > 1.5f) {
+	if (m_elapsedTime > 5.f || glfwGetKey(m_engine->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
 		m_engine->setActiveScene(new MainMenuScene{});
 	}
 }
@@ -50,7 +50,7 @@ void SplashScreenScene::onRender() {
 	m_logoShader->operator[]("uProjection") = glm::ortho(0.0f, width, height, 0.0f); //m_camera->getHudProjection();
 	m_logoShader->operator[]("uView") = glm::mat4(1.0f);
 	auto model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(3.f, 3.f, 0.0f));
+	model = glm::translate(model, glm::vec3(3.f + sin(glfwGetTime() * 10.f) * 50.f, 3.f, 0.0f));
 	model = glm::scale(model, glm::vec3(300.0f, 150.0f, 1.0f));
 	m_logoShader->operator[]("uModel") = model;
 

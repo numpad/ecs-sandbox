@@ -1,10 +1,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <Engine/Engine.hpp>
 #include <Terrain/SignedDistTerrain.hpp>
 #include <RenderObject/ChunkedWorld.hpp>
 
 extern "C" {
+	// Engine
+	void FFI_Engine_setActiveScene(Engine *engine, IScene *scene);
 
 	// Map generation / Terrain
 	SignedDistTerrain* FFI_signeddistterrain_new();
