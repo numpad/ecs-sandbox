@@ -17,7 +17,7 @@ return Yoga.layout({
 	alignitems = 'center',
 	
 	logo = {
-		width = '70%',
+		width = 220,
 		height = 130,
 		margin = 'auto',
 	},

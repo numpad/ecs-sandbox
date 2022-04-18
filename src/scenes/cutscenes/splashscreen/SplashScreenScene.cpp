@@ -49,15 +49,21 @@ void SplashScreenScene::onRender() {
 	float height = m_camera->getScreenHeight();
 	m_logoShader->operator[]("uProjection") = glm::ortho(0.0f, width, height, 0.0f); //m_camera->getHudProjection();
 	m_logoShader->operator[]("uView") = glm::mat4(1.0f);
-	auto model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(3.f + sin(glfwGetTime() * 10.f) * 50.f, 3.f, 0.0f));
-	model = glm::scale(model, glm::vec3(300.0f, 150.0f, 1.0f));
-	m_logoShader->operator[]("uModel") = model;
 
-	m_logoShader->use();
-	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	std::vector<glm::mat4> models = {glm::mat4(1.0f), glm::mat4(1.0f)};
+	models[0] = glm::translate(models[0], glm::vec3(3.f + sin(glfwGetTime() * 10.f) * 50.f, 3.f, 0.0f));
+	models[0] = glm::scale(models[0], glm::vec3(300.0f, 150.0f, 1.0f));
+
+	models[1] = glm::translate(models[1], glm::vec3(3.f + sin(glfwGetTime() * 10.f + 0.33f) * 50.f, 156.f, 0.0f));
+	models[1] = glm::scale(models[1], glm::vec3(300.0f, 150.0f, 1.0f));
+	for (size_t i = 0; i < 2; ++i) {
+		m_logoShader->operator[]("uModel") = models.at(i);
+
+		m_logoShader->use();
+		glBindVertexArray(m_vao);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
 }
 
 void SplashScreenScene::createLogo() {

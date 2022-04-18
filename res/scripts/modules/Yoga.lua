@@ -19,6 +19,9 @@ ffi.cdef[[
 	void YGNodeFreeRecursive(YGNodeRef node);
 	void YGNodeReset(YGNodeRef node);
 
+	void* YGNodeGetContext(YGNodeRef node);
+	void YGNodeSetContext(YGNodeRef node, void* context);
+
 	void YGNodeStyleSetWidth(YGNodeRef node, float width);
 	void YGNodeStyleSetWidthPercent(YGNodeRef node, float width);
 	void YGNodeStyleSetWidthAuto(YGNodeRef node);
@@ -78,6 +81,9 @@ ffi.cdef[[
 	void YGNodeStyleSetPosition(YGNodeRef node, YGEdge edge, float position);
 	void YGNodeStyleSetPositionPercent(YGNodeRef node, YGEdge edge, float position);
 	YGValue YGNodeStyleGetPosition(YGNodeConstRef node, YGEdge edge);
+
+	void YGNodeStyleSetAspectRatio(YGNodeRef node, float aspectRatio);
+	float YGNodeStyleGetAspectRatio(YGNodeConstRef node);
 
 	float YGNodeLayoutGetLeft(YGNodeConstRef node);
 	float YGNodeLayoutGetTop(YGNodeConstRef node);
@@ -247,6 +253,19 @@ end
 
 function Yoga:reset()
 	ffi.C.YGNodeReset(self.super)
+end
+
+--- Assign any context (usually called "userdata") to the node.
+-- @param userdata void*
+function Yoga:set_context(userdata)
+	ffi.C.YGNodeSetContext(self.super, userdata);
+	return self
+end
+
+--- Returns the nodes context ("userdata").
+-- @returns void*
+function Yoga:get_context()
+	return ffi.C.YGNodeGetContext(self.super);
 end
 
 function Yoga:copystyle(target)
@@ -476,6 +495,15 @@ function Yoga:get_positiontype()
 	return ffi.C.YGNodeStyleGetPositionType(self.super)
 end
 
+function Yoga:set_aspectratio(ratio)
+	ffi.C.YGNodeStyleSetAspectRatio(self.super, ratio)
+	return self
+end
+
+function Yoga:get_aspectratio()
+	return ffi.C.YGNodeStyleGetAspectRatio(self.super)
+end
+
 --- Sets the flex wrap attribute.
 -- @param wrap ['no-wrap', 'wrap', 'wrap-reverse']
 -- @returns self
@@ -553,7 +581,15 @@ function Yoga:get_position(edge)
 		edge = Yoga.enums.edge[edge]
 	end
 
-	return ffi.C.YGNodeStyleGetPosition(self.super, edge)
+	local obj = ffi.C.YGNodeStyleGetPosition(self.super, edge)
+
+	if obj.unit == Yoga.enums.unit['percent'] then
+		return obj.value .. '%'
+	elseif obj.unit == Yoga.enums.unit['auto'] then
+		return 'auto'
+	end
+
+	return obj.value
 end
 
 function Yoga:get_layoutleft()
@@ -702,7 +738,7 @@ function Yoga:getchildcount()
 end
 
 function Yoga:calculate()
-	ffi.C.YGNodeCalculateLayout(self.super, self:get_width().value, self:get_height().value, ffi.C.YGDirectionLTR)
+	ffi.C.YGNodeCalculateLayout(self.super, self:get_width(), self:get_height(), ffi.C.YGDirectionLTR)
 	return self
 end
 
