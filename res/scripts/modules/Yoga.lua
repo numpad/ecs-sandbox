@@ -197,13 +197,13 @@ Yoga.enums = {
 	},
 }
 
-function Yoga.layout(layout)
+function Yoga.parse(layout)
 	local root = Yoga.new()
 
 	for prop, value in pairs(layout) do
 		if type(value) == 'table' then
 			print('<' .. prop .. '>')
-			local child = Yoga.layout(value)
+			local child = Yoga.parse(value)
 			root:insertchild(child)
 			print('</' .. prop .. '>')
 		else

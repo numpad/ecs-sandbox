@@ -10,7 +10,7 @@ local Yoga = require('Yoga')
 +-------------------+
 ]]
 
-return Yoga.layout({
+return Yoga.parse({
 	width = 500,
 	height = 500,
 	justifycontent = 'center',

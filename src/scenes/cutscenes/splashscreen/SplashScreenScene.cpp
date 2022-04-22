@@ -36,7 +36,7 @@ void SplashScreenScene::onUpdate(float dt) {
 	m_elapsedTime += (double)dt;
 
 	// switch to next scene
-	if (m_elapsedTime > 5.f || glfwGetKey(m_engine->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
+	if (m_elapsedTime > 25.f || glfwGetKey(m_engine->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
 		m_engine->setActiveScene(new MainMenuScene{});
 	}
 }
@@ -51,11 +51,13 @@ void SplashScreenScene::onRender() {
 	m_logoShader->operator[]("uView") = glm::mat4(1.0f);
 
 	std::vector<glm::mat4> models = {glm::mat4(1.0f), glm::mat4(1.0f)};
-	models[0] = glm::translate(models[0], glm::vec3(3.f + sin(glfwGetTime() * 10.f) * 50.f, 3.f, 0.0f));
+	models[0] = glm::translate(models[0], glm::vec3(100.f, 100.f, 0.0f));
 	models[0] = glm::scale(models[0], glm::vec3(300.0f, 150.0f, 1.0f));
 
-	models[1] = glm::translate(models[1], glm::vec3(3.f + sin(glfwGetTime() * 10.f + 0.33f) * 50.f, 156.f, 0.0f));
-	models[1] = glm::scale(models[1], glm::vec3(300.0f, 150.0f, 1.0f));
+	float d = 1.f + glm::abs(glm::sin(glfwGetTime() * 2.5f)) * 100.f;
+	models[1] = glm::translate(models[1], glm::vec3(d, d, 0.0f));
+	models[1] = glm::scale(models[1], glm::vec3(50.0f, 50.0f, 1.0f));
+	
 	for (size_t i = 0; i < 2; ++i) {
 		m_logoShader->operator[]("uModel") = models.at(i);
 

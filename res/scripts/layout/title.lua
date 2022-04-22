@@ -1,6 +1,6 @@
 local Yoga = require('Yoga')
 
-return Yoga.layout({
+return Yoga.parse({
 	alignitems = 'flex-start',
 	
 	-- children:
