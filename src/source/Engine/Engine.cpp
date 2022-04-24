@@ -33,6 +33,8 @@ static void callback_key_pressed(GLFWwindow* window, int key, int scancode, int 
 	if (key == GLFW_KEY_I && action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL)) {
 		engine->getConfig().imgui_enabled = !engine->getConfig().imgui_enabled;
 	}
+
+	engine->getDispatcher().enqueue<KeyEvent>(key, scancode, action, mods);
 }
 
 static void callback_mouse_input(GLFWwindow *window, int button, int action, int mods) {

@@ -59,9 +59,12 @@ void MainMenuScene::onRender() {
 				if (ImGui::Button("New Game", button_size)) {
 					switch (m_modeindex % m_modenames.size()) {
 						case 0:
-							m_engine->setActiveScene(new TestGameScene());
+							m_engine->setActiveScene(new LayoutEditorScene());
 							break;
 						case 1:
+							m_engine->setActiveScene(new TestGameScene());
+							break;
+						case 2:
 							m_engine->setActiveScene(new TowerScene());
 							break;
 					};

@@ -1,6 +1,12 @@
 #include <scenes/cutscenes/splashscreen/SplashScreenScene.hpp>
 
+////////////
+// PUBLIC //
+////////////
+
 bool SplashScreenScene::onCreate() {
+	m_engine->getDispatcher().sink<KeyEvent>().connect<&SplashScreenScene::onKeyInput>(this);
+
 	m_camera = new Camera{glm::vec3(0.0f, 0.0f, 1.0f)};
 	m_camera->setTarget(glm::vec3(0.0f));
 
@@ -22,10 +28,27 @@ bool SplashScreenScene::onCreate() {
 
 	createLogo();
 
+	lua_State *L = m_engine->getLuaState();
+
+	m_layout = YGNodeNew();
+	lua_pushlightuserdata(L, (void *)m_layout);
+	lua_setglobal(L, "_Layout");
+	if (luaL_dofile(m_engine->getLuaState(), "res/scripts/layout/splash.lua")) {
+		const char *err = lua_tostring(L, -1);
+		fmt::print("Error loading layout!\n");
+		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n");
+		lua_pop(L, 1);
+		return false;
+	}
+	lua_pushnil(L);
+	lua_setglobal(L, "_Layout");
+
 	return true;
 }
 
 void SplashScreenScene::onDestroy() {
+	m_engine->getDispatcher().sink<KeyEvent>().disconnect(this);
+
 	delete m_logoTexture;
 	delete m_logoShader;
 	glDeleteVertexArrays(1, &m_vao);
@@ -36,8 +59,37 @@ void SplashScreenScene::onUpdate(float dt) {
 	m_elapsedTime += (double)dt;
 
 	// switch to next scene
-	if (m_elapsedTime > 25.f || glfwGetKey(m_engine->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
+	if (m_elapsedTime > 3.f) {
 		m_engine->setActiveScene(new MainMenuScene{});
+	}
+}
+
+
+/////////////
+// PRIVATE //
+/////////////
+
+void SplashScreenScene::onKeyInput(const KeyEvent &event) {
+	m_engine->setActiveScene(new MainMenuScene{});
+}
+
+void SplashScreenScene::drawLayout(YGNodeRef parent, glm::mat4 view, float z) {
+	float x = YGNodeLayoutGetLeft(parent);
+	float y = YGNodeLayoutGetTop(parent);
+	float w = YGNodeLayoutGetWidth(parent);
+	float h = YGNodeLayoutGetHeight(parent);
+
+	view = glm::translate(view, glm::vec3(x, y, 0.0f));
+	glm::mat4 model = glm::scale(
+		glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, z)),
+		glm::vec3(w, h, 1.0f));
+	m_logoShader->operator[]("uView") = view;
+	m_logoShader->operator[]("uModel") = model;
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	
+	for (uint32_t i = 0; i < YGNodeGetChildCount(parent); ++i) {
+		YGNodeRef child = YGNodeGetChild(parent, i);
+		drawLayout(child, view, z += 0.01f);
 	}
 }
 
@@ -49,23 +101,21 @@ void SplashScreenScene::onRender() {
 	float height = m_camera->getScreenHeight();
 	m_logoShader->operator[]("uProjection") = glm::ortho(0.0f, width, height, 0.0f); //m_camera->getHudProjection();
 	m_logoShader->operator[]("uView") = glm::mat4(1.0f);
+	m_logoShader->operator[]("uModel") = glm::mat4(1.0f);
 
-	std::vector<glm::mat4> models = {glm::mat4(1.0f), glm::mat4(1.0f)};
-	models[0] = glm::translate(models[0], glm::vec3(100.f, 100.f, 0.0f));
-	models[0] = glm::scale(models[0], glm::vec3(300.0f, 150.0f, 1.0f));
-
-	float d = 1.f + glm::abs(glm::sin(glfwGetTime() * 2.5f)) * 100.f;
-	models[1] = glm::translate(models[1], glm::vec3(d, d, 0.0f));
-	models[1] = glm::scale(models[1], glm::vec3(50.0f, 50.0f, 1.0f));
-	
-	for (size_t i = 0; i < 2; ++i) {
-		m_logoShader->operator[]("uModel") = models.at(i);
-
-		m_logoShader->use();
-		glBindVertexArray(m_vao);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+	// Yoga wireframe rendering
+	static float lastWidth = 0.0f, lastHeight = 0.0f;
+	if (lastWidth != width || lastHeight != height) {
+		lastWidth = width;
+		lastHeight = height;
+		YGNodeCalculateLayout(m_layout, width, height, YGDirectionLTR);
+		fmt::print("layout has been updated!\n");
 	}
+
+	m_logoShader->use();
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	drawLayout(m_layout, glm::mat4(1.0f));
 }
 
 void SplashScreenScene::createLogo() {

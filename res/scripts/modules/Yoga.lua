@@ -114,7 +114,7 @@ ffi.cdef[[
 	YGNodeRef YGNodeGetChild(YGNodeRef node, int index);
 	YGNodeRef YGNodeGetOwner(YGNodeRef node);
 	YGNodeRef YGNodeGetParent(YGNodeRef node);
-	int YGNodeGetChildCount(YGNodeRef node);
+	unsigned int YGNodeGetChildCount(YGNodeRef node);
 
 	void YGNodeCalculateLayout(YGNodeRef node, float availableWidth, float availableHeight, YGDirection ownerDirection);
 
@@ -197,15 +197,15 @@ Yoga.enums = {
 	},
 }
 
-function Yoga.parse(layout)
-	local root = Yoga.new()
+function Yoga.parse(layout, root_node)
+	local root = Yoga.new(root_node)
 
 	for prop, value in pairs(layout) do
 		if type(value) == 'table' then
-			print('<' .. prop .. '>')
-			local child = Yoga.parse(value)
+			--print('<' .. prop .. '>')
+			local child = Yoga.parse(value, nil)
 			root:insertchild(child)
-			print('</' .. prop .. '>')
+			--print('</' .. prop .. '>')
 		else
 			local assignable = Yoga['set_' .. prop]
 			if prop == 'position' then
@@ -213,15 +213,15 @@ function Yoga.parse(layout)
 				Yoga.set_positiontype(root, value)
 			elseif prop == 'left' or prop == 'right' or prop == 'top' or prop == 'bottom' or prop == 'horizontal' or prop == 'vertical' or prop == 'start' or prop == 'end' or  prop == 'all' then
 				-- Also to stay close to HTML/CSS...
-				print('\x1b[33m' .. prop .. '\x1b[0m' .. ': ' .. value)
+				--print('\x1b[33m' .. prop .. '\x1b[0m' .. ': ' .. value)
 				Yoga.set_position(root, value, prop)
 			elseif type(assignable) == 'function' then
 				-- Anything directly assignable
-				print('\x1b[32m' .. prop .. '\x1b[0m' .. ': ' .. value)
+				--print('\x1b[32m' .. prop .. '\x1b[0m' .. ': ' .. value)
 				assignable(root, value)
 			elseif string.sub(prop, 0, 1) == '_' then
 				-- Ignore props with underscore. (maybe do something with it later)
-				print('\x1b[36m' .. prop .. '\x1b[0m' .. ': ' .. value)
+				--print('\x1b[36m' .. prop .. '\x1b[0m' .. ': ' .. value)
 			else
 				-- Everything else is an error!
 				error('Property "' .. prop .. '" does not exist!')

@@ -1,7 +1,8 @@
-// ac764d6f85fd5c4ccee0470cadaf36f61d165ac8
+// c0c7847774e49f3d4a3eec75802f9e60a141db3e
 #pragma once
 
 #include <ecs/events/MouseButtonEvent.hpp>
+#include <ecs/events/KeyEvent.hpp>
 #include <ecs/events/GamepadConnectedEvent.hpp>
 #include <ecs/events/ExplosionEvent.hpp>
 #include <ecs/events/KillEntityEvent.hpp>

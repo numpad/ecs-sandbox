@@ -10,9 +10,7 @@ local Yoga = require('Yoga')
 +-------------------+
 ]]
 
-return Yoga.parse({
-	width = 500,
-	height = 500,
+Yoga.parse({
 	justifycontent = 'center',
 	alignitems = 'center',
 	
@@ -30,4 +28,4 @@ return Yoga.parse({
 		bottom = 0,
 		position = 'absolute',
 	},
-})
+}, _Layout)

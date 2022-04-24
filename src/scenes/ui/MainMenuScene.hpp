@@ -8,6 +8,7 @@
 
 #include <sgl/sgl_texture.hpp>
 #include <scenes/testing/TestGameScene.hpp>
+#include <scenes/testing/LayoutEditorScene.hpp>
 #include <scenes/gamemode/TowerScene.hpp>
 
 class MainMenuScene : public IScene {
@@ -21,6 +22,6 @@ public:
 private:
 	sgl::texture *m_logo;
 
-	std::vector<std::string> m_modenames = {"Test Game", "Tower Tilt"};
-	ssize_t m_modeindex = 1;
+	std::vector<std::string> m_modenames = {"Layout Editor", "Test Game", "Tower Tilt"};
+	ssize_t m_modeindex = 0;
 };
