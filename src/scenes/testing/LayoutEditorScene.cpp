@@ -40,10 +40,119 @@ void LayoutEditorScene::onUpdate(float dt) {
 					loadLayout(filename);
 				}
 			}
+
+			if (m_layout != nullptr) {
+				Separator();
+				if (MenuItem("Close")) {
+					YGNodeFreeRecursive(m_layout);
+					// TODO: add cleanup function
+					m_layout = nullptr;
+					m_selectedNode = nullptr;
+				}
+			}
+
 			EndMenu();
 		}
 		EndMainMenuBar();
 	}
+
+	if (Begin("Editor")) {
+		if (m_selectedNode != nullptr) {
+			static int direction = YGDirectionInherit;
+			const char* flexdirections[] = { "row", "column", "row-reverse", "column-reverse" };
+			static const char* flexdirection = flexdirections[0];
+			static char flexbasis[256] = {0};
+			static float flexgrow = 0.0f;
+			static float flexshrink = 1.0f;
+			static int flexwrap = YGWrapNoWrap;
+
+			if (BeginTabBar("tabs")) {
+				if (BeginTabItem("Flex")) {
+					Text("Direction");
+					RadioButton("inherit", &direction, YGDirectionInherit); SameLine();
+					RadioButton("ltr", &direction, YGDirectionLTR); SameLine();
+					RadioButton("rtl", &direction, YGDirectionRTL);
+
+					Text("Flex Direction");
+					if (BeginCombo("##flexdirection", flexdirection)) {
+						for (size_t n = 0; n < IM_ARRAYSIZE(flexdirections); ++n) {
+							bool is_selected = (flexdirection == flexdirections[n]);
+							if (Selectable(flexdirections[n], is_selected)) {
+								flexdirection = flexdirections[n];
+							}
+							if (is_selected) {
+								SetItemDefaultFocus();
+							}
+						}
+						EndCombo();
+					}
+
+					if (BeginTable("##flexbasistable", 3, ImGuiTableFlags_NoBordersInBody)) {
+						TableNextColumn();
+						Text("Basis");
+						TableNextColumn();
+						Text("Grow");
+						TableNextColumn();
+						Text("Shrink");
+						TableNextColumn();
+
+						InputTextWithHint("##flexbasis", "auto", flexbasis, 256);
+						TableNextColumn();
+						InputFloat("##flexgrow", &flexgrow, 0.0f, 0.0f, "%g");
+						TableNextColumn();
+						InputFloat("##flexshrink", &flexshrink, 0.0f, 0.0f, "%g");
+						
+						EndTable();
+					}
+
+					Text("Flex Wrap");
+					RadioButton("no wrap", &flexwrap, YGWrapNoWrap); SameLine();
+					RadioButton("wrap", &flexwrap, YGWrapWrap); SameLine();
+					RadioButton("wrap-reverse", &flexwrap, YGWrapWrapReverse);
+
+					EndTabItem();
+				}
+				if (BeginTabItem("Alignment")) {
+
+					EndTabItem();
+				}
+				if (BeginTabItem("Layout")) {
+
+					EndTabItem();
+				}
+
+				Separator();
+				if (Button("add child node")) {
+					const YGNodeRef node = YGNodeNew();
+					YGNodeStyleSetWidth(node, 50);
+					YGNodeStyleSetHeight(node, 50);
+					const int index = YGNodeGetChildCount(node);
+					YGNodeInsertChild(m_selectedNode, node, index);
+					// TODO: need to insert userdata
+					YGNodeCalculateLayout(m_layout, m_camera->getScreenWidth(), m_camera->getScreenHeight(), YGDirectionLTR); // TODO: only calculate parent layout
+				}
+				SameLine();
+				if ((m_selectedNode != m_layout) && Button("remove node")) {
+					const YGNodeRef node = m_selectedNode;
+					m_selectedNode = YGNodeGetParent(m_selectedNode);
+					YGNodeFreeRecursive(node);
+					// TODO: need to add free function
+					YGNodeCalculateLayout(m_layout, m_camera->getScreenWidth(), m_camera->getScreenHeight(), YGDirectionLTR); // TODO: only calculate parent layout
+				}
+
+				EndTabBar();
+			}
+		} else {
+			constexpr const char *text = "Select a node";
+			auto window_dimensions = GetWindowSize();
+			auto text_dimensions = CalcTextSize(text);
+
+			SetCursorPosX((window_dimensions.x - text_dimensions.x) * 0.5f);
+			SetCursorPosY((window_dimensions.y - text_dimensions.y) * 0.5f);
+			TextColored(ImVec4(0.75, 0.75, 0.75, 1.0), text);
+		}
+	}
+	End();
 
 	// switch to next scene
 	if (glfwGetKey(m_engine->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -132,11 +241,14 @@ void LayoutEditorScene::loadLayout(const std::string &filename) {
 
 		YGNodeFree(m_layout);
 		m_layout = nullptr;
+		m_selectedNode = nullptr;
 
 		return;
 	}
 	lua_pushnil(L);
 	lua_setglobal(L, "_Layout");
+
+	m_selectedNode = m_layout;
 
 	YGNodeCalculateLayout(m_layout, m_camera->getScreenWidth(), m_camera->getScreenHeight(), YGDirectionLTR);
 }

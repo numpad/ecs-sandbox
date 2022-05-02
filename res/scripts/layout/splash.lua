@@ -13,7 +13,7 @@ local Yoga = require('Yoga')
 Yoga.parse({
 	justifycontent = 'center',
 	alignitems = 'center',
-	
+
 	logo = {
 		width = 220,
 		height = 130,

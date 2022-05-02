@@ -28,6 +28,7 @@ private:
 	std::vector<std::string> m_files;
 	
 	YGNodeRef m_layout = nullptr;
+	YGNodeRef m_selectedNode = nullptr;
 	void updateFiles();
 	void loadLayout(const std::string &filename);
 	void drawLayout(YGNodeRef parent, glm::mat4 view, float z = -0.9f);
