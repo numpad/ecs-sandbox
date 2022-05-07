@@ -67,6 +67,9 @@ void MainMenuScene::onRender() {
 						case 2:
 							m_engine->setActiveScene(new TowerScene());
 							break;
+						case 3:
+							m_engine->setActiveScene(new SpritePreviewScene());
+							break;
 					};
 				}
 				

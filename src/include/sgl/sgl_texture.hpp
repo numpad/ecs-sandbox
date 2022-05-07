@@ -137,6 +137,9 @@ namespace sgl {
 		 */
 		operator GLuint() const;
 		
+		int get_width() const { return m_width; };
+		int get_height() const { return m_height; };
+
 	private:
 		GLint m_format_internal;
 		GLenum m_format_loader;
