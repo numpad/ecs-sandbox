@@ -4,10 +4,18 @@
 #include <Engine/Engine.hpp>
 #include <Terrain/SignedDistTerrain.hpp>
 #include <RenderObject/ChunkedWorld.hpp>
+#include <yoga/Yoga.h>
+
+#include "Engine/IScene.hpp"
+#include "scenes/gamemode/TowerScene.hpp"
+#include "scenes/cutscenes/splashscreen/SplashScreenScene.hpp"
 
 extern "C" {
 	// Engine
 	void FFI_Engine_setActiveScene(Engine *engine, IScene *scene);
+	IScene* FFI_Scene_TowerScene();
+	IScene* FFI_Scene_MainMenuScene();
+	IScene* FFI_Scene_SplashScreenScene();
 
 	// Map generation / Terrain
 	SignedDistTerrain* FFI_signeddistterrain_new();
@@ -32,4 +40,6 @@ extern "C" {
 	float FFI_vec3_len(glm::vec3 a);
 	glm::vec3 FFI_vec3_normalize(glm::vec3 a);
 	
+	// Yoga
+	int LUA_YGNodeNew(lua_State *L);
 }

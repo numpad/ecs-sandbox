@@ -67,8 +67,8 @@ bool Engine::initialize() {
 	if (luastate_init()) {
 		lua_getglobal(m_lua, "_VERSION");
 		const char *luaversion = lua_tostring(m_lua, -1);
-		lua_pop(m_lua, 1);
 		fmt::print(fmt::fg(fmt::terminal_color::green), "{}", luaversion);
+		lua_pop(m_lua, 1);
 		// check if LuaJIT is available
 		lua_getglobal(m_lua, "jit");
 		if (lua_istable(m_lua, -1)) {
@@ -129,6 +129,8 @@ bool Engine::initialize() {
 	m_screenshader["uTexNormal"] = 2;
 	m_screenshader["uTexDepth"] = 3;
 
+	// TODO: register this somewhere appropriate
+	lua_register(m_lua, "LUA_YGNodeNew", LUA_YGNodeNew);
 	if (luaL_dofile(m_lua, "res/scripts/engine/init.lua")) {
 		const char *luaerror = lua_tostring(m_lua, -1);
 		fmt::print(fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold, "Lua Error:\n");
@@ -191,7 +193,7 @@ void Engine::run() {
 		glfwGetWindowSize(m_window, &screenX, &screenY);
 		
 		#if CFG_IMGUI_ENABLED
-			static int settings_attachment = 0;
+			//static int settings_attachment = 0;
 			//imguiRenderMenuBar(m_window, world, crosspos, topdown, camera, msPerFrame, settings_attachment);
 		#endif
 		
@@ -201,7 +203,7 @@ void Engine::run() {
 		// rendering
 		m_gbuffer.bind();
 		
-		glClearColor(.231f, .275f, .302f, 1.f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// TODO: dont hardcode this, also referenced in DecalRenderSystem::draw().
@@ -294,9 +296,13 @@ void Engine::switchScene() {
 			m_scene->onDestroy();
 			delete m_scene;
 			m_scene = nullptr;
-			fmt::print(fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold, "Scene initialization failed, running dry...\n");
-			quit();
 		}
+	}
+
+	// no scene = nothing to do
+	if (!m_scene && !m_next_scene) {
+		fmt::print(fmt::fg(fmt::terminal_color::red) | fmt::emphasis::bold, "Scene initialization failed, running dry...\n");
+		quit();
 	}
 }
 

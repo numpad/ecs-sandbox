@@ -59,7 +59,6 @@ extern "C" {
 			m_registry.emplace<CHealth>(entity, 1);
 			m_registry.emplace<CDamageOverTime>(entity, 1, 0.5f);
 		}
-		return;
 		// center
 		const float center_particles = 50.f * engine->getConfig().particle_amount;
 		for (float angle = 0.f; angle < TWO_PI; angle += TWO_PI / center_particles) {
@@ -89,6 +88,19 @@ extern "C" {
 			m_registry.emplace<CHealth>(entity, 1);
 			m_registry.emplace<CDamageOverTime>(entity, 1, 2.5f);
 		}
+	}
+
+	entt::entity  ffi_TowerScene_spawnDecal(Engine *engine, glm::vec3 pos) {
+		entt::registry &m_registry = ((TowerScene *)engine->getScene())->m_registry;
+		AssetManager &m_assetmanager = ((TowerScene *)engine->getScene())->m_assetmanager;
+		
+		Texture *texture = m_assetmanager.getTexture("res/images/decals/coords.png");
+		entt::entity entity = m_registry.create();
+		m_registry.emplace<CPosition>(entity, pos);
+		m_registry.emplace<CDecal>(entity, glm::vec3(0.2f), texture, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+		m_registry.emplace<COrientation>(entity);
+
+		return entity;
 	}
 
 	void ffi_TowerScene_toMainMenu(Engine *engine) {
@@ -168,6 +180,8 @@ void TowerScene::onUpdate(float dt) {
 	
 	static float timescale = 1.f;
 
+	static glm::vec3 crosspos = glm::vec3(0.0f);
+	imguiRenderMenuBar(m_engine, m_registry, crosspos, dt);
 	if (ImGui::Begin("Towers")) {
 		ImGui::Text("Camera");
 		ImGui::Text("Registry size: %d", m_registry.size());
@@ -306,6 +320,18 @@ void TowerScene::onMouseButtonInput(const MouseButtonEvent &event) {
 	float dist = m3d::raycast(m_terrain, ray.origin, ray.dir, 90.f);
 
 	if (dist > 0.f) {
-		ffi_TowerScene_spawnBomb(m_engine, ray.origin + ray.dir * dist, glm::vec3(0.f));
+		const glm::vec3 pos = ray.origin + ray.dir * dist;
+		switch (event.button) {
+			case GLFW_MOUSE_BUTTON_2: {
+				const float angleOffset = Random(0.0f, glm::pi<float>() * 2.0f)();
+				for (float angle = 0.0f; angle <= glm::pi<float>() * 2.0f; angle += glm::pi<float>() * 0.5f) {
+					ffi_TowerScene_spawnBomb(m_engine, pos + glm::vec3(0.0f, 0.01f, 0.0f), glm::vec3(glm::cos(angle + angleOffset) * -0.1f, 0.01f, glm::sin(angle + angleOffset) * -0.1f));
+				}
+			}
+			case GLFW_MOUSE_BUTTON_1:
+				ffi_TowerScene_spawnBomb(m_engine, pos, glm::vec3(0.f));
+				ffi_TowerScene_spawnDecal(m_engine, pos);
+				break;
+		}
 	}
 }

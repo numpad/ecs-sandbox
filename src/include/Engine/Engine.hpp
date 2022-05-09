@@ -32,11 +32,13 @@
 #include <Window/Window.hpp>
 #include <Window/Screen.hpp>
 #include <RenderObject/GBuffer.hpp>
+#include <Script/FFI.hpp>
 
 #include <ecs/events.hpp>
 
 class Engine {
 public:
+	int settings_attachment = 0; // GL_COLOR_ATTACHMENT0 // TODO: remove this, only for debugging/Imgui Menu bar
 
 	Engine(EngineConfig config = EngineConfig());
 

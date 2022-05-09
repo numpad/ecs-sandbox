@@ -62,7 +62,6 @@ int main(int, char**) {
 	Engine engine;
 
 	if (engine.initialize()) {
-		engine.setActiveScene(new SplashScreenScene());
 
 		engine.run();
 	}

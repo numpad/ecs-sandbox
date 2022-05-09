@@ -159,7 +159,7 @@ void imguiEntityEdit(entt::registry &registry, entt::entity entity) {
 	}
 }
 
-void imguiEntityEditor(World &world, bool pickingactive, glm::vec3 crosspos) {
+void imguiEntityEditor(entt::registry &registry, bool pickingactive, glm::vec3 crosspos) {
 	using namespace ImGui;
 
 	if (BeginMenu("Edit...")) {
@@ -174,19 +174,19 @@ void imguiEntityEditor(World &world, bool pickingactive, glm::vec3 crosspos) {
 		}
 		Separator();
 		if (pickingMode && pickingactive) {
-			selected = world.getNearestEntity(crosspos);
+			// TODO: selected = world.getNearestEntity(crosspos);
+			// iterate over registry<CPosition> → get closest
 			pickingMode = false;
 		}
 		
 		// entity editor
-		imguiEntityEdit(world.getRegistry(), selected);
+		imguiEntityEdit(registry, selected);
 		EndMenu();
 	}
 }
 
-void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
+void imguiEntitySpawn(entt::registry &registry, bool spawn, glm::vec3 atpos) {
 	using namespace ImGui;
-	entt::registry &registry = world.getRegistry();
 	
 	//static glm::vec3 pos(0.0f);
 	static glm::vec3 vel(0.0f);
@@ -339,13 +339,16 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 					tilepos.x = int(r()*5.f);
 					tilepos.y = 11+int(r()*3.f);
 				}
-				Texture *texture = world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y);
-				registry.emplace<CBillboard>(entity, texture, bbsize);
-				registry.emplace<CTextureRegion>(entity, texture->getSubRect());
+				// Texture *texture = world.getAssetManager().getTiledTexture(texpath, tiles.x, tiles.y, tilepos.x, tilepos.y);
+				// registry.emplace<CBillboard>(entity, texture, bbsize);
+				// registry.emplace<CTextureRegion>(entity, texture->getSubRect());
+				fmt::print(fmt::fg(fmt::terminal_color::red), "'world.getAssetManager()' : NOT IMPLEMENTED\n");
+				// TODO: get assetmanager
 			}
 			if (hasruntt) {
 				if (runttToPlayer) {
-					registry.emplace<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
+					// TODO: registry.emplace<CRunningToTarget>(entity, world.getPlayer(), rttforce, rttnear, rttonlyonce);
+					fmt::print(fmt::fg(fmt::terminal_color::red), "'world.getPlayer()' : NOT IMPLEMENTED\n");
 				} else {
 					registry.emplace<CRunningToTarget>(entity, rttpos, rttforce, rttnear, rttonlyonce);
 				}
@@ -355,19 +358,22 @@ void imguiEntitySpawn(World &world, bool spawn, glm::vec3 atpos) {
 			if (hasspawn) registry.emplace<CSpawnPoint>(entity, spawnpoint);
 			if (hasjumper) registry.emplace<CJumpTimer>(entity);
 			if (hashealth) registry.emplace<CHealth>(entity, max_hp);
-			if (hasdecal) registry.emplace<CDecal>(entity, size, world.getAssetManager().getTexture(decal_texpath), subrect);
+			// TODO: getAssetManager
+			//if (hasdecal) registry.emplace<CDecal>(entity, size, world.getAssetManager().getTexture(decal_texpath), subrect);
+			if (hasdecal) fmt::print(fmt::fg(fmt::terminal_color::red), "'world.getAssetManager()' : NOT IMPLEMENTED\n");
 			if (hasorientation) registry.emplace<COrientation>(entity, orient, orient_amount);
 			if (hasterraincollider) registry.emplace<CTerrainCollider>(entity, false);
 		}
 	}
 }
 
-void imguiRenderMenuBar(GLFWwindow *window, World &world, glm::vec3 &crosspos, std::shared_ptr<Camera> topdown, std::shared_ptr<Camera> camera, float &msPerFrame, int &settings_attachment) {
+void imguiRenderMenuBar(Engine *engine, entt::registry &registry, glm::vec3 &crosspos, float msPerFrame) {
+	GLFWwindow *window = engine->getWindow();
 	if (ImGui::BeginMainMenuBar()) {
 		// Spawn entity
-		imguiEntitySpawn(world, (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS), crosspos);
+		imguiEntitySpawn(registry, (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS), crosspos);
 		// Edit entity
-		imguiEntityEditor(world, (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS), crosspos);
+		imguiEntityEditor(registry, (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS), crosspos);
 
 		// Shaders
 		static bool shaders_reload = false;
@@ -402,33 +408,24 @@ void imguiRenderMenuBar(GLFWwindow *window, World &world, glm::vec3 &crosspos, s
 			if (ImGui::RadioButton("Camera #1 (topdown)", settings_camera == 1)) { settings_camera = 1; settings_changed = true; }
 			if (settings_changed) {
 				settings_changed = false;
-				switch (settings_camera) {
-					case 1: world.setCamera(topdown); break;
-					default: world.setCamera(camera); break;
-				};
+				// TODO: switch camera
+				fmt::print(fmt::fg(fmt::terminal_color::red), "'world.setCamera()' : NOT IMPLEMENTED\n");
+				//switch (settings_camera) {
+				//	case 1: world.setCamera(topdown); break;
+				//	default: world.setCamera(camera); break;
+				//};
 			}
 			ImGui::Separator();
 			// which framebuffer attachment
 			ImGui::Text("Framebuffer");
-			static bool settings_attachment_change = false;
 			// defined above because of scope:
 			//static int settings_attachment = GL_COLOR_ATTACHMENT0;
-			if (ImGui::RadioButton("- Result -", &settings_attachment, 0)) { settings_attachment_change = true; };
-			if (ImGui::RadioButton("Color Buffer", &settings_attachment, GL_COLOR_ATTACHMENT0)) { settings_attachment_change = true; };
-			if (ImGui::RadioButton("Position Buffer", &settings_attachment, GL_COLOR_ATTACHMENT1)) { settings_attachment_change = true; };
-			if (ImGui::RadioButton("Normal Buffer", &settings_attachment, GL_COLOR_ATTACHMENT2)) { settings_attachment_change = true; };
-			if (ImGui::RadioButton("Depth Buffer", &settings_attachment, GL_COLOR_ATTACHMENT3)) { settings_attachment_change = true; };
-			
-			// switch to darkmode when viewing result rendering.
-			if (settings_attachment_change) {
-				settings_attachment_change = false;
-				if (settings_attachment == 0) {
-					ImGui::StyleColorsDark();
-				} else {
-					ImGui::StyleColorsLight();
-				}
-			}
-			
+			ImGui::RadioButton("- Result -", &engine->settings_attachment, 0);
+			ImGui::RadioButton("Color Buffer", &engine->settings_attachment, GL_COLOR_ATTACHMENT0);
+			ImGui::RadioButton("Position Buffer", &engine->settings_attachment, GL_COLOR_ATTACHMENT1);
+			ImGui::RadioButton("Normal Buffer", &engine->settings_attachment, GL_COLOR_ATTACHMENT2);
+			ImGui::RadioButton("Depth Buffer", &engine->settings_attachment, GL_COLOR_ATTACHMENT3);
+
 			ImGui::EndMenu();
 		}
 		
@@ -440,18 +437,12 @@ void imguiRenderMenuBar(GLFWwindow *window, World &world, glm::vec3 &crosspos, s
 			if (ImGui::Checkbox("Wireframe", &settings_wireframe)) {
 				glPolygonMode(GL_FRONT_AND_BACK, settings_wireframe ? GL_LINE : GL_FILL);
 			}
-			if (ImGui::MenuItem("Reset")) {
-				world.resetEntities();
-			}
 			ImGui::EndMenu();
 		}
 		
 		ImGui::Separator();
 		
 		ImGui::Text("%g ms / frame", msPerFrame);
-		if (ImGui::Button("load world")) {
-			world.load();
-		}
 		ImGui::EndMainMenuBar();
 	}
 }

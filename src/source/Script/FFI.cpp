@@ -6,6 +6,15 @@ extern "C" {
 	void FFI_Engine_setActiveScene(Engine *engine, IScene *scene) {
 		engine->setActiveScene(scene);
 	}
+	IScene* FFI_Scene_TowerScene() {
+		return new TowerScene();
+	}
+	IScene* FFI_Scene_MainMenuScene() {
+		return new MainMenuScene();
+	}
+	IScene* FFI_Scene_SplashScreenScene() {
+		return new SplashScreenScene();
+	}
 
 	// Map generation / Terrain
 	SignedDistTerrain* FFI_signeddistterrain_new() {
@@ -66,6 +75,13 @@ extern "C" {
 	}
 	glm::vec3 FFI_vec3_normalize(glm::vec3 a) {
 		return glm::normalize(a);
+	}
+
+	// Yoga
+	int LUA_YGNodeNew(lua_State *L) {
+		YGNode *node = YGNodeNew();
+		lua_pushlightuserdata(L, node);
+		return 1;
 	}
 	
 }

@@ -24,5 +24,5 @@ private:
 	sgl::texture *m_logo;
 
 	std::vector<std::string> m_modenames = {"Layout Editor", "Test Game", "Tower Tilt", "Sprite Preview"};
-	ssize_t m_modeindex = 3;
+	ssize_t m_modeindex = 2;
 };

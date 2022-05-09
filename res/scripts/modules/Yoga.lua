@@ -233,7 +233,7 @@ function Yoga.parse(layout, root_node)
 end
 
 function Yoga.new(node)
-	local self = node and { super = node } or { super = ffi.C.YGNodeNew() }
+	local self = node and { super = node } or { super = LUA_YGNodeNew() }
 	return setmetatable(self, Yoga)
 end
 

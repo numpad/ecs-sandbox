@@ -58,8 +58,8 @@ void main() {
 	vec3 blend = asymTriplanarBlend(vNormal);
 	vec4 color = triplanarTexture(vPos, blend);
 	
-	Color = vec4(color.rgb, color.a);
-	Position = vec4(vPos, color.a);
-	Normal = vec4(vNormal, color.a);
-	Depth = vec4(linearDepth(), gl_FragCoord.z, gl_FragCoord.w, color.a);
+	Color = vec4(color.rgb, 1.0);
+	Position = vec4(vPos, 1.0);
+	Normal = vec4(vNormal, 1.0);
+	Depth = vec4(linearDepth(), gl_FragCoord.z, gl_FragCoord.w, 1.0);
 }
