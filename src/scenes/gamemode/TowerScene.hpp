@@ -7,16 +7,17 @@
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 
-#include <Engine/IScene.hpp>
-#include <ecs/systems.hpp>
-#include <scenes/ui/MainMenuScene.hpp>
-#include <RenderObject/Camera.hpp>
-#include <Assets/AssetManager.hpp>
-#include <Debug/ImguiPresets.hpp>
-#include <ImprovedTerrain/DynamicTerrain.hpp>
-#include <ImprovedTerrain/ISignedDistanceBody.hpp>
-#include <ImprovedTerrain/Bodies/SphereBody.hpp>
-#include <Util/Random.hpp>
+#include "Engine/IScene.hpp"
+#include "ecs/systems.hpp"
+#include "scenes/ui/MainMenuScene.hpp"
+#include "RenderObject/Camera.hpp"
+#include "RenderObject/Terminal.hpp"
+#include "Assets/AssetManager.hpp"
+#include "Debug/ImguiPresets.hpp"
+#include "ImprovedTerrain/DynamicTerrain.hpp"
+#include "ImprovedTerrain/ISignedDistanceBody.hpp"
+#include "ImprovedTerrain/Bodies/SphereBody.hpp"
+#include "Util/Random.hpp"
 
 class TowerScene : public IScene {
 public:
@@ -35,6 +36,7 @@ private:
 	sgl::shader m_chunkshader;
 
 	std::vector<entt::entity> m_players;
+	Terminal m_terminal;
 
 	// systems
 	std::vector<std::shared_ptr<IUpdateSystem>> m_updatesystems;

@@ -228,25 +228,29 @@ void LayoutEditorScene::loadLayout(const std::string &filename) {
 	if (m_layout != nullptr) {
 		YGNodeFreeRecursive(m_layout);
 		m_layout = nullptr;
+		m_selectedNode = nullptr;
 	}
 
-	m_layout = YGNodeNew();
-	lua_pushlightuserdata(L, (void *)m_layout);
-	lua_setglobal(L, "_Layout");
 	if (luaL_dofile(m_engine->getLuaState(), std::string("res/scripts/layout/" + filename).c_str())) {
 		const char *err = lua_tostring(L, -1);
 		fmt::print("Error loading layout:\n");
 		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n", err);
 		lua_pop(L, 1);
-
-		YGNodeFree(m_layout);
-		m_layout = nullptr;
-		m_selectedNode = nullptr;
-
 		return;
 	}
-	lua_pushnil(L);
-	lua_setglobal(L, "_Layout");
+
+	// check if return value is ok
+	if (!lua_istable(L, -1)) {
+		fmt::print("Error loading layout!\n");
+		fmt::print(fmt::fg(fmt::terminal_color::red), "Return value is not of type 'Yoga'...\n");
+		return;
+	}
+
+	// get layout from script
+	lua_getfield(L, -1, "super");
+	YGNodeRef layout = (YGNode*)lua_touserdata(L, -1);
+	lua_pop(L, 1);
+	m_layout = layout;
 
 	m_selectedNode = m_layout;
 

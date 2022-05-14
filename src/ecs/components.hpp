@@ -1,4 +1,4 @@
-// 5996889d37b46072f615b89af174931cedc6e7dc
+// 70e384a011366b2f8b262ed2fc647bc68d62163f
 #pragma once
 
 #include <ecs/components/CVelocity.hpp>
@@ -19,5 +19,6 @@
 #include <ecs/components/CTerrainCollider.hpp>
 #include <ecs/components/CSpawnPoint.hpp>
 #include <ecs/components/CKeyboardControllable.hpp>
+#include <ecs/components/CPointLight.hpp>
 #include <ecs/components/CRunningToTarget.hpp>
 #include <ecs/components/CHealth.hpp>

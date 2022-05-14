@@ -55,9 +55,9 @@ private:
 
 	SparseGrid3D<ISignedDistanceBody> m_chunks;
 	SparseGrid3D<Mesh> m_chunkmeshes;
-	glm::vec3 m_chunksize = glm::vec3(1.f);
+	glm::vec3 m_chunksize = glm::vec3(1.0f);
 	float m_chunksize_min = glm::compMin(m_chunksize);
-	float m_chunkdetail = 0.1f;
+	float m_chunkdetail = 0.05f;
 	
 	CubeMarcher m_cubemarcher;
 

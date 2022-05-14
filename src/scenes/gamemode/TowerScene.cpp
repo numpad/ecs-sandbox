@@ -97,7 +97,7 @@ extern "C" {
 		Texture *texture = m_assetmanager.getTexture("res/images/decals/coords.png");
 		entt::entity entity = m_registry.create();
 		m_registry.emplace<CPosition>(entity, pos);
-		m_registry.emplace<CDecal>(entity, glm::vec3(0.2f), texture, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+		m_registry.emplace<CDecal>(entity, glm::vec3(0.2f, 0.05f, 0.2f), texture, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 		m_registry.emplace<COrientation>(entity);
 
 		return entity;
@@ -142,8 +142,7 @@ bool TowerScene::onCreate() {
 	loadSystems();
 	loadTerrainShader();
 
-	static Random bomb_random(-1.f, 1.f);
-	ffi_TowerScene_spawnBomb(m_engine, glm::vec3(0.f, 0.5f, 0.f), glm::vec3(bomb_random() * 0.1f, bomb_random() * 0.04f, bomb_random() * 0.1f) * 0.1f);
+	m_terminal.update();
 
 	lua_State *L = m_engine->getLuaState();
 	if (luaL_dofile(L, "res/scripts/tower_scene.lua")) {
@@ -190,6 +189,10 @@ void TowerScene::onUpdate(float dt) {
 		ImGui::SliderFloat("Height", &height, 0.f, 7.f);
 		ImGui::Text("Settings");
 		ImGui::SliderFloat("Time scale [WIP]", &timescale, 0.f, 2.f);
+	} ImGui::End();
+
+	if (ImGui::Begin("Terminal")) {
+		ImGui::Image((void *)m_terminal.getTexture(), ImVec2(256.0f, 256.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 	} ImGui::End();
 
 	// testing: spawn bombs, replace with lua script later on
@@ -252,6 +255,7 @@ void TowerScene::loadSystems() {
 	//m_rendersystems.emplace_back(new TerrainRenderSystem(m_registry, m_camera, assetManager, chunkedWorld));
 	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera));
 	m_rendersystems.push_back(billboardRenderSystem);
+	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
 }
 
 void TowerScene::loadTerrainShader() {
@@ -264,7 +268,7 @@ void TowerScene::loadTerrainShader() {
 void TowerScene::updateTerrainShader() {
 	m_chunkshader["uProj"] = m_camera->getProjection();
 	m_chunkshader["uView"] = m_camera->getView();
-	m_chunkshader["uModel"] = glm::mat4(1.f);
+	m_chunkshader["uModel"] = glm::mat4(1.0f);
 	m_chunkshader["uTextureTopdownScale"] = 2.0f;
 	m_chunkshader["uTextureSideScale"] = 2.0f;
 	m_chunkshader["uTextureTopdown"] = 0;
@@ -301,11 +305,7 @@ void TowerScene::onEntityKilled(const KillEntityEvent &event) {
 
 void TowerScene::onBombExplodes(const ExplosionEvent &event) {
 	// remove terrain
-	ffi_TowerScene_subSphere(m_engine, event.position, event.radius);
-	static Random bomb_random(-1.f, 1.f);
-	static Random bomb_amount(1.f, 2.f);
-	//for (int i = 0; i < int(bomb_amount()); ++i)
-	//	ffi_TowerScene_spawnBomb(m_engine, event.position, glm::vec3(bomb_random() * 0.1f, (bomb_random() * .5f + 1.f) * 0.1f, bomb_random() * 0.1f) * 0.3f);
+	ffi_TowerScene_subDisk(m_engine, event.position, event.radius, 1.0f);
 
 	// play sound
 	m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/explode.wav", 1.3f - event.radius * 0.92f);
