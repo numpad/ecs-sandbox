@@ -26,9 +26,7 @@ void LightVolumeRenderSystem::draw() {
 	m_shader["uProjection"] = camera->getProjection();
 	m_shader["uView"] = camera->getView();
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_ibo);
-	glDrawArraysInstanced(GL_TRIANGLES, 0, m_vertexCount, count);
-	//glDrawElementsInstanced(GL_TRIANGLES, m_vertexCount, GL_UNSIGNED_INT, 0, count);
+	glDrawElementsInstanced(GL_TRIANGLES, m_triangleCount * 3, GL_UNSIGNED_SHORT, 0, 2);
 }
 
 /////////////
@@ -40,18 +38,19 @@ void LightVolumeRenderSystem::setupBuffer() {
 	m_aInstanceColors = {glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)};
 
 	// setup sphere
-	par_shapes_mesh *sphereMesh = par_shapes_create_subdivided_sphere(6);
-	par_shapes_unweld(sphereMesh, true);
+	par_shapes_mesh *sphereMesh = par_shapes_create_subdivided_sphere(2);
 
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_ibo);
+	glGenBuffers(1, &m_ebo);
 
-	m_vertexCount = sphereMesh->npoints;
 	m_triangleCount = sphereMesh->ntriangles;
 	size_t meshVerticesSize = sphereMesh->npoints * sizeof(glm::vec3);
 	size_t instancePositionAndRadiusSize = m_aInstancePositionsWithRadiuses.size() * sizeof(glm::vec4);
 	size_t instanceColorSize = m_aInstanceColors.size() * sizeof(glm::vec3);
 	
+	glBindVertexArray(m_vao);
+
 	// ibo
 	glBindBuffer(GL_ARRAY_BUFFER, m_ibo);
 	glBufferData(GL_ARRAY_BUFFER, meshVerticesSize + instancePositionAndRadiusSize + instanceColorSize, nullptr, GL_STATIC_DRAW);
@@ -59,8 +58,11 @@ void LightVolumeRenderSystem::setupBuffer() {
 	glBufferSubData(GL_ARRAY_BUFFER, meshVerticesSize, instancePositionAndRadiusSize, m_aInstancePositionsWithRadiuses.data());
 	glBufferSubData(GL_ARRAY_BUFFER, meshVerticesSize + instancePositionAndRadiusSize, instanceColorSize, m_aInstanceColors.data());
 	
-	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_ibo);
+	// ebo
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphereMesh->ntriangles * 3 * sizeof(PAR_SHAPES_T), sphereMesh->triangles, GL_STATIC_DRAW);
+
+	// vao
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 	glEnableVertexAttribArray(1);
@@ -70,6 +72,7 @@ void LightVolumeRenderSystem::setupBuffer() {
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(meshVerticesSize + instancePositionAndRadiusSize));
 
+	glBindVertexArray(0);
 
 	// cleanup
 	par_shapes_free_mesh(sphereMesh);
@@ -78,5 +81,6 @@ void LightVolumeRenderSystem::setupBuffer() {
 void LightVolumeRenderSystem::destroyBuffer() {
 	glDeleteVertexArrays(1, &m_vao);
 	glDeleteBuffers(1, &m_ibo);
+	glDeleteBuffers(1, &m_ebo);
 
 }
