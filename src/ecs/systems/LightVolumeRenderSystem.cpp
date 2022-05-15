@@ -13,9 +13,13 @@ LightVolumeRenderSystem::LightVolumeRenderSystem(const entt::registry &registry,
 	m_shader.link();
 
 	setupBuffer();
+	updateBuffer();
+
+	//cregistry.on_construct<CPointLight>().connect<&LightVolumeRenderSystem::onPointLightConstructed>(*this);
 }
 
 LightVolumeRenderSystem::~LightVolumeRenderSystem() {
+	//cregistry.on_construct<CPointLight>().disconnect<&LightVolumeRenderSystem::onPointLightConstructed>(*this);
 
 }
 
@@ -34,48 +38,52 @@ void LightVolumeRenderSystem::draw() {
 /////////////
 
 void LightVolumeRenderSystem::setupBuffer() {
-	m_aInstancePositionsWithRadiuses = {glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(2.0f, 0.0f, 2.0f, 1.5f)};
-	m_aInstanceColors = {glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)};
-
 	// setup sphere
-	par_shapes_mesh *sphereMesh = par_shapes_create_subdivided_sphere(2);
+	m_sphereMesh = par_shapes_create_subdivided_sphere(2);
 
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_ibo);
 	glGenBuffers(1, &m_ebo);
 
-	m_triangleCount = sphereMesh->ntriangles;
-	size_t meshVerticesSize = sphereMesh->npoints * sizeof(glm::vec3);
-	size_t instancePositionAndRadiusSize = m_aInstancePositionsWithRadiuses.size() * sizeof(glm::vec4);
-	size_t instanceColorSize = m_aInstanceColors.size() * sizeof(glm::vec3);
+	m_aInstancePositionsWithRadiuses.clear();
+	m_aInstanceColors.clear();
+	cregistry.view<CPosition, CPointLight>().each([this](entt::entity entity, auto &position, auto &pointlight) {
+		m_aInstancePositionsWithRadiuses.push_back(glm::vec4(position.pos, pointlight.radius));
+		m_aInstanceColors.push_back(pointlight.color);
+	});
+
+	m_triangleCount = m_sphereMesh->ntriangles;
+	m_meshVerticesSize = m_sphereMesh->npoints * sizeof(glm::vec3);
+	const size_t instancePositionAndRadiusSize = m_aInstancePositionsWithRadiuses.size() * sizeof(glm::vec4);
+	const size_t instanceColorSize = m_aInstanceColors.size() * sizeof(glm::vec3);
 	
+
 	glBindVertexArray(m_vao);
 
 	// ibo
 	glBindBuffer(GL_ARRAY_BUFFER, m_ibo);
-	glBufferData(GL_ARRAY_BUFFER, meshVerticesSize + instancePositionAndRadiusSize + instanceColorSize, nullptr, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, meshVerticesSize, sphereMesh->points);
-	glBufferSubData(GL_ARRAY_BUFFER, meshVerticesSize, instancePositionAndRadiusSize, m_aInstancePositionsWithRadiuses.data());
-	glBufferSubData(GL_ARRAY_BUFFER, meshVerticesSize + instancePositionAndRadiusSize, instanceColorSize, m_aInstanceColors.data());
+	glBufferData(GL_ARRAY_BUFFER, m_meshVerticesSize + instancePositionAndRadiusSize + instanceColorSize, nullptr, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_meshVerticesSize, m_sphereMesh->points);
+	glBufferSubData(GL_ARRAY_BUFFER, m_meshVerticesSize, instancePositionAndRadiusSize, m_aInstancePositionsWithRadiuses.data());
+	glBufferSubData(GL_ARRAY_BUFFER, m_meshVerticesSize + instancePositionAndRadiusSize, instanceColorSize, m_aInstanceColors.data());
 	
 	// ebo
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphereMesh->ntriangles * 3 * sizeof(PAR_SHAPES_T), sphereMesh->triangles, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_sphereMesh->ntriangles * 3 * sizeof(PAR_SHAPES_T), m_sphereMesh->triangles, GL_STATIC_DRAW);
 
 	// vao
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
 	glEnableVertexAttribArray(1);
 	glVertexAttribDivisor(1, 1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(meshVerticesSize));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(m_meshVerticesSize));
+
 	glEnableVertexAttribArray(2);
 	glVertexAttribDivisor(2, 1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(meshVerticesSize + instancePositionAndRadiusSize));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(m_meshVerticesSize + instancePositionAndRadiusSize));
 
 	glBindVertexArray(0);
-
-	// cleanup
-	par_shapes_free_mesh(sphereMesh);
 }
 
 void LightVolumeRenderSystem::destroyBuffer() {
@@ -83,4 +91,14 @@ void LightVolumeRenderSystem::destroyBuffer() {
 	glDeleteBuffers(1, &m_ibo);
 	glDeleteBuffers(1, &m_ebo);
 
+	par_shapes_free_mesh(m_sphereMesh);
+}
+
+void LightVolumeRenderSystem::updateBuffer() {
+	
+}
+
+void LightVolumeRenderSystem::onPointLightConstructed(const entt::registry &registry, entt::entity entity) {
+	// TODO: just add the newest element to the buffer, instead of completely updating all data
+	setupBuffer();
 }

@@ -24,9 +24,13 @@ private:
 	std::vector<glm::vec3> m_aInstanceColors;
  
 	GLuint m_vao, m_ibo, m_ebo;
-	GLsizei m_triangleCount;
+	par_shapes_mesh *m_sphereMesh;
+	GLsizei m_triangleCount, m_meshVerticesSize;
 	sgl::shader m_shader;
 
 	void setupBuffer();
 	void destroyBuffer();
+	void updateBuffer();
+
+	void onPointLightConstructed(const entt::registry &registry, entt::entity entity);
 };

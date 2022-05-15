@@ -38,7 +38,6 @@
 
 class Engine {
 public:
-	int settings_attachment = 0; // GL_COLOR_ATTACHMENT0 // TODO: remove this, only for debugging/Imgui Menu bar
 
 	Engine(EngineConfig config = EngineConfig());
 
@@ -59,6 +58,7 @@ public:
 	IScene *getScene() { return m_scene; }
 	entt::dispatcher &getDispatcher() { return m_dispatcher; }
 	EngineConfig &getConfig() { return m_config; }
+	GBuffer getGBuffer() { return m_gbuffer; }
 
 private:
 	// engine specific

@@ -52,7 +52,9 @@ void sgl::texture::resize(int width, int height) {
 	
 	// only resize if size changed.
 	if (width == m_width && height == m_height) return;
-	
+	m_width = width;
+	m_height = height;
+
 	bind();
 	glTexImage2D(GL_TEXTURE_2D, 0, m_format_internal, width, height, 0, m_format_loader, m_datatype, nullptr);
 	unbind();

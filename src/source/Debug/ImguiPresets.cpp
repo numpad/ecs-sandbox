@@ -398,37 +398,6 @@ void imguiRenderMenuBar(Engine *engine, entt::registry &registry, glm::vec3 &cro
 			if (decalShader) decalShader->reload();
 		}
 		
-		// Cameras
-		if (ImGui::BeginMenu("Rendering")) {
-			// which camera
-			ImGui::Text("Camera");
-			static int settings_camera = 0;
-			bool settings_changed = false;
-			if (ImGui::RadioButton("Default", settings_camera == 0)) { settings_camera = 0; settings_changed = true; }
-			if (ImGui::RadioButton("Camera #1 (topdown)", settings_camera == 1)) { settings_camera = 1; settings_changed = true; }
-			if (settings_changed) {
-				settings_changed = false;
-				// TODO: switch camera
-				fmt::print(fmt::fg(fmt::terminal_color::red), "'world.setCamera()' : NOT IMPLEMENTED\n");
-				//switch (settings_camera) {
-				//	case 1: world.setCamera(topdown); break;
-				//	default: world.setCamera(camera); break;
-				//};
-			}
-			ImGui::Separator();
-			// which framebuffer attachment
-			ImGui::Text("Framebuffer");
-			// defined above because of scope:
-			//static int settings_attachment = GL_COLOR_ATTACHMENT0;
-			ImGui::RadioButton("- Result -", &engine->settings_attachment, 0);
-			ImGui::RadioButton("Color Buffer", &engine->settings_attachment, GL_COLOR_ATTACHMENT0);
-			ImGui::RadioButton("Position Buffer", &engine->settings_attachment, GL_COLOR_ATTACHMENT1);
-			ImGui::RadioButton("Normal Buffer", &engine->settings_attachment, GL_COLOR_ATTACHMENT2);
-			ImGui::RadioButton("Depth Buffer", &engine->settings_attachment, GL_COLOR_ATTACHMENT3);
-
-			ImGui::EndMenu();
-		}
-		
 		// Settings
 		if (ImGui::BeginMenu("Settings")) {
 			static bool settings_vsync = true;

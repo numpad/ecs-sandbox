@@ -139,6 +139,13 @@ bool TowerScene::onCreate() {
 	m_registry.emplace<COrientedTexture>(m_players[0], 8, 0.f);
 	m_registry.emplace<COrientedTexture>(m_players[1], 8, 0.f);
 
+	entt::entity light0 = m_registry.create();
+	m_registry.emplace<CPosition>(light0, glm::vec3(0.0f, 0.0f, 0.0f));
+	m_registry.emplace<CPointLight>(light0, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	entt::entity light1 = m_registry.create();
+	m_registry.emplace<CPosition>(light1, glm::vec3(2.0f, 0.25f, 0.0f));
+	m_registry.emplace<CPointLight>(light1, 0.5f, glm::vec3(0.0f, 0.0f, 1.0f));
+
 	loadSystems();
 	loadTerrainShader();
 

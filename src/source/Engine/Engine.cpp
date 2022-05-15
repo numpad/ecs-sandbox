@@ -3,15 +3,17 @@
 static void callback_framebuffer_resized(GLFWwindow *window, int width, int height) {
 	Engine *engine = static_cast<Engine *>(glfwGetWindowUserPointer(window));
 
-	engine->getDispatcher().enqueue<WindowResizeEvent>(width, height);
-
+	// resize viewport, gbuffer and cameras
 	glViewport(0, 0, width, height);
+	engine->getGBuffer().resize(width, height);
 	for (Camera *cam : Camera::CAMERAS) {
 		if (cam->windowAspectLocked) {
 			cam->setScreenSize(width, height);
 			cam->windowAspectLocked = true;
 		}
 	}
+
+	engine->getDispatcher().enqueue<WindowResizeEvent>(width, height);
 }
 
 static void callback_window_close(GLFWwindow *window) {
@@ -188,18 +190,6 @@ void Engine::run() {
 
 		imgui_prepareframe();
 		
-		// input
-		int screenX, screenY;
-		glfwGetWindowSize(m_window, &screenX, &screenY);
-		
-		#if CFG_IMGUI_ENABLED
-			//static int settings_attachment = 0;
-			//imguiRenderMenuBar(m_window, world, crosspos, topdown, camera, msPerFrame, settings_attachment);
-		#endif
-		
-		// TODO: find a better way to resize fbo attachments
-		m_gbuffer.resize(screenX, screenY);
-		
 		// rendering
 		m_gbuffer.bind();
 		
@@ -221,18 +211,24 @@ void Engine::run() {
 
 		// render framebuffer to screen
 		#if CFG_IMGUI_ENABLED
-			m_screenshader["uTexChoiceActive"] = (settings_attachment != 0);
-			GLint display_texture = *m_gbuffer.m_color;
-			if (settings_attachment != 0) {
-				glGetNamedFramebufferAttachmentParameteriv(*m_gbuffer.m_fbo, settings_attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &display_texture);
-			}
-			m_screenshader["uTexColor"] = 0;
-			m_screenshader["uTexPosition"] = 1;
-			m_screenshader["uTexNormal"] = 2;
-			m_screenshader["uTexDepth"] = 3;
-		#else
-			const GLint display_texture = *m_gbuffer.m_color;
+			if (ImGui::Begin("GBuffer")) {
+				const sgl::texture *preview_gbuffer_textures[] = {m_gbuffer.m_color, m_gbuffer.m_position, m_gbuffer.m_normal, m_gbuffer.m_depth};
+				int iteration = 0;
+				for (const sgl::texture *preview_gbuffer : preview_gbuffer_textures) {
+					const float wwidth = ImGui::GetWindowWidth() * 0.5f;
+					const float aspect = preview_gbuffer->get_height() / float(preview_gbuffer->get_width());
+					
+					ImGui::Image((void*)preview_gbuffer->get_texture(),
+						ImVec2(wwidth, wwidth * aspect),
+						ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+
+					if (iteration++ % 2 == 0) {
+						ImGui::SameLine();
+					}
+				}
+			} ImGui::End();
 		#endif
+
 		m_screenshader["uTime"] = (float)glfwGetTime();
 
 		GLint pmode;
@@ -242,11 +238,8 @@ void Engine::run() {
 		m_screenshader.use();
 		glDisable(GL_DEPTH_TEST);
 		m_screen.bind();
-		
 		m_gbuffer.bind_textures();
-		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_2D, display_texture);
-		
+
 		m_screen.draw();
 		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, pmode);
