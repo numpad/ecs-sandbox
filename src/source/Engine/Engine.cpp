@@ -1,5 +1,7 @@
 #include "Engine/Engine.hpp"
 
+Engine* Engine::Instance = nullptr;
+
 static void callback_framebuffer_resized(GLFWwindow *window, int width, int height) {
 	Engine *engine = static_cast<Engine *>(glfwGetWindowUserPointer(window));
 
@@ -54,7 +56,12 @@ static void callback_mouse_input(GLFWwindow *window, int button, int action, int
 Engine::Engine(EngineConfig config)
  : m_config(config)
 {
+	if (Engine::Instance != nullptr) {
+		fmt::print(fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red), "Engine already initialized!\n");
+		return;
+	}
 
+	Engine::Instance = this;
 }
 
 bool Engine::initialize() {
@@ -195,11 +202,6 @@ void Engine::run() {
 		
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		// TODO: dont hardcode this, also referenced in DecalRenderSystem::draw().
-		//       the gbuffer should be easily available in all IRenderSystems
-		glActiveTexture(GL_TEXTURE7);
-		glBindTexture(GL_TEXTURE_2D, *m_gbuffer.m_position);
 
 		// actual rendering
 		if (m_scene) {
@@ -215,7 +217,7 @@ void Engine::run() {
 				const sgl::texture *preview_gbuffer_textures[] = {m_gbuffer.m_color, m_gbuffer.m_position, m_gbuffer.m_normal, m_gbuffer.m_depth};
 				int iteration = 0;
 				for (const sgl::texture *preview_gbuffer : preview_gbuffer_textures) {
-					const float wwidth = ImGui::GetWindowWidth() * 0.5f;
+					const float wwidth = ImGui::GetWindowWidth() * 0.47f; // meh
 					const float aspect = preview_gbuffer->get_height() / float(preview_gbuffer->get_width());
 					
 					ImGui::Image((void*)preview_gbuffer->get_texture(),

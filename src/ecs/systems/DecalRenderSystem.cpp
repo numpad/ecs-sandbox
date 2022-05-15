@@ -1,4 +1,5 @@
 #include <ecs/systems/DecalRenderSystem.hpp>
+#include <Engine/Engine.hpp>
 
 //////////////
 //  PUBLIC  //
@@ -30,15 +31,20 @@ void DecalRenderSystem::draw() {
 	glGetBooleanv(GL_DEPTH_WRITEMASK, &prev_depthmask);
 	glDepthMask(GL_FALSE);
 
+	// collect required buffer & shader data
 	m_shader.use();
+	collectInstanceData();
+	
 	m_shader["uProjection"] = camera->getProjection();
 	m_shader["uView"] = camera->getView();
 	m_shader["uResolution"] = camera->getScreenSize();
-	m_shader["uTexDepth"] = 7; // TODO: dont hardcode this
 
-	m_shader.use();
-	collectInstanceData();
+	GLint texture_slot = m_boundTextures.size(); // probably makes more sense to store this as GL_TEXTURE0
+	glActiveTexture(GL_TEXTURE0 + texture_slot);
+	glBindTexture(GL_TEXTURE_2D, Engine::Instance->getGBuffer().m_position->get_texture());
+	m_shader["uTexDepth"] = texture_slot;
 
+	// draw
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_instanceBuffer);
 	glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, m_aInstanceModels.size());

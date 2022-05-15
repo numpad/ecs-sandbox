@@ -60,6 +60,9 @@ public:
 	EngineConfig &getConfig() { return m_config; }
 	GBuffer getGBuffer() { return m_gbuffer; }
 
+	// singleton
+	static Engine *Instance;
+
 private:
 	// engine specific
 	EngineConfig m_config;
