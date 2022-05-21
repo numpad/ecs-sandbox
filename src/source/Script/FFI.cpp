@@ -79,9 +79,27 @@ extern "C" {
 
 	// Yoga
 	int LUA_YGNodeNew(lua_State *L) {
+		NodeID *ctx;
+		if (lua_isstring(L, -1)) {
+			std::string id = std::string(lua_tostring(L, -1));
+			ctx = new NodeID(id);
+		} else {
+			ctx = new NodeID();
+		}
+
 		YGNode *node = YGNodeNew();
+		YGNodeSetContext(node, ctx);
 		lua_pushlightuserdata(L, node);
 		return 1;
+	}
+
+	void FFI_CleanupYogaNode(YGNode* node) {
+		NodeID *id = (NodeID*)YGNodeGetContext(node);
+		delete id;
+	}
+
+	void FFI_YGNodeFreeRecursiveWithCleanupFunc(YGNode *node) {
+		YGNodeFreeRecursiveWithCleanupFunc(node, &FFI_CleanupYogaNode);
 	}
 	
 }

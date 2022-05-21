@@ -16,7 +16,8 @@ ffi.cdef[[
 	YGNodeRef YGNodeNew();
 	YGNodeRef YGNodeClone(YGNodeRef node);
 	void YGNodeFree(YGNodeRef node);
-	void YGNodeFreeRecursive(YGNodeRef node);
+	void FFI_CleanupYogaNode(YGNodeRef node);
+	void FFI_YGNodeFreeRecursiveWithCleanupFunc(YGNodeRef node); // replaces YGNodeFreeRecursive()
 	void YGNodeReset(YGNodeRef node);
 
 	void* YGNodeGetContext(YGNodeRef node);
@@ -197,13 +198,13 @@ Yoga.enums = {
 	},
 }
 
-function Yoga.parse(layout, root_node)
-	local root = Yoga.new(root_node)
+function Yoga.parse(layout, name)
+	local root = Yoga.new(nil, name)
 
 	for prop, value in pairs(layout) do
 		if type(value) == 'table' then
 			--print('<' .. prop .. '>')
-			local child = Yoga.parse(value, nil)
+			local child = Yoga.parse(value, prop)
 			root:insertchild(child)
 			--print('</' .. prop .. '>')
 		else
@@ -232,8 +233,8 @@ function Yoga.parse(layout, root_node)
 	return root
 end
 
-function Yoga.new(node)
-	local self = node and { super = node } or { super = LUA_YGNodeNew() }
+function Yoga.new(node, name)
+	local self = node and { super = node } or { super = LUA_YGNodeNew(name) }
 	return setmetatable(self, Yoga)
 end
 
@@ -245,8 +246,9 @@ function Yoga:free(recursive)
 	if recursive == nil then recursive = true end
 	
 	if recursive then
-		ffi.C.YGNodeFreeRecursive(self.super)
+		ffi.C.FFI_YGNodeFreeRecursiveWithCleanupFunc(self.super)
 	else
+		ffi.C.FFI_CleanupYogaNode(self.super)
 		ffi.C.YGNodeFree(self.super)
 	end
 end

@@ -15,8 +15,8 @@ bool GBuffer::initialize(int width, int height) {
 
 	// create buffers
 	m_color->load(   width, height, sgl::texture::internalformat::rgba, nullptr, sgl::texture::format::rgba, sgl::texture::datatype::u8);
-	m_position->load(width, height, sgl::texture::internalformat::rgba16f);
-	m_normal->load(  width, height, sgl::texture::internalformat::rgba16f);
+	m_position->load(width, height, sgl::texture::internalformat::rgba16f); // TODO: remove, instead reconstruct position from depth buffer to save vram
+	m_normal->load(  width, height, sgl::texture::internalformat::rgba16f); // TODO: GL_RGB10_A2 should give enough accuracy.
 	m_depth->load(   width, height, sgl::texture::internalformat::rgba16f);
 	m_depth_stencil->create(width, height, sgl::renderbuffer::internalformat::depth24_stencil8);
 	// configure

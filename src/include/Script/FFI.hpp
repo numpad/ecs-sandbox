@@ -7,6 +7,7 @@
 #include <yoga/Yoga.h>
 
 #include "Engine/IScene.hpp"
+#include "UI/NodeID.hpp"
 #include "scenes/gamemode/TowerScene.hpp"
 #include "scenes/cutscenes/splashscreen/SplashScreenScene.hpp"
 
@@ -42,4 +43,6 @@ extern "C" {
 	
 	// Yoga
 	int LUA_YGNodeNew(lua_State *L);
+	void FFI_CleanupYogaNode(YGNode* node);
+	void FFI_YGNodeFreeRecursiveWithCleanupFunc(YGNode* node);
 }

@@ -30,7 +30,7 @@ void LightVolumeRenderSystem::draw() {
 	m_shader["uProjection"] = camera->getProjection();
 	m_shader["uView"] = camera->getView();
 	glBindVertexArray(m_vao);
-	glDrawElementsInstanced(GL_TRIANGLES, m_triangleCount * 3, GL_UNSIGNED_SHORT, 0, 2);
+	glDrawElementsInstanced(GL_TRIANGLES, m_triangleCount * 3, GL_UNSIGNED_SHORT, 0, count);
 }
 
 /////////////
