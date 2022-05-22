@@ -17,10 +17,9 @@
 #include <ecs/systems/IRenderSystem.hpp>
 #include <ecs/components.hpp>
 #include <ecs/events.hpp>
-
 #include <RenderObject/Billboard.hpp>
 #include <RenderObject/Camera.hpp>
-
+#include "Graphics/GLState.hpp"
 #include <Util/Blackboard.hpp>
 
 class BillboardRenderSystem : public IUpdateSystem, public IRenderSystem {

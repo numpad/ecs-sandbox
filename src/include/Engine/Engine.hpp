@@ -22,6 +22,8 @@
 
 #include <Engine/EngineConfig.hpp>
 #include <Engine/IScene.hpp>
+#include <Graphics/Graphics.hpp>
+#include <Graphics/GLState.hpp>
 
 #include <Util/Math3d.hpp>
 #include <Util/Font.hpp>
@@ -52,13 +54,14 @@ public:
 	void setActiveScene(IScene *scene);
 
 	// getters
-	Window &getWindow() { return m_window; }
-	static Window &getMainWindow() { return *Engine::m_main_window; }
-	lua_State *getLuaState() { return m_lua; }
-	IScene *getScene() { return m_scene; }
-	entt::dispatcher &getDispatcher() { return m_dispatcher; }
-	EngineConfig &getConfig() { return m_config; }
-	GBuffer getGBuffer() { return m_gbuffer; }
+	Window& getWindow() { return m_window; }
+	static Window& getMainWindow() { return *Engine::m_main_window; }
+	lua_State* getLuaState() { return m_lua; }
+	IScene* getScene() { return m_scene; }
+	entt::dispatcher& getDispatcher() { return m_dispatcher; }
+	EngineConfig& getConfig() { return m_config; }
+	GBuffer& getGBuffer() { return m_gbuffer; }
+	Graphics& getGraphics() { return m_graphics; }
 
 	// singleton
 	static Engine *Instance;
@@ -68,6 +71,7 @@ private:
 	EngineConfig m_config;
 
 	// graphics
+	Graphics m_graphics;
 	static inline Window *m_main_window = nullptr;
 	Window m_window;
 	Screen m_screen;

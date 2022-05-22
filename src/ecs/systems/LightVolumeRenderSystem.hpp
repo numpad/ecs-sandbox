@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GL/gl3w.h>
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -7,9 +8,9 @@
 
 #include "sgl/sgl_shader.hpp"
 #include "ecs/components.hpp"
-#include "RenderObject/Camera.hpp"
-
 #include "ecs/systems/IRenderSystem.hpp"
+#include "RenderObject/Camera.hpp"
+#include "Graphics/GLState.hpp"
 
 class LightVolumeRenderSystem : public IRenderSystem {
 public:

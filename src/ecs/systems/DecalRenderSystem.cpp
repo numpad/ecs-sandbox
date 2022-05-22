@@ -27,9 +27,13 @@ DecalRenderSystem::~DecalRenderSystem() {
 }
 
 void DecalRenderSystem::draw() {
-	GLboolean prev_depthmask;
-	glGetBooleanv(GL_DEPTH_WRITEMASK, &prev_depthmask);
-	glDepthMask(GL_FALSE);
+	// set opengl state
+	GLState decalState;
+	decalState.blend = true;
+	decalState.depth_write = false;
+	decalState.depth_test = true;
+	decalState.cull_face = true;
+	Engine::Instance->getGraphics().setState(decalState);
 
 	// collect required buffer & shader data
 	m_shader.use();
@@ -50,7 +54,6 @@ void DecalRenderSystem::draw() {
 	glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, m_aInstanceModels.size());
 	glBindVertexArray(0);
 
-	glDepthMask(prev_depthmask);
 }
 
 

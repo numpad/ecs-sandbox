@@ -7,5 +7,5 @@ in vec3 vLightColor;
 layout(location = 0) out vec4 Color;
 
 void main() {
-	Color = vec4(vLightColor, 1.0);
+	Color = vec4(vLightColor, 0.2);
 }

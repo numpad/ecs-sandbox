@@ -222,6 +222,12 @@ void TowerScene::onUpdate(float dt) {
 }
 
 void TowerScene::onRender() {
+	GLState terrainState;
+	terrainState.depth_write = true;
+	terrainState.depth_test = true;
+	terrainState.cull_face = true;
+	Engine::Instance->getGraphics().setState(terrainState);
+
 	updateTerrainShader();
 	m_terrain.draw(&m_chunkshader);
 	

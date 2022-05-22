@@ -1,4 +1,5 @@
 #include <ecs/systems/BillboardRenderSystem.hpp>
+#include "Engine/Engine.hpp"
 
 BillboardRenderSystem::BillboardRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera)
 	: IUpdateSystem(registry), IRenderSystem(registry, camera)
@@ -34,16 +35,7 @@ void BillboardRenderSystem::update(float dt) {
 	registry.sort<CBillboard, CPosition>();
 }
 
-void BillboardRenderSystem::draw() {
-
-	#if CFG_IMGUI_ENABLED
-		if (ImGui::Begin("BillboardRenderSystem")) {
-			ImGui::Text("DrawMode: glDrawElementsInstanced");
-			ImGui::Text("#entities: %zu / %d", aInstanceModels.size(), lastMaxInstanceCount);
-		}
-		ImGui::End();
-	#endif
-	
+void BillboardRenderSystem::draw() {	
 	// collect per instance data
 	aInstanceModels.clear();
 	aInstanceTexOffsets.clear();
@@ -122,7 +114,13 @@ void BillboardRenderSystem::draw() {
 	GLint prevWireframeMode;
 	glGetIntegerv(GL_POLYGON_MODE, &prevWireframeMode);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	
+
+	GLState glState;
+	glState.depth_test = true;
+	glState.depth_write = true;
+	glState.cull_face = true;
+	Engine::Instance->getGraphics().setState(glState);
+
 	// prepare shader
 	instanceShader["uView"] = camera->getView();
 	instanceShader["uProjection"] = camera->getProjection();

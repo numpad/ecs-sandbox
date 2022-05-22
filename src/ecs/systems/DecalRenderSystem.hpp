@@ -14,6 +14,7 @@
 #include <ecs/components.hpp>
 #include <RenderObject/Camera.hpp>
 #include <Util/Blackboard.hpp>
+#include "Graphics/GLState.hpp"
 
 class DecalRenderSystem : public IRenderSystem {
 public:

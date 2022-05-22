@@ -123,6 +123,9 @@ bool Engine::initialize() {
 
 	imgui_init(m_window);
 
+	// initialize members
+	m_graphics.initialize();
+
 	// prepare shaders & GBuffer
 	m_screen.initialize();
 	m_gbuffer.initialize(m_config.window_width, m_config.window_height);
@@ -231,19 +234,27 @@ void Engine::run() {
 			} ImGui::End();
 		#endif
 
+		// TOD: only need to reset these after reloading
+		m_screenshader["uTexColor"] = 0;
+		m_screenshader["uTexPosition"] = 1;
+		m_screenshader["uTexNormal"] = 2;
+		m_screenshader["uTexDepth"] = 3;
 		m_screenshader["uTime"] = (float)glfwGetTime();
 
 		GLint pmode;
 		glGetIntegerv(GL_POLYGON_MODE, &pmode);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		
+		GLState deferredState;
+		deferredState.depth_test = false;
+		deferredState.depth_write = true;
+		m_graphics.setState(deferredState);
+		
 		m_screenshader.use();
-		glDisable(GL_DEPTH_TEST);
 		m_screen.bind();
 		m_gbuffer.bind_textures();
 
 		m_screen.draw();
-		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, pmode);
 		
 		// draw imgui (if enabled)

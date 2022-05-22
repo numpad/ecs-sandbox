@@ -1,4 +1,5 @@
 #include "ecs/systems/LightVolumeRenderSystem.hpp"
+#include "Engine/Engine.hpp"
 
 ////////////
 // PUBLIC //
@@ -30,7 +31,20 @@ void LightVolumeRenderSystem::draw() {
 	m_shader["uProjection"] = camera->getProjection();
 	m_shader["uView"] = camera->getView();
 	glBindVertexArray(m_vao);
+
+	GLState glState;
+	glState.depth_write = false;
+	glState.depth_test = true;
+	glState.cull_face = true;
+	glState.blend = true;
+	glState.blend_src = GL_SRC_ALPHA;
+	glState.blend_dst = GL_ONE;
+	glState.blend_src_alpha = GL_SRC_ALPHA;
+	glState.blend_dst_alpha = GL_ONE;
+
+	Engine::Instance->getGraphics().setState(glState);
 	glDrawElementsInstanced(GL_TRIANGLES, m_triangleCount * 3, GL_UNSIGNED_SHORT, 0, count);
+
 }
 
 /////////////
