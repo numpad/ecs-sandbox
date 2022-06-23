@@ -7,12 +7,10 @@
 
 class EntityDeleteSystem : public IUpdateSystem {
 public:
-	
-	EntityDeleteSystem(entt::registry &registry);
+	EntityDeleteSystem(entt::registry& registry);
 	~EntityDeleteSystem();
 
 	void update(float dt) override;
 
 private:
-	
 };

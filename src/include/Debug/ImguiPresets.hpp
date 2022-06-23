@@ -12,9 +12,9 @@
 #include <World.hpp>
 #include <Engine/Engine.hpp>
 
-void imguiEntityEdit(entt::registry &registry, entt::entity entity);
-void imguiEntityEditor(entt::registry &registry, bool pickingactive, glm::vec3 crosspos);
-void imguiRenderMenuBar(Engine *engine, entt::registry &registry, glm::vec3 &crosspos, float msPerFrame);
-void imguiLuaJitConsole(lua_State *L);
+void imguiEntityEdit(entt::registry& registry, entt::entity entity);
+void imguiEntityEditor(entt::registry& registry, bool pickingactive, glm::vec3 crosspos);
+void imguiRenderMenuBar(Engine* engine, entt::registry& registry, glm::vec3& crosspos, float msPerFrame);
+void imguiLuaJitConsole(lua_State* L);
 
 void imguiGamepadInfo();

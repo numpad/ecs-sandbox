@@ -5,10 +5,9 @@
 
 class IWidget {
 private:
-	
 public:
-
-	virtual ~IWidget() {}
+	virtual ~IWidget() {
+	}
 
 	virtual void draw(const glm::mat3& transform) const = 0;
 };

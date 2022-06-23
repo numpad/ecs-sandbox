@@ -7,15 +7,13 @@
 
 class DespawnSystem : public IUpdateSystem {
 public:
-
-	DespawnSystem(entt::registry &registry, float voidHeight = -5.f);
+	DespawnSystem(entt::registry& registry, float voidHeight = -5.f);
 	~DespawnSystem();
 
 	void update(float dt) override;
 
-	void entityKilled(const KillEntityEvent &e);
+	void entityKilled(const KillEntityEvent& e);
 
 private:
 	float voidHeight = -5.0f;
-
 };

@@ -14,13 +14,11 @@
 
 class CharacterControllerSystem : public IUpdateSystem {
 public:
-	
-	CharacterControllerSystem(entt::registry &registry, GLFWwindow *window, std::shared_ptr<Camera> *camera);
-	
-	void update(float dt);
-	
-private:
-	GLFWwindow *m_window;
-	std::shared_ptr<Camera> *m_camera;
+	CharacterControllerSystem(entt::registry& registry, GLFWwindow* window, std::shared_ptr<Camera>* camera);
 
+	void update(float dt);
+
+private:
+	GLFWwindow* m_window;
+	std::shared_ptr<Camera>* m_camera;
 };

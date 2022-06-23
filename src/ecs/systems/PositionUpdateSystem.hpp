@@ -7,11 +7,9 @@
 
 class PositionUpdateSystem : public IUpdateSystem {
 public:
-	
-	PositionUpdateSystem(entt::registry &registry);
-	
+	PositionUpdateSystem(entt::registry& registry);
+
 	void update(float dt);
-	
+
 private:
-		
 };

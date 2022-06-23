@@ -5,7 +5,6 @@
 
 class Graphics {
 public:
-
 	void initialize();
 
 	void resetState();

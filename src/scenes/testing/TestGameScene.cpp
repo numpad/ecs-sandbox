@@ -1,13 +1,9 @@
 #include "scenes/testing/TestGameScene.hpp"
 
-inline glm::vec3 calcCamPos(GLFWwindow *window) {
+inline glm::vec3 calcCamPos(GLFWwindow* window) {
 	// calculate view & projection matrix
-	static float angle = 0.0f,
-		angle_vel = 0.0f,
-		angle_acc = 0.3f,
-		cam_dist = 4.5f,
-		cam_y = 3.2f;
-	
+	static float angle = 0.0f, angle_vel = 0.0f, angle_acc = 0.3f, cam_dist = 4.5f, cam_y = 3.2f;
+
 	angle_vel *= 0.9f;
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		angle_vel += angle_acc;
@@ -18,11 +14,12 @@ inline glm::vec3 calcCamPos(GLFWwindow *window) {
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		cam_dist += 0.1f;
 	angle += angle_vel;
-	if (cam_dist < 0.05f) cam_dist = 0.05f;
-	
-	glm::vec3 campos = glm::vec3(glm::cos(glm::radians(angle)) * cam_dist,
-		cam_y, glm::sin(glm::radians(angle)) * cam_dist);
-	
+	if (cam_dist < 0.05f)
+		cam_dist = 0.05f;
+
+	glm::vec3 campos =
+	    glm::vec3(glm::cos(glm::radians(angle)) * cam_dist, cam_y, glm::sin(glm::radians(angle)) * cam_dist);
+
 	return campos;
 }
 
@@ -43,7 +40,7 @@ void TestGameScene::onDestroy() {
 void TestGameScene::onUpdate(float dt) {
 	// input
 	glm::vec2 normalizedMouse = m_engine->getWindow().getNormalizedMousePosition();
-	
+
 	// orbit camera calculations
 	static glm::vec3 camtarget(0.0f);
 	const float camToTargetSpeed = 0.12f;
@@ -51,17 +48,19 @@ void TestGameScene::onUpdate(float dt) {
 	glm::vec3 targetPos;
 	if (m_world->getPlayer() != entt::null && m_world->getRegistry().try_get<CPosition>(m_world->getPlayer())) {
 		targetPos = m_world->getRegistry().get<CPosition>(m_world->getPlayer()).pos * glm::vec3(1.0f, 0.0f, 1.0f);
-	} else { targetPos = glm::vec3(0.0f); }
+	} else {
+		targetPos = glm::vec3(0.0f);
+	}
 	glm::vec3 toTarget = (targetPos - camtarget) * camToTargetSpeed;
 	camtarget += toTarget;
-	
+
 	glm::vec3 campos = targetPos + calcCamPos(m_engine->getWindow());
 	m_camera->setPos(campos);
 	m_camera->setTarget(camtarget);
-			
+
 	// calculate player aim
 	entt::entity worldCrosshair = m_world->getCrosshair();
-	
+
 	m3d::ray mcRay = m_world->getCamera()->raycast(normalizedMouse);
 	m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::vec3 crosspos = m3d::raycast(mcRay, mcFloor);
@@ -78,7 +77,7 @@ void TestGameScene::onRender() {
 	m_world->draw();
 
 	if (ImGui::Begin("luajit")) {
-		lua_State *L = m_world->getLuaState();
+		lua_State* L = m_world->getLuaState();
 
 		constexpr size_t buf_size = 2048;
 		static char buf[buf_size] = "";
@@ -91,7 +90,6 @@ void TestGameScene::onRender() {
 				lua_pop(L, 1);
 			}
 		}
-
 	}
 	ImGui::End();
 }

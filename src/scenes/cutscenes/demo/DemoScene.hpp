@@ -19,7 +19,6 @@
 
 class DemoScene : public IScene {
 public:
-
 	bool onCreate() override;
 	void onDestroy() override;
 	void onUpdate(float dt) override;
@@ -41,5 +40,4 @@ private:
 
 	void loadTerrainShader();
 	void updateTerrainShader();
-
 };

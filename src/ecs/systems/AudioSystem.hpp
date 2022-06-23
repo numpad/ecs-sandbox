@@ -18,22 +18,20 @@
 
 class AudioSystem : public IUpdateSystem {
 public:
-
-	AudioSystem(entt::registry &registry, AssetManager &assetManager);
+	AudioSystem(entt::registry& registry, AssetManager& assetManager);
 	~AudioSystem();
 
 	void update(float dt);
-	
-	void play_sound(const PlaySoundEvent &event);
+
+	void play_sound(const PlaySoundEvent& event);
 
 private:
-	AssetManager &m_assetManager;
+	AssetManager& m_assetManager;
 	sgl::audio_listener m_listener;
 
 	// source pool
 	std::vector<std::unique_ptr<sgl::audio_source>> m_sources;
 	size_t m_last_used_source = 0;
 
-	sgl::audio *m_deathsound;
-
+	sgl::audio* m_deathsound;
 };

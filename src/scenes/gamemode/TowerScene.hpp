@@ -22,7 +22,6 @@
 
 class TowerScene : public IScene {
 public:
-
 	bool onCreate() override;
 	void onDestroy() override;
 	void onUpdate(float dt) override;
@@ -49,7 +48,7 @@ private:
 	void updateTerrainShader();
 
 	// event listener
-	void onEntityKilled(const KillEntityEvent &event);
-	void onBombExplodes(const ExplosionEvent &event);
-	void onMouseButtonInput(const MouseButtonEvent &event);
+	void onEntityKilled(const KillEntityEvent& event);
+	void onBombExplodes(const ExplosionEvent& event);
+	void onMouseButtonInput(const MouseButtonEvent& event);
 };

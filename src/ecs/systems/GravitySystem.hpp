@@ -9,14 +9,14 @@
 
 class GravitySystem : public IUpdateSystem {
 public:
-	
-	GravitySystem(entt::registry &registry, float gravity);
-	
+	GravitySystem(entt::registry& registry, float gravity);
+
 	void update(float dt);
-	
-	inline float getGravity() const { return gravity; }
-	
+
+	inline float getGravity() const {
+		return gravity;
+	}
+
 private:
 	float gravity;
-		
 };

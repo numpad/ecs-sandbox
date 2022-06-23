@@ -9,12 +9,13 @@ sgl::renderbuffer::~renderbuffer() {
 }
 
 void sgl::renderbuffer::create(int width, int height, sgl::renderbuffer::internalformat format) {
-	if (m_width == width && m_height == height && m_format == static_cast<GLenum>(format)) return;
-	
+	if (m_width == width && m_height == height && m_format == static_cast<GLenum>(format))
+		return;
+
 	m_width = width;
 	m_height = height;
 	m_format = static_cast<GLenum>(format);
-	
+
 	bind();
 	glRenderbufferStorage(GL_RENDERBUFFER, m_format, m_width, m_height);
 	unbind();

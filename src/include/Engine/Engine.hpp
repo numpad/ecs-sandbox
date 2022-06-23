@@ -40,7 +40,6 @@
 
 class Engine {
 public:
-
 	Engine(EngineConfig config = EngineConfig());
 
 	// setup, cleanup
@@ -51,20 +50,36 @@ public:
 	void quit();
 
 	// scene management
-	void setActiveScene(IScene *scene);
+	void setActiveScene(IScene* scene);
 
 	// getters
-	Window& getWindow() { return m_window; }
-	static Window& getMainWindow() { return *Engine::m_main_window; }
-	lua_State* getLuaState() { return m_lua; }
-	IScene* getScene() { return m_scene; }
-	entt::dispatcher& getDispatcher() { return m_dispatcher; }
-	EngineConfig& getConfig() { return m_config; }
-	GBuffer& getGBuffer() { return m_gbuffer; }
-	Graphics& getGraphics() { return m_graphics; }
+	Window& getWindow() {
+		return m_window;
+	}
+	static Window& getMainWindow() {
+		return *Engine::m_main_window;
+	}
+	lua_State* getLuaState() {
+		return m_lua;
+	}
+	IScene* getScene() {
+		return m_scene;
+	}
+	entt::dispatcher& getDispatcher() {
+		return m_dispatcher;
+	}
+	EngineConfig& getConfig() {
+		return m_config;
+	}
+	GBuffer& getGBuffer() {
+		return m_gbuffer;
+	}
+	Graphics& getGraphics() {
+		return m_graphics;
+	}
 
 	// singleton
-	static Engine *Instance;
+	static Engine* Instance;
 
 private:
 	// engine specific
@@ -72,23 +87,23 @@ private:
 
 	// graphics
 	Graphics m_graphics;
-	static inline Window *m_main_window = nullptr;
+	static inline Window* m_main_window = nullptr;
 	Window m_window;
 	Screen m_screen;
 	sgl::shader m_screenshader;
 	GBuffer m_gbuffer;
 
 	// scripting & registry
-	lua_State *m_lua = nullptr;
+	lua_State* m_lua = nullptr;
 	entt::dispatcher m_dispatcher;
 
 	// application specific
-	IScene *m_scene = nullptr;
-	IScene *m_next_scene = nullptr;
+	IScene* m_scene = nullptr;
+	IScene* m_next_scene = nullptr;
 	void switchScene();
 
 	// imgui helper functions
-	void imgui_init(GLFWwindow *window);
+	void imgui_init(GLFWwindow* window);
 	void imgui_prepareframe();
 	void imgui_render();
 	void imgui_destroy();
@@ -96,5 +111,4 @@ private:
 	// lua helper functions
 	bool luastate_init();
 	void luastate_destroy();
-
 };

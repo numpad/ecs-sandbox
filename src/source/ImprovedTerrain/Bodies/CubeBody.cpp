@@ -1,14 +1,10 @@
 #include "ImprovedTerrain/Bodies/CubeBody.hpp"
 
-CubeBody::CubeBody(glm::vec3 position, glm::vec3 size)
- : ISignedDistanceBody(position), m_size{size}
-{
-
+CubeBody::CubeBody(glm::vec3 position, glm::vec3 size) : ISignedDistanceBody(position), m_size{size} {
 }
 
 glm::mat2x3 CubeBody::get_bounding_box() const {
-	return glm::mat2x3(m_position - m_size,
-	                   m_position + m_size);
+	return glm::mat2x3(m_position - m_size, m_position + m_size);
 }
 
 ///////////////

@@ -17,7 +17,7 @@ bool LayoutEditorScene::onCreate() {
 	updateFiles();
 	loadLayout("");
 
-	lua_State *L = m_engine->getLuaState();
+	lua_State* L = m_engine->getLuaState();
 
 	return true;
 }
@@ -59,14 +59,14 @@ void LayoutEditorScene::onUpdate(float dt) {
 	if (Begin("Editor")) {
 		if (m_selectedNode != nullptr) {
 			static int direction = YGDirectionInherit;
-			const char* flexdirections[] = { "row", "column", "row-reverse", "column-reverse" };
+			const char* flexdirections[] = {"row", "column", "row-reverse", "column-reverse"};
 			static const char* flexdirection = flexdirections[0];
 			static char flexbasis[256] = {0};
 			static float flexgrow = 0.0f;
 			static float flexshrink = 1.0f;
 			static int flexwrap = YGWrapNoWrap;
 
-			NodeID *nodeId = (NodeID*)YGNodeGetContext(m_selectedNode);
+			NodeID* nodeId = (NodeID*)YGNodeGetContext(m_selectedNode);
 			Text("Node: %s", nodeId->id.c_str());
 			if (YGNodeGetChildCount(m_selectedNode) > 0) {
 				if (Button("Select 1st child")) {
@@ -76,8 +76,10 @@ void LayoutEditorScene::onUpdate(float dt) {
 			if (BeginTabBar("tabs")) {
 				if (BeginTabItem("Flex")) {
 					Text("Direction");
-					RadioButton("inherit", &direction, YGDirectionInherit); SameLine();
-					RadioButton("ltr", &direction, YGDirectionLTR); SameLine();
+					RadioButton("inherit", &direction, YGDirectionInherit);
+					SameLine();
+					RadioButton("ltr", &direction, YGDirectionLTR);
+					SameLine();
 					RadioButton("rtl", &direction, YGDirectionRTL);
 
 					Text("Flex Direction");
@@ -108,13 +110,15 @@ void LayoutEditorScene::onUpdate(float dt) {
 						InputFloat("##flexgrow", &flexgrow, 0.0f, 0.0f, "%g");
 						TableNextColumn();
 						InputFloat("##flexshrink", &flexshrink, 0.0f, 0.0f, "%g");
-						
+
 						EndTable();
 					}
 
 					Text("Flex Wrap");
-					RadioButton("no wrap", &flexwrap, YGWrapNoWrap); SameLine();
-					RadioButton("wrap", &flexwrap, YGWrapWrap); SameLine();
+					RadioButton("no wrap", &flexwrap, YGWrapNoWrap);
+					SameLine();
+					RadioButton("wrap", &flexwrap, YGWrapWrap);
+					SameLine();
 					RadioButton("wrap-reverse", &flexwrap, YGWrapWrapReverse);
 
 					EndTabItem();
@@ -136,7 +140,8 @@ void LayoutEditorScene::onUpdate(float dt) {
 					const int index = YGNodeGetChildCount(node);
 					YGNodeInsertChild(m_selectedNode, node, index);
 					// TODO: need to insert userdata
-					YGNodeCalculateLayout(m_layout, m_camera->getScreenWidth(), m_camera->getScreenHeight(), YGDirectionLTR); // TODO: only calculate parent layout
+					YGNodeCalculateLayout(m_layout, m_camera->getScreenWidth(), m_camera->getScreenHeight(),
+					                      YGDirectionLTR); // TODO: only calculate parent layout
 				}
 				SameLine();
 				if ((m_selectedNode != m_layout) && Button("remove node")) {
@@ -144,13 +149,14 @@ void LayoutEditorScene::onUpdate(float dt) {
 					m_selectedNode = YGNodeGetParent(m_selectedNode);
 					YGNodeFreeRecursive(node);
 					// TODO: need to add free function
-					YGNodeCalculateLayout(m_layout, m_camera->getScreenWidth(), m_camera->getScreenHeight(), YGDirectionLTR); // TODO: only calculate parent layout
+					YGNodeCalculateLayout(m_layout, m_camera->getScreenWidth(), m_camera->getScreenHeight(),
+					                      YGDirectionLTR); // TODO: only calculate parent layout
 				}
 
 				EndTabBar();
 			}
 		} else {
-			constexpr const char *text = "Select a node";
+			constexpr const char* text = "Select a node";
 			auto window_dimensions = GetWindowSize();
 			auto text_dimensions = CalcTextSize(text);
 
@@ -173,7 +179,7 @@ void LayoutEditorScene::onRender() {
 
 	float width = m_camera->getScreenWidth();
 	float height = m_camera->getScreenHeight();
-	m_logoShader->operator[]("uProjection") = glm::ortho(0.0f, width, height, 0.0f); //m_camera->getHudProjection();
+	m_logoShader->operator[]("uProjection") = glm::ortho(0.0f, width, height, 0.0f); // m_camera->getHudProjection();
 	m_logoShader->operator[]("uView") = glm::mat4(1.0f);
 	m_logoShader->operator[]("uModel") = glm::mat4(1.0f);
 
@@ -192,7 +198,6 @@ void LayoutEditorScene::onRender() {
 	drawLayout(m_layout, glm::mat4(1.0f));
 }
 
-
 /////////////
 // PRIVATE //
 /////////////
@@ -209,28 +214,21 @@ void LayoutEditorScene::createLogo() {
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_vbo);
 
-	GLfloat vertices[] = {
-		0.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f
-	};
+	GLfloat vertices[] = {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	                      0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f};
 
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(0 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *)(2 * sizeof(GLfloat)));
-	
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 }
 
-void LayoutEditorScene::loadLayout(const std::string &filename) {
-	lua_State *L = m_engine->getLuaState();
+void LayoutEditorScene::loadLayout(const std::string& filename) {
+	lua_State* L = m_engine->getLuaState();
 
 	if (m_layout != nullptr) {
 		YGNodeFreeRecursive(m_layout);
@@ -239,7 +237,7 @@ void LayoutEditorScene::loadLayout(const std::string &filename) {
 	}
 
 	if (luaL_dofile(m_engine->getLuaState(), std::string("res/scripts/layout/" + filename).c_str())) {
-		const char *err = lua_tostring(L, -1);
+		const char* err = lua_tostring(L, -1);
 		fmt::print("Error loading layout:\n");
 		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n", err);
 		lua_pop(L, 1);
@@ -265,7 +263,8 @@ void LayoutEditorScene::loadLayout(const std::string &filename) {
 }
 
 void LayoutEditorScene::drawLayout(YGNodeRef parent, glm::mat4 view, float z) {
-	if (parent == nullptr) return;
+	if (parent == nullptr)
+		return;
 
 	float x = YGNodeLayoutGetLeft(parent);
 	float y = YGNodeLayoutGetTop(parent);
@@ -273,16 +272,13 @@ void LayoutEditorScene::drawLayout(YGNodeRef parent, glm::mat4 view, float z) {
 	float h = YGNodeLayoutGetHeight(parent);
 
 	view = glm::translate(view, glm::vec3(x, y, 0.0f));
-	glm::mat4 model = glm::scale(
-		glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, z)),
-		glm::vec3(w, h, 1.0f));
+	glm::mat4 model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, z)), glm::vec3(w, h, 1.0f));
 	m_logoShader->operator[]("uView") = view;
 	m_logoShader->operator[]("uModel") = model;
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	
+
 	for (uint32_t i = 0; i < YGNodeGetChildCount(parent); ++i) {
 		YGNodeRef child = YGNodeGetChild(parent, i);
 		drawLayout(child, view, z += 0.01f);
 	}
 }
-

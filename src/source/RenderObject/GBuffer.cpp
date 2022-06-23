@@ -14,22 +14,25 @@ bool GBuffer::initialize(int width, int height) {
 	m_depth_stencil = new sgl::renderbuffer();
 
 	// create buffers
-	m_color->load(   width, height, sgl::texture::internalformat::rgba, nullptr, sgl::texture::format::rgba, sgl::texture::datatype::u8);
-	m_position->load(width, height, sgl::texture::internalformat::rgba16f); // TODO: remove, instead reconstruct position from depth buffer to save vram
-	m_normal->load(  width, height, sgl::texture::internalformat::rgba16f); // TODO: GL_RGB10_A2 should give enough accuracy.
-	m_depth->load(   width, height, sgl::texture::internalformat::rgba16f);
+	m_color->load(width, height, sgl::texture::internalformat::rgba, nullptr, sgl::texture::format::rgba,
+	              sgl::texture::datatype::u8);
+	m_position->load(width, height, sgl::texture::internalformat::rgba16f); // TODO: remove, instead reconstruct
+	                                                                        // position from depth buffer to save vram
+	m_normal->load(width, height,
+	               sgl::texture::internalformat::rgba16f); // TODO: GL_RGB10_A2 should give enough accuracy.
+	m_depth->load(width, height, sgl::texture::internalformat::rgba16f);
 	m_depth_stencil->create(width, height, sgl::renderbuffer::internalformat::depth24_stencil8);
 	// configure
 	// m_color.set_filter()??
 	m_position->set_filter(sgl::texture::filter::nearest);
 	m_normal->set_filter(sgl::texture::filter::nearest);
 	m_depth->set_filter(sgl::texture::filter::nearest);
-	
+
 	// attach
-	m_fbo->attach(*m_color,    sgl::attachment::color(0));
+	m_fbo->attach(*m_color, sgl::attachment::color(0));
 	m_fbo->attach(*m_position, sgl::attachment::color(1));
-	m_fbo->attach(*m_normal,   sgl::attachment::color(2));
-	m_fbo->attach(*m_depth,    sgl::attachment::color(3));
+	m_fbo->attach(*m_normal, sgl::attachment::color(2));
+	m_fbo->attach(*m_depth, sgl::attachment::color(3));
 	m_fbo->attach(*m_depth_stencil, sgl::attachment::depth_stencil());
 	m_fbo->targets();
 
@@ -47,7 +50,8 @@ void GBuffer::destroy() {
 
 void GBuffer::resize(int width, int height) {
 	// only resize when needed
-	if (width == m_width && height == m_height) return;
+	if (width == m_width && height == m_height)
+		return;
 
 	m_width = width;
 	m_height = height;

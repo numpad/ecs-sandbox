@@ -12,7 +12,11 @@
 
 class Window {
 public:
-	enum class FullscreenMode { NONE, WINDOWED, EXCLUSIVE };
+	enum class FullscreenMode {
+		NONE,
+		WINDOWED,
+		EXCLUSIVE
+	};
 
 	static bool Init(int glmajor = 4, int glminor = 5);
 	static void Destroy();
@@ -29,5 +33,5 @@ public:
 	}
 
 private:
-	GLFWwindow *glfw_window;
+	GLFWwindow* glfw_window;
 };

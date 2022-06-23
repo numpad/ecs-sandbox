@@ -9,21 +9,21 @@
 
 class Terminal {
 public:
-
 	Terminal();
 	~Terminal();
 
 	void update();
 
-	GLuint getTexture() const { return (GLuint)(*m_texture); }
+	GLuint getTexture() const {
+		return (GLuint)(*m_texture);
+	}
 
 private:
 	int m_width = 512;
 	int m_height = 512;
-	sgl::framebuffer *m_fbo;
-	sgl::texture *m_texture;
+	sgl::framebuffer* m_fbo;
+	sgl::texture* m_texture;
 
-	Font *m_font;
+	Font* m_font;
 	std::wstring m_text;
-
 };

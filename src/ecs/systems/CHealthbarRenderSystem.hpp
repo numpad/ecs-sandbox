@@ -6,11 +6,9 @@
 
 class CHealthbarRenderSystem {
 public:
-	
 	CHealthbarRenderSystem();
-	
-	void draw(entt::registry &registry);
-	
+
+	void draw(entt::registry& registry);
+
 private:
-	
 };

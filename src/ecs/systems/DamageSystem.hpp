@@ -7,12 +7,10 @@
 
 class DamageSystem : public IUpdateSystem {
 public:
-
-	DamageSystem(entt::registry &registry);
+	DamageSystem(entt::registry& registry);
 	~DamageSystem();
 
 	void update(float dt) override;
 
 private:
-
 };

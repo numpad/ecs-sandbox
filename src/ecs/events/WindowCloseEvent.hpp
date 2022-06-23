@@ -1,5 +1,3 @@
 #pragma once
 
-struct WindowCloseEvent {
-	
-};
+struct WindowCloseEvent {};

@@ -8,12 +8,10 @@
 
 class PressAwaySystem : public IUpdateSystem {
 public:
-	
-	PressAwaySystem(entt::registry &registry);
+	PressAwaySystem(entt::registry& registry);
 	~PressAwaySystem();
-	
+
 	void update(float dt);
-	
+
 private:
-	
 };

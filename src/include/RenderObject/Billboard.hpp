@@ -9,18 +9,23 @@
 
 class Billboard {
 public:
-	
 	Billboard();
-	Billboard(const Billboard &copy) = delete;
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-	~Billboard();
-	
-	static glm::mat4 calcModelMatrix(const glm::mat4 &uView, glm::vec3 pos, glm::vec2 size);
+	Billboard(const Billboard& copy) = delete;
 
-	inline GLuint getVAO() { return bbVAO; }
-	inline GLuint getVBO() { return bbVBO; }
-	inline GLuint getEBO() { return bbEBO; }
-	
+	~Billboard();
+
+	static glm::mat4 calcModelMatrix(const glm::mat4& uView, glm::vec3 pos, glm::vec2 size);
+
+	inline GLuint getVAO() {
+		return bbVAO;
+	}
+	inline GLuint getVBO() {
+		return bbVBO;
+	}
+	inline GLuint getEBO() {
+		return bbEBO;
+	}
+
 private:
 	GLuint bbVAO, bbVBO, bbEBO;
 	void setupBillboard();

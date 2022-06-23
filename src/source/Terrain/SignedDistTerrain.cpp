@@ -30,32 +30,44 @@ void SignedDistTerrain::plane(vec3 p, vec3 n, float d, Op op) {
 // PROTECTED //
 ///////////////
 
-static inline float sdUnion(float a, float b) { return glm::min(a, b); }
-static inline float sdDiff(float a, float b) { return glm::max(a, -b); }
-static inline float sdIntersect(float a, float b) { return glm::max(a, b); }
-static inline float sdUnionSmooth( float d1, float d2, float k ) {
-	float h = clamp( 0.5f + 0.5f*(d2-d1)/k, 0.0f, 1.0f );
-	return mix( d2, d1, h ) - k*h*(1.0f-h); }
+static inline float sdUnion(float a, float b) {
+	return glm::min(a, b);
+}
+static inline float sdDiff(float a, float b) {
+	return glm::max(a, -b);
+}
+static inline float sdIntersect(float a, float b) {
+	return glm::max(a, b);
+}
+static inline float sdUnionSmooth(float d1, float d2, float k) {
+	float h = clamp(0.5f + 0.5f * (d2 - d1) / k, 0.0f, 1.0f);
+	return mix(d2, d1, h) - k * h * (1.0f - h);
+}
 
 float SignedDistTerrain::sampleValue(vec3 p) const {
 	float d = std::numeric_limits<float>::max();
-	
+
 	int i = 0;
-	for (auto &b : bodies) {
+	for (auto& b : bodies) {
 		Op op = operations[i++];
 		// "b->p - p": transform sampled p according to position of b
 		float newdist = b->distance(b->p - p);
 		switch (op) {
-			case Op::UNION: d = sdUnion(d, newdist); break;
-			case Op::DIFF: d = sdDiff(d, newdist); break;
-			case Op::INTERSECT: d = sdIntersect(d, newdist); break;
+		case Op::UNION:
+			d = sdUnion(d, newdist);
+			break;
+		case Op::DIFF:
+			d = sdDiff(d, newdist);
+			break;
+		case Op::INTERSECT:
+			d = sdIntersect(d, newdist);
+			break;
 		};
 	}
-	
+
 	return d;
 }
 
 ///////////////
 //  PRIVATE  //
 ///////////////
-

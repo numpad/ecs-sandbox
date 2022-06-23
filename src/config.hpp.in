@@ -6,31 +6,34 @@
 #define CFG_IMGUI_ENABLED @CFG_IMGUI_ENABLED@
 #define CFG_CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
-#define return_if(r)         \
-	do {                     \
-		auto res = (r);      \
-		if (res) return res; \
+#define return_if(r)                                                                                                   \
+	do {                                                                                                               \
+		auto res = (r);                                                                                                \
+		if (res)                                                                                                       \
+			return res;                                                                                                \
 	} while (0)
-					
 
 #if CFG_DEBUG
-	#define DEBUG(x) do { x; } while (0)
+	#define DEBUG(x)                                                                                                   \
+		do {                                                                                                           \
+			x;                                                                                                         \
+		} while (0)
 	#define DEBUGP(s, ...) printf(s, __VA_ARGS__)
 	#define DEBUGR(x) x
 	#define DEBUGB
-	#define BM_START(name, tick_count) \
-		constexpr int name##_tick_count = (tick_count); \
-		static int name##_ticks = (tick_count); \
-		static double name##_avg = 0.0; \
+	#define BM_START(name, tick_count)                                                                                 \
+		constexpr int name##_tick_count = (tick_count);                                                                \
+		static int name##_ticks = (tick_count);                                                                        \
+		static double name##_avg = 0.0;                                                                                \
 		Benchmark BENCHMARK_##name;
-		
-	#define BM_STOP(name) \
-		if (-- name##_ticks == 0) { \
-			name##_ticks = name##_tick_count; \
-			printf("[BM ] %s took %.2fms\n", #name, name##_avg / double(name##_tick_count)); \
-			name##_avg = 0.0; \
-		} \
-		(BENCHMARK_##name).stop(); \
+
+	#define BM_STOP(name)                                                                                              \
+		if (--name##_ticks == 0) {                                                                                     \
+			name##_ticks = name##_tick_count;                                                                          \
+			printf("[BM ] %s took %.2fms\n", #name, name##_avg / double(name##_tick_count));                           \
+			name##_avg = 0.0;                                                                                          \
+		}                                                                                                              \
+		(BENCHMARK_##name).stop();                                                                                     \
 		name##_avg += BENCHMARK_##name.ms();
 #else
 	#define DEBUG(x)

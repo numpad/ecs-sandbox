@@ -24,27 +24,24 @@
 
 class BillboardRenderSystem : public IUpdateSystem, public IRenderSystem {
 public:
-	
-	BillboardRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera);
-	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
+	BillboardRenderSystem(entt::registry& registry, std::shared_ptr<Camera> camera);
+	BillboardRenderSystem(const BillboardRenderSystem& copy) = delete;
 	~BillboardRenderSystem();
-	
+
 	void update(float dt);
 	void draw();
-	
-		
+
 private:
 	sgl::shader instanceShader;
-	
+
 	Billboard billboardRO;
 	GLuint instanceBuffer;
-	
+
 	std::vector<glm::mat4> aInstanceModels;
 	std::vector<glm::vec3> aInstanceColors;
 	std::vector<glm::vec4> aInstanceTexOffsets;
 	std::vector<GLuint> aInstanceTextures;
-	std::vector<const Texture *> boundTextures;
-	
+	std::vector<const Texture*> boundTextures;
+
 	GLint lastMaxInstanceCount = -1;
 };
-

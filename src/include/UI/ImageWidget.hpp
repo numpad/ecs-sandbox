@@ -7,13 +7,11 @@
 
 class ImageWidget : public IWidget {
 private:
-	
 	GLuint m_texture;
 
 public:
-	
 	ImageWidget(GLuint texture);
 	~ImageWidget();
 
-	void draw(const glm::mat3 &transform) const;
+	void draw(const glm::mat3& transform) const;
 };

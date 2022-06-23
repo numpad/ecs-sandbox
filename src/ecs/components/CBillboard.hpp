@@ -7,10 +7,8 @@
 
 struct CBillboard {
 	glm::vec2 size;
-	Texture *texture;
-	
-	CBillboard(Texture *texture, glm::vec2 size)
-	 : size(size), texture(texture)
-	{
+	Texture* texture;
+
+	CBillboard(Texture* texture, glm::vec2 size) : size(size), texture(texture) {
 	}
 };

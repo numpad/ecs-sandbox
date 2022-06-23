@@ -4,34 +4,31 @@
 // STATIC //
 ////////////
 
-std::vector<Camera *> Camera::CAMERAS{};
-GLFWwindow *Camera::MAIN_WINDOW = nullptr;
+std::vector<Camera*> Camera::CAMERAS{};
+GLFWwindow* Camera::MAIN_WINDOW = nullptr;
 
-void Camera::Init(GLFWwindow *window) {
+void Camera::Init(GLFWwindow* window) {
 	Camera::MAIN_WINDOW = window;
-	
-	for (Camera *cam : Camera::CAMERAS) {
+
+	for (Camera* cam : Camera::CAMERAS) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-		
+
 		cam->setScreenSize(w, h);
 	}
 }
-
 
 ////////////
 // PUBLIC //
 ////////////
 
-Camera::Camera(vec3 pos, float fov)
-	: fov(fov), position(pos), targetpos(pos + vec3(0.f, 0.f, 1.f)) {
+Camera::Camera(vec3 pos, float fov) : fov(fov), position(pos), targetpos(pos + vec3(0.f, 0.f, 1.f)) {
 	CAMERAS.push_back(this);
-	
+
 	int w, h;
-	glfwGetWindowSize(Camera::MAIN_WINDOW, &w, &h);	
+	glfwGetWindowSize(Camera::MAIN_WINDOW, &w, &h);
 	setScreenSize(w, h);
 	windowAspectLocked = true;
-	
 }
 
 Camera::~Camera() {
@@ -39,10 +36,10 @@ Camera::~Camera() {
 	if (it != CAMERAS.end()) {
 		CAMERAS.erase(it);
 		DEBUG(printf("[LOG] Camera: destructor called...\n"));
-	}
-	else DEBUGB {
-		printf("[WRN] Camera: could not find own reference in destructor\n");
-	}
+	} else
+		DEBUGB {
+			printf("[WRN] Camera: could not find own reference in destructor\n");
+		}
 }
 
 void Camera::setPos(vec3 pos) {
@@ -83,7 +80,6 @@ const mat4& Camera::getView() const {
 	return this->view;
 }
 
-
 vec2 Camera::worldToScreen(vec3 worldpos) const {
 	vec4 screen3d = projection * view * vec4(worldpos, 1.f);
 	vec2 screen2d = vec2(screen3d.x, screen3d.y) / screen3d.z;
@@ -107,11 +103,11 @@ void Camera::updateProj() {
 	projection = perspective(fov, aspect, znear, zfar);
 
 	// For orthographic projection:
-	//float w = screen_width;
-	//float h = screen_height;
-	//float factor = 2.f;
-	//float aspect = (w/h) * factor;
-	//projection = ortho(-aspect, aspect, -factor, factor, znear, zfar);
+	// float w = screen_width;
+	// float h = screen_height;
+	// float factor = 2.f;
+	// float aspect = (w/h) * factor;
+	// projection = ortho(-aspect, aspect, -factor, factor, znear, zfar);
 }
 
 void Camera::updateView() {

@@ -14,9 +14,11 @@ bool SplashScreenScene::onCreate() {
 	m_logoTexture = new sgl::texture{};
 	int width, height, nChannels;
 	stbi_set_flip_vertically_on_load(false);
-	unsigned char *data = stbi_load("res/images/ui/placeholder.png", &width, &height, &nChannels, 0);
-	if (!data) return false;
-	m_logoTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgb, sgl::texture::datatype::u8);
+	unsigned char* data = stbi_load("res/images/ui/placeholder.png", &width, &height, &nChannels, 0);
+	if (!data)
+		return false;
+	m_logoTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgb,
+	                    sgl::texture::datatype::u8);
 	stbi_image_free(data);
 
 	// load shader
@@ -28,10 +30,10 @@ bool SplashScreenScene::onCreate() {
 
 	createLogo();
 
-	lua_State *L = m_engine->getLuaState();
+	lua_State* L = m_engine->getLuaState();
 
 	if (luaL_dofile(L, "res/scripts/layout/splash.lua")) {
-		const char *err = lua_tostring(L, -1);
+		const char* err = lua_tostring(L, -1);
 		fmt::print("Error loading layout!\n");
 		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n");
 		lua_pop(L, 1);
@@ -79,12 +81,11 @@ void SplashScreenScene::onUpdate(float dt) {
 	}
 }
 
-
 /////////////
 // PRIVATE //
 /////////////
 
-void SplashScreenScene::onKeyInput(const KeyEvent &event) {
+void SplashScreenScene::onKeyInput(const KeyEvent& event) {
 	m_engine->setActiveScene(new MainMenuScene{});
 }
 
@@ -95,13 +96,11 @@ void SplashScreenScene::drawLayout(YGNodeRef parent, glm::mat4 view, float z) {
 	float h = YGNodeLayoutGetHeight(parent);
 
 	view = glm::translate(view, glm::vec3(x, y, 0.0f));
-	glm::mat4 model = glm::scale(
-		glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, z)),
-		glm::vec3(w, h, 1.0f));
+	glm::mat4 model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, z)), glm::vec3(w, h, 1.0f));
 	m_logoShader->uniform("uView") = view;
 	m_logoShader->uniform("uModel") = model;
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-	
+
 	for (uint32_t i = 0; i < YGNodeGetChildCount(parent); ++i) {
 		YGNodeRef child = YGNodeGetChild(parent, i);
 		drawLayout(child, view, z += 0.01f);
@@ -114,7 +113,7 @@ void SplashScreenScene::onRender() {
 
 	float width = m_camera->getScreenWidth();
 	float height = m_camera->getScreenHeight();
-	m_logoShader->uniform("uProjection") = glm::ortho(0.0f, width, height, 0.0f); //m_camera->getHudProjection();
+	m_logoShader->uniform("uProjection") = glm::ortho(0.0f, width, height, 0.0f); // m_camera->getHudProjection();
 	m_logoShader->uniform("uView") = glm::mat4(1.0f);
 	m_logoShader->uniform("uModel") = glm::mat4(1.0f);
 	m_logoShader->uniform("uTexture") = 0;
@@ -141,22 +140,15 @@ void SplashScreenScene::createLogo() {
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_vbo);
 
-	GLfloat vertices[] = {
-		0.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 0.0f
-	};
+	GLfloat vertices[] = {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+	                      0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f};
 
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *)(0 * sizeof(GLfloat)));
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(0 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *)(2 * sizeof(GLfloat)));
-	
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 }

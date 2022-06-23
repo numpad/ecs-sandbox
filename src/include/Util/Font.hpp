@@ -23,28 +23,27 @@ private:
 		ivec2 size, bearing;
 		unsigned int advance;
 	};
-	
+
 public:
 	static void Init();
 	static void Destroy();
-	
+
 	Font(std::string ttf, unsigned int height_px);
 	void destroy();
-	
+
 	vec2 getSize(std::wstring str, float scale = 1.0f);
-	
-	void drawString(mat4 uProj, std::wstring str, float x, float y,
-		float scale = 1.f, vec3 color = vec3(1.f));
-	
+
+	void drawString(mat4 uProj, std::wstring str, float x, float y, float scale = 1.f, vec3 color = vec3(1.f));
+
 private:
 	FT_Face face;
 	std::map<wchar_t, Character> chars;
-	
+
 	GLuint VAO, VBO;
-	
+
 	bool loadFontface(std::string ttf, unsigned int height_px);
 	void loadChar(wchar_t chr);
-	
+
 	static FT_Library ft;
-	static sgl::shader *defaultShader;
+	static sgl::shader* defaultShader;
 };

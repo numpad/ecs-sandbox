@@ -15,14 +15,13 @@
 
 class SpritePreviewScene : public IScene {
 public:
-
 	bool onCreate() override;
 	void onDestroy() override;
 	void onUpdate(float dt) override;
 	void onRender() override;
 
 private:
-	Camera *m_camera = nullptr;
+	Camera* m_camera = nullptr;
 	double m_elapsedTime = 0.0;
 
 	sgl::shader *m_imageShader, *m_previewShader;
@@ -32,5 +31,4 @@ private:
 	void createLogo();
 
 	void reload();
-
 };

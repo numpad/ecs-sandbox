@@ -11,13 +11,11 @@
 
 class DistanceFunctionCollisionSystem : public IUpdateSystem {
 public:
-
-	DistanceFunctionCollisionSystem(entt::registry &registry, ISignedDistanceFunction &m_sdf);
+	DistanceFunctionCollisionSystem(entt::registry& registry, ISignedDistanceFunction& m_sdf);
 	~DistanceFunctionCollisionSystem();
 
 	void update(float dt) override;
 
 private:
-	ISignedDistanceFunction &m_sdf;
-
+	ISignedDistanceFunction& m_sdf;
 };

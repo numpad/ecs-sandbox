@@ -2,7 +2,6 @@
 
 using namespace glm;
 
-
 ///////////////
 //  PUBLIC   //
 ///////////////
@@ -14,4 +13,3 @@ using namespace glm;
 ///////////////
 //  PRIVATE  //
 ///////////////
-

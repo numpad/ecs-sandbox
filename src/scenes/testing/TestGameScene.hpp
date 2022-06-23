@@ -7,7 +7,6 @@
 
 class TestGameScene : public IScene {
 public:
-	
 	bool onCreate() override;
 	void onDestroy() override;
 	void onUpdate(float dt) override;
@@ -15,6 +14,5 @@ public:
 
 private:
 	std::shared_ptr<Camera> m_camera;
-	World *m_world = nullptr;
-
+	World* m_world = nullptr;
 };

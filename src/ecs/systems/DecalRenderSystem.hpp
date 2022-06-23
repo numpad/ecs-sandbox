@@ -18,10 +18,9 @@
 
 class DecalRenderSystem : public IRenderSystem {
 public:
-
-	DecalRenderSystem(const entt::registry &registry, std::shared_ptr<Camera> camera);
+	DecalRenderSystem(const entt::registry& registry, std::shared_ptr<Camera> camera);
 	~DecalRenderSystem();
-	
+
 	void draw();
 
 private:
@@ -30,7 +29,7 @@ private:
 	std::vector<glm::vec4> m_aInstanceTexOffsets;
 	std::vector<glm::mat4> m_aInstanceModels;
 	std::vector<GLuint> m_aInstanceTextures;
-	std::vector<const Texture *> m_boundTextures;
+	std::vector<const Texture*> m_boundTextures;
 
 	GLuint m_vao, m_vbo, m_ebo;
 	sgl::shader m_shader;

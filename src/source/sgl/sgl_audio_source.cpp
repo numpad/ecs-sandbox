@@ -12,7 +12,7 @@ sgl::audio_source::~audio_source() {
 	alDeleteSources(1, &m_source);
 }
 
-void sgl::audio_source::set_buffer(sgl::audio &audio) {
+void sgl::audio_source::set_buffer(sgl::audio& audio) {
 	alSourcei(m_source, AL_BUFFER, (ALuint)audio);
 }
 
@@ -43,7 +43,6 @@ void sgl::audio_source::set_velocity(glm::vec3 vel) {
 void sgl::audio_source::set_direction(glm::vec3 dir) {
 	alSource3f(m_source, AL_DIRECTION, dir.x, dir.y, dir.z);
 }
-
 
 void sgl::audio_source::set_pitch(float pitch) {
 	alSourcef(m_source, AL_PITCH, pitch);

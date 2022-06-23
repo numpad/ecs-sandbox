@@ -10,30 +10,31 @@
 template <typename T>
 class SparseGrid3D {
 public:
-
-	T* at(const glm::ivec3 &p) const {
+	T* at(const glm::ivec3& p) const {
 		auto search = m_grid.find(p);
-		if (search == m_grid.end()) return nullptr;
+		if (search == m_grid.end())
+			return nullptr;
 
 		return search->second;
 	}
 
-	void set(const glm::ivec3 &p, T* element) {
+	void set(const glm::ivec3& p, T* element) {
 		m_grid[p] = element;
 	}
 
-	T* pop(const glm::ivec3 &p) {
+	T* pop(const glm::ivec3& p) {
 		auto found = at(p);
-		if (found != nullptr) set(p, nullptr);
+		if (found != nullptr)
+			set(p, nullptr);
 		return found;
 	}
 
-	void each(std::function<void (glm::ivec3, T *)> func) {
+	void each(std::function<void(glm::ivec3, T*)> func) {
 		for (auto iter : m_grid)
 			func(iter.first, iter.second);
 	}
 
-	void each_inside(glm::imat2x3 chunks_aabb, std::function<void (glm::ivec3, T *)> func) {
+	void each_inside(glm::imat2x3 chunks_aabb, std::function<void(glm::ivec3, T*)> func) {
 		const glm::ivec3 min = chunks_aabb[0];
 		const glm::ivec3 max = chunks_aabb[1];
 
@@ -45,14 +46,12 @@ public:
 			}
 		}
 	}
-	
 
 private:
 	struct ivec3_hash {
-		size_t operator()(const glm::ivec3 &v) const {
+		size_t operator()(const glm::ivec3& v) const {
 			return std::hash<int>{}(v.x) ^ std::hash<int>{}(v.y) ^ std::hash<int>{}(v.z);
 		}
 	};
-	std::unordered_map<glm::ivec3, T *, ivec3_hash> m_grid;
-
+	std::unordered_map<glm::ivec3, T*, ivec3_hash> m_grid;
 };

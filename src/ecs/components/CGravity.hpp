@@ -1,7 +1,8 @@
 #pragma once
 
 struct CGravity {
-	void *_dummy;
-	
-	CGravity() {}
+	void* _dummy;
+
+	CGravity() {
+	}
 };

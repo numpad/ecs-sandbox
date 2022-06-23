@@ -1,9 +1,7 @@
 #include "ImprovedTerrain/Bodies/DiskBody.hpp"
 
 DiskBody::DiskBody(glm::vec3 position, float radius, float height)
- : ISignedDistanceBody(position), m_radius{radius}, m_height{height + 0.01f}
-{
-
+    : ISignedDistanceBody(position), m_radius{radius}, m_height{height + 0.01f} {
 }
 
 glm::mat2x3 DiskBody::get_bounding_box() const {

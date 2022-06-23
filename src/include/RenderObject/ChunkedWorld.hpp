@@ -17,33 +17,33 @@ using namespace glm;
 
 class ChunkedWorld {
 public:
-	
 	ChunkedWorld(vec3 chunkSize);
-	
+
 	bool hasChunkAtPos(vec3 pos) const;
-	void set(ivec2 coords, Terrain *terrain);
-	
-	void remove(ivec2 coords, Terrain *not_if_same = nullptr);
-	
-	void update(ivec2 coords, Terrain *terrain);
-	
+	void set(ivec2 coords, Terrain* terrain);
+
+	void remove(ivec2 coords, Terrain* not_if_same = nullptr);
+
+	void update(ivec2 coords, Terrain* terrain);
+
 	void polygonizeChunk(ivec2 coords);
 	void polygonizeAllChunks();
-	
+
 	void destroy();
-	
-	void draw(sgl::shader &shader);
-	
-	ChunkedTerrain &getTerrain() { return chunkedTerrain; };
-	
+
+	void draw(sgl::shader& shader);
+
+	ChunkedTerrain& getTerrain() {
+		return chunkedTerrain;
+	};
+
 	float raycastd(vec3 origin, vec3 dir, float max_length = 4.f) {
 		return chunkedTerrain.raycastd(origin, dir, max_length);
 	}
 
 private:
 	CubeMarcher marcher;
-	
+
 	ChunkedTerrain chunkedTerrain;
 	Grid2D<Mesh> chunkMeshes;
-	
 };

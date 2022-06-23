@@ -12,10 +12,10 @@ Chunk::Chunk() {
 
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	
+
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), NULL);
-	
+
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -38,13 +38,12 @@ void Chunk::polygonize(glm::ivec3 chunk) {
 		}
 	}
 
-
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, m_points.size() * sizeof(glm::vec3), m_points.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Chunk::draw(const glm::mat4 &projection, const glm::mat4 &view) {
+void Chunk::draw(const glm::mat4& projection, const glm::mat4& view) {
 	m_shader["uProjection"] = projection;
 	m_shader["uView"] = view;
 	m_shader["uTime"] = (float)glfwGetTime();

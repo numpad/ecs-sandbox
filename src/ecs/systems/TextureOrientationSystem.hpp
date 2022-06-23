@@ -11,8 +11,7 @@
 
 class TextureOrientationSystem : public IUpdateSystem {
 public:
-
-	TextureOrientationSystem(entt::registry &registry, std::shared_ptr<Camera> camera);
+	TextureOrientationSystem(entt::registry& registry, std::shared_ptr<Camera> camera);
 	~TextureOrientationSystem();
 
 	void update(float dt) override;

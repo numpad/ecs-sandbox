@@ -1,42 +1,39 @@
 #include "ecs/systems/DamageSystem.hpp"
 
-DamageSystem::DamageSystem(entt::registry &registry)
- : IUpdateSystem{registry}
-{
-
+DamageSystem::DamageSystem(entt::registry& registry) : IUpdateSystem{registry} {
 }
 
 DamageSystem::~DamageSystem() {
-
 }
 
 void DamageSystem::update(float dt) {
-	registry.view<CHealth, CDamageOverTime>(entt::exclude<CDeletable>).each([this, dt](auto entity, auto &health, auto &dot) {
-		// time step
-		dot._elapsed_since_beginning += dt;
-		dot._elapsed_since_tick += dt;
+	registry.view<CHealth, CDamageOverTime>(entt::exclude<CDeletable>)
+	    .each([this, dt](auto entity, auto& health, auto& dot) {
+		    // time step
+		    dot._elapsed_since_beginning += dt;
+		    dot._elapsed_since_tick += dt;
 
-		while (dot._elapsed_since_tick >= dot.frequency) {
-			dot._elapsed_since_tick -= dot.frequency;
-			health.hp -= dot.damage_per_tick;
-			
-			// TODO: fire DamageEvent?
-		}
+		    while (dot._elapsed_since_tick >= dot.frequency) {
+			    dot._elapsed_since_tick -= dot.frequency;
+			    health.hp -= dot.damage_per_tick;
 
-		// despawn the entity if dead
-		if (health.hp <= 0) {
-			CPosition *has_position = registry.try_get<CPosition>(entity);
-			CExplosive *is_explosive = registry.try_get<CExplosive>(entity);
-			if (is_explosive && has_position) {
-				registry.ctx<entt::dispatcher>().enqueue<ExplosionEvent>(has_position->pos, is_explosive->radius);
-			}
+			    // TODO: fire DamageEvent?
+		    }
 
-			registry.ctx<entt::dispatcher>().enqueue<KillEntityEvent>(entity, "Killed by a wound.");
-		}
+		    // despawn the entity if dead
+		    if (health.hp <= 0) {
+			    CPosition* has_position = registry.try_get<CPosition>(entity);
+			    CExplosive* is_explosive = registry.try_get<CExplosive>(entity);
+			    if (is_explosive && has_position) {
+				    registry.ctx<entt::dispatcher>().enqueue<ExplosionEvent>(has_position->pos, is_explosive->radius);
+			    }
 
-		// remove once time is over
-		if (dot._elapsed_since_beginning >= dot.duration) {
-			registry.remove<CDamageOverTime>(entity);
-		}
-	});
+			    registry.ctx<entt::dispatcher>().enqueue<KillEntityEvent>(entity, "Killed by a wound.");
+		    }
+
+		    // remove once time is over
+		    if (dot._elapsed_since_beginning >= dot.duration) {
+			    registry.remove<CDamageOverTime>(entity);
+		    }
+	    });
 }

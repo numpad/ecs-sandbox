@@ -12,18 +12,17 @@
 
 class SplashScreenScene : public IScene {
 public:
-
 	bool onCreate() override;
 	void onDestroy() override;
 	void onUpdate(float dt) override;
 	void onRender() override;
 
 private:
-	Camera *m_camera = nullptr;
+	Camera* m_camera = nullptr;
 	double m_elapsedTime = 0.0;
 
-	sgl::texture *m_logoTexture = nullptr;
-	sgl::shader *m_logoShader;
+	sgl::texture* m_logoTexture = nullptr;
+	sgl::shader* m_logoShader;
 	YGNodeRef m_layout;
 	Layout m_ui;
 
@@ -31,5 +30,5 @@ private:
 	void createLogo();
 	void drawLayout(YGNodeRef parent, glm::mat4 view, float z = -0.9f);
 
-	void onKeyInput(const KeyEvent &event);
+	void onKeyInput(const KeyEvent& event);
 };

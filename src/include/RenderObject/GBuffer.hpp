@@ -8,7 +8,6 @@
 
 class GBuffer {
 public:
-
 	bool initialize(int width, int height);
 	void destroy();
 
@@ -17,20 +16,19 @@ public:
 	void bind();
 	void unbind();
 
-	void bind_textures(sgl::shader &shader);
-
+	void bind_textures(sgl::shader& shader);
 
 public: // TODO: should be private
 	// attachments
-	sgl::texture *m_color;
-	sgl::texture *m_position;
-	sgl::texture *m_normal;
-	sgl::texture *m_depth;
-	sgl::renderbuffer *m_depth_stencil;
+	sgl::texture* m_color;
+	sgl::texture* m_position;
+	sgl::texture* m_normal;
+	sgl::texture* m_depth;
+	sgl::renderbuffer* m_depth_stencil;
 
 	// framebuffer
-	sgl::framebuffer *m_fbo;
+	sgl::framebuffer* m_fbo;
+
 private:
 	int m_width, m_height;
-
 };

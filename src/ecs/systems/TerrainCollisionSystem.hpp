@@ -9,8 +9,7 @@
 
 class TerrainCollisionSystem : public IUpdateSystem {
 public:
-
-	TerrainCollisionSystem(entt::registry &registry, std::shared_ptr<ChunkedWorld> chunkedWorld);
+	TerrainCollisionSystem(entt::registry& registry, std::shared_ptr<ChunkedWorld> chunkedWorld);
 	~TerrainCollisionSystem();
 
 	void update(float dt) override;

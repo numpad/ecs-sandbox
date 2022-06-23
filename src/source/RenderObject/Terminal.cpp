@@ -9,8 +9,9 @@ Terminal::Terminal() {
 	m_text = L"Enter password:";
 
 	m_texture = new sgl::texture();
-	m_texture->load(m_width, m_height, sgl::texture::internalformat::rgb, nullptr, sgl::texture::format::rgb, sgl::texture::datatype::u8);
-	
+	m_texture->load(m_width, m_height, sgl::texture::internalformat::rgb, nullptr, sgl::texture::format::rgb,
+	                sgl::texture::datatype::u8);
+
 	m_fbo = new sgl::framebuffer();
 	m_fbo->attach(*m_texture, sgl::attachment::color(0));
 	m_fbo->targets();
@@ -34,8 +35,6 @@ void Terminal::update() {
 	m_fbo->unbind();
 }
 
-
 /////////////
 // PRIVATE //
 /////////////
-

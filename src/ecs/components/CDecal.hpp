@@ -5,7 +5,7 @@
 
 struct CDecal {
 	glm::vec3 size;
-	
-	Texture *texture;
+
+	Texture* texture;
 	glm::vec4 texture_offset;
 };

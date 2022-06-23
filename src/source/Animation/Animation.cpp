@@ -1,3 +1,1 @@
 #include <Animation/Animation.hpp>
-
-

@@ -14,14 +14,13 @@
 
 class MainMenuScene : public IScene {
 public:
-
 	bool onCreate() override;
 	void onDestroy() override;
 	void onUpdate(float dt) override;
 	void onRender() override;
 
 private:
-	sgl::texture *m_logo;
+	sgl::texture* m_logo;
 
 	std::vector<std::string> m_modenames = {"Layout Editor", "Test Game", "Tower Tilt", "Sprite Preview"};
 	ssize_t m_modeindex = 2;

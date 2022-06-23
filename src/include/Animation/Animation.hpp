@@ -6,9 +6,5 @@ using namespace glm;
 
 class Animation {
 public:
-	
-	
-	
 private:
-	
 };

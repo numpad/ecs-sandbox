@@ -5,9 +5,7 @@
 
 class File {
 public:
-	
 	static std::string Read(std::string filename);
-	
+
 private:
-	
 };

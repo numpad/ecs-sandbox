@@ -2,7 +2,9 @@
 
 struct EngineConfig {
 	enum class WindowMode {
-		WINDOW, BORDERLESS, FULLSCREEN
+		WINDOW,
+		BORDERLESS,
+		FULLSCREEN
 	};
 
 	// initialization settings

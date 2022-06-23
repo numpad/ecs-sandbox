@@ -14,27 +14,24 @@
 
 class LayoutEditorScene : public IScene {
 public:
-
 	bool onCreate() override;
 	void onDestroy() override;
 	void onUpdate(float dt) override;
 	void onRender() override;
 
 private:
-	Camera *m_camera = nullptr;
+	Camera* m_camera = nullptr;
 	double m_elapsedTime = 0.0;
 
-	sgl::shader *m_logoShader;
+	sgl::shader* m_logoShader;
 	std::vector<std::string> m_files;
-	
+
 	YGNodeRef m_layout = nullptr;
 	YGNodeRef m_selectedNode = nullptr;
 	void updateFiles();
-	void loadLayout(const std::string &filename);
+	void loadLayout(const std::string& filename);
 	void drawLayout(YGNodeRef parent, glm::mat4 view, float z = -0.9f);
 
 	GLuint m_vao, m_vbo;
 	void createLogo();
-
-
 };
