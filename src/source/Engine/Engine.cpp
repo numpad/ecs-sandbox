@@ -136,11 +136,6 @@ bool Engine::initialize() {
 	m_screenshader.link();
 	Blackboard::write("deferredShader", &m_screenshader);
 
-	m_screenshader["uTexColor"] = 0; // gbuffer attachment 0
-	m_screenshader["uTexPosition"] = 1;
-	m_screenshader["uTexNormal"] = 2;
-	m_screenshader["uTexDepth"] = 3;
-
 	// TODO: register this somewhere appropriate
 	lua_register(m_lua, "LUA_YGNodeNew", LUA_YGNodeNew);
 	if (luaL_dofile(m_lua, "res/scripts/engine/init.lua")) {
@@ -206,7 +201,7 @@ void Engine::run() {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// actual rendering
+		// render the scene
 		if (m_scene) {
 			m_scene->onUpdate(1.f / 60.f); // TODO(chris): timestep
 			m_scene->onRender();
@@ -234,11 +229,7 @@ void Engine::run() {
 			} ImGui::End();
 		#endif
 
-		// TOD: only need to reset these after reloading
-		m_screenshader["uTexColor"] = 0;
-		m_screenshader["uTexPosition"] = 1;
-		m_screenshader["uTexNormal"] = 2;
-		m_screenshader["uTexDepth"] = 3;
+		// TODO: only need to reset these after reloading
 		m_screenshader["uTime"] = (float)glfwGetTime();
 
 		GLint pmode;
@@ -246,13 +237,14 @@ void Engine::run() {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		
 		GLState deferredState;
+		// https://www.khronos.org/opengl/wiki/Common_Mistakes#:~:text=In%20some%20cases%2C%20you%20might%20want%20to%20disable%20depth%20testing%20and%20still%20allow%20the%20depth%20buffer%20updated%20while%20you%20are%20rendering%20your%20objects
 		deferredState.depth_test = false;
 		deferredState.depth_write = true;
 		m_graphics.setState(deferredState);
 		
 		m_screenshader.use();
 		m_screen.bind();
-		m_gbuffer.bind_textures();
+		m_gbuffer.bind_textures(m_screenshader);
 
 		m_screen.draw();
 		glPolygonMode(GL_FRONT_AND_BACK, pmode);

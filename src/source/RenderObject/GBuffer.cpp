@@ -67,13 +67,20 @@ void GBuffer::unbind() {
 	m_fbo->unbind();
 }
 
-void GBuffer::bind_textures() {
+void GBuffer::bind_textures(sgl::shader& shader) {
+	shader["uTexColor"] = 0;
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, *m_color);
+
+	shader["uTexPosition"] = 1;
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, *m_position);
+
+	shader["uTexNormal"] = 2;
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, *m_normal);
+
+	shader["uTexDepth"] = 3;
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, *m_depth);
 }

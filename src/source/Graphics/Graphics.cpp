@@ -58,4 +58,3 @@ void Graphics::setBlendFunc(const int src, const int dst, const int src_alpha, c
 	m_currentGlState.blend_dst_alpha = dst_alpha;
 	glBlendFuncSeparate(m_currentGlState.blend_src, m_currentGlState.blend_dst, m_currentGlState.blend_src_alpha, m_currentGlState.blend_dst_alpha);
 }
-

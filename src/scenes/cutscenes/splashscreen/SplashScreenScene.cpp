@@ -14,9 +14,9 @@ bool SplashScreenScene::onCreate() {
 	m_logoTexture = new sgl::texture{};
 	int width, height, nChannels;
 	stbi_set_flip_vertically_on_load(false);
-	unsigned char *data = stbi_load("res/images/ui/splash_logo.png", &width, &height, &nChannels, 0);
+	unsigned char *data = stbi_load("res/images/ui/placeholder.png", &width, &height, &nChannels, 0);
 	if (!data) return false;
-	m_logoTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgba, sgl::texture::datatype::u8);
+	m_logoTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgb, sgl::texture::datatype::u8);
 	stbi_image_free(data);
 
 	// load shader
@@ -50,6 +50,13 @@ bool SplashScreenScene::onCreate() {
 	YGNodeRef layout = (YGNode*)lua_touserdata(L, -1);
 	lua_pop(L, 1);
 	m_layout = layout;
+
+	// create layout
+
+	ImageWidget* logoWidget = new ImageWidget(0);
+
+	m_ui.setLayout(layout);
+	m_ui.setWidget("logo", logoWidget);
 
 	return true;
 }
@@ -91,8 +98,8 @@ void SplashScreenScene::drawLayout(YGNodeRef parent, glm::mat4 view, float z) {
 	glm::mat4 model = glm::scale(
 		glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, z)),
 		glm::vec3(w, h, 1.0f));
-	m_logoShader->operator[]("uView") = view;
-	m_logoShader->operator[]("uModel") = model;
+	m_logoShader->uniform("uView") = view;
+	m_logoShader->uniform("uModel") = model;
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	
 	for (uint32_t i = 0; i < YGNodeGetChildCount(parent); ++i) {
@@ -107,9 +114,13 @@ void SplashScreenScene::onRender() {
 
 	float width = m_camera->getScreenWidth();
 	float height = m_camera->getScreenHeight();
-	m_logoShader->operator[]("uProjection") = glm::ortho(0.0f, width, height, 0.0f); //m_camera->getHudProjection();
-	m_logoShader->operator[]("uView") = glm::mat4(1.0f);
-	m_logoShader->operator[]("uModel") = glm::mat4(1.0f);
+	m_logoShader->uniform("uProjection") = glm::ortho(0.0f, width, height, 0.0f); //m_camera->getHudProjection();
+	m_logoShader->uniform("uView") = glm::mat4(1.0f);
+	m_logoShader->uniform("uModel") = glm::mat4(1.0f);
+	m_logoShader->uniform("uTexture") = 0;
+
+	glActiveTexture(GL_TEXTURE0);
+	m_logoTexture->bind();
 
 	// Yoga wireframe rendering
 	static float lastWidth = 0.0f, lastHeight = 0.0f;

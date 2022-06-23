@@ -1,6 +1,9 @@
 #pragma once
-#include <UI/IWidget.hpp>
+
 #include <GL/gl3w.h>
+#include <glm/glm.hpp>
+
+#include "UI/IWidget.hpp"
 
 class ImageWidget : public IWidget {
 private:
@@ -9,7 +12,8 @@ private:
 
 public:
 	
-	ImageWidget(const std::string name, GLuint texture);
+	ImageWidget(GLuint texture);
 	~ImageWidget();
 
+	void draw(const glm::mat3 &transform) const;
 };

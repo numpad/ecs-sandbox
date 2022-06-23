@@ -79,12 +79,9 @@ extern "C" {
 
 	// Yoga
 	int LUA_YGNodeNew(lua_State *L) {
-		NodeID *ctx;
+		NodeID *ctx = new NodeID;
 		if (lua_isstring(L, -1)) {
-			std::string id = std::string(lua_tostring(L, -1));
-			ctx = new NodeID(id);
-		} else {
-			ctx = new NodeID();
+			ctx->id = std::string(lua_tostring(L, -1));
 		}
 
 		YGNode *node = YGNodeNew();

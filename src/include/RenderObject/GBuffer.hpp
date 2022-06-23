@@ -4,6 +4,7 @@
 #include <sgl/sgl_texture.hpp>
 #include <sgl/sgl_renderbuffer.hpp>
 #include <sgl/sgl_attachment.hpp>
+#include <sgl/sgl_shader.hpp>
 
 class GBuffer {
 public:
@@ -16,7 +17,7 @@ public:
 	void bind();
 	void unbind();
 
-	void bind_textures();
+	void bind_textures(sgl::shader &shader);
 
 
 public: // TODO: should be private

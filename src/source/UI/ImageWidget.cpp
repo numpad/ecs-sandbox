@@ -1,11 +1,15 @@
 #include <UI/ImageWidget.hpp>
 
-ImageWidget::ImageWidget(const std::string name, GLuint texture)
- : IWidget{name}
+ImageWidget::ImageWidget(GLuint texture)
+ : m_texture{texture}
 {
 
 }
 
 ImageWidget::~ImageWidget() {
+
+}
+
+void ImageWidget::draw(const glm::mat3 &transform) const {
 
 }

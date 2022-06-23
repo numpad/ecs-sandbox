@@ -11,6 +11,7 @@
 #include "ecs/systems/IRenderSystem.hpp"
 #include "RenderObject/Camera.hpp"
 #include "Graphics/GLState.hpp"
+#include "Util/Math3d.hpp"
 
 class LightVolumeRenderSystem : public IRenderSystem {
 public:

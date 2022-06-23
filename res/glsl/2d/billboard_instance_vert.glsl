@@ -23,6 +23,6 @@ void main() {
 	vTexCoord = fma(aTexCoord, aTexOffsets.zw, aTexOffsets.xy);
 	vRawTexCoord = aTexCoord;
 	vTextureIndex = aTextureIndex;
-    vNormal = transpose(inverse(mat3(aInstanceModel))) * vec3(0., 0., -1.);
+    vNormal = (inverse(uView) * vec4(0., 0., 1., 0.0)).xyz;
 	gl_Position = uProjection * uView * worldPosition;
 }

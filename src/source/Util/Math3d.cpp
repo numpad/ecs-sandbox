@@ -187,4 +187,11 @@ namespace m3d {
 
 		return normalize(cross(ba, ca));
 	}
+
+	float lightVolumeRadius(vec3 lightColor, float constant, float linear, float quadratic) {
+		float lightMax = std::fmaxf(std::fmaxf(lightColor.r, lightColor.g), lightColor.b);
+		float radius = (-linear + std::sqrt(linear * linear - 4.0f * quadratic * (constant - (256.0f / 5.0f) * lightMax))) / (2.0f * quadratic);
+
+		return radius;
+	}
 }

@@ -67,7 +67,7 @@ void LayoutEditorScene::onUpdate(float dt) {
 			static int flexwrap = YGWrapNoWrap;
 
 			NodeID *nodeId = (NodeID*)YGNodeGetContext(m_selectedNode);
-			Text("Node: %s", nodeId->get_id().c_str());
+			Text("Node: %s", nodeId->id.c_str());
 			if (YGNodeGetChildCount(m_selectedNode) > 0) {
 				if (Button("Select 1st child")) {
 					m_selectedNode = YGNodeGetChild(m_selectedNode, 0);

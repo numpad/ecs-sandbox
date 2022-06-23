@@ -30,11 +30,12 @@ void LightVolumeRenderSystem::draw() {
 	m_shader.use();
 	m_shader["uProjection"] = camera->getProjection();
 	m_shader["uView"] = camera->getView();
+	
 	glBindVertexArray(m_vao);
 
 	GLState glState;
-	glState.depth_write = false;
 	glState.depth_test = true;
+	glState.depth_write = false;
 	glState.cull_face = true;
 	glState.blend = true;
 	glState.blend_src = GL_SRC_ALPHA;

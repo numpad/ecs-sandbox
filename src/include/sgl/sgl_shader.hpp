@@ -254,10 +254,10 @@ namespace sgl {
 		 * @param uniform_name The name of the uniform.
 		 * @return The location of the uniform inside the shader. See glGetUniformLocation()
 		 */
-		GLint uniform(std::string uniform_name) const;
+		GLint uniform_location(std::string uniform_name) const;
 		/** @copydoc sgl::shader::uniform(std::string uniform_name) const */
-		GLint uniform(const char *uniform_name) const;
-		
+		GLint uniform_location(const char *uniform_name) const;
+
 		/**
 		 * @brief Access a uniform inside a shader referenced by its shader location.
 		 *
@@ -283,6 +283,8 @@ namespace sgl {
 		 * @return A sgl::shader_uniform referencing the uniform at @em location inside the current shader.
 		 * @see sgl::shader_uniform
 		 */
+		sgl::shader_uniform uniform(GLint location);
+		/** @copydoc sgl::shader::uniform(GLint location) const */
 		sgl::shader_uniform operator[](GLint location);
 		
 		/**
@@ -305,6 +307,8 @@ namespace sgl {
 		 * @return A sgl::shader_uniform referencing the uniform named @em uniform_name inside the current shader.
 		 * @see sgl::shader_uniform
 		 */
+		sgl::shader_uniform uniform(const char *uniform_name);
+		/** @copydoc sgl::shader::uniform(const char *uniform_name) const */
 		sgl::shader_uniform operator[](const char *uniform_name);
 		
 		/**

@@ -58,4 +58,5 @@ namespace m3d {
 	
 	vec3 triangleCalcNormal(vec3 *triangle);
 	
+	float lightVolumeRadius(vec3 lightColor, float constant = 1.0f, float linear = 0.7f, float quadratic = 1.8f);
 }

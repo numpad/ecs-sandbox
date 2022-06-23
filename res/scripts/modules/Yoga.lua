@@ -13,7 +13,8 @@ ffi.cdef[[
 	typedef enum { YGUnitUndefined, YGUnitPoint, YGUnitPercent, YGUnitAuto } YGUnit;
 	typedef struct { float value; YGUnit unit; } YGValue;
 
-	YGNodeRef YGNodeNew();
+	/* disable creating nodes without context, use the registered LUA_YGNodeNew() instead */
+	/* YGNodeRef YGNodeNew(); */
 	YGNodeRef YGNodeClone(YGNodeRef node);
 	void YGNodeFree(YGNodeRef node);
 	void FFI_CleanupYogaNode(YGNodeRef node);
