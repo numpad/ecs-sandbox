@@ -5,6 +5,7 @@ dna.txt
 *.so.*
 *.so
 bin/
+build/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
@@ -14,5 +15,5 @@ imgui.ini
 compile_commands.json
 run.sh
 .vscode/
-build/
+.cache/
 
