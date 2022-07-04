@@ -19,6 +19,7 @@
 #include "ImprovedTerrain/Bodies/SphereBody.hpp"
 #include "Util/Random.hpp"
 #include "Util/Math3d.hpp"
+#include "AI/BehaviorTree.hpp"
 
 class TowerScene : public IScene {
 public:

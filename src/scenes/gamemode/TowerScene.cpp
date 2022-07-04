@@ -1,4 +1,8 @@
 #include "scenes/gamemode/TowerScene.hpp"
+#include "AI/BehaviorTree/Composites/SequencerNode.hpp"
+#include "AI/BehaviorTree/Composites/SelectorNode.hpp"
+#include "AI/BehaviorTree/Decorators/RetryNode.hpp"
+#include "AI/BehaviorTree/Actions/DebugActionNode.hpp"
 
 extern "C" {
 entt::entity ffi_TowerScene_spawnDefaultEntity(Engine* engine, glm::vec3 pos, glm::vec3 vel, float sx, float sy) {
@@ -102,6 +106,21 @@ entt::entity ffi_TowerScene_spawnDecal(Engine* engine, glm::vec3 pos) {
 	return entity;
 }
 
+entt::entity ffi_TowerScene_spawnFloatingSword(Engine* engine, glm::vec3 pos) {
+	entt::registry& m_registry = ((TowerScene*)engine->getScene())->m_registry;
+	AssetManager& m_assetmanager = ((TowerScene*)engine->getScene())->m_assetmanager;
+
+	Texture* texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
+	
+	entt::entity entity = m_registry.create();
+	m_registry.emplace<CPosition>(entity, pos);
+	m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f, 0.4f));
+	m_registry.emplace<CTextureRegion>(entity, 10.f * 16.0f, 2.f * 16.0f, 16.0f, 32.0f, 256, 256);
+	m_registry.emplace<CTerrainCollider>(entity, false);
+
+	return entity;
+}
+
 void ffi_TowerScene_toMainMenu(Engine* engine) {
 	engine->setActiveScene(new MainMenuScene());
 }
@@ -118,7 +137,7 @@ void ffi_TowerScene_subSphere(Engine* engine, glm::vec3 p, float r) {
 void ffi_TowerScene_subDisk(Engine* engine, glm::vec3 p, float r, float h) {
 	((TowerScene*)engine->getScene())->m_terrain.sub_body(new DiskBody(p, r, h));
 }
-}
+} // extern C
 
 bool TowerScene::onCreate() {
 	m_registry.set<entt::dispatcher>();
@@ -142,6 +161,8 @@ bool TowerScene::onCreate() {
 	m_registry.emplace<COrientedTexture>(m_players[0], 8, 0.f);
 	m_registry.emplace<COrientedTexture>(m_players[1], 8, 0.f);
 
+	ffi_TowerScene_spawnFloatingSword(m_engine, glm::vec3(0.0f, 0.6f, 0.0f));
+	
 	constexpr size_t nlights = 3;
 	const entt::entity lights[nlights] = {m_registry.create(), m_registry.create(), m_registry.create()};
 	for (size_t i = 0; i < nlights; ++i) {
@@ -167,6 +188,24 @@ bool TowerScene::onCreate() {
 	lua_getglobal(T, "update");
 	lua_resume(T, 0);
 	lua_resume(T, 0);
+	
+	DebugActionNode openFridge("Open Fridge", "ff..s");
+	RetryNode tryOpenFridge(3);
+	tryOpenFridge.addChild(&openFridge);
+	DebugActionNode grabBeer("Grab Beer", "f");
+	DebugActionNode closeFridge("Close Fridge", "s");
+
+	SequencerNode seq;
+	seq.addChild(&tryOpenFridge);
+	seq.addChild(&grabBeer);
+	seq.addChild(&closeFridge);
+	BehaviorTree bt(&seq);
+	
+	INode::State state = INode::State::RUNNING;
+	while (state == INode::State::RUNNING) {
+		fmt::print("--- tick ---\n");
+		state = bt.tick(m_registry, entt::null);
+	}
 
 	return true;
 }
@@ -193,7 +232,7 @@ void TowerScene::onUpdate(float dt) {
 	imguiRenderMenuBar(m_engine, m_registry, crosspos, dt);
 	if (ImGui::Begin("Towers")) {
 		ImGui::Text("Camera");
-		ImGui::Text("Registry size: %d", m_registry.size());
+		ImGui::Text("Registry size: %ld", m_registry.size());
 		ImGui::SliderFloat("Distance", &basedist, 1.f, 10.f);
 		ImGui::DragFloat("Rotation", &rotation_speed, 0.0002f);
 		ImGui::SliderFloat("Height", &height, 0.f, 7.f);
@@ -203,7 +242,7 @@ void TowerScene::onUpdate(float dt) {
 	ImGui::End();
 
 	if (ImGui::Begin("Terminal")) {
-		ImGui::Image((void*)m_terminal.getTexture(), ImVec2(256.0f, 256.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		ImGui::Image((void*)(uintptr_t)m_terminal.getTexture(), ImVec2(256.0f, 256.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 	}
 	ImGui::End();
 

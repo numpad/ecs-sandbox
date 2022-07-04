@@ -91,7 +91,7 @@ void BillboardRenderSystem::draw() {
 
 		int j = 0;
 		for (auto i : boundTextures) {
-			Image((void*)i->getTexture(), ImVec2(100.f, 100.f * i->getAspectRatio()), ImVec2(0, 1), ImVec2(1, 0));
+			Image((void*)(uintptr_t)i->getTexture(), ImVec2(100.f, 100.f * i->getAspectRatio()), ImVec2(0, 1), ImVec2(1, 0));
 			SameLine();
 			GLint b;
 			glActiveTexture(GL_TEXTURE0 + j);

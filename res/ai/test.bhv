@@ -1,0 +1,37 @@
+
+-- control nodes
+function Sequence(args)
+	return {}
+end
+function Select(args)
+	return {}
+end
+-- decorator nodes
+function Inverter(args)
+	return {}
+end
+-- action node(s)
+function Action(args)
+	return {}
+end
+-- condition node(s)
+function Condition(args)
+	return {}
+end
+
+-- Problem: If "Grab Beer" fails, the door stays open
+fetchBeer = Sequence{
+	Action{"Open Fridge",  state = '..s'},
+	Action{"Grab Beer",    state = 's'  },
+	Action{"Close Fridge", state = '.s' },
+}
+
+enterRoom = Sequence{
+	Sequence{
+		Inverter{Condition{"Is Door Open?"}},
+		Retry{Action{"Open Door"}, times = 5}
+	},
+	Action{"Enter Room"},
+	Action{"Close Door"},
+}
+
