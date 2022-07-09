@@ -219,7 +219,7 @@ void Engine::run() {
 				const float wwidth = ImGui::GetWindowWidth() * 0.47f; // meh
 				const float aspect = preview_gbuffer->get_height() / float(preview_gbuffer->get_width());
 
-				ImGui::Image((void*)preview_gbuffer->get_texture(), ImVec2(wwidth, wwidth * aspect), ImVec2(0.0f, 1.0f),
+				ImGui::Image((void*)(intptr_t)preview_gbuffer->get_texture(), ImVec2(wwidth, wwidth * aspect), ImVec2(0.0f, 1.0f),
 				             ImVec2(1.0f, 0.0f));
 
 				if (iteration++ % 2 == 0) {

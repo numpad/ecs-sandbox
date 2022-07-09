@@ -35,3 +35,7 @@ enterRoom = Sequence{
 	Action{"Close Door"},
 }
 
+idleWalk = {
+
+}
+

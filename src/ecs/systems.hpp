@@ -1,4 +1,4 @@
-// a0aa9581200c53d44d5c4d7a27ea8d866bbc4922
+// d30ed764abf5c0915d54b899ee1f07a09cedefdc
 #pragma once
 
 #include <ecs/systems/DamageSystem.hpp>
@@ -22,5 +22,6 @@
 #include <ecs/systems/BillboardRenderSystem.hpp>
 #include <ecs/systems/TextureOrientationSystem.hpp>
 #include <ecs/systems/TerrainCollisionSystem.hpp>
+#include <ecs/systems/AISystem.hpp>
 #include <ecs/systems/CharacterControllerSystem.hpp>
 #include <ecs/systems/CHealthbarRenderSystem.hpp>

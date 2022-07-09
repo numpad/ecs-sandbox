@@ -1,8 +1,15 @@
 #include "scenes/gamemode/TowerScene.hpp"
+#include "AI/BehaviorTree.hpp"
+#include "AI/BehaviorTree/Actions/LambdaActionNode.hpp"
+#include "AI/BehaviorTree/Actions/TimeoutNode.hpp"
 #include "AI/BehaviorTree/Composites/SequencerNode.hpp"
 #include "AI/BehaviorTree/Composites/SelectorNode.hpp"
+#include "AI/BehaviorTree/Conditions/IsNearEntity.hpp"
 #include "AI/BehaviorTree/Decorators/RetryNode.hpp"
 #include "AI/BehaviorTree/Actions/DebugActionNode.hpp"
+#include "ecs/components/CBehavior.hpp"
+#include "ecs/components/CVelocity.hpp"
+#include "ecs/systems/AISystem.hpp"
 
 extern "C" {
 entt::entity ffi_TowerScene_spawnDefaultEntity(Engine* engine, glm::vec3 pos, glm::vec3 vel, float sx, float sy) {
@@ -111,7 +118,7 @@ entt::entity ffi_TowerScene_spawnFloatingSword(Engine* engine, glm::vec3 pos) {
 	AssetManager& m_assetmanager = ((TowerScene*)engine->getScene())->m_assetmanager;
 
 	Texture* texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
-	
+
 	entt::entity entity = m_registry.create();
 	m_registry.emplace<CPosition>(entity, pos);
 	m_registry.emplace<CBillboard>(entity, texture, glm::vec2(0.2f, 0.4f));
@@ -149,6 +156,7 @@ bool TowerScene::onCreate() {
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
 
+	// create players
 	m_players.push_back(
 	    ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 0.f, 0.f));
 	m_players.push_back(
@@ -161,8 +169,35 @@ bool TowerScene::onCreate() {
 	m_registry.emplace<COrientedTexture>(m_players[0], 8, 0.f);
 	m_registry.emplace<COrientedTexture>(m_players[1], 8, 0.f);
 
+	// build scene
 	ffi_TowerScene_spawnFloatingSword(m_engine, glm::vec3(0.0f, 0.6f, 0.0f));
-	
+	{
+		// create npc, and give him a brain
+		entt::entity npc =
+		    ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f), 0.0f, 1.0f);
+		m_registry.emplace<COrientedTexture>(npc, 8, 0.f);
+
+		IsNearEntity* isNearPlayer = new IsNearEntity(m_players[0], 0.3f);
+		LambdaActionNode* jump = new LambdaActionNode([](entt::registry& registry, const entt::entity& entity) {
+			auto* pos = registry.try_get<CPosition>(entity);
+			auto& vel = registry.get_or_emplace<CVelocity>(entity, glm::vec3(0.0f));
+			if (pos) {
+				pos->pos.y += 0.075f;
+			}
+
+			vel.vel.y = 0.01f;
+			return INode::State::SUCCESS;
+		});
+		TimeoutNode* waitSomeTime = new TimeoutNode(0.5f);
+		SequencerNode* cryIfPlayerNear = new SequencerNode();
+		cryIfPlayerNear->addChild(isNearPlayer);
+		cryIfPlayerNear->addChild(waitSomeTime);
+		cryIfPlayerNear->addChild(jump);
+
+		BehaviorTree* npcBehavior = new BehaviorTree(cryIfPlayerNear);
+		m_registry.emplace<CBehavior>(npc, npcBehavior);
+	}
+
 	constexpr size_t nlights = 3;
 	const entt::entity lights[nlights] = {m_registry.create(), m_registry.create(), m_registry.create()};
 	for (size_t i = 0; i < nlights; ++i) {
@@ -188,24 +223,6 @@ bool TowerScene::onCreate() {
 	lua_getglobal(T, "update");
 	lua_resume(T, 0);
 	lua_resume(T, 0);
-	
-	DebugActionNode openFridge("Open Fridge", "ff..s");
-	RetryNode tryOpenFridge(3);
-	tryOpenFridge.addChild(&openFridge);
-	DebugActionNode grabBeer("Grab Beer", "f");
-	DebugActionNode closeFridge("Close Fridge", "s");
-
-	SequencerNode seq;
-	seq.addChild(&tryOpenFridge);
-	seq.addChild(&grabBeer);
-	seq.addChild(&closeFridge);
-	BehaviorTree bt(&seq);
-	
-	INode::State state = INode::State::RUNNING;
-	while (state == INode::State::RUNNING) {
-		fmt::print("--- tick ---\n");
-		state = bt.tick(m_registry, entt::null);
-	}
 
 	return true;
 }
@@ -242,7 +259,8 @@ void TowerScene::onUpdate(float dt) {
 	ImGui::End();
 
 	if (ImGui::Begin("Terminal")) {
-		ImGui::Image((void*)(uintptr_t)m_terminal.getTexture(), ImVec2(256.0f, 256.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
+		ImGui::Image((void*)(uintptr_t)m_terminal.getTexture(), ImVec2(256.0f, 256.0f), ImVec2(0.0f, 1.0f),
+		             ImVec2(1.0f, 0.0f));
 	}
 	ImGui::End();
 
@@ -304,6 +322,7 @@ void TowerScene::loadSystems() {
 	m_updatesystems.emplace_back(new DespawnSystem(m_registry, -1.f));
 	m_updatesystems.emplace_back(new EntityDeleteSystem(m_registry));
 	m_updatesystems.emplace_back(new AudioSystem(m_registry, m_assetmanager));
+	m_updatesystems.emplace_back(new AISystem(m_registry));
 
 	// and render systems
 	// m_rendersystems.emplace_back(new TerrainRenderSystem(m_registry, m_camera, assetManager, chunkedWorld));

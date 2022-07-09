@@ -1,4 +1,4 @@
-// c6fb9975ff210d39dbe86a7afb8cd7be8b3c1b9a
+// 160541ecedef37f6375e0c661918a554a8b1e940
 #pragma once
 
 #include <ecs/components/CVelocity.hpp>
@@ -16,6 +16,7 @@
 #include <ecs/components/CProjectile.hpp>
 #include <ecs/components/CDamageOverTime.hpp>
 #include <ecs/components/CJumpTimer.hpp>
+#include <ecs/components/CBehavior.hpp>
 #include <ecs/components/CCamera.hpp>
 #include <ecs/components/CTerrainCollider.hpp>
 #include <ecs/components/CSpawnPoint.hpp>

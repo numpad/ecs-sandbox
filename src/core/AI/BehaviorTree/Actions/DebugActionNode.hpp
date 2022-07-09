@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdlib.h>
 #include <string>
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -13,22 +14,28 @@ public:
 
 protected:
 	State tick(entt::registry& registry, const entt::entity& entity) {
-		fmt::print(fmt::emphasis::bold, "{}: ", m_description);
-		const char state = m_states.at(m_stateIndex);
+		char state = m_states.at(m_stateIndex);
 		if (m_stateIndex < m_states.size() - 1) {
 			m_stateIndex++;
+		}
+		
+		if (state == '?') {
+			if (rand() % 100 < 50) state = 's';
+			else                   state = '-';
+
+			fmt::print(fmt::emphasis::bold, "random:");
 		}
 
 		switch (state) {
 		case '.':
-			fmt::print(fmt::fg(fmt::terminal_color::yellow), "running...\n");
+			fmt::print(fmt::fg(fmt::terminal_color::yellow), "{} In Progress\n", m_description);
 			return State::RUNNING;
 		case '+':
 		case 's':
-			fmt::print(fmt::fg(fmt::terminal_color::green), "success!\n");
+			fmt::print(fmt::fg(fmt::terminal_color::green), "{} Complete!\n", m_description);
 			return State::SUCCESS;
 		default:
-			fmt::print(fmt::fg(fmt::terminal_color::red), "fail!\n");
+			fmt::print(fmt::fg(fmt::terminal_color::red), "{} Failed!\n", m_description);
 			return State::FAILURE;
 		};
 	}

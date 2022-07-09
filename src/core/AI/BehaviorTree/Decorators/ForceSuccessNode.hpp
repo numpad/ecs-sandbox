@@ -8,12 +8,11 @@ protected:
 	virtual State tick(entt::registry& registry, const entt::entity& entity) {
 		assert(m_children.size() == 1);
 
-		const State childState = m_children[0]->tick(registry, entity);
-
-		if (childState == State::FAILURE) {
-			return State::SUCCESS;
+		const State state = m_children[0]->onTick(registry, entity);
+		if (state == State::RUNNING) {
+			return State::RUNNING;
 		}
 
-		return childState;
+		return State::SUCCESS;
 	}
 };

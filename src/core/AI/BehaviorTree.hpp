@@ -8,7 +8,7 @@ public:
 	}
 
 	INode::State tick(entt::registry& registry, const entt::entity& entity) {
-		return m_rootNode->tick(registry, entity);
+		return m_rootNode->onTick(registry, entity);
 	}
 
 private:
