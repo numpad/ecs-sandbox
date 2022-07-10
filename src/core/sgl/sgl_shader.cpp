@@ -39,7 +39,7 @@ void sgl::shader::reload() {
 	this->link();
 }
 
-void sgl::shader::use() {
+void sgl::shader::use() const {
 	glUseProgram(this->program);
 }
 
@@ -161,19 +161,19 @@ sgl::shader::operator GLuint() const {
 	return this->program;
 }
 
-sgl::shader_uniform sgl::shader::operator[](const char* uniform_name) {
+sgl::shader_uniform sgl::shader::operator[](const char* uniform_name) const {
 	return sgl::shader_uniform(this->program, this->uniform_location(uniform_name));
 }
 
-sgl::shader_uniform sgl::shader::operator[](GLint location) {
+sgl::shader_uniform sgl::shader::operator[](GLint location) const {
 	return sgl::shader_uniform(this->program, location);
 }
 
-sgl::shader_uniform sgl::shader::uniform(const char* uniform_name) {
+sgl::shader_uniform sgl::shader::uniform(const char* uniform_name) const {
 	return sgl::shader_uniform(this->program, this->uniform_location(uniform_name));
 }
 
-sgl::shader_uniform sgl::shader::uniform(GLint location) {
+sgl::shader_uniform sgl::shader::uniform(GLint location) const {
 	return sgl::shader_uniform(this->program, location);
 }
 

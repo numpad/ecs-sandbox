@@ -219,7 +219,7 @@ public:
 	 *
 	 * @todo
 	 */
-	void use();
+	void use() const;
 
 	/**
 	 * @brief Get the location of the uniform @em uniform_name.
@@ -273,9 +273,9 @@ public:
 	 * @return A sgl::shader_uniform referencing the uniform at @em location inside the current shader.
 	 * @see sgl::shader_uniform
 	 */
-	sgl::shader_uniform uniform(GLint location);
+	sgl::shader_uniform uniform(GLint location) const;
 	/** @copydoc sgl::shader::uniform(GLint location) const */
-	sgl::shader_uniform operator[](GLint location);
+	sgl::shader_uniform operator[](GLint location) const;
 
 	/**
 	 * @brief Access a uniform inside a shader referenced by its name.
@@ -297,9 +297,9 @@ public:
 	 * @return A sgl::shader_uniform referencing the uniform named @em uniform_name inside the current shader.
 	 * @see sgl::shader_uniform
 	 */
-	sgl::shader_uniform uniform(const char* uniform_name);
+	sgl::shader_uniform uniform(const char* uniform_name) const;
 	/** @copydoc sgl::shader::uniform(const char *uniform_name) const */
-	sgl::shader_uniform operator[](const char* uniform_name);
+	sgl::shader_uniform operator[](const char* uniform_name) const;
 
 	/**
 	 * @brief Loads a shader of type @em type from file at @em fname.

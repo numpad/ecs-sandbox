@@ -22,13 +22,8 @@ private:
 	double m_elapsedTime = 0.0;
 
 	sgl::texture* m_logoTexture = nullptr;
-	sgl::shader* m_logoShader;
 	YGNodeRef m_layout;
 	Layout m_ui;
-
-	GLuint m_vao, m_vbo;
-	void createLogo();
-	void drawLayout(YGNodeRef parent, glm::mat4 view, float z = -0.9f);
 
 	void onKeyInput(const KeyEvent& event);
 };

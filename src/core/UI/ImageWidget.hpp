@@ -3,15 +3,18 @@
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
+#include "sgl/sgl_shader.hpp"
 #include "UI/IWidget.hpp"
 
 class ImageWidget : public IWidget {
-private:
-	GLuint m_texture;
-
 public:
 	ImageWidget(GLuint texture);
 	~ImageWidget();
 
 	void draw(const glm::mat3& transform) const;
+
+private:
+	GLuint m_texture;
+	GLuint m_vao, m_vbo, m_ebo;
+	sgl::shader m_shader;
 };

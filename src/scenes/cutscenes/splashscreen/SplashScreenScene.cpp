@@ -21,21 +21,12 @@ bool SplashScreenScene::onCreate() {
 	                    sgl::texture::datatype::u8);
 	stbi_image_free(data);
 
-	// load shader
-	m_logoShader = new sgl::shader{};
-	m_logoShader->load("res/glsl/ui/image_vert.glsl", sgl::shader::VERTEX);
-	m_logoShader->load("res/glsl/ui/image_frag.glsl", sgl::shader::FRAGMENT);
-	m_logoShader->compile();
-	m_logoShader->link();
-
-	createLogo();
-
 	lua_State* L = m_engine->getLuaState();
 
 	if (luaL_dofile(L, "res/scripts/layout/splash.lua")) {
 		const char* err = lua_tostring(L, -1);
-		fmt::print("Error loading layout!\n");
-		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n");
+		fmt::print("Error loading layout:\n");
+		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n", err);
 		lua_pop(L, 1);
 		return false;
 	}
@@ -54,8 +45,8 @@ bool SplashScreenScene::onCreate() {
 	m_layout = layout;
 
 	// create layout
-
-	ImageWidget* logoWidget = new ImageWidget(0);
+	
+	ImageWidget* logoWidget = new ImageWidget(m_logoTexture->get_texture());
 
 	m_ui.setLayout(layout);
 	m_ui.setWidget("logo", logoWidget);
@@ -67,9 +58,6 @@ void SplashScreenScene::onDestroy() {
 	m_engine->getDispatcher().sink<KeyEvent>().disconnect(this);
 
 	delete m_logoTexture;
-	delete m_logoShader;
-	glDeleteVertexArrays(1, &m_vao);
-	glDeleteBuffers(1, &m_vbo);
 }
 
 void SplashScreenScene::onUpdate(float dt) {
@@ -89,6 +77,7 @@ void SplashScreenScene::onKeyInput(const KeyEvent& event) {
 	m_engine->setActiveScene(new MainMenuScene{});
 }
 
+/*
 void SplashScreenScene::drawLayout(YGNodeRef parent, glm::mat4 view, float z) {
 	float x = YGNodeLayoutGetLeft(parent);
 	float y = YGNodeLayoutGetTop(parent);
@@ -106,6 +95,7 @@ void SplashScreenScene::drawLayout(YGNodeRef parent, glm::mat4 view, float z) {
 		drawLayout(child, view, z += 0.01f);
 	}
 }
+*/
 
 void SplashScreenScene::onRender() {
 	glClearColor(0.24f, 0.58f, 1.0f, 1.f);
@@ -113,13 +103,6 @@ void SplashScreenScene::onRender() {
 
 	float width = m_camera->getScreenWidth();
 	float height = m_camera->getScreenHeight();
-	m_logoShader->uniform("uProjection") = glm::ortho(0.0f, width, height, 0.0f); // m_camera->getHudProjection();
-	m_logoShader->uniform("uView") = glm::mat4(1.0f);
-	m_logoShader->uniform("uModel") = glm::mat4(1.0f);
-	m_logoShader->uniform("uTexture") = 0;
-
-	glActiveTexture(GL_TEXTURE0);
-	m_logoTexture->bind();
 
 	// Yoga wireframe rendering
 	static float lastWidth = 0.0f, lastHeight = 0.0f;
@@ -130,25 +113,5 @@ void SplashScreenScene::onRender() {
 		fmt::print("layout has been updated!\n");
 	}
 
-	m_logoShader->use();
-	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	drawLayout(m_layout, glm::mat4(1.0f));
-}
-
-void SplashScreenScene::createLogo() {
-	glGenVertexArrays(1, &m_vao);
-	glGenBuffers(1, &m_vbo);
-
-	GLfloat vertices[] = {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-	                      0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f};
-
-	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(0 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+	m_ui.draw();
 }
