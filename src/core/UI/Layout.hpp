@@ -8,7 +8,6 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 #include "UI/IWidget.hpp"
-#include "UI/NodeID.hpp"
 
 typedef std::unordered_map<std::string, IWidget*> WidgetMap;
 
@@ -17,13 +16,18 @@ public:
 	Layout();
 
 	void draw() const;
+	
+	void resize(glm::vec2 size);
 
 	void setLayout(YGNode* layout);
 	void setWidget(std::string name, IWidget* widget);
 
+	void deleteWidgets();
+
 private:
+	glm::vec2 m_size;
 	YGNode* m_layout = nullptr;
 	WidgetMap m_widgetMapping;
-
+	
 	void drawChildren(YGNode* node, glm::mat3 view) const;
 };

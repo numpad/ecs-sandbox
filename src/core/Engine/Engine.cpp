@@ -1,4 +1,5 @@
 #include "Engine/Engine.hpp"
+#include "ecs/events.hpp"
 
 Engine* Engine::Instance = nullptr;
 
@@ -39,6 +40,12 @@ static void callback_key_pressed(GLFWwindow* window, int key, int scancode, int 
 	}
 
 	engine->getDispatcher().enqueue<KeyEvent>(key, scancode, action, mods);
+}
+
+static void callback_char_input(GLFWwindow* window, unsigned int codepoint) {
+	Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(Engine::getMainWindow()));
+	
+	engine->getDispatcher().enqueue<TextInputEvent>(codepoint);
 }
 
 static void callback_mouse_input(GLFWwindow* window, int button, int action, int mods) {
@@ -110,6 +117,7 @@ bool Engine::initialize() {
 	glfwSetWindowCloseCallback(m_window, callback_window_close);
 	glfwSetJoystickCallback(callback_joystick_connected);
 	glfwSetKeyCallback(m_window, callback_key_pressed);
+	glfwSetCharCallback(m_window, callback_char_input);
 	glfwSetMouseButtonCallback(m_window, callback_mouse_input);
 
 	// set global main window

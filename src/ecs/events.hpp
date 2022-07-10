@@ -1,4 +1,4 @@
-// c0c7847774e49f3d4a3eec75802f9e60a141db3e
+// 3690b2fb8e412de58bacf8e22c75872c4617bcb3
 #pragma once
 
 #include <ecs/events/MouseButtonEvent.hpp>
@@ -10,5 +10,6 @@
 #include <ecs/events/WindowResizeEvent.hpp>
 #include <ecs/events/LogEvent.hpp>
 #include <ecs/events/PlaySoundEvent.hpp>
+#include <ecs/events/TextInputEvent.hpp>
 #include <ecs/events/WorldTextEvent.hpp>
 #include <ecs/events/WindowCloseEvent.hpp>

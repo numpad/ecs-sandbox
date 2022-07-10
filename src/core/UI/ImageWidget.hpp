@@ -11,7 +11,7 @@ public:
 	ImageWidget(GLuint texture);
 	~ImageWidget();
 
-	void draw(const glm::mat3& transform) const;
+	void draw(const glm::mat3& view, const glm::mat3& model) const;
 
 private:
 	GLuint m_texture;

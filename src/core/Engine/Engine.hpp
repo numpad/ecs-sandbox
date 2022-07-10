@@ -36,8 +36,6 @@
 #include <RenderObject/GBuffer.hpp>
 #include <Script/FFI.hpp>
 
-#include <ecs/events.hpp>
-
 class Engine {
 public:
 	Engine(EngineConfig config = EngineConfig());

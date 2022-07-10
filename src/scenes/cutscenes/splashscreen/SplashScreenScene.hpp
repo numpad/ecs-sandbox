@@ -22,8 +22,9 @@ private:
 	double m_elapsedTime = 0.0;
 
 	sgl::texture* m_logoTexture = nullptr;
+	sgl::texture* m_profileTexture = nullptr;
 	YGNodeRef m_layout;
 	Layout m_ui;
 
-	void onKeyInput(const KeyEvent& event);
+	void onKeyInput(const TextInputEvent& event);
 };

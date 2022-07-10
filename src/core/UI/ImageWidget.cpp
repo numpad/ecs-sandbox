@@ -1,8 +1,11 @@
 #include "UI/ImageWidget.hpp"
+#include "Engine/Engine.hpp"
 #include <GL/gl3w.h>
+#include <GL/glcorearb.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 ImageWidget::ImageWidget(GLuint texture) : m_texture{texture} {
+	// TODO: Obviously we dont need this for every ImageWidget, look where to put this...
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_vbo);
 	glGenBuffers(1, &m_ebo);
@@ -39,13 +42,13 @@ ImageWidget::~ImageWidget() {
 	glDeleteBuffers(1, &m_ebo);
 }
 
-void ImageWidget::draw(const glm::mat3& transform) const {
+void ImageWidget::draw(const glm::mat3& view, const glm::mat3& model) const {
 	m_shader.use();
 
-	float width = 800, height = 600;
-	m_shader["uProjection"] = glm::ortho(0.0f, width, height, 0.0f);
-	m_shader["uView"] = glm::mat4(transform);
-	m_shader["uModel"] = glm::mat4(1.0f);
+	glm::vec2 size = Engine::Instance->getWindow().getSize(); // TODO: this works, but for the wrong reasons
+	m_shader["uProjection"] = glm::ortho(0.0f, size.x, size.y, 0.0f);
+	m_shader["uView"] = glm::mat4(view);
+	m_shader["uModel"] = glm::mat4(model);
 	m_shader["uTexture"] = 0;
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);

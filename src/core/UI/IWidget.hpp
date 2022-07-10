@@ -8,7 +8,7 @@ public:
 	virtual ~IWidget() {
 	}
 
-	virtual void draw(const glm::mat3& transform) const = 0;
+	virtual void draw(const glm::mat3& view, const glm::mat3& model) const = 0;
 
 private:
 };

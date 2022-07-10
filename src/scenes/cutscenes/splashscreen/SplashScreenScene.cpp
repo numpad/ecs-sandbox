@@ -1,25 +1,43 @@
-#include <scenes/cutscenes/splashscreen/SplashScreenScene.hpp>
+#include "ecs/events/TextInputEvent.hpp"
+#include "scenes/cutscenes/splashscreen/SplashScreenScene.hpp"
 
 ////////////
 // PUBLIC //
 ////////////
 
 bool SplashScreenScene::onCreate() {
-	m_engine->getDispatcher().sink<KeyEvent>().connect<&SplashScreenScene::onKeyInput>(this);
+	Engine::Instance->getConfig().imgui_enabled = false;
+	m_engine->getDispatcher().sink<TextInputEvent>().connect<&SplashScreenScene::onKeyInput>(this);
 
-	m_camera = new Camera{glm::vec3(0.0f, 0.0f, 1.0f)};
+	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f));
 	m_camera->setTarget(glm::vec3(0.0f));
 
-	// load texture
-	m_logoTexture = new sgl::texture{};
-	int width, height, nChannels;
-	stbi_set_flip_vertically_on_load(false);
-	unsigned char* data = stbi_load("res/images/ui/placeholder.png", &width, &height, &nChannels, 0);
-	if (!data)
-		return false;
-	m_logoTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgb,
-	                    sgl::texture::datatype::u8);
-	stbi_image_free(data);
+	// load textures
+	// TODO: improve boilerplate
+	{
+		m_logoTexture = new sgl::texture{};
+		int width, height, nChannels;
+		stbi_set_flip_vertically_on_load(false);
+		unsigned char* data = stbi_load("res/images/ui/engine_logo.png", &width, &height, &nChannels, 0);
+		if (!data)
+			return false;
+		m_logoTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgba,
+							sgl::texture::datatype::u8);
+		
+		stbi_image_free(data);
+	}
+	{
+		m_profileTexture = new sgl::texture{};
+		int width, height, nChannels;
+		stbi_set_flip_vertically_on_load(false);
+		unsigned char* data = stbi_load("res/images/ui/profile_picture.png", &width, &height, &nChannels, 0);
+		if (!data)
+			return false;
+		m_profileTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgba,
+							sgl::texture::datatype::u8);
+		
+		stbi_image_free(data);
+	}
 
 	lua_State* L = m_engine->getLuaState();
 
@@ -45,26 +63,31 @@ bool SplashScreenScene::onCreate() {
 	m_layout = layout;
 
 	// create layout
-	
+	m_logoTexture->set_filter(sgl::texture::filter::nearest);
+	m_profileTexture->set_filter(sgl::texture::filter::linear);
 	ImageWidget* logoWidget = new ImageWidget(m_logoTexture->get_texture());
+	ImageWidget* numpadWidget = new ImageWidget(m_profileTexture->get_texture());
 
 	m_ui.setLayout(layout);
 	m_ui.setWidget("logo", logoWidget);
+	m_ui.setWidget("profile", numpadWidget);
 
 	return true;
 }
 
 void SplashScreenScene::onDestroy() {
-	m_engine->getDispatcher().sink<KeyEvent>().disconnect(this);
+	m_engine->getDispatcher().sink<TextInputEvent>().disconnect(this);
 
 	delete m_logoTexture;
+	delete m_profileTexture;
+	m_ui.deleteWidgets();
 }
 
 void SplashScreenScene::onUpdate(float dt) {
 	m_elapsedTime += (double)dt;
 
 	// switch to next scene
-	if (m_elapsedTime > 3.f) {
+	if (m_elapsedTime > 4.0f) {
 		m_engine->setActiveScene(new MainMenuScene{});
 	}
 }
@@ -73,45 +96,16 @@ void SplashScreenScene::onUpdate(float dt) {
 // PRIVATE //
 /////////////
 
-void SplashScreenScene::onKeyInput(const KeyEvent& event) {
-	m_engine->setActiveScene(new MainMenuScene{});
+void SplashScreenScene::onKeyInput(const TextInputEvent& event) {
+	m_engine->setActiveScene(new MainMenuScene());
 }
-
-/*
-void SplashScreenScene::drawLayout(YGNodeRef parent, glm::mat4 view, float z) {
-	float x = YGNodeLayoutGetLeft(parent);
-	float y = YGNodeLayoutGetTop(parent);
-	float w = YGNodeLayoutGetWidth(parent);
-	float h = YGNodeLayoutGetHeight(parent);
-
-	view = glm::translate(view, glm::vec3(x, y, 0.0f));
-	glm::mat4 model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, z)), glm::vec3(w, h, 1.0f));
-	m_logoShader->uniform("uView") = view;
-	m_logoShader->uniform("uModel") = model;
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-
-	for (uint32_t i = 0; i < YGNodeGetChildCount(parent); ++i) {
-		YGNodeRef child = YGNodeGetChild(parent, i);
-		drawLayout(child, view, z += 0.01f);
-	}
-}
-*/
 
 void SplashScreenScene::onRender() {
-	glClearColor(0.24f, 0.58f, 1.0f, 1.f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.35f, 0.15f, 0.24f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	float width = m_camera->getScreenWidth();
 	float height = m_camera->getScreenHeight();
-
-	// Yoga wireframe rendering
-	static float lastWidth = 0.0f, lastHeight = 0.0f;
-	if (lastWidth != width || lastHeight != height) {
-		lastWidth = width;
-		lastHeight = height;
-		YGNodeCalculateLayout(m_layout, width, height, YGDirectionLTR);
-		fmt::print("layout has been updated!\n");
-	}
-
+	m_ui.resize(glm::vec2(width, height));
 	m_ui.draw();
 }
