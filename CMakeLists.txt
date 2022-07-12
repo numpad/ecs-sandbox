@@ -42,6 +42,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/backends")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/yoga")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/glm")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include/")
 
 file (GLOB_RECURSE source_files
 	"${PROJECT_BASE_SRC}/*.cpp"
@@ -65,15 +66,9 @@ add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_fi
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glfw)
 
-# cereal
-find_package(cereal CONFIG REQUIRED)
-
 # assimp
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE assimp::assimp)
-
-# entt
-include_directories("${PROJECT_LIBRARY_DIR}/")
 
 # openal soft
 find_package(OpenAL CONFIG REQUIRED)
