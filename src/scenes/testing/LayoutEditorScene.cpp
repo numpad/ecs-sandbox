@@ -11,7 +11,7 @@ bool LayoutEditorScene::onCreate() {
 	loadLayout(m_files.at(0));
 
 	lua_State* L = m_engine->getLuaState();
-	
+
 	return true;
 }
 
@@ -182,7 +182,7 @@ void LayoutEditorScene::updateFiles() {
 
 void LayoutEditorScene::loadLayout(const std::string& filename) {
 	lua_State* L = m_engine->getLuaState();
-	
+
 	// parse layout file
 	if (luaL_dofile(m_engine->getLuaState(), std::string("res/scripts/layout/" + filename).c_str())) {
 		const char* err = lua_tostring(L, -1);
@@ -212,4 +212,3 @@ void LayoutEditorScene::loadLayout(const std::string& filename) {
 	m_ui.resize(glm::vec2(m_camera->getScreenSize()));
 	m_selectedNode = layout;
 }
-

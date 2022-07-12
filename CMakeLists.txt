@@ -41,7 +41,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/gl3w/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/backends")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/yoga")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imnodes")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/glm")
 
 file (GLOB_RECURSE source_files
 	"${PROJECT_BASE_SRC}/*.cpp"
@@ -78,10 +78,6 @@ include_directories("${PROJECT_LIBRARY_DIR}/")
 # openal soft
 find_package(OpenAL CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL\:\:OpenAL)
-
-# glm
-find_package(glm CONFIG REQUIRED)
-#target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
 
 # luajit
 # WIP
