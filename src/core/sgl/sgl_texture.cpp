@@ -1,4 +1,5 @@
 #include "sgl/sgl_texture.hpp"
+#include <stb/stb_image.h>
 
 sgl::texture::texture() {
 	glGenTextures(1, &m_handle);
@@ -26,7 +27,7 @@ void sgl::texture::set_filter(filter min, filter mag) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(mag));
 	unbind();
 }
-#include <stdio.h>
+
 bool sgl::texture::load(int width, int height, sgl::texture::internalformat internal_format, void* data,
                         sgl::texture::format loader_format, sgl::texture::datatype dtype) {
 	m_format_internal = static_cast<GLint>(internal_format);
@@ -46,6 +47,37 @@ bool sgl::texture::load(int width, int height, sgl::texture::internalformat inte
 
 	return true;
 }
+
+bool sgl::texture::load_file(const std::string& filename, bool flip_y) {
+	int width, height, nChannels;
+	stbi_set_flip_vertically_on_load(flip_y);
+	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nChannels, 0);
+	if (!data) {
+		return false;
+	}
+
+	sgl::texture::format format = sgl::texture::format::rgba;
+	switch (nChannels) {
+	case 1:
+		format = sgl::texture::format::r;
+		break;
+	case 2:
+		format = sgl::texture::format::rg;
+		break;
+	case 3:
+		format = sgl::texture::format::rgb;
+		break;
+	case 4:
+		format = sgl::texture::format::rgba;
+		break;
+	};
+
+	const bool loaded = load(width, height, sgl::texture::internalformat::rgba, data, format, sgl::texture::datatype::u8);
+	stbi_image_free(data);
+	
+	return loaded;
+}
+
 
 void sgl::texture::resize(int width, int height) {
 	if (!width)

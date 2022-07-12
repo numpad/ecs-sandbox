@@ -41,6 +41,10 @@ void Layout::setLayout(YGNode* layout) {
 	resize(glm::vec2(800.0f, 600.0f));
 }
 
+YGNode* Layout::getLayout() const {
+	return m_layout;
+}
+
 void Layout::setWidget(std::string name, IWidget* widget) {
 	m_widgetMapping[name] = widget;
 }

@@ -14,12 +14,14 @@ typedef std::unordered_map<std::string, IWidget*> WidgetMap;
 class Layout {
 public:
 	Layout();
-
+	
 	void draw() const;
 	
 	void resize(glm::vec2 size);
 
 	void setLayout(YGNode* layout);
+	YGNode* getLayout() const;
+
 	void setWidget(std::string name, IWidget* widget);
 
 	void deleteWidgets();

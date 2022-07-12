@@ -1,3 +1,5 @@
+#include "Engine/Engine.hpp"
+#include "UI/ImageWidget.hpp"
 #include "ecs/events/TextInputEvent.hpp"
 #include "scenes/cutscenes/splashscreen/SplashScreenScene.hpp"
 
@@ -13,31 +15,10 @@ bool SplashScreenScene::onCreate() {
 	m_camera->setTarget(glm::vec3(0.0f));
 
 	// load textures
-	// TODO: improve boilerplate
-	{
-		m_logoTexture = new sgl::texture{};
-		int width, height, nChannels;
-		stbi_set_flip_vertically_on_load(false);
-		unsigned char* data = stbi_load("res/images/ui/engine_logo.png", &width, &height, &nChannels, 0);
-		if (!data)
-			return false;
-		m_logoTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgba,
-							sgl::texture::datatype::u8);
-		
-		stbi_image_free(data);
-	}
-	{
-		m_profileTexture = new sgl::texture{};
-		int width, height, nChannels;
-		stbi_set_flip_vertically_on_load(false);
-		unsigned char* data = stbi_load("res/images/ui/profile_picture.png", &width, &height, &nChannels, 0);
-		if (!data)
-			return false;
-		m_profileTexture->load(width, height, sgl::texture::internalformat::rgba, data, sgl::texture::format::rgba,
-							sgl::texture::datatype::u8);
-		
-		stbi_image_free(data);
-	}
+	m_logoTexture = new sgl::texture();
+	m_profileTexture = new sgl::texture();
+	m_logoTexture->load_file("res/images/ui/engine_logo.png");
+	m_profileTexture->load_file("res/images/ui/profile_picture.png");
 
 	lua_State* L = m_engine->getLuaState();
 
@@ -60,7 +41,6 @@ bool SplashScreenScene::onCreate() {
 	lua_getfield(L, -1, "super");
 	YGNodeRef layout = (YGNode*)lua_touserdata(L, -1);
 	lua_pop(L, 1);
-	m_layout = layout;
 
 	// create layout
 	m_logoTexture->set_filter(sgl::texture::filter::nearest);

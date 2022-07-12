@@ -15,12 +15,12 @@ return Yoga.parse({
 	alignitems = 'center',
 
 	logo = {
-		minwidth    = 118 * 3,
-		minheight   = 36 * 3,
-		width       = '35%',
-		maxwidth    = 118 * 5,
-		maxheight   = 36 * 5,
-		aspectratio = 118/36,
+		minwidth    =  118 * 3,
+		minheight   =   36 * 3,
+		width       =    '35%',
+		maxwidth    =  118 * 6,
+		maxheight   =   36 * 6,
+		aspectratio = 118 / 36,
 	},
 	
 	profile = {
