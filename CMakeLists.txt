@@ -10,13 +10,12 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set (PROJECT_BASE_SRC "src")
-set (PROJECT_SOURCE_DIR "${PROJECT_BASE_SRC}/source")
+set (PROJECT_SOURCE_DIR "${PROJECT_BASE_SRC}/core")
 set (PROJECT_BINARY_DIR "bin")
-set (PROJECT_INCLUDE_DIR "${PROJECT_BASE_SRC}/include")
 set (PROJECT_LIBRARY_DIR "lib")
 
-set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_LIBRARY_DIR})
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_LIBRARY_DIR})
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_LIBRARY_DIR}")
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_LIBRARY_DIR}")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_BINARY_DIR}")
 
 set (CFG_PROJECT_NAME "${CMAKE_PROJECT_NAME}")
@@ -36,52 +35,44 @@ configure_file (
 )
 include_directories ("${PROJECT_BASE_SRC}/")
 include_directories ("${PROJECT_BINARY_DIR}")
-include_directories ("${PROJECT_INCLUDE_DIR}")
-include_directories ("${PROJECT_INCLUDE_DIR}/*")
+include_directories ("${PROJECT_SOURCE_DIR}")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/gl3w/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/backends")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/yoga")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/glm")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include/")
 
-file (GLOB source_files
-	"${PROJECT_BASE_SRC}/ecs/**/*.cpp"
-	"${PROJECT_BASE_SRC}/scenes/*.cpp"
-	"${PROJECT_BASE_SRC}/scenes/**/*.cpp"
-	"${PROJECT_SOURCE_DIR}/*.cpp"
-	"${PROJECT_SOURCE_DIR}/*/*.cpp"
+file (GLOB_RECURSE source_files
+	"${PROJECT_BASE_SRC}/*.cpp"
+)
+
+file (GLOB library_source_files
 	"${PROJECT_LIBRARY_DIR}/*/*.cpp"
 	"${PROJECT_LIBRARY_DIR}/gl3w/src/gl3w.cpp" # TODO: bad fix, work this out!
 	"${PROJECT_LIBRARY_DIR}/imgui/backends/imgui_impl_glfw.cpp"
 	"${PROJECT_LIBRARY_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
+	"${PROJECT_LIBRARY_DIR}/yoga/yoga/*.cpp"
+	"${PROJECT_LIBRARY_DIR}/yoga/yoga/*/*.cpp"
+	"${PROJECT_LIBRARY_DIR}/imnodes/*.cpp"
 )
 
 include(${CMAKE_TOOLCHAIN_FILE})
 
-add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files})
+add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files} ${library_source_files})
 
 # glfw
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glfw)
 
-# cereal
-find_package(cereal CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE cereal)
-
 # assimp
 find_package(assimp CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE assimp::assimp)
 
-# entt
-find_package(EnTT CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE EnTT::EnTT)
-
 # openal soft
 find_package(OpenAL CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL::OpenAL)
-
-# glm
-find_package(glm CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL\:\:OpenAL)
 
 # luajit
 # WIP
@@ -94,6 +85,11 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE luajit-5.1)
 # freetype2
 find_package(freetype CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE freetype)
+
+# fmt
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE fmt::fmt-header-only)
+
 
 # OpenGL
 set (OpenGL_GL_PREFERENCE GLVND)

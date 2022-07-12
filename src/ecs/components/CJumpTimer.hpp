@@ -2,7 +2,7 @@
 
 struct CJumpTimer {
 	int timeUntilJump;
-	
-	 CJumpTimer(int time = -1) : timeUntilJump(time) {}
-	  
+
+	CJumpTimer(int time = -1) : timeUntilJump(time) {
+	}
 };

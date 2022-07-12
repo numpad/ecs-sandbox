@@ -51,7 +51,7 @@ All libraries included and/or required for the game. Some libraries are not yet 
 [glm](https://glm.g-truc.net/)                    |  0.9.9  | MIT / modified MIT  | The mathematics library for vectors, matrices and everything inbetween.
 [glfw](https://www.glfw.org)                      |  3.4.0  | zlib                | Multi-platform OpenGL library for creating windows with an OpenGL context and receiving inputs.
 [entt](https://github.com/skypjack/entt)          |  3.4.0  | MIT                 | Library for the ECS architectural pattern, also comes with a great observer pattern implementation.
-[dear imgui](https://github.com/ocornut/imgui)    |  1.69   | MIT                 | GUI library for debugging and visualization.
+[dear imgui](https://github.com/ocornut/imgui)    |  1.82   | MIT                 | GUI library for debugging and visualization.
 [FastNoise](https://github.com/Auburns/FastNoise) |  0.4.1  | MIT                 | Noise generation library with support for many different noise algorithms.
 [sol2](https://sol2.readthedocs.io/en/latest/)    |  3.2.0  | MIT                 | Generating bindings for and working with Lua.
 [Lua](http://www.lua.org/)                        |    ?    | MIT                 | A powerful, efficient, lightweight and embeddable scripting language.
@@ -61,6 +61,7 @@ All libraries included and/or required for the game. Some libraries are not yet 
 [stb_image.h](https://github.com/nothings/stb)    |  2.22   | public domain / MIT | Image loading library.
 [FreeType 2](https://www.freetype.org/)           |  2.?    | GPLv2 / FTL         | Font rasterization library.
 [OpenAL-soft](https://openal-soft.org/)           |    ?    | LGPLv2              | A software implementation of the OpenAL 3D audio API.
+[Yoga](https://github.com/facebook/yoga)          | 1.19.0  | MIT                 | Layout engine implementing flexbox.
 
 
 ## Assets
@@ -91,6 +92,8 @@ An (incomplete) list of the resources I used in no particular order.
 [decals](https://mtnphil.wordpress.com/2014/05/24/decals-deferred-rendering/)   | Drawing decals using deferred rendering. 
 [more decals](http://broniac.blogspot.com/2011/06/deferred-decals.html)         | More information about drawing decals and their weak spots.
 [even more decals](https://martindevans.me/game-development/2015/02/27/Drawing-Stuff-On-Other-Stuff-With-Deferred-Screenspace-Decals/) | Even more decal information.
+
+
 ## License
 I have not yet decided on a license.  
 The goal of this project is mostly for learning purposes, both for me and other developers in a similar position.

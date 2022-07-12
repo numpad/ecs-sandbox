@@ -8,7 +8,6 @@ uniform sampler2D uTextures[MAX_BOUND_TEXTURES];
 in vec3 vPosition;
 in vec2 vTexCoord;
 in vec2 vRawTexCoord;
-in vec3 vColor;
 flat in uint vTextureIndex;
 in vec3 vNormal;
 
@@ -27,8 +26,6 @@ float linearDepth() {
 
 void main() {
 	vec4 pixel = texture(uTextures[vTextureIndex], vTexCoord);
-	if (pixel.r > 0.9 && pixel.g < 0.1 && pixel.b > 0.9)
-		pixel = vec4(vColor, pixel.a);
 	
 	// debug
 	if (uDebugToggle && (abs(vRawTexCoord.y * 2.0 - 1.0) > 0.9 || abs(vRawTexCoord.x * 2.0 - 1.0) > 0.9) && pixel.a < 0.1) {
@@ -47,6 +44,7 @@ void main() {
 		else
 			pixel = vec4(1.0, 1.0, 1.0, 1.0);
 	}
+	if (pixel.a < 0.9) discard;
 	
 	Color = pixel; 
 	Position = vec4(vPosition, pixel.a);

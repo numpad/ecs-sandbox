@@ -8,43 +8,40 @@
 #include <algorithm>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/integer.hpp>
 #include <entt/entt.hpp>
 #include <imgui/imgui.h>
 #include <sgl/sgl_shader.hpp>
 
-#include <ecs/systems/BaseUpdateSystem.hpp>
-#include <ecs/systems/BaseRenderSystem.hpp>
+#include <ecs/systems/IUpdateSystem.hpp>
+#include <ecs/systems/IRenderSystem.hpp>
 #include <ecs/components.hpp>
 #include <ecs/events.hpp>
-
 #include <RenderObject/Billboard.hpp>
 #include <RenderObject/Camera.hpp>
-
+#include "Graphics/GLState.hpp"
 #include <Util/Blackboard.hpp>
 
-class BillboardRenderSystem : public BaseUpdateSystem, public BaseRenderSystem {
+class BillboardRenderSystem : public IUpdateSystem, public IRenderSystem {
 public:
-	
-	BillboardRenderSystem(entt::registry &registry, std::shared_ptr<Camera> camera);
-	BillboardRenderSystem(const BillboardRenderSystem &copy) = delete;
+	BillboardRenderSystem(entt::registry& registry, std::shared_ptr<Camera> camera);
+	BillboardRenderSystem(const BillboardRenderSystem& copy) = delete;
 	~BillboardRenderSystem();
-	
-	void update();
+
+	void update(float dt);
 	void draw();
-	
-		
+
 private:
 	sgl::shader instanceShader;
-	
+
 	Billboard billboardRO;
 	GLuint instanceBuffer;
-	
+
 	std::vector<glm::mat4> aInstanceModels;
 	std::vector<glm::vec3> aInstanceColors;
 	std::vector<glm::vec4> aInstanceTexOffsets;
 	std::vector<GLuint> aInstanceTextures;
-	std::vector<const Texture *> boundTextures;
-	
+	std::vector<const Texture*> boundTextures;
+
 	GLint lastMaxInstanceCount = -1;
 };
-

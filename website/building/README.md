@@ -31,11 +31,11 @@ and install the required libraries with this command:
 
 **Windows**:
 ```PowerShell
-PS> .\vcpkg.exe install glfw3 cereal assimp entt openal-soft glm lua sol2 freetype --triplet=x64-windows-static
+PS> .\vcpkg.exe install glfw3 assimp entt openal-soft lua freetype enet fmt --triplet=x64-windows-static
 ```
 **Linux**:
 ```bash
-$ ./vcpkg install glfw3 cereal assimp entt openal-soft glm lua sol2 freetype --triplet=x64-linux
+$ ./vcpkg install glfw3 assimp entt openal-soft lua freetype enet fmt --triplet=x64-linux
 ```
 
 Both versions expect a 64bit architecture. If you need to install the 32bit versions change

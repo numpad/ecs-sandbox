@@ -1,21 +1,19 @@
 #include "ecs/systems/TerrainRenderSystem.hpp"
 
-TerrainRenderSystem::TerrainRenderSystem(const entt::registry &registry, std::shared_ptr<Camera> camera, AssetManager &assetManager, std::shared_ptr<ChunkedWorld> chunkedWorld)
-	: BaseRenderSystem(registry, camera), m_assetManager{assetManager}, m_chunkedWorld{chunkedWorld}
-{
-	
-	loadShader();
+TerrainRenderSystem::TerrainRenderSystem(const entt::registry& registry, std::shared_ptr<Camera> camera,
+                                         AssetManager& assetManager, std::shared_ptr<ChunkedWorld> chunkedWorld)
+    : IRenderSystem(registry, camera), m_assetManager{assetManager}, m_chunkedWorld{chunkedWorld} {
 
+	loadShader();
 }
 
 TerrainRenderSystem::~TerrainRenderSystem() {
-
 }
 
 void TerrainRenderSystem::draw() {
 	updateUniforms();
 	bindTextures();
-	
+
 	m_chunkedWorld->draw(m_chunkShader);
 }
 
@@ -47,7 +45,7 @@ void TerrainRenderSystem::bindTextures() {
 	glActiveTexture(GL_TEXTURE0);
 	m_assetManager.getTexture("res/images/textures/floor.png")->setWrapMode(Texture::WrapMode::REPEAT);
 	m_assetManager.getTexture("res/images/textures/floor.png")->bind();
-	
+
 	glActiveTexture(GL_TEXTURE1);
 	m_assetManager.getTexture("res/images/textures/wall.png")->setWrapMode(Texture::WrapMode::REPEAT);
 	m_assetManager.getTexture("res/images/textures/wall.png")->bind();

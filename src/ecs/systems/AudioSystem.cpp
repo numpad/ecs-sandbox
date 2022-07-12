@@ -1,8 +1,7 @@
 #include <ecs/systems/AudioSystem.hpp>
 
-AudioSystem::AudioSystem(entt::registry &registry, AssetManager &assetManager)
-	: BaseUpdateSystem(registry), m_assetManager{assetManager}
-{
+AudioSystem::AudioSystem(entt::registry& registry, AssetManager& assetManager)
+    : IUpdateSystem(registry), m_assetManager{assetManager} {
 	registry.ctx<entt::dispatcher>().sink<PlaySoundEvent>().connect<&AudioSystem::play_sound>(*this);
 
 	// list available output devices
@@ -21,18 +20,17 @@ AudioSystem::~AudioSystem() {
 	registry.ctx<entt::dispatcher>().sink<PlaySoundEvent>().disconnect<&AudioSystem::play_sound>(*this);
 }
 
-void AudioSystem::update() {
-
+void AudioSystem::update(float dt) {
 }
 
-void AudioSystem::play_sound(const PlaySoundEvent &event) {
-	sgl::audio_source &source = *m_sources[m_last_used_source];
+void AudioSystem::play_sound(const PlaySoundEvent& event) {
+	sgl::audio_source& source = *m_sources[m_last_used_source];
 
-	sgl::audio *sound = m_assetManager.getAudio(event.name);
+	sgl::audio* sound = m_assetManager.getAudio(event.name);
 	if (!sound) {
-		#if CFG_DEBUG
-			std::cerr << "[WARN] AudioSystem: Tried playing NULL audio, skipping..." << std::endl;
-		#endif
+#if CFG_DEBUG
+		std::cerr << "[WARN] AudioSystem: Tried playing NULL audio, skipping..." << std::endl;
+#endif
 		return;
 	}
 
