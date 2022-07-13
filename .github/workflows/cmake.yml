@@ -18,7 +18,7 @@ jobs:
       - name: Install Packages
         run: |
           sudo apt update
-          sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libgl1-mesa-dev
+          sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libgl1-mesa-dev libluajit-5.1-dev
           # libxcursor-dev xorg-dev libglu1-mesa-dev
       - name: Install Dependencies
         uses: lukka/run-vcpkg@v10
