@@ -55,7 +55,6 @@ file (GLOB library_source_files
 	"${PROJECT_LIBRARY_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
 	"${PROJECT_LIBRARY_DIR}/yoga/yoga/*.cpp"
 	"${PROJECT_LIBRARY_DIR}/yoga/yoga/*/*.cpp"
-	"${PROJECT_LIBRARY_DIR}/imnodes/*.cpp"
 )
 
 if (CMAKE_TOOLCHAIN_FILE)
@@ -79,10 +78,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL\:\:OpenAL)
 # luajit
 # WIP
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE luajit-5.1)
-
-# stb
-#find_path(STB_INCLUDE_DIRS "stb.h")
-#target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${STB_INCLUDE_DIRS})
 
 # freetype2
 find_package(freetype CONFIG REQUIRED)
