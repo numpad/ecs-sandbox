@@ -1,6 +1,6 @@
 #pragma once
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <entt/entt.hpp>
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>

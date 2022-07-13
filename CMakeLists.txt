@@ -36,10 +36,13 @@ configure_file (
 include_directories ("${PROJECT_BASE_SRC}/")
 include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_SOURCE_DIR}")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/entt/include")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/dr/include")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/stb/include")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/par/include")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/gl3w/include")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui")
-include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/backends")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/include/imgui")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/include/imgui/backends")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/yoga")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/glm")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include/")
@@ -50,9 +53,13 @@ file (GLOB_RECURSE source_files
 
 file (GLOB library_source_files
 	"${PROJECT_LIBRARY_DIR}/*/*.cpp"
+	"${PROJECT_LIBRARY_DIR}/dr/include/dr/*.cpp"
+	"${PROJECT_LIBRARY_DIR}/stb/include/stb/*.cpp"
+	"${PROJECT_LIBRARY_DIR}/par/include/par/par_shapes.cpp"
 	"${PROJECT_LIBRARY_DIR}/gl3w/src/gl3w.cpp" # TODO: bad fix, work this out!
-	"${PROJECT_LIBRARY_DIR}/imgui/backends/imgui_impl_glfw.cpp"
-	"${PROJECT_LIBRARY_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
+	"${PROJECT_LIBRARY_DIR}/imgui/include/imgui/*.cpp"
+	"${PROJECT_LIBRARY_DIR}/imgui/include/imgui/backends/imgui_impl_glfw.cpp"
+	"${PROJECT_LIBRARY_DIR}/imgui/include/imgui/backends/imgui_impl_opengl3.cpp"
 	"${PROJECT_LIBRARY_DIR}/yoga/yoga/*.cpp"
 	"${PROJECT_LIBRARY_DIR}/yoga/yoga/*/*.cpp"
 )
