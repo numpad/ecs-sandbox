@@ -58,7 +58,9 @@ file (GLOB library_source_files
 	"${PROJECT_LIBRARY_DIR}/imnodes/*.cpp"
 )
 
-include(${CMAKE_TOOLCHAIN_FILE})
+if (CMAKE_TOOLCHAIN_FILE)
+	include(${CMAKE_TOOLCHAIN_FILE})
+endif()
 
 add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_files} ${library_source_files})
 
