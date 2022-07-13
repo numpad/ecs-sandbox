@@ -1,6 +1,6 @@
 {
-	"name": "üEngine",
-	"version-string": "HEAD",
+	"name": "ecs-sandbox",
+	"version-string": "head",
 	"dependencies": [
 		"glfw3", 
 		"assimp", 
