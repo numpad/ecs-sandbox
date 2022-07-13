@@ -52,7 +52,6 @@ file (GLOB_RECURSE source_files
 )
 
 file (GLOB library_source_files
-	"${PROJECT_LIBRARY_DIR}/*/*.cpp"
 	"${PROJECT_LIBRARY_DIR}/dr/include/dr/*.cpp"
 	"${PROJECT_LIBRARY_DIR}/stb/include/stb/*.cpp"
 	"${PROJECT_LIBRARY_DIR}/par/include/par/par_shapes.cpp"
