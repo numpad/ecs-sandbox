@@ -13,9 +13,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include <entt/entt.hpp>
 #include <sgl/sgl_shader.hpp>
 #include <luajit-2.1/lua.hpp>

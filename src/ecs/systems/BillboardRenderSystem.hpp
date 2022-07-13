@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/integer.hpp>
 #include <entt/entt.hpp>
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <sgl/sgl_shader.hpp>
 
 #include <ecs/systems/IUpdateSystem.hpp>

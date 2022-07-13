@@ -56,7 +56,6 @@ All libraries included and/or required for the game. Some libraries are not yet 
 [sol2](https://sol2.readthedocs.io/en/latest/)    |  3.2.0  | MIT                 | Generating bindings for and working with Lua.
 [Lua](http://www.lua.org/)                        |    ?    | MIT                 | A powerful, efficient, lightweight and embeddable scripting language.
 [cereal](http://uscilab.github.io/cereal/)        |  1.2    | 3-clause BSD        | A serialization library supporting many target formats, both binary and human readable.
-[assimp](https://www.assimp.org)                  |  5.0.0  | 3-clause BSD        | Importing many 3D model formats in a uniform manner.
 [gl3w](https://github.com/skaslev/gl3w)           |    ?    | public domain       | Simple OpenGL core profile loading library.
 [stb_image.h](https://github.com/nothings/stb)    |  2.22   | public domain / MIT | Image loading library.
 [FreeType 2](https://www.freetype.org/)           |  2.?    | GPLv2 / FTL         | Font rasterization library.

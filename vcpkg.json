@@ -2,13 +2,12 @@
 	"name": "ecs-sandbox",
 	"version-string": "head",
 	"dependencies": [
-		"glfw3", 
-		"assimp", 
 		"entt", 
 		"openal-soft", 
 		"lua", 
 		"freetype", 
 		"enet", 
-		"fmt"
+		"fmt",
+		"glfw3"
 	]
 }

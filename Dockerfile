@@ -11,7 +11,7 @@ RUN apt-get update \
 RUN git clone https://github.com/Microsoft/vcpkg.git
 RUN ./vcpkg/bootstrap-vcpkg.sh
 RUN ./vcpkg/vcpkg update \
-	&& ./vcpkg/vcpkg install cereal glfw3 entt openal-soft glm lua sol2 assimp freetype --triplet=x64-linux \
+	&& ./vcpkg/vcpkg install cereal glfw3 entt openal-soft glm lua sol2 freetype --triplet=x64-linux \
 	&& ./vcpkg/vcpkg integrate install
 
 # Create the folder
