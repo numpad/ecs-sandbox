@@ -25,11 +25,9 @@ jobs:
         with:
           vcpkgGitCommitId: 'cef0b3ec767df6e83806899fe9525f6cf8d7bc91'
           runVcpkgInstall: true
-      - run: ls ${{ github.workspace }}/vcpkg
-      - run: ls ${{ github.workspace }}/vcpkg/**
       - name: Configure CMake
         working-directory: ${{github.workspace}}
-        run: cmake -DCMAKE_BUILD_TYPE=Release
+        run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
       - name: Build
         # Build your program with the given configuration
         working-directory: ${{github.workspace}}
