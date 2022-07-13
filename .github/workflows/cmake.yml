@@ -1,14 +1,16 @@
-name: LinuxBuild
+name: Build Project
 
 on:
   push:
-    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 env:
+  # TODO: Unused, See "Configure CMake"
   BUILD_TYPE: Release
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -32,13 +34,13 @@ jobs:
         run: make
       
       - name: Create Archive
-        run: tar -zcf bin/release.tar.gz bin/synthlike res/
+        run: tar -zcf bin/Release.tar.gz res/ -C bin/ synthlike
 
-      - name: Release
+      - name: Push Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ./bin/release.tar.gz
+            ./bin/Release.tar.gz
 
