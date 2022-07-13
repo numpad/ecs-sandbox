@@ -8,9 +8,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include <dr/dr_wav.h>
 #include <sgl/sgl_audio.hpp>
 
@@ -58,9 +55,4 @@ private:
 	// load different formats
 	bool loadAudioWAV(std::string path);
 
-	Mesh* collectMesh(Mesh* m);
-	void collectMeshes(Model& model, aiNode* node, const aiScene* scene);
-	Mesh* convertAndCollectMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture*> convertAndCollectMaterialTextures(aiMaterial* mat, aiTextureType type,
-	                                                        Texture::UsageType usage);
 };

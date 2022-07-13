@@ -3,7 +3,6 @@
 	"version-string": "head",
 	"dependencies": [
 		"glfw3", 
-		"assimp", 
 		"entt", 
 		"openal-soft", 
 		"lua", 

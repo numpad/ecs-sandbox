@@ -67,10 +67,6 @@ add_executable (${CMAKE_PROJECT_NAME} "${PROJECT_BASE_SRC}/main.cpp" ${source_fi
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glfw)
 
-# assimp
-find_package(assimp CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE assimp::assimp)
-
 # openal soft
 find_package(OpenAL CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL\:\:OpenAL)
