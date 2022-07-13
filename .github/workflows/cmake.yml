@@ -1,11 +1,8 @@
 name: LinuxBuild
 
-on: [push]
-  #  push:
-  #    branch:
-  #      - 'develop'
-  #    tags:
-  #      - 'v[0-9]+.[0-9]+.[0-9]+'
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
 
 env:
   BUILD_TYPE: Release
@@ -33,6 +30,9 @@ jobs:
 
       - name: Build Project
         run: make
+      
+      - name: Create Archive
+        run: tar -zcf bin/release.tar.gz bin/synthlike res/
 
       - name: Release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -40,5 +40,5 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ./bin/synthlike
+            ./bin/release.tar.gz
 
