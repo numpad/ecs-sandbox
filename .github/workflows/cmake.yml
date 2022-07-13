@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Install Packages
+        run: |
+          sudo apt update
+          sudo apt install libxrandr-dev
       - name: Install Dependencies
         uses: lukka/run-vcpkg@v10
         with:
