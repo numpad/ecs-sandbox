@@ -21,8 +21,7 @@ jobs:
         with:
           runVcpkgFormatString: '[`install`, `glfw3`, `assimp`, `entt`, `openal-soft`, `lua`, `freetype`, `enet`, `fmt`, `--recurse`, `--clean-after-build`, `--x-install-root`, `$[env.VCPKG_INSTALLED_DIR]`, `--triplet`, `$[env.VCPKG_DEFAULT_TRIPLET]`]'
           vcpkgGitCommitId: 'cef0b3ec767df6e83806899fe9525f6cf8d7bc91'
-      - run: ls ${{ github.workspace }}/vcpkg/
-      - run: ls ${{ github.workspace }}/vcpkg/**
+      - run: ls $[env.VCPKG_INSTALLED_DIR]
       - name: Configure CMake
         working-directory: ${{github.workspace}}
         run: cmake -DCMAKE_BUILD_TYPE=Release
