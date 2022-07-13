@@ -1,0 +1,14 @@
+{
+	"name": "üEngine",
+	"version-string": "HEAD",
+	"dependencies": [
+		"glfw3", 
+		"assimp", 
+		"entt", 
+		"openal-soft", 
+		"lua", 
+		"freetype", 
+		"enet", 
+		"fmt"
+	]
+}
