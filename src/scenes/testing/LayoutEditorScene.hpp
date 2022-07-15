@@ -25,7 +25,7 @@ private:
 	std::vector<std::string> m_files;
 	
 	Layout m_ui;
-	YGNode* m_selectedNode = nullptr;
+	YGNodeRef m_selectedNode = nullptr;
 	void updateFiles();
 	void loadLayout(const std::string& filename);
 };

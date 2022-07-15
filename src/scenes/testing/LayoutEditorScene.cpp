@@ -201,7 +201,7 @@ void LayoutEditorScene::loadLayout(const std::string& filename) {
 
 	// get layout from script
 	lua_getfield(L, -1, "super");
-	YGNode* layout = (YGNode*)lua_touserdata(L, -1);
+	YGNodeRef layout = (YGNodeRef)lua_touserdata(L, -1);
 	lua_pop(L, 1);
 
 	if (m_ui.getLayout() != nullptr) {

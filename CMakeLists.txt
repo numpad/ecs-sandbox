@@ -25,7 +25,6 @@ set (CFG_PROJECT_NAME "${CMAKE_PROJECT_NAME}")
 set (CFG_VERSION_MAJOR 0)
 set (CFG_VERSION_MINOR 1)
 set (CFG_DEBUG true)
-set (CFG_IMGUI_ENABLED true)
 
 if (MSVC)
 	add_definitions(-DNOMINMAX)

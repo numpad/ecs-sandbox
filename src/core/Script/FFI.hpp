@@ -43,6 +43,6 @@ glm::vec3 FFI_vec3_normalize(glm::vec3 a);
 
 // Yoga
 int LUA_YGNodeNew(lua_State* L);
-void FFI_CleanupYogaNode(YGNode* node);
-void FFI_YGNodeFreeRecursiveWithCleanupFunc(YGNode* node);
+void FFI_CleanupYogaNode(YGNodeRef node);
+void FFI_YGNodeFreeRecursiveWithCleanupFunc(YGNodeRef node);
 }

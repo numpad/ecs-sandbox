@@ -19,17 +19,17 @@ public:
 	
 	void resize(glm::vec2 size);
 
-	void setLayout(YGNode* layout);
-	YGNode* getLayout() const;
+	void setLayout(YGNodeRef layout);
+	YGNodeRef getLayout() const;
 
 	void setWidget(std::string name, IWidget* widget);
 
 	void deleteWidgets();
 
 private:
-	glm::vec2 m_size;
-	YGNode* m_layout = nullptr;
+	glm::vec2 m_size = glm::vec2(-1.0f, -1.0f);
+	YGNodeRef m_layout = nullptr;
 	WidgetMap m_widgetMapping;
 	
-	void drawChildren(YGNode* node, glm::mat3 view) const;
+	void drawChildren(YGNodeRef node, glm::mat3 view) const;
 };

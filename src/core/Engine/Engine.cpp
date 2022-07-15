@@ -217,26 +217,25 @@ void Engine::run() {
 
 		m_gbuffer.unbind();
 
-// render framebuffer to screen
-#if CFG_IMGUI_ENABLED
-		if (ImGui::Begin("GBuffer")) {
-			const sgl::texture* preview_gbuffer_textures[] = {m_gbuffer.m_color, m_gbuffer.m_position,
-			                                                  m_gbuffer.m_normal, m_gbuffer.m_depth};
-			int iteration = 0;
-			for (const sgl::texture* preview_gbuffer : preview_gbuffer_textures) {
-				const float wwidth = ImGui::GetWindowWidth() * 0.47f; // meh
-				const float aspect = preview_gbuffer->get_height() / float(preview_gbuffer->get_width());
+		if (m_config.imgui_enabled) {
+			if (ImGui::Begin("GBuffer")) {
+				const sgl::texture* preview_gbuffer_textures[] = {m_gbuffer.m_color, m_gbuffer.m_position,
+																  m_gbuffer.m_normal, m_gbuffer.m_depth};
+				int iteration = 0;
+				for (const sgl::texture* preview_gbuffer : preview_gbuffer_textures) {
+					const float wwidth = ImGui::GetWindowWidth() * 0.47f; // meh
+					const float aspect = preview_gbuffer->get_height() / float(preview_gbuffer->get_width());
 
-				ImGui::Image((void*)(intptr_t)preview_gbuffer->get_texture(), ImVec2(wwidth, wwidth * aspect), ImVec2(0.0f, 1.0f),
-				             ImVec2(1.0f, 0.0f));
+					ImGui::Image((void*)(intptr_t)preview_gbuffer->get_texture(), ImVec2(wwidth, wwidth * aspect), ImVec2(0.0f, 1.0f),
+								 ImVec2(1.0f, 0.0f));
 
-				if (iteration++ % 2 == 0) {
-					ImGui::SameLine();
+					if (iteration++ % 2 == 0) {
+						ImGui::SameLine();
+					}
 				}
 			}
+			ImGui::End();
 		}
-		ImGui::End();
-#endif
 
 		// TODO: only need to reset these after reloading
 		m_screenshader["uTime"] = (float)glfwGetTime();
@@ -258,11 +257,8 @@ void Engine::run() {
 		m_screen.draw();
 		glPolygonMode(GL_FRONT_AND_BACK, pmode);
 
-		// draw imgui (if enabled)
-		if (m_config.imgui_enabled)
-			imgui_render();
-
 		// present rendered
+		imgui_render();
 		glfwSwapBuffers(m_window);
 	}
 }
@@ -315,7 +311,6 @@ void Engine::switchScene() {
 }
 
 void Engine::imgui_init(GLFWwindow* window) {
-#if CFG_IMGUI_ENABLED
 	// init imgui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -326,27 +321,20 @@ void Engine::imgui_init(GLFWwindow* window) {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 450");
 	fmt::print(fmt::fg(fmt::terminal_color::green), "dear imgui {}\n", ImGui::GetVersion());
-#endif
 }
 void Engine::imgui_prepareframe() {
-#if CFG_IMGUI_ENABLED
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-#endif
 }
 void Engine::imgui_render() {
-#if CFG_IMGUI_ENABLED
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif
 }
 void Engine::imgui_destroy() {
-#if CFG_IMGUI_ENABLED
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-#endif
 }
 
 bool Engine::luastate_init() {

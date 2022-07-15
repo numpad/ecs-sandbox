@@ -14,12 +14,6 @@ bool SplashScreenScene::onCreate() {
 	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f));
 	m_camera->setTarget(glm::vec3(0.0f));
 
-	// load textures
-	m_logoTexture = new sgl::texture();
-	m_profileTexture = new sgl::texture();
-	m_logoTexture->load_file("res/images/ui/engine_logo.png");
-	m_profileTexture->load_file("res/images/ui/profile_picture.png");
-
 	lua_State* L = m_engine->getLuaState();
 
 	if (luaL_dofile(L, "res/scripts/layout/splash.lua")) {
@@ -39,12 +33,18 @@ bool SplashScreenScene::onCreate() {
 
 	// get layout from script
 	lua_getfield(L, -1, "super");
-	YGNodeRef layout = (YGNode*)lua_touserdata(L, -1);
+	YGNodeRef layout = (YGNodeRef)lua_touserdata(L, -1);
 	lua_pop(L, 1);
 
-	// create layout
+	// load textures
+	m_logoTexture = new sgl::texture();
+	m_profileTexture = new sgl::texture();
+	m_logoTexture->load_file("res/images/ui/engine_logo.png");
+	m_profileTexture->load_file("res/images/ui/profile_picture.png");
 	m_logoTexture->set_filter(sgl::texture::filter::nearest);
 	m_profileTexture->set_filter(sgl::texture::filter::linear);
+
+	// create layout
 	ImageWidget* logoWidget = new ImageWidget(m_logoTexture->get_texture());
 	ImageWidget* numpadWidget = new ImageWidget(m_profileTexture->get_texture());
 
@@ -82,7 +82,7 @@ void SplashScreenScene::onKeyInput(const TextInputEvent& event) {
 
 void SplashScreenScene::onRender() {
 	glClearColor(0.35f, 0.15f, 0.24f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	float width = m_camera->getScreenWidth();
 	float height = m_camera->getScreenHeight();

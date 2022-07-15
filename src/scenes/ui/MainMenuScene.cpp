@@ -27,7 +27,6 @@ void MainMenuScene::onUpdate(float dt) {
 }
 
 void MainMenuScene::onRender() {
-#if CFG_IMGUI_ENABLED
 	constexpr ImGuiWindowFlags wflags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
 	                                    ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
 
@@ -104,5 +103,4 @@ void MainMenuScene::onRender() {
 		}
 	}
 	ImGui::End();
-#endif
 }

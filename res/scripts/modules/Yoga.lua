@@ -1,7 +1,7 @@
 local ffi = require('ffi')
 ffi.cdef[[
-	typedef void* YGNodeRef;
-	typedef const void* YGNodeConstRef;
+	typedef struct YGNode* YGNodeRef;
+	typedef const struct YGNode* YGNodeConstRef;
 	typedef enum { YGEdgeLeft, YGEdgeTop, YGEdgeRight, YGEdgeBottom, YGEdgeStart, YGEdgeEnd, YGEdgeHorizontal, YGEdgeVertical, YGEdgeAll } YGEdge;
 	typedef enum { YGDirectionInherit, YGDirectionLTR, YGDirectionRTL } YGDirection;
 	typedef enum { YGFlexDirectionColumn, YGFlexDirectionColumnReverse, YGFlexDirectionRow, YGFlexDirectionRowReverse } YGFlexDirection;

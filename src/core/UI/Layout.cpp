@@ -36,12 +36,12 @@ void Layout::resize(glm::vec2 size) {
 	YGNodeCalculateLayout(m_layout, size.x, size.y, YGDirectionLTR);
 }
 
-void Layout::setLayout(YGNode* layout) {
+void Layout::setLayout(YGNodeRef layout) {
 	m_layout = layout;
 	resize(glm::vec2(800.0f, 600.0f));
 }
 
-YGNode* Layout::getLayout() const {
+YGNodeRef Layout::getLayout() const {
 	return m_layout;
 }
 
@@ -73,11 +73,12 @@ void Layout::deleteWidgets() {
 // PRIVATE //
 /////////////
 
-void Layout::drawChildren(YGNode* node, glm::mat3 view) const {
+void Layout::drawChildren(YGNodeRef node, glm::mat3 view) const {
 	float x = YGNodeLayoutGetLeft(node);
 	float y = YGNodeLayoutGetTop(node);
 	float w = YGNodeLayoutGetWidth(node);
 	float h = YGNodeLayoutGetHeight(node);
+	fmt::print("{}, {}   {}x{}\n", x, y, w, h);
 
 	view = glm::translate(view, glm::vec2(x, y));
 	glm::mat3 model = glm::scale(glm::mat3(1.0f), glm::vec2(w, h));
@@ -88,7 +89,7 @@ void Layout::drawChildren(YGNode* node, glm::mat3 view) const {
 	}
 
 	for (uint32_t i = 0; i < YGNodeGetChildCount(node); ++i) {
-		YGNode* child = YGNodeGetChild(node, i);
+		YGNodeRef child = YGNodeGetChild(node, i);
 		drawChildren(child, view);
 	}
 }

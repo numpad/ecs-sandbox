@@ -83,18 +83,18 @@ int LUA_YGNodeNew(lua_State* L) {
 		ctx->id = std::string(lua_tostring(L, -1));
 	}
 
-	YGNode* node = YGNodeNew();
+	YGNodeRef node = YGNodeNew();
 	YGNodeSetContext(node, ctx);
 	lua_pushlightuserdata(L, node);
 	return 1;
 }
 
-void FFI_CleanupYogaNode(YGNode* node) {
+void FFI_CleanupYogaNode(YGNodeRef node) {
 	NodeID* id = (NodeID*)YGNodeGetContext(node);
 	delete id;
 }
 
-void FFI_YGNodeFreeRecursiveWithCleanupFunc(YGNode* node) {
+void FFI_YGNodeFreeRecursiveWithCleanupFunc(YGNodeRef node) {
 	YGNodeFreeRecursiveWithCleanupFunc(node, &FFI_CleanupYogaNode);
 }
 }

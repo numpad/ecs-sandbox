@@ -80,8 +80,6 @@ void BillboardRenderSystem::draw() {
 		}
 	});
 
-// debug
-#if CFG_IMGUI_ENABLED
 	if (ImGui::Begin("textures")) {
 		using namespace ImGui;
 		static bool uDebugToggle;
@@ -101,7 +99,6 @@ void BillboardRenderSystem::draw() {
 		}
 	}
 	ImGui::End();
-#endif
 
 	// rendering:
 
