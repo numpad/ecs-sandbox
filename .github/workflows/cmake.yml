@@ -66,7 +66,7 @@ jobs:
         run: cmake -DCMAKE_GENERATOR_PLATFORM=x64
       
       - name: Create Archive
-        run: dir
+        run: dir bin/
 
       - name: Push Release
         uses: "marvinpinto/action-automatic-releases@latest"
