@@ -63,7 +63,8 @@ jobs:
         run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
 
       - name: Build Project
-        run: make
+        #run: make
+        run: dir
       
       - name: Create Archive
         run: tar -zcf bin/Release.tar.gz res/ -C bin/ synthlike
