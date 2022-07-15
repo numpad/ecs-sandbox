@@ -1,10 +1,8 @@
 #include "Debug/ImguiPresets.hpp"
 
 void imguiEntityEdit(entt::registry& registry, entt::entity entity) {
-	using namespace ImGui;
-
 	if (entity == entt::null || !registry.valid(entity)) {
-		TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "No entity selected");
+		ImGui::TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "No entity selected");
 		return;
 	}
 
@@ -12,7 +10,7 @@ void imguiEntityEdit(entt::registry& registry, entt::entity entity) {
 #define COMP_TOGGLE(C)                                                                                                 \
 	do {                                                                                                               \
 		bool has_##C = registry.try_get<C>(entity);                                                                    \
-		if (Checkbox(#C, &has_##C)) {                                                                                  \
+		if (ImGui::Checkbox(#C, &has_##C)) {                                                                                  \
 			if (!has_##C)                                                                                              \
 				registry.remove<C>(entity);                                                                            \
 			else                                                                                                       \
@@ -36,151 +34,149 @@ void imguiEntityEdit(entt::registry& registry, entt::entity entity) {
 
 	// Edit component values
 	if (registry.try_get<CPosition>(entity)) {
-		if (BeginMenu("CPosition")) {
+		if (ImGui::BeginMenu("CPosition")) {
 			glm::vec3& pos = registry.get<CPosition>(entity).pos;
-			DragFloat3("Position", &pos[0], 0.005f);
-			EndMenu();
+			ImGui::DragFloat3("Position", &pos[0], 0.005f);
+			ImGui::EndMenu();
 		}
 	}
 	if (registry.try_get<CVelocity>(entity)) {
-		if (BeginMenu("CVelocity")) {
+		if (ImGui::BeginMenu("CVelocity")) {
 			glm::vec3& vel = registry.get<CVelocity>(entity).vel;
 			glm::vec3& acc = registry.get<CVelocity>(entity).acc;
 			float& maxvel = registry.get<CVelocity>(entity).maxvel;
 
-			Text("velocity = %.5f", glm::length(vel));
-			DragFloat3("Velocity", &vel[0], 0.001f);
-			DragFloat3("Acceleration", &acc[0], 0.001f);
-			DragFloat("Max. velocity", &maxvel, 0.0001f);
+			ImGui::Text("velocity = %.5f", glm::length(vel));
+			ImGui::DragFloat3("Velocity", &vel[0], 0.001f);
+			ImGui::DragFloat3("Acceleration", &acc[0], 0.001f);
+			ImGui::DragFloat("Max. velocity", &maxvel, 0.0001f);
 			static glm::vec3 impulse;
-			DragFloat3("##apply_impulse", &impulse[0], 0.001f);
-			SameLine();
-			if (Button("Apply impulse")) {
+			ImGui::DragFloat3("##apply_impulse", &impulse[0], 0.001f);
+			ImGui::SameLine();
+			if (ImGui::Button("Apply impulse")) {
 				acc += impulse;
 			}
 
-			EndMenu();
+			ImGui::EndMenu();
 		}
 	}
 	if (registry.try_get<CBillboard>(entity)) {
-		if (BeginMenu("CBillboard")) {
+		if (ImGui::BeginMenu("CBillboard")) {
 			glm::vec2& size = registry.get<CBillboard>(entity).size;
 			// glm::vec4 &texoffset = registry.get<CBillboard>(entity).texture_offset;
-			DragFloat2("Size", &size[0], 0.001f);
-			Text("TODO: handle CTextureRegion");
+			ImGui::DragFloat2("Size", &size[0], 0.001f);
+			ImGui::Text("TODO: handle CTextureRegion");
 			// SliderFloat2("Texture offset", &texoffset[0], 0.0f, 1.0f);
 			// SliderFloat2("Texture scale", &texoffset[2], 0.0f, 1.0f);
 			static int srstart[2] = {0};
 			const int texw = 256, texh = 256, tilesize = 16;
 
-			bool a = SliderInt2("Tile pos", srstart, 0, (texw / tilesize) - 1);
+			bool a = ImGui::SliderInt2("Tile pos", srstart, 0, (texw / tilesize) - 1);
 			// if (a) registry.get<CBillboard>(entity).setSubRect(
 			//	float(srstart[0]) * float(tilesize), float(srstart[1]) * float(tilesize),
 			//	float(tilesize), float(tilesize), texw, texh);
 
-			EndMenu();
+			ImGui::EndMenu();
 		}
 	}
 	if (registry.try_get<CGravity>(entity)) {
-		if (BeginMenu("CGravity")) {
-			Text("Gravity: enabled");
+		if (ImGui::BeginMenu("CGravity")) {
+			ImGui::Text("Gravity: enabled");
 
-			EndMenu();
+			ImGui::EndMenu();
 		}
 	}
 	if (registry.try_get<CSphereCollider>(entity)) {
-		if (BeginMenu("CSphereCollider")) {
+		if (ImGui::BeginMenu("CSphereCollider")) {
 			float& radius = registry.get<CSphereCollider>(entity).radius;
 			float& force = registry.get<CSphereCollider>(entity).force;
 
-			DragFloat("Radius", &radius, 0.0005f, 0.0f);
-			DragFloat("Force", &force, 0.0005f);
+			ImGui::DragFloat("Radius", &radius, 0.0005f, 0.0f);
+			ImGui::DragFloat("Force", &force, 0.0005f);
 
-			EndMenu();
+			ImGui::EndMenu();
 		}
 	}
 	if (registry.try_get<CKeyboardControllable>(entity)) {
-		if (BeginMenu("CKeyboardControllable")) {
+		if (ImGui::BeginMenu("CKeyboardControllable")) {
 			float& speed = registry.get<CKeyboardControllable>(entity).speed;
 
-			DragFloat("Speed", &speed, 0.000001f, 0.0000000001f, 0.1f, "%g");
-			EndMenu();
+			ImGui::DragFloat("Speed", &speed, 0.000001f, 0.0000000001f, 0.1f, "%g");
+			ImGui::EndMenu();
 		}
 	}
 	if (registry.try_get<CRunningToTarget>(entity)) {
-		if (BeginMenu("CRunningToTarget")) {
+		if (ImGui::BeginMenu("CRunningToTarget")) {
 			auto& rtt = registry.get<CRunningToTarget>(entity);
-			DragFloat("Speed", &rtt.force, 0.001f);
-			DragFloat("Goal range", &rtt.closeEnough, 0.001f);
+			ImGui::DragFloat("Speed", &rtt.force, 0.001f);
+			ImGui::DragFloat("Goal range", &rtt.closeEnough, 0.001f);
 
-			EndMenu();
+			ImGui::EndMenu();
 		}
 	}
 
 	if (registry.try_get<CHealth>(entity)) {
-		if (BeginMenu("CHealth")) {
+		if (ImGui::BeginMenu("CHealth")) {
 			auto& health = registry.get<CHealth>(entity);
-			SliderInt("HP", &health.hp, 0, health.max_hp);
-			DragInt("Max. HP", &health.max_hp);
-			EndMenu();
+			ImGui::SliderInt("HP", &health.hp, 0, health.max_hp);
+			ImGui::DragInt("Max. HP", &health.max_hp);
+			ImGui::EndMenu();
 		}
 	}
 
 	if (registry.try_get<CDecal>(entity)) {
-		if (BeginMenu("CDecal")) {
+		if (ImGui::BeginMenu("CDecal")) {
 			auto& decal = registry.get<CDecal>(entity);
-			DragFloat3("Size##sizedecal", &decal.size[0], 0.001f);
-			EndMenu();
+			ImGui::DragFloat3("Size##sizedecal", &decal.size[0], 0.001f);
+			ImGui::EndMenu();
 		}
 	}
 
 	if (registry.try_get<COrientation>(entity)) {
-		if (BeginMenu("COrientation")) {
+		if (ImGui::BeginMenu("COrientation")) {
 			auto& orient = registry.get<COrientation>(entity);
-			SliderFloat3("Rotation", &orient.orientation[0], -1.f, 1.f);
-			SliderFloat("Amount", &orient.amount, 0.f, 1.f);
-			EndMenu();
+			ImGui::SliderFloat3("Rotation", &orient.orientation[0], -1.f, 1.f);
+			ImGui::SliderFloat("Amount", &orient.amount, 0.f, 1.f);
+			ImGui::EndMenu();
 		}
 	}
 
 	if (registry.try_get<CTerrainCollider>(entity)) {
-		if (BeginMenu("CTerrainCollider")) {
+		if (ImGui::BeginMenu("CTerrainCollider")) {
 			auto& collider = registry.get<CTerrainCollider>(entity);
-			Text("On floor: ");
-			SameLine();
+			ImGui::Text("On floor: ");
+			ImGui::SameLine();
 			if (collider.is_grounded) {
-				TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "yes");
+				ImGui::TextColored(ImVec4(0.0, 1.0, 0.0, 1.0), "yes");
 			} else {
-				TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "no");
+				ImGui::TextColored(ImVec4(1.0, 0.0, 0.0, 1.0), "no");
 			}
-			Text("Dist to dir: ");
-			SameLine();
-			Text("%g", collider.dist_to_dir);
-			Text("Stair Height: ");
-			Text("%g", collider.stair_height);
-			EndMenu();
+			ImGui::Text("Dist to dir: ");
+			ImGui::SameLine();
+			ImGui::Text("%g", collider.dist_to_dir);
+			ImGui::Text("Stair Height: ");
+			ImGui::Text("%g", collider.stair_height);
+			ImGui::EndMenu();
 		}
 	}
 
-	if (Button("Send Message")) {
+	if (ImGui::Button("Send Message")) {
 		registry.ctx<entt::dispatcher>().trigger<WorldTextEvent>(entity, vec3(0.f, .25f, 0.f), L"Hello", 60 * 4);
 	}
 }
 
 void imguiEntityEditor(entt::registry& registry, bool pickingactive, glm::vec3 crosspos) {
-	using namespace ImGui;
-
-	if (BeginMenu("Edit...")) {
+	if (ImGui::BeginMenu("Edit...")) {
 		static bool pickingMode = false;
 		static entt::entity selected = entt::null;
 		if (selected == entt::null) {
-			Checkbox("Pick entity", &pickingMode);
+			ImGui::Checkbox("Pick entity", &pickingMode);
 		} else {
-			if (Button("Clear selection")) {
+			if (ImGui::Button("Clear selection")) {
 				selected = entt::null;
 			}
 		}
-		Separator();
+		ImGui::Separator();
 		if (pickingMode && pickingactive) {
 			// TODO: selected = world.getNearestEntity(crosspos);
 			// iterate over registry<CPosition> → get closest
@@ -189,12 +185,11 @@ void imguiEntityEditor(entt::registry& registry, bool pickingactive, glm::vec3 c
 
 		// entity editor
 		imguiEntityEdit(registry, selected);
-		EndMenu();
+		ImGui::EndMenu();
 	}
 }
 
 void imguiEntitySpawn(entt::registry& registry, bool spawn, glm::vec3 atpos) {
-	using namespace ImGui;
 
 	// static glm::vec3 pos(0.0f);
 	static glm::vec3 vel(0.0f);
@@ -222,102 +217,102 @@ void imguiEntitySpawn(entt::registry& registry, bool spawn, glm::vec3 atpos) {
 	            haspresser = false, haskeyboard = false, hasspawn = false, hasjumper = true, hashealth = true,
 	            hasdecal = false, hasorientation = false, hasterraincollider = true;
 
-	if (BeginMenu("Spawn...")) {
-		Checkbox("CPosition", &haspos);
-		Checkbox("CVelocity", &hasvel);
-		Checkbox("CGravity", &hasgrav);
-		Checkbox("CBillboard", &hasbb);
-		Checkbox("CRunToTarget", &hasruntt);
-		Checkbox("CSphereCollider", &haspresser);
-		Checkbox("CKeyboardController", &haskeyboard);
-		Checkbox("CSpawnPoint", &hasspawn);
-		Checkbox("CJumpTimer", &hasjumper);
-		Checkbox("CHealth", &hashealth);
-		Checkbox("CDecal", &hasdecal);
-		Checkbox("COrientation", &hasorientation);
-		Checkbox("CTerrainCollider", &hasterraincollider);
+	if (ImGui::BeginMenu("Spawn...")) {
+		ImGui::Checkbox("CPosition", &haspos);
+		ImGui::Checkbox("CVelocity", &hasvel);
+		ImGui::Checkbox("CGravity", &hasgrav);
+		ImGui::Checkbox("CBillboard", &hasbb);
+		ImGui::Checkbox("CRunToTarget", &hasruntt);
+		ImGui::Checkbox("CSphereCollider", &haspresser);
+		ImGui::Checkbox("CKeyboardController", &haskeyboard);
+		ImGui::Checkbox("CSpawnPoint", &hasspawn);
+		ImGui::Checkbox("CJumpTimer", &hasjumper);
+		ImGui::Checkbox("CHealth", &hashealth);
+		ImGui::Checkbox("CDecal", &hasdecal);
+		ImGui::Checkbox("COrientation", &hasorientation);
+		ImGui::Checkbox("CTerrainCollider", &hasterraincollider);
 
-		Separator();
+		ImGui::Separator();
 
 		if (hasvel)
-			if (BeginMenu("CVelocity")) {
-				DragFloat3("##CVelocity", &vel[0], 0.001f);
+			if (ImGui::BeginMenu("CVelocity")) {
+				ImGui::DragFloat3("##CVelocity", &vel[0], 0.001f);
 				ImGui::EndMenu();
 			}
 		// if (hasgrav) Text("Gravity: enabled");
 		if (hasbb) {
-			if (BeginMenu("CBillboard")) {
-				DragFloat2("Size", &bbsize[0], 0.001f);
-				InputText("Texture", texpath, 512);
-				DragInt2("Tiles", &tiles[0], 1);
+			if (ImGui::BeginMenu("CBillboard")) {
+				ImGui::DragFloat2("Size", &bbsize[0], 0.001f);
+				ImGui::InputText("Texture", texpath, 512);
+				ImGui::DragInt2("Tiles", &tiles[0], 1);
 				if (!bbrandom)
-					DragInt2("Tile pos", &tilepos[0], 1);
-				Checkbox("Random?", &bbrandom);
+					ImGui::DragInt2("Tile pos", &tilepos[0], 1);
+				ImGui::Checkbox("Random?", &bbrandom);
 
 				ImGui::EndMenu();
 			}
 		}
 		if (hasruntt) {
-			if (BeginMenu("CRunningToTarget")) {
-				Checkbox("Only once", &rttonlyonce);
-				Checkbox("Player", &runttToPlayer);
+			if (ImGui::BeginMenu("CRunningToTarget")) {
+				ImGui::Checkbox("Only once", &rttonlyonce);
+				ImGui::Checkbox("Player", &runttToPlayer);
 				if (!runttToPlayer) {
-					DragFloat3("Position", &rttpos[0], 0.001f);
+					ImGui::DragFloat3("Position", &rttpos[0], 0.001f);
 				}
-				SliderFloat("Speed", &rttforce, 0.0f, 0.01f);
-				SliderFloat("Near", &rttnear, 0.0f, 1.0f);
+				ImGui::SliderFloat("Speed", &rttforce, 0.0f, 0.01f);
+				ImGui::SliderFloat("Near", &rttnear, 0.0f, 1.0f);
 
 				ImGui::EndMenu();
 			}
 		}
 		if (haspresser) {
-			if (BeginMenu("CSphereCollider")) {
-				DragFloat("Radius", &pressrad, 0.0f, 0.1f);
-				DragFloat("Force", &pressforce, 0.0f, 0.05f);
+			if (ImGui::BeginMenu("CSphereCollider")) {
+				ImGui::DragFloat("Radius", &pressrad, 0.0f, 0.1f);
+				ImGui::DragFloat("Force", &pressforce, 0.0f, 0.05f);
 				ImGui::EndMenu();
 			}
 		}
 		if (haskeyboard) {
-			if (BeginMenu("CKeyboardControllable")) {
-				DragFloat("control speed", &keycontrolspeed, 0.0005f, 0.0035f);
+			if (ImGui::BeginMenu("CKeyboardControllable")) {
+				ImGui::DragFloat("control speed", &keycontrolspeed, 0.0005f, 0.0035f);
 				ImGui::EndMenu();
 			}
 		}
 		if (hasspawn) {
-			if (BeginMenu("CSpawnPoint")) {
-				DragFloat3("SpawnPoint", &spawnpoint[0], 0.001f);
+			if (ImGui::BeginMenu("CSpawnPoint")) {
+				ImGui::DragFloat3("SpawnPoint", &spawnpoint[0], 0.001f);
 				ImGui::EndMenu();
 			}
 		}
 		if (hasjumper) {
 		}
 		if (hashealth) {
-			if (BeginMenu("CHealth")) {
-				DragInt("Max. HP", &max_hp, 1);
+			if (ImGui::BeginMenu("CHealth")) {
+				ImGui::DragInt("Max. HP", &max_hp, 1);
 				ImGui::EndMenu();
 			}
 		}
 		if (hasdecal) {
-			if (BeginMenu("CDecal")) {
-				DragFloat3("Size", &size[0], 0.001f);
-				InputText("Path", decal_texpath, 512);
-				SliderFloat4("Subrect", &subrect[0], 0.f, 1.f);
+			if (ImGui::BeginMenu("CDecal")) {
+				ImGui::DragFloat3("Size", &size[0], 0.001f);
+				ImGui::InputText("Path", decal_texpath, 512);
+				ImGui::SliderFloat4("Subrect", &subrect[0], 0.f, 1.f);
 				ImGui::EndMenu();
 			}
 		}
 		if (hasorientation) {
-			if (BeginMenu("COrientation")) {
-				SliderFloat3("Orient", &orient[0], -1.f, 1.f);
-				SliderFloat("Amount", &orient_amount, 0.f, 1.f);
+			if (ImGui::BeginMenu("COrientation")) {
+				ImGui::SliderFloat3("Orient", &orient[0], -1.f, 1.f);
+				ImGui::SliderFloat("Amount", &orient_amount, 0.f, 1.f);
 				ImGui::EndMenu();
 			}
 		}
 		if (hasterraincollider) {
 		}
 
-		Separator();
-		SliderInt("Amount", &spawnamount, 1, 50);
-		SliderFloat("Velocity", &spawnveloff, 0.0f, 0.05f);
+		ImGui::Separator();
+		ImGui::SliderInt("Amount", &spawnamount, 1, 50);
+		ImGui::SliderFloat("Velocity", &spawnveloff, 0.0f, 0.05f);
 
 		ImGui::EndMenu();
 	}
@@ -451,29 +446,28 @@ void imguiLuaJitConsole(lua_State* L) {
 }
 
 void imguiGamepadInfo() {
-	using namespace ImGui;
-	if (Begin("Gamepad Info")) {
-		BeginTable("gamepad_info", 3, ImGuiTableFlags_Hideable | ImGuiTableFlags_Borders);
+	if (ImGui::Begin("Gamepad Info")) {
+		ImGui::BeginTable("gamepad_info", 3, ImGuiTableFlags_Hideable | ImGuiTableFlags_Borders);
 
 		for (int i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i) {
-			TableNextRow();
+			ImGui::TableNextRow();
 
-			TableNextColumn();
-			glfwJoystickIsGamepad(i) ? TextColored(ImVec4(0.35, 0.25, 0.74, 1.0), "Gamepad #%d", i)
-			                         : Text("Joystick #%d", i);
+			ImGui::TableNextColumn();
+			glfwJoystickIsGamepad(i) ? ImGui::TextColored(ImVec4(0.35, 0.25, 0.74, 1.0), "Gamepad #%d", i)
+			                         : ImGui::Text("Joystick #%d", i);
 
-			TableNextColumn();
+			ImGui::TableNextColumn();
 			if (glfwJoystickPresent(i)) {
-				TextColored(ImVec4(0.54, 0.7, 0.55, 1.0), "(connected)");
+				ImGui::TextColored(ImVec4(0.54, 0.7, 0.55, 1.0), "(connected)");
 			} else {
-				TextColored(ImVec4(0.64, 0.4, 0.4, 1.0), "(disconnected)");
+				ImGui::TextColored(ImVec4(0.64, 0.4, 0.4, 1.0), "(disconnected)");
 			}
 
-			TableNextColumn();
-			Text("\"%s\"", glfwGetGamepadName(i));
+			ImGui::TableNextColumn();
+			ImGui::Text("\"%s\"", glfwGetGamepadName(i));
 		}
 
-		EndTable();
+		ImGui::EndTable();
 	}
-	End();
+	ImGui::End();
 }

@@ -13,7 +13,7 @@
 			return res;                                                                                                \
 	} while (0)
 
-#if CFG_DEBUG
+#ifndef NDEBUG
 	#define DEBUG(x)                                                                                                   \
 		do {                                                                                                           \
 			x;                                                                                                         \

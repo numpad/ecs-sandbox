@@ -30,7 +30,8 @@ jobs:
 
       - name: Configure CMake
         run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
-
+      - name: DEBUG Show vcpkg
+        run: ls vcpkg_installed/**
       - name: Build Project
         run: make
       
