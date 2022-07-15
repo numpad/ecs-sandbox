@@ -28,10 +28,12 @@ jobs:
           vcpkgGitCommitId: 'cef0b3ec767df6e83806899fe9525f6cf8d7bc91'
           runVcpkgInstall: true
 
-      - name: Configure CMake
-        run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
       - name: DEBUG Show vcpkg
         run: ls vcpkg_installed/**
+
+      - name: Configure CMake
+        run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+
       - name: Build Project
         run: make
       
@@ -59,15 +61,15 @@ jobs:
         with:
           vcpkgGitCommitId: 'cef0b3ec767df6e83806899fe9525f6cf8d7bc91'
           runVcpkgInstall: true
+      
+      - name: DEBUG List files
+        run: tree /f
 
       - name: Configure CMake
         run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
 
       - name: Build Project
         run: msbuild synthlike.sln
-      
-      - name: DEBUG List files
-        run: tree /f
 
       - name: Create Archive
         # TODO: synthlike.sln is just for testing

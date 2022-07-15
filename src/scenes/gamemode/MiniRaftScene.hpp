@@ -2,7 +2,7 @@
 
 #include "Engine/IScene.hpp"
 
-class PlaneFightScene : public IScene {
+class MiniRaftScene : public IScene {
 public:
 	bool onCreate() override;
 	void onDestroy() override;
