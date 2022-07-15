@@ -28,20 +28,19 @@ void SpritePreviewScene::onDestroy() {
 }
 
 void SpritePreviewScene::onUpdate(float dt) {
-	using namespace ImGui;
 	m_elapsedTime += (double)dt;
 
-	if (BeginMainMenuBar()) {
-		if (BeginMenu("Open...")) {
-			MenuItem("image.png");
-			EndMenu();
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("Open...")) {
+			ImGui::MenuItem("image.png");
+			ImGui::EndMenu();
 		}
-		EndMainMenuBar();
+		ImGui::EndMainMenuBar();
 	}
 
-	if (Begin("Editor")) {
+	if (ImGui::Begin("Editor")) {
 	}
-	End();
+	ImGui::End();
 
 	static float reloadTimer = 0.0f;
 	reloadTimer += dt;

@@ -20,20 +20,19 @@ void LayoutEditorScene::onDestroy() {
 }
 
 void LayoutEditorScene::onUpdate(float dt) {
-	using namespace ImGui;
 	m_elapsedTime += (double)dt;
 
-	if (BeginMainMenuBar()) {
-		if (BeginMenu("Open...")) {
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("Open...")) {
 			for (std::string& filename : m_files) {
-				if (MenuItem(filename.c_str())) {
+				if (ImGui::MenuItem(filename.c_str())) {
 					loadLayout(filename);
 				}
 			}
 
 			if (m_ui.getLayout() != nullptr) {
-				Separator();
-				if (MenuItem("Close")) {
+				ImGui::Separator();
+				if (ImGui::MenuItem("Close")) {
 					YGNodeFreeRecursive(m_ui.getLayout());
 					// TODO: add cleanup function
 					m_ui.setLayout(nullptr);
@@ -41,12 +40,12 @@ void LayoutEditorScene::onUpdate(float dt) {
 				}
 			}
 
-			EndMenu();
+			ImGui::EndMenu();
 		}
-		EndMainMenuBar();
+		ImGui::EndMainMenuBar();
 	}
 
-	if (Begin("Editor")) {
+	if (ImGui::Begin("Editor")) {
 		if (m_selectedNode != nullptr) {
 			static int direction = YGDirectionInherit;
 			const char* flexdirections[] = {"row", "column", "row-reverse", "column-reverse"};
@@ -57,73 +56,73 @@ void LayoutEditorScene::onUpdate(float dt) {
 			static int flexwrap = YGWrapNoWrap;
 
 			NodeID* nodeId = (NodeID*)YGNodeGetContext(m_selectedNode);
-			Text("Node: %s", nodeId->id.c_str());
+			ImGui::Text("Node: %s", nodeId->id.c_str());
 			if (YGNodeGetChildCount(m_selectedNode) > 0) {
-				if (Button("Select 1st child")) {
+				if (ImGui::Button("Select 1st child")) {
 					m_selectedNode = YGNodeGetChild(m_selectedNode, 0);
 				}
 			}
-			if (BeginTabBar("tabs")) {
-				if (BeginTabItem("Flex")) {
-					Text("Direction");
-					RadioButton("inherit", &direction, YGDirectionInherit);
-					SameLine();
-					RadioButton("ltr", &direction, YGDirectionLTR);
-					SameLine();
-					RadioButton("rtl", &direction, YGDirectionRTL);
+			if (ImGui::BeginTabBar("tabs")) {
+				if (ImGui::BeginTabItem("Flex")) {
+					ImGui::Text("Direction");
+					ImGui::RadioButton("inherit", &direction, YGDirectionInherit);
+					ImGui::SameLine();
+					ImGui::RadioButton("ltr", &direction, YGDirectionLTR);
+					ImGui::SameLine();
+					ImGui::RadioButton("rtl", &direction, YGDirectionRTL);
 
-					Text("Flex Direction");
-					if (BeginCombo("##flexdirection", flexdirection)) {
+					ImGui::Text("Flex Direction");
+					if (ImGui::BeginCombo("##flexdirection", flexdirection)) {
 						for (size_t n = 0; n < IM_ARRAYSIZE(flexdirections); ++n) {
 							bool is_selected = (flexdirection == flexdirections[n]);
-							if (Selectable(flexdirections[n], is_selected)) {
+							if (ImGui::Selectable(flexdirections[n], is_selected)) {
 								flexdirection = flexdirections[n];
 							}
 							if (is_selected) {
-								SetItemDefaultFocus();
+								ImGui::SetItemDefaultFocus();
 							}
 						}
-						EndCombo();
+						ImGui::EndCombo();
 					}
 
-					if (BeginTable("##flexbasistable", 3, ImGuiTableFlags_NoBordersInBody)) {
-						TableNextColumn();
-						Text("Basis");
-						TableNextColumn();
-						Text("Grow");
-						TableNextColumn();
-						Text("Shrink");
-						TableNextColumn();
+					if (ImGui::BeginTable("##flexbasistable", 3, ImGuiTableFlags_NoBordersInBody)) {
+						ImGui::TableNextColumn();
+						ImGui::Text("Basis");
+						ImGui::TableNextColumn();
+						ImGui::Text("Grow");
+						ImGui::TableNextColumn();
+						ImGui::Text("Shrink");
+						ImGui::TableNextColumn();
 
-						InputTextWithHint("##flexbasis", "auto", flexbasis, 256);
-						TableNextColumn();
-						InputFloat("##flexgrow", &flexgrow, 0.0f, 0.0f, "%g");
-						TableNextColumn();
-						InputFloat("##flexshrink", &flexshrink, 0.0f, 0.0f, "%g");
+						ImGui::InputTextWithHint("##flexbasis", "auto", flexbasis, 256);
+						ImGui::TableNextColumn();
+						ImGui::InputFloat("##flexgrow", &flexgrow, 0.0f, 0.0f, "%g");
+						ImGui::TableNextColumn();
+						ImGui::InputFloat("##flexshrink", &flexshrink, 0.0f, 0.0f, "%g");
 
-						EndTable();
+						ImGui::EndTable();
 					}
 
-					Text("Flex Wrap");
-					RadioButton("no wrap", &flexwrap, YGWrapNoWrap);
-					SameLine();
-					RadioButton("wrap", &flexwrap, YGWrapWrap);
-					SameLine();
-					RadioButton("wrap-reverse", &flexwrap, YGWrapWrapReverse);
+					ImGui::Text("Flex Wrap");
+					ImGui::RadioButton("no wrap", &flexwrap, YGWrapNoWrap);
+					ImGui::SameLine();
+					ImGui::RadioButton("wrap", &flexwrap, YGWrapWrap);
+					ImGui::SameLine();
+					ImGui::RadioButton("wrap-reverse", &flexwrap, YGWrapWrapReverse);
 
-					EndTabItem();
+					ImGui::EndTabItem();
 				}
-				if (BeginTabItem("Alignment")) {
+				if (ImGui::BeginTabItem("Alignment")) {
 
-					EndTabItem();
+					ImGui::EndTabItem();
 				}
-				if (BeginTabItem("Layout")) {
+				if (ImGui::BeginTabItem("Layout")) {
 
-					EndTabItem();
+					ImGui::EndTabItem();
 				}
 
-				Separator();
-				if (Button("add child node")) {
+				ImGui::Separator();
+				if (ImGui::Button("add child node")) {
 					const YGNodeRef node = YGNodeNew();
 					YGNodeStyleSetWidth(node, 50);
 					YGNodeStyleSetHeight(node, 50);
@@ -132,8 +131,8 @@ void LayoutEditorScene::onUpdate(float dt) {
 					// TODO: need to insert userdata
 					m_ui.resize(glm::vec2(m_camera->getScreenSize()));
 				}
-				SameLine();
-				if ((m_selectedNode != m_ui.getLayout()) && Button("remove node")) {
+				ImGui::SameLine();
+				if ((m_selectedNode != m_ui.getLayout()) && ImGui::Button("remove node")) {
 					const YGNodeRef node = m_selectedNode;
 					m_selectedNode = YGNodeGetParent(m_selectedNode);
 					YGNodeFreeRecursive(node);
@@ -141,19 +140,19 @@ void LayoutEditorScene::onUpdate(float dt) {
 					m_ui.resize(glm::vec2(m_camera->getScreenSize()));
 				}
 
-				EndTabBar();
+				ImGui::EndTabBar();
 			}
 		} else {
 			constexpr const char* text = "Select a node";
-			auto window_dimensions = GetWindowSize();
-			auto text_dimensions = CalcTextSize(text);
+			auto window_dimensions = ImGui::GetWindowSize();
+			auto text_dimensions = ImGui::CalcTextSize(text);
 
-			SetCursorPosX((window_dimensions.x - text_dimensions.x) * 0.5f);
-			SetCursorPosY((window_dimensions.y - text_dimensions.y) * 0.5f);
-			TextColored(ImVec4(0.75, 0.75, 0.75, 1.0), text);
+			ImGui::SetCursorPosX((window_dimensions.x - text_dimensions.x) * 0.5f);
+			ImGui::SetCursorPosY((window_dimensions.y - text_dimensions.y) * 0.5f);
+			ImGui::TextColored(ImVec4(0.75, 0.75, 0.75, 1.0), text);
 		}
 	}
-	End();
+	ImGui::End();
 
 	// switch to next scene
 	if (glfwGetKey(m_engine->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
