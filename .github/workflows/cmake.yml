@@ -50,9 +50,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Packages
-        run: echo hi
-
       - name: Install Dependencies
         uses: lukka/run-vcpkg@v10
         with:
@@ -63,16 +60,16 @@ jobs:
         run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
 
       - name: Build Project
-        run: cmake -DCMAKE_GENERATOR_PLATFORM=x64
+        run: msbuild synthlike.sln
       
       - name: Create Archive
-        run: dir bin/
+        run: tree /f
 
-      - name: Push Release
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
-          files: |
-            ./bin/Release.tar.gz
+      #- name: Push Release
+      #  uses: "marvinpinto/action-automatic-releases@latest"
+      #  with:
+      #    repo_token: "${{ secrets.GITHUB_TOKEN }}"
+      #    prerelease: false
+      #    files: |
+      #      ./bin/Release.tar.gz
 
