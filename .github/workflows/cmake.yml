@@ -50,6 +50,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Packages (msbuild)
+        uses: microsoft/setup-msbuild@v1.1
+
       - name: Install Dependencies
         uses: lukka/run-vcpkg@v10
         with:
@@ -62,14 +65,18 @@ jobs:
       - name: Build Project
         run: msbuild synthlike.sln
       
-      - name: Create Archive
+      - name: DEBUG List files
         run: tree /f
 
-      #- name: Push Release
-      #  uses: "marvinpinto/action-automatic-releases@latest"
-      #  with:
-      #    repo_token: "${{ secrets.GITHUB_TOKEN }}"
-      #    prerelease: false
-      #    files: |
-      #      ./bin/Release.tar.gz
+      - name: Create Archive
+        # TODO: synthlike.sln is just for testing
+        run: powershell Compress-Archive res/ synthlike.sln bin/Release.zip
+
+      - name: Push Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            ./bin/Release.zip
 
