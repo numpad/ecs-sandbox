@@ -4,7 +4,7 @@
 	"dependencies": [
 		"entt", 
 		"openal-soft", 
-		"lua", 
+		"luajit", 
 		"freetype", 
 		"enet", 
 		"fmt",

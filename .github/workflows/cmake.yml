@@ -20,7 +20,8 @@ jobs:
         run: |
           sudo apt update
           # Check why we dont need these: libxcursor-dev xorg-dev libglu1-mesa-dev
-          sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libgl1-mesa-dev libluajit-5.1-dev
+          # TODO: check if build works without `apt install`ing "libluajit-5.1-dev". should be handled by vcpkg.
+          sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libgl1-mesa-dev
 
       - name: Install Dependencies
         uses: lukka/run-vcpkg@v10

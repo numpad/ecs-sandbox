@@ -1,6 +1,4 @@
 #include <set>
-#include <fmt/color.h>
-#include <fmt/core.h>
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include "Graphics/GLState.hpp"
 #include "UI/Layout.hpp"
@@ -78,7 +76,6 @@ void Layout::drawChildren(YGNodeRef node, glm::mat3 view) const {
 	float y = YGNodeLayoutGetTop(node);
 	float w = YGNodeLayoutGetWidth(node);
 	float h = YGNodeLayoutGetHeight(node);
-	fmt::print("{}, {}   {}x{}\n", x, y, w, h);
 
 	view = glm::translate(view, glm::vec2(x, y));
 	glm::mat3 model = glm::scale(glm::mat3(1.0f), glm::vec2(w, h));
