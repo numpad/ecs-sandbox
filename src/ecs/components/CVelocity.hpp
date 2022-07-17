@@ -4,7 +4,7 @@
 
 struct CVelocity {
 	glm::vec3 vel, acc;
-	float maxvel = 0.03f;
+	float maxvel = 0.075f;
 
 	CVelocity(glm::vec3 v) : vel(v), acc(0.0f) {
 	}

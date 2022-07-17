@@ -79,26 +79,28 @@ void BillboardRenderSystem::draw() {
 			this->aInstanceTextures.push_back(std::distance(boundTextures.begin(), exists));
 		}
 	});
+	
+	if (Engine::Instance->getConfig().imgui_enabled) {
+		if (ImGui::Begin("textures")) {
+			using namespace ImGui;
+			static bool uDebugToggle;
+			if (Checkbox("debug: draw instance texture id", &uDebugToggle)) {
+				instanceShader["uDebugToggle"] = uDebugToggle;
+			}
 
-	if (ImGui::Begin("textures")) {
-		using namespace ImGui;
-		static bool uDebugToggle;
-		if (Checkbox("debug: draw instance texture id", &uDebugToggle)) {
-			instanceShader["uDebugToggle"] = uDebugToggle;
+			int j = 0;
+			for (auto i : boundTextures) {
+				Image((void*)(uintptr_t)i->getTexture(), ImVec2(100.f, 100.f * i->getAspectRatio()), ImVec2(0, 1), ImVec2(1, 0));
+				SameLine();
+				GLint b;
+				glActiveTexture(GL_TEXTURE0 + j);
+				glGetIntegerv(GL_TEXTURE_BINDING_2D, &b);
+				Text("glActiveTexture(GL_TEXTURE%d)\nglBindTexture(GL_TEXTURE_2D, %d=%d)", j, i->getTexture(), b);
+				++j;
+			}
 		}
-
-		int j = 0;
-		for (auto i : boundTextures) {
-			Image((void*)(uintptr_t)i->getTexture(), ImVec2(100.f, 100.f * i->getAspectRatio()), ImVec2(0, 1), ImVec2(1, 0));
-			SameLine();
-			GLint b;
-			glActiveTexture(GL_TEXTURE0 + j);
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &b);
-			Text("glActiveTexture(GL_TEXTURE%d)\nglBindTexture(GL_TEXTURE_2D, %d=%d)", j, i->getTexture(), b);
-			++j;
-		}
+		ImGui::End();
 	}
-	ImGui::End();
 
 	// rendering:
 

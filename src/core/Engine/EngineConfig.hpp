@@ -15,5 +15,5 @@ struct EngineConfig {
 	// graphics settings
 	float particle_amount = 1.f;
 
-	bool imgui_enabled = true;
+	bool imgui_enabled = false;
 };

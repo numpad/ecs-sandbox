@@ -22,6 +22,6 @@ public:
 private:
 	sgl::texture* m_logo;
 
-	std::vector<std::string> m_modenames = {"Layout Editor", "Test Game", "Tower Tilt", "Sprite Preview"};
+	std::vector<std::string> m_modenames = {"Layout Editor", "Test Game", "Raft", "Tower Tilt", "Sprite Preview"};
 	size_t m_modeindex = 2;
 };

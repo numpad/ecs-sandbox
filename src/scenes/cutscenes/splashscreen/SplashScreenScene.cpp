@@ -8,7 +8,6 @@
 ////////////
 
 bool SplashScreenScene::onCreate() {
-	Engine::Instance->getConfig().imgui_enabled = false;
 	m_engine->getDispatcher().sink<TextInputEvent>().connect<&SplashScreenScene::onKeyInput>(this);
 
 	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f));

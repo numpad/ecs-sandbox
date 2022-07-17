@@ -1,4 +1,5 @@
 #include "scenes/ui/MainMenuScene.hpp"
+#include "scenes/gamemode/raft/MiniRaftScene.hpp"
 
 bool MainMenuScene::onCreate() {
 	m_logo = new sgl::texture();
@@ -13,20 +14,20 @@ bool MainMenuScene::onCreate() {
 	             sgl::texture::datatype::u8);
 	stbi_image_free(data);
 
-	m_engine->getConfig().imgui_enabled = true; // hotfix as long as imgui is used as menu renderer
 	return true;
 }
 
 void MainMenuScene::onDestroy() {
 	delete m_logo;
-
-	m_engine->getConfig().imgui_enabled = false; // hotfix as long as imgui is used as menu renderer
 }
 
 void MainMenuScene::onUpdate(float dt) {
 }
 
 void MainMenuScene::onRender() {
+	glClearColor(0.3f, 0.5f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	constexpr ImGuiWindowFlags wflags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
 	                                    ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
 
@@ -63,9 +64,12 @@ void MainMenuScene::onRender() {
 					m_engine->setActiveScene(new TestGameScene());
 					break;
 				case 2:
-					m_engine->setActiveScene(new TowerScene());
+					m_engine->setActiveScene(new MiniRaftScene());
 					break;
 				case 3:
+					m_engine->setActiveScene(new TowerScene());
+					break;
+				case 4:
 					m_engine->setActiveScene(new SpritePreviewScene());
 					break;
 				};

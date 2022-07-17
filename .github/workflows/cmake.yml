@@ -18,9 +18,8 @@ jobs:
       - name: Install Packages
         run: |
           sudo apt update
-          # Check why we dont need these: libxcursor-dev xorg-dev libglu1-mesa-dev
-          # TODO: check if build works without `apt install`ing "libluajit-5.1-dev". should be handled by vcpkg.
-          sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libgl1-mesa-dev
+          # TODO: Don't install `libluajit-5.1-dev`. VCPKG / Cmake should handle this.
+          sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libgl1-mesa-dev libluajit-5.1-dev
 
       - name: Install Dependencies
         uses: lukka/run-vcpkg@v10
@@ -61,9 +60,6 @@ jobs:
         with:
           vcpkgGitCommitId: 'cef0b3ec767df6e83806899fe9525f6cf8d7bc91'
           runVcpkgInstall: true
-      
-      - name: DEBUG List files
-        run: tree /f
 
       - name: Configure CMake
         run: cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release

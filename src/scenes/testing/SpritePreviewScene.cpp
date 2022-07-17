@@ -4,8 +4,6 @@ bool SpritePreviewScene::onCreate() {
 	m_camera = new Camera{glm::vec3(0.0f, 0.0f, 1.0f)};
 	m_camera->setTarget(glm::vec3(0.0f));
 
-	m_engine->getConfig().imgui_enabled = true;
-
 	// load shader
 	m_imageShader = new sgl::shader("res/glsl/ui/image_vert.glsl", "res/glsl/ui/image_frag.glsl");
 	m_previewShader = new sgl::shader("res/glsl/ui/uvimage_vert.glsl", "res/glsl/ui/uvimage_frag.glsl");
@@ -20,7 +18,6 @@ bool SpritePreviewScene::onCreate() {
 }
 
 void SpritePreviewScene::onDestroy() {
-	m_engine->getConfig().imgui_enabled = false;
 	delete m_imageShader;
 	delete m_previewShader;
 	glDeleteVertexArrays(1, &m_vao);

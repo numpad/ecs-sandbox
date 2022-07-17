@@ -5,8 +5,6 @@ bool LayoutEditorScene::onCreate() {
 	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f));
 	m_camera->setTarget(glm::vec3(0.0f));
 
-	m_engine->getConfig().imgui_enabled = true;
-
 	updateFiles();
 	loadLayout(m_files.at(0));
 
@@ -16,7 +14,6 @@ bool LayoutEditorScene::onCreate() {
 }
 
 void LayoutEditorScene::onDestroy() {
-	m_engine->getConfig().imgui_enabled = false;
 }
 
 void LayoutEditorScene::onUpdate(float dt) {
