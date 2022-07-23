@@ -1,4 +1,8 @@
 #include <Assets/AssetManager.hpp>
+#include <fmt/color.h>
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
 
 AssetManager::~AssetManager() {
 
@@ -148,6 +152,62 @@ bool AssetManager::loadTiledTexture(std::string path, unsigned int tiles_w, unsi
 	return true;
 }
 
+
+// model loading
+
+struct ObjFace {
+	int v[3];
+	int vn[3];
+	int vt[3];
+	char* mtl = NULL;
+};
+
+bool AssetManager::loadMesh(std::string path) {
+	std::ifstream file(path);	
+	
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec2> texcoords;
+	std::vector<ObjFace> faces;
+	std::vector<char*> materials;
+	
+	size_t current_material = 0;
+	for (std::string line; std::getline(file, line); ) {
+		std::istringstream iss(line);
+		std::string keyword;
+		
+		if (keyword == "v") {
+			float x, y, z;
+			iss >> x >> y >> z;
+			positions.emplace_back(x, y, z);
+		} else if (keyword == "vn") {
+			float x, y, z;
+			iss >> x >> y >> z;
+			normals.emplace_back(x, y, z);
+		} else if (keyword == "vt") {
+			float u, v;
+			iss >> u >> v;
+			texcoords.emplace_back(u, v);
+		} else if (keyword == "f") {
+			ObjFace face;
+			for (int i = 0; i < 3; ++i) {
+				iss >> face.v[i] >> face.vn[i] >> face.vt[i];
+			}
+			faces.push_back(face);
+		} else if (keyword == "g") {
+		} else if (keyword == "mtllib") {
+		} else if (keyword == "usemtl") {
+		} else {
+			fmt::print("[WARN] Encountered unknown keyword '{}' while parsing '{}'.", keyword, path);
+		}
+	}
+
+	file.close();
+}
+
+bool AssetManager::loadModel(std::string path) {
+	
+}
 
 // audio loading
 

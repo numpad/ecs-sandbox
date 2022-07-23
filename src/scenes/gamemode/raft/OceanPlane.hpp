@@ -12,8 +12,8 @@ class OceanPlane {
 public:
 	OceanPlane() {
 		par_shapes_mesh_s* plane = par_shapes_create_plane(m_planeSubdivisions, m_planeSubdivisions);
-		const float _rotation[] = {1, 0, 0};
-		par_shapes_rotate(plane, PAR_PI * -0.5f, _rotation);
+		const float _rotationAxis[] = {1, 0, 0};
+		par_shapes_rotate(plane, PAR_PI * -0.5f, _rotationAxis);
 
 		std::vector<Vertex> vertices;
 		for (int i = 0; i < plane->npoints * 3; i += 3) {
@@ -38,13 +38,13 @@ public:
 		// additive blending
 		GLState waterState;
 		waterState.depth_test = true;
+		waterState.depth_write = true;
 		Engine::Instance->getGraphics().setState(waterState);
-		
+
 		GBuffer& gbuffer = Engine::Instance->getGBuffer();
 
-		glm::mat4 model = glm::translate(
-			glm::scale(glm::mat4(1.0f), glm::vec3(m_size.x, 1.0f, m_size.y)),
-			glm::vec3(-0.5f, 0.0f, 0.5f));
+		glm::mat4 model = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(m_size.x, 1.0f, m_size.y)),
+		                                 glm::vec3(-0.5f, 0.0f, 0.5f));
 		m_shader["uProjection"] = camera.getProjection();
 		m_shader["uView"] = camera.getView();
 		m_shader["uModel"] = model;
@@ -64,7 +64,7 @@ public:
 
 #ifndef NDEBUG
 		static int _ticks = 0;
-		if (_ticks++ > 50) {
+		if (_ticks++ > 120) {
 			_ticks = 0;
 			m_shader.reload();
 		}

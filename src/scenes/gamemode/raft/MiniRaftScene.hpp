@@ -24,4 +24,6 @@ private:
 	RaftSet m_raft;
 	OceanPlane m_waterplane;
 	
+	Mesh* m_boxMesh;
+	sgl::shader* m_modelShader;
 };

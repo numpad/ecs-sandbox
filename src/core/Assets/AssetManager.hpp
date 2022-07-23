@@ -31,7 +31,8 @@ public:
 	Texture* getTexture(std::string path);
 	TiledTexture* getTiledTexture(std::string path, unsigned int tiles_w, unsigned int tiles_h, int tile_x = 0,
 	                              int tile_y = 0);
-
+	
+	Mesh* getMesh(std::string path);
 	Model* getModel(std::string path);
 
 	sgl::audio* getAudio(std::string path);
@@ -49,6 +50,7 @@ private:
 	bool loadTexture(std::string path, Texture::Flags flags);
 	bool loadTiledTexture(std::string path, unsigned int tiles_w, unsigned int tiles_h, int tile_x = 0, int tile_y = 0,
 	                      Texture::Flags flags = Texture::Flags::NONE);
+	bool loadMesh(std::string path);
 	bool loadModel(std::string path);
 	bool loadAudio(std::string path);
 

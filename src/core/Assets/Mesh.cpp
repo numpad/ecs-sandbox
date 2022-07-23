@@ -90,6 +90,9 @@ void Mesh::setupMesh() {
 		rawvertices.push_back(v.normal.x);
 		rawvertices.push_back(v.normal.y);
 		rawvertices.push_back(v.normal.z);
+		rawvertices.push_back(v.color.x);
+		rawvertices.push_back(v.color.y);
+		rawvertices.push_back(v.color.z);
 		if (hasTexcoords) {
 			rawvertices.push_back(v.texcoords.x);
 			rawvertices.push_back(v.texcoords.y);
@@ -114,10 +117,13 @@ void Mesh::setupMesh() {
 	// normal
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, rawvertexsize, (void*)offsetof(Vertex, normal));
+	// color
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, rawvertexsize, (void*)offsetof(Vertex, color));
 	// texcoord
 	if (hasTexcoords) {
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, rawvertexsize, (void*)offsetof(Vertex, texcoords));
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, rawvertexsize, (void*)offsetof(Vertex, texcoords));
 	}
 
 	glBindVertexArray(0);
