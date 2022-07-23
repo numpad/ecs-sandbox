@@ -23,7 +23,7 @@ struct ObjLoaderFace {
 class ObjLoader {
 public:
 
-	Mesh* load(const fs::path& path_to_obj_file);
+	static Mesh* load(const fs::path& path_to_obj_file);
 
 private:
 
