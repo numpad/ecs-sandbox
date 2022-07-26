@@ -36,7 +36,7 @@ bool MiniRaftScene::onCreate() {
 
 	// testing some stuff
 	m_modelShader = new sgl::shader("res/glsl/raft/model_vert.glsl", "res/glsl/raft/model_frag.glsl");
-	m_boxMesh = ObjLoader::load("res/models/raft/box.obj");
+	m_boxMesh = ObjLoader::load("res/models/raft/boxOpen.obj");
 
 	/* update systems */
 	BillboardRenderSystem* billboardRenderSystem = new BillboardRenderSystem(m_registry, m_camera);
@@ -99,6 +99,19 @@ void MiniRaftScene::onUpdate(float dt) {
 	float _pz = lua_tonumber(L, -1);
 	lua_pop(L, 3);
 
+	m_modelShader->uniform("uModel") = 
+		glm::scale(
+			glm::rotate(
+				glm::translate(
+					glm::mat4(1.0f),
+					glm::vec3(_px, _py, _pz)
+				),
+				-0.4f,
+				glm::vec3(1.0f, 0.0f, 0.0f)
+			),
+			glm::vec3(0.85f)
+		);
+
 	static float timer = 1.0f;
 	if ((timer += dt) > 0.02f) {
 		timer = 0.0f;
@@ -114,16 +127,6 @@ void MiniRaftScene::onUpdate(float dt) {
 		                                   (9.0f + glm::floor(rnd() * 5.0f)) * 16.0f, 16.0f, 16.0f, 256, 256);
 	}
 	
-	static char modelName[256];
-	if (ImGui::Begin("model")) {
-		ImGui::InputText("##modelName", modelName, 256);
-		ImGui::SameLine();
-		if (ImGui::Button("Load")) {
-			delete m_boxMesh;
-			m_boxMesh = ObjLoader::load(fs::path("res/models/raft/") / fs::path(modelName).replace_extension(".obj"));
-		}
-	}
-	ImGui::End();
 #endif
 
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto& usys) {
@@ -153,16 +156,12 @@ void MiniRaftScene::onRender() {
 	state.depth_test = true;
 	state.depth_write = true;
 	Engine::Instance->getGraphics().setState(state);
+
+	m_modelShader->uniform("uProjection") = m_camera->getProjection();
+	m_modelShader->uniform("uView") = m_camera->getView();
 	m_boxMesh->draw(*m_modelShader);
 
 	// render water
 	m_waterplane.draw(*m_camera);
 
-	m_modelShader->uniform("uProjection") = m_camera->getProjection();
-	m_modelShader->uniform("uView") = m_camera->getView();
-	m_modelShader->uniform("uModel") =
-	    glm::rotate(
-				glm::translate(glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(0.85f)), (float)glfwGetTime() * 0.4f, glm::vec3(0.0f, 1.0f, 0.0)), glm::vec3(2.0f, 0.0f, 0.0f)),
-				(float)glfwGetTime() * 1.3f,
-				glm::vec3(0.0f, -1.0f, 0.0f));
 }

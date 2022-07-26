@@ -10,9 +10,13 @@ layout(location = 3) in vec2 aTexCoord;
 layout(location = 4) in mat4 aModel;
 // location 4-7 occupied by aModel
 
+out vec3 vPosition;
+out vec3 vNormal;
 out vec3 vColor;
 
 void main() {
+	vPosition = (aModel * vec4(aPosition, 1.0)).xyz;
+	vNormal = mat3(transpose(inverse(aModel))) * aNormal;
 	vColor = aColor;
 	gl_Position = uProjection * uView * aModel * vec4(aPosition, 1.0);
 }

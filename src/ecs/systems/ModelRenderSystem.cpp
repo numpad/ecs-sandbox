@@ -68,9 +68,9 @@ void ModelRenderSystem::draw() {
 
 void ModelRenderSystem::updateBuffers() {
 	std::vector<glm::mat4> modelMatrices = {
-	    glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.0f)),
-	    glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.5f, 0.0f)),
-	    glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.5f, 0.0f)),
+		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.0f)), glm::vec3(0.75f)),
+		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(1.00f)),
+		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f)), glm::vec3(1.25f))
 	};
 
 	std::vector<Vertex> vertices;
