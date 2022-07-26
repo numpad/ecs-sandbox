@@ -17,7 +17,9 @@ public:
 
 		std::vector<Vertex> vertices;
 		for (int i = 0; i < plane->npoints * 3; i += 3) {
-			vertices.emplace_back(Vertex(glm::vec3(plane->points[i + 0], plane->points[i + 1], plane->points[i + 2])));
+			Vertex v;
+			v.position = glm::vec3(plane->points[i + 0], plane->points[i + 1], plane->points[i + 2]);
+			vertices.push_back(v);
 		}
 
 		std::vector<GLuint> indices;

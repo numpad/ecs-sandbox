@@ -1,4 +1,4 @@
-// 160541ecedef37f6375e0c661918a554a8b1e940
+// b900b415d828dc7924b6d0b9df4ed27a982f53d6
 #pragma once
 
 #include <ecs/components/CVelocity.hpp>
@@ -13,6 +13,7 @@
 #include <ecs/components/CBillboard.hpp>
 #include <ecs/components/COrientation.hpp>
 #include <ecs/components/CParticle.hpp>
+#include <ecs/components/CModel.hpp>
 #include <ecs/components/CProjectile.hpp>
 #include <ecs/components/CDamageOverTime.hpp>
 #include <ecs/components/CJumpTimer.hpp>

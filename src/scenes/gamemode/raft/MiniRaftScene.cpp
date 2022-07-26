@@ -9,6 +9,7 @@
 #include "ecs/systems/DecalRenderSystem.hpp"
 #include "ecs/systems/IRenderSystem.hpp"
 #include "ecs/systems/IUpdateSystem.hpp"
+#include "ecs/systems/ModelRenderSystem.hpp"
 #include <GLFW/glfw3.h>
 #include <filesystem>
 #include <fmt/core.h>
@@ -43,6 +44,7 @@ bool MiniRaftScene::onCreate() {
 	m_updatesystems.emplace_back(new PositionUpdateSystem(m_registry));
 	m_updatesystems.emplace_back(billboardRenderSystem);
 	/* render systems */
+	m_rendersystems.emplace_back(new ModelRenderSystem(m_registry, m_camera));
 	m_rendersystems.push_back(billboardRenderSystem);
 	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera)); // needs to be rendered after OceanPlane
 	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
@@ -159,5 +161,8 @@ void MiniRaftScene::onRender() {
 	m_modelShader->uniform("uProjection") = m_camera->getProjection();
 	m_modelShader->uniform("uView") = m_camera->getView();
 	m_modelShader->uniform("uModel") =
-	    glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(0.85f)), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0));
+	    glm::rotate(
+				glm::translate(glm::rotate(glm::scale(glm::mat4(1.0f), glm::vec3(0.85f)), (float)glfwGetTime() * 0.4f, glm::vec3(0.0f, 1.0f, 0.0)), glm::vec3(2.0f, 0.0f, 0.0f)),
+				(float)glfwGetTime() * 1.3f,
+				glm::vec3(0.0f, -1.0f, 0.0f));
 }

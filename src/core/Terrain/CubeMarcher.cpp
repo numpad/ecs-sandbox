@@ -188,9 +188,13 @@ int CubeMarcher::polygonizeCube(const Terrain& terrain, vec3 cellStart, std::vec
 		vec3 p[3] = {vertices[TRIANGLE_TABLE[cubeindex][i]], vertices[TRIANGLE_TABLE[cubeindex][i + 1]],
 		             vertices[TRIANGLE_TABLE[cubeindex][i + 2]]};
 		vec3 n = m3d::triangleCalcNormal(p);
-		triangleVertices.push_back(Vertex(p[0], n));
-		triangleVertices.push_back(Vertex(p[1], n));
-		triangleVertices.push_back(Vertex(p[2], n));
+
+		for (int i = 0; i < 3; ++i) {
+			Vertex v;
+			v.position = p[i];
+			v.normal = n;
+			triangleVertices.push_back(v);
+		}
 		++tricount;
 	}
 
@@ -238,9 +242,12 @@ int CubeMarcher::polygonizeCube(const ISignedDistanceFunction& sdf, vec3 cellSta
 		vec3 p[3] = {vertices[TRIANGLE_TABLE[cubeindex][i]], vertices[TRIANGLE_TABLE[cubeindex][i + 1]],
 		             vertices[TRIANGLE_TABLE[cubeindex][i + 2]]};
 		vec3 n = m3d::triangleCalcNormal(p);
-		triangleVertices.emplace_back(p[0], n);
-		triangleVertices.emplace_back(p[1], n);
-		triangleVertices.emplace_back(p[2], n);
+		for (int i = 0; i < 3; ++i) {
+			Vertex v;
+			v.position = p[i];
+			v.normal = n;
+			triangleVertices.push_back(v);
+		}
 		++tricount;
 	}
 
