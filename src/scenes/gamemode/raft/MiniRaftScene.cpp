@@ -16,7 +16,6 @@
 #include <imgui.h>
 #include <luajit/lua.h>
 #include <luajit/lauxlib.h>
-namespace fs = std::filesystem;
 
 static glm::vec3 limitMag(glm::vec3 of, glm::vec3 to) {
 	const float mof = glm::length(of);
@@ -36,7 +35,7 @@ bool MiniRaftScene::onCreate() {
 
 	// testing some stuff
 	m_modelShader = new sgl::shader("res/glsl/raft/model_vert.glsl", "res/glsl/raft/model_frag.glsl");
-	m_boxMesh = ObjLoader::load("res/models/raft/boxOpen.obj");
+	m_boxMesh = m_assetmanager.getMesh("res/models/raft/boxOpen.obj");
 
 	/* update systems */
 	BillboardRenderSystem* billboardRenderSystem = new BillboardRenderSystem(m_registry, m_camera);
@@ -48,19 +47,20 @@ bool MiniRaftScene::onCreate() {
 	m_rendersystems.push_back(billboardRenderSystem);
 	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera)); // needs to be rendered after OceanPlane
 	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
-
-	// create test entity at (0|0|0)
-	Texture* texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
+	
+	// test some models
 	entt::entity e = m_registry.create();
-	m_registry.emplace<CPosition>(e, glm::vec3(0.0f, -0.05f, 0.0f));
-	m_registry.emplace<CBillboard>(e, texture, glm::vec2(0.2f, 0.4f));
-	m_registry.emplace<CTextureRegion>(e, 10.0f * 16.0f, 2.0f * 16.0f, 16.0f, 32.0f, 256, 256);
+	m_registry.emplace<CPosition>(e, glm::vec3(-1.0f, 0.0f, 0.0f));
+	m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/rockA.obj"));
+
+	entt::entity e2 = m_registry.create();
+	m_registry.emplace<CPosition>(e2, glm::vec3(-1.0f, 0.0f, 0.0f));
+	m_registry.emplace<CModel>(e2, m_assetmanager.getMesh("res/models/raft/rockA.obj"));
 
 	return true;
 }
 
 void MiniRaftScene::onDestroy() {
-	delete m_boxMesh;
 	delete m_modelShader;
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [](IUpdateSystem* usys) {
 		delete usys;
@@ -78,7 +78,7 @@ void MiniRaftScene::onUpdate(float dt) {
 	}
 
 	static char spawnFunc[1024] = "-- position\npx = math.sin(TIME)\npy = 0\npz = 3\n\n-- velocity\nvx = "
-	                              "(math.random() * 2 - 1) * 0.5\nvy = -1\nvz = math.random() * 0.052";
+	                              "(math.random() * 2 - 1) * 0.3\nvy = -1\nvz = math.random() * 0.052";
 
 	lua_State* L = Engine::Instance->getLuaState();
 	lua_pushnumber(L, glfwGetTime());
@@ -113,7 +113,7 @@ void MiniRaftScene::onUpdate(float dt) {
 		);
 
 	static float timer = 1.0f;
-	if ((timer += dt) > 0.02f) {
+	if ((timer += dt) > 0.06f) {
 		timer = 0.0f;
 		static Random rnd(0.0f, 1.0f);
 		const glm::vec2 rdir = glm::normalize(glm::vec2(_x, _y)) * _r;

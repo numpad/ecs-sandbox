@@ -70,7 +70,9 @@ void ModelRenderSystem::updateBuffers() {
 	std::vector<glm::mat4> modelMatrices = {
 		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.0f)), glm::vec3(0.75f)),
 		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(1.00f)),
-		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f)), glm::vec3(1.25f))
+		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f)), glm::vec3(1.25f)),
+		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)), glm::vec3(1.50f)),
+		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(2.5f, 0.0f, 0.0f)), glm::vec3(1.75f))
 	};
 
 	std::vector<Vertex> vertices;
@@ -81,8 +83,8 @@ void ModelRenderSystem::updateBuffers() {
 
 	std::vector<GLuint> indirectData = {
 		// count, instanceCount, first, baseInstance
-		static_cast<unsigned int>(mesh1->vertices.size()), 1, 0, 0,
-		static_cast<unsigned int>(mesh2->vertices.size()), 2, (unsigned int)mesh1->vertices.size(), 1
+		static_cast<unsigned int>(mesh1->vertices.size()), 3, 0, 0,
+		static_cast<unsigned int>(mesh2->vertices.size()), 2, (unsigned int)mesh1->vertices.size(), 3
 	};
 
 	// upload to gpu

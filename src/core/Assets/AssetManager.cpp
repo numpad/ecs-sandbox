@@ -1,3 +1,4 @@
+#include "Assets/Loaders/ObjLoader.hpp"
 #include <Assets/AssetManager.hpp>
 #include <fmt/color.h>
 #include <fstream>
@@ -30,10 +31,10 @@ AssetManager::~AssetManager() {
 	}
 
 	int freedMeshes = 0;
-	for (auto m : meshes) {
+	for (auto iter : meshes) {
 		++freedMeshes;
-		delete m;
-		m = nullptr;
+		delete iter.second;
+		iter.second = nullptr;
 	}
 
 	int freedAudios = 0;
@@ -43,7 +44,7 @@ AssetManager::~AssetManager() {
 		iter.second = nullptr;
 	}
 
-#if CFG_DEBUG
+#ifndef NDEBUG
 	printf("[LOG] AssetManager: freed %d textures.\n", freedTextures);
 	printf("[LOG] AssetManager: freed %d tiledtextures.\n", freedTiledTextures);
 	printf("[LOG] AssetManager: freed %d models.\n", freedModels);
@@ -73,7 +74,7 @@ bool AssetManager::loadTexture(std::string path, Texture::Flags flags) {
 	// todo: check if this texture is already loaded with the same flags,
 	//       if not: create new Texture*
 	if (texture != textures.end()) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 		printf("[LOG] AssetManager: texture already loaded... skipping '%s'\n", (path).c_str());
 #endif
 		return false;
@@ -83,14 +84,14 @@ bool AssetManager::loadTexture(std::string path, Texture::Flags flags) {
 	bool is_loaded = tex->loadImage(path);
 
 	if (is_loaded) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 		printf("[LOG] AssetManager: loaded texture '%s'\n", (path).c_str());
 #endif
 
 		textures.insert({path, tex});
 		return true;
 	} else {
-#if CFG_DEBUG
+#ifndef NDEBUG
 		printf("[ERR] AssetManager: failed loading texture '%s'\n", (path).c_str());
 #endif
 	}
@@ -103,7 +104,7 @@ Texture* AssetManager::getTexture(std::string path) {
 	if (texture == textures.end()) {
 		bool is_loaded = loadTexture(path, Texture::Flags::NONE);
 		if (!is_loaded) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 			printf("[WARN] AssetManager: getTexture(path) could not load:\n  path = \"%s\"!\n", path.c_str());
 #endif
 			return nullptr;
@@ -119,7 +120,7 @@ TiledTexture* AssetManager::getTiledTexture(std::string path, unsigned int tiles
 	if (tile == tiledtextures.end()) {
 		bool is_loaded = loadTiledTexture(path, tiles_w, tiles_h, tile_x, tile_y, Texture::Flags::NONE);
 		if (!is_loaded) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 			printf("[WARN] AssetManager: getTiledTexture(path) could not load:\n  path = \"%s\"!\n", path.c_str());
 #endif
 			return nullptr;
@@ -133,7 +134,7 @@ bool AssetManager::loadTiledTexture(std::string path, unsigned int tiles_w, unsi
                                     int tile_y, Texture::Flags flags) {
 	Texture* texture = getTexture(path);
 	if (texture == nullptr) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 		printf("[WARN] AssetManager: loadTiledTexture(path) failed\n");
 #endif
 		return false;
@@ -141,7 +142,7 @@ bool AssetManager::loadTiledTexture(std::string path, unsigned int tiles_w, unsi
 
 	TiledTexture* tt = new TiledTexture(tiles_w, tiles_h, flags);
 	if (!tt->loadTexture(*texture)) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 		printf("[WARN] AssetManager: loadTiledTexture(path) TiledTexture::loadTexture(const Texture &copy) failed!\n");
 #endif
 		return false;
@@ -154,7 +155,29 @@ bool AssetManager::loadTiledTexture(std::string path, unsigned int tiles_w, unsi
 
 
 // model loading
+Mesh* AssetManager::getMesh(std::string path) {
+	auto mesh = meshes.find(path);
+	if (mesh == meshes.end()) {
+		bool is_loaded = loadMesh(path);
+		if (!is_loaded) {
+#ifndef NDEBUG
+			printf("[WARN] AssetManager: getMesh(path) could not load:\n  path = \"%s\"!\n", path.c_str());
+#endif
+			return nullptr;
+		}
+	}
+
+	return meshes.at(path);
+}
+
 bool AssetManager::loadMesh(std::string path) {
+	Mesh* loadedMesh = ObjLoader::load(path);
+	if (loadedMesh == nullptr) {
+		return false;
+	}
+
+	meshes[path] = loadedMesh;
+	return true;
 }
 
 bool AssetManager::loadModel(std::string path) {
@@ -173,7 +196,7 @@ sgl::audio* AssetManager::getAudio(std::string path) {
 	if (audio == audios.end()) {
 		bool is_loaded = loadAudio(path);
 		if (!is_loaded) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 			printf("[WARN] AssetManager: getAudio(path) could not load:\n  path = \"%s\"!\n", path.c_str());
 #endif
 			return nullptr;

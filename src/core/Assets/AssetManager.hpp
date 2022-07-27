@@ -43,8 +43,8 @@ private:
 	std::unordered_map<std::string, Texture*> textures;
 	std::map<std::tuple<std::string, unsigned int, unsigned int, int, int>, TiledTexture*> tiledtextures;
 	std::unordered_map<std::string, Model*> models;
+	std::unordered_map<std::string, Mesh*> meshes;
 	std::unordered_map<std::string, sgl::audio*> audios;
-	std::vector<Mesh*> meshes;
 
 	// loading data
 	bool loadTexture(std::string path, Texture::Flags flags);
