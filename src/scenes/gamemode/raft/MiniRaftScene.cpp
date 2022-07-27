@@ -134,7 +134,7 @@ void MiniRaftScene::onUpdate(float dt) {
 	});
 
 	// make entites float
-	m_registry.view<CPosition, CVelocity, CGravity>().each([this](CPosition& cpos, CVelocity& cvel, auto& cgravity) {
+	m_registry.view<CPosition, CVelocity, CGravity>().each([](CPosition& cpos, CVelocity& cvel, auto& cgravity) {
 		const float WATER_HEIGHT = 0.0f - 0.05f; // TODO: something like oceanplane.getHeightAtPos(cpos.pos.xz);
 		if (cpos.pos.y < WATER_HEIGHT) {
 			const glm::vec3 drag = -limitMag(glm::normalize(cvel.vel) * 0.0008f, cvel.vel);

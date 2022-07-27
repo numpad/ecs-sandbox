@@ -66,26 +66,47 @@ void ModelRenderSystem::draw() {
 // PRIVATE //
 /////////////
 
-void ModelRenderSystem::updateBuffers() {
-	std::vector<glm::mat4> modelMatrices = {
-		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.0f)), glm::vec3(0.75f)),
-		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(1.00f)),
-		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f)), glm::vec3(1.25f)),
-		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)), glm::vec3(1.50f)),
-		glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(2.5f, 0.0f, 0.0f)), glm::vec3(1.75f))
-	};
+static inline void _addMeshTransform(MeshTransformMap& meshTransforms, Mesh* mesh, const glm::mat4& transform) {
+	meshTransforms.try_emplace(mesh, std::vector<glm::mat4>{});
+	meshTransforms.at(mesh).push_back(transform);
+}
 
-	std::vector<Vertex> vertices;
+static inline GLuint _getMeshTransformCount(const MeshTransformMap& meshTransforms) {
+	GLuint count = 0;
+	
+	for (auto it = meshTransforms.begin(); it != meshTransforms.end(); ++it) {
+		count += it->second.size();
+	}
+
+	return count;
+}
+
+void ModelRenderSystem::updateBuffers() {
 	Mesh* mesh1 = ObjLoader::load("res/models/raft/barrel.obj");
 	Mesh* mesh2 = ObjLoader::load("res/models/raft/boxOpen.obj");
-	vertices.insert(vertices.end(), mesh1->vertices.begin(), mesh1->vertices.end());
-	vertices.insert(vertices.end(), mesh2->vertices.begin(), mesh2->vertices.end());
 
-	std::vector<GLuint> indirectData = {
-		// count, instanceCount, first, baseInstance
-		static_cast<unsigned int>(mesh1->vertices.size()), 3, 0, 0,
-		static_cast<unsigned int>(mesh2->vertices.size()), 2, (unsigned int)mesh1->vertices.size(), 3
-	};
+	_addMeshTransform(m_meshTransforms, mesh1, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.0f)), glm::vec3(0.75f)));
+	_addMeshTransform(m_meshTransforms, mesh1, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(1.00f)));
+	_addMeshTransform(m_meshTransforms, mesh2, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(1.5f, 0.0f, 0.0f)), glm::vec3(1.25f)));
+	_addMeshTransform(m_meshTransforms, mesh2, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)), glm::vec3(1.50f)));
+	_addMeshTransform(m_meshTransforms, mesh1, glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(2.5f, 0.0f, 0.0f)), glm::vec3(1.75f)));
+
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indirectData;
+
+	GLuint verticesOffset = 0;
+	GLuint instancesOffset = 0;
+	for (auto it = m_meshTransforms.begin(); it != m_meshTransforms.end(); ++it) {
+		vertices.insert(vertices.end(), it->first->vertices.begin(), it->first->vertices.end());
+
+		indirectData.push_back(it->first->vertices.size());
+		indirectData.push_back(it->second.size());
+		indirectData.push_back(verticesOffset);
+		indirectData.push_back(instancesOffset);
+
+		verticesOffset += it->first->vertices.size();
+		instancesOffset += it->second.size();
+	}
 
 	// upload to gpu
 
@@ -112,7 +133,12 @@ void ModelRenderSystem::updateBuffers() {
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texcoords));
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_mbo);
-	glBufferData(GL_ARRAY_BUFFER, modelMatrices.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, _getMeshTransformCount(m_meshTransforms) * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+	GLintptr offset = 0;
+	for (auto it = m_meshTransforms.begin(); it != m_meshTransforms.end(); ++it) {
+		glBufferSubData(GL_ARRAY_BUFFER, offset * sizeof(glm::mat4), it->second.size() * sizeof(glm::mat4), it->second.data());
+		offset += it->second.size();
+	}
 
 	// model matrix
 	glEnableVertexAttribArray(4 + 0);

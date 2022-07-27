@@ -53,14 +53,14 @@ Mesh* ObjLoader::load(const fs::path& path_to_obj_file) {
 
 	size_t currentMaterial = 0;
 	for (std::string line; std::getline(file, line);) {
-		if (line.empty() || line[0] == '#') {
+		if (line.empty() || line[0] == '#' || line[0] == '\n' || line[0] == '\r') {
 			continue;
 		}
 
 		std::istringstream iss(line);
 		std::string keyword;
 		iss >> keyword;
-
+		
 		if (keyword == "v") {
 			float x, y, z;
 			iss >> x >> y >> z;
