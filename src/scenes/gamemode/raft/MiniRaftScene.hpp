@@ -23,7 +23,6 @@ private:
 
 	RaftSet m_raft;
 	OceanPlane m_waterplane;
-	
-	Mesh* m_boxMesh;
-	sgl::shader* m_modelShader;
+
+	entt::entity m_spawnerBox = entt::null;
 };

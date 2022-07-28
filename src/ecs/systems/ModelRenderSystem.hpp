@@ -17,10 +17,7 @@ public:
 
 	void draw() override;
 
-
 private:
-
-	void updateBuffers();
 
 	// data for rendering
 	sgl::shader m_shader;
@@ -28,4 +25,8 @@ private:
 
 	// data previous to rendering
 	MeshTransformMap m_meshTransforms;
+
+	void initializeBuffers();
+	void updateBuffers();
+
 };

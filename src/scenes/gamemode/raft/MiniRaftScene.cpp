@@ -5,6 +5,7 @@
 #include "Util/File.hpp"
 #include "Util/Random.hpp"
 #include "ecs/components.hpp"
+#include "ecs/components/COrientation.hpp"
 #include "ecs/systems/BillboardRenderSystem.hpp"
 #include "ecs/systems/DecalRenderSystem.hpp"
 #include "ecs/systems/IRenderSystem.hpp"
@@ -13,6 +14,7 @@
 #include <GLFW/glfw3.h>
 #include <filesystem>
 #include <fmt/core.h>
+#include <glm/ext/scalar_constants.hpp>
 #include <imgui.h>
 #include <luajit/lua.h>
 #include <luajit/lauxlib.h>
@@ -32,10 +34,6 @@ bool MiniRaftScene::onCreate() {
 
 	m_camera = std::make_shared<Camera>(glm::vec3(-4.0f, 4.5f, -4.0f));
 	m_camera->setTarget(glm::vec3(0.0f));
-
-	// testing some stuff
-	m_modelShader = new sgl::shader("res/glsl/raft/model_vert.glsl", "res/glsl/raft/model_frag.glsl");
-	m_boxMesh = m_assetmanager.getMesh("res/models/raft/boxOpen.obj");
 
 	/* update systems */
 	BillboardRenderSystem* billboardRenderSystem = new BillboardRenderSystem(m_registry, m_camera);
@@ -61,7 +59,6 @@ bool MiniRaftScene::onCreate() {
 }
 
 void MiniRaftScene::onDestroy() {
-	delete m_modelShader;
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [](IUpdateSystem* usys) {
 		delete usys;
 	});
@@ -78,7 +75,7 @@ void MiniRaftScene::onUpdate(float dt) {
 	}
 
 	static char spawnFunc[1024] = "-- position\npx = math.sin(TIME)\npy = 0\npz = 3\n\n-- velocity\nvx = "
-	                              "(math.random() * 2 - 1) * 0.3\nvy = -1\nvz = math.random() * 0.052";
+	                              "(math.random() * 2 - 1) * 0.3\nvy = -1\nvz = math.random() * 0.04 + 0.012";
 
 	lua_State* L = Engine::Instance->getLuaState();
 	lua_pushnumber(L, glfwGetTime());
@@ -99,19 +96,14 @@ void MiniRaftScene::onUpdate(float dt) {
 	float _pz = lua_tonumber(L, -1);
 	lua_pop(L, 3);
 
-	m_modelShader->uniform("uModel") = 
-		glm::scale(
-			glm::rotate(
-				glm::translate(
-					glm::mat4(1.0f),
-					glm::vec3(_px, _py, _pz)
-				),
-				-0.4f,
-				glm::vec3(1.0f, 0.0f, 0.0f)
-			),
-			glm::vec3(0.85f)
-		);
-
+	
+	if (!m_registry.valid(m_spawnerBox)) {
+		m_spawnerBox = m_registry.create();
+	}
+	m_registry.emplace_or_replace<CPosition>(m_spawnerBox, _px, _py, _pz);
+	m_registry.emplace_or_replace<COrientation>(m_spawnerBox, glm::vec3(1.0f, 0.0f, 0.0f), -0.4f);
+	m_registry.emplace_or_replace<CModel>(m_spawnerBox, m_assetmanager.getMesh("res/models/raft/boxOpen.obj"));
+	
 	static float timer = 1.0f;
 	if ((timer += dt) > 0.06f) {
 		timer = 0.0f;
@@ -122,9 +114,20 @@ void MiniRaftScene::onUpdate(float dt) {
 		m_registry.emplace<CPosition>(e, glm::vec3(_px, _py, _pz));
 		m_registry.emplace<CVelocity>(e, glm::vec3(rdir.x, 0.03f, rdir.y));
 		m_registry.emplace<CGravity>(e);
-		m_registry.emplace<CBillboard>(e, texture, glm::vec2(0.2f));
-		m_registry.emplace<CTextureRegion>(e, glm::floor(rnd() * 5.0f) * 16.0f,
-		                                   (9.0f + glm::floor(rnd() * 5.0f)) * 16.0f, 16.0f, 16.0f, 256, 256);
+
+		static int i = 0;
+		if (i++ % 2 == 1) {
+			m_registry.emplace<CBillboard>(e, texture, glm::vec2(0.2f));
+			m_registry.emplace<CTextureRegion>(e, glm::floor(rnd() * 5.0f) * 16.0f,
+											   (9.0f + glm::floor(rnd() * 5.0f)) * 16.0f, 16.0f, 16.0f, 256, 256);
+		} else {
+			glm::vec3 rot = glm::normalize(glm::vec3(rnd(), rnd(), rnd()));
+			m_registry.emplace<COrientation>(e, rot, rnd() * glm::pi<float>() * 2.0f);
+			if ((i / 2) % 2 == 0)
+				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/barrel.obj"));
+			else
+				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/box.obj"));
+		}
 	}
 	
 #endif
@@ -156,10 +159,6 @@ void MiniRaftScene::onRender() {
 	state.depth_test = true;
 	state.depth_write = true;
 	Engine::Instance->getGraphics().setState(state);
-
-	m_modelShader->uniform("uProjection") = m_camera->getProjection();
-	m_modelShader->uniform("uView") = m_camera->getView();
-	m_boxMesh->draw(*m_modelShader);
 
 	// render water
 	m_waterplane.draw(*m_camera);
