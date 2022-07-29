@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/IScene.hpp"
+#include "ecs/events/MouseButtonEvent.hpp"
 #include "ecs/systems/IRenderSystem.hpp"
 #include "ecs/systems/IUpdateSystem.hpp"
 #include "scenes/gamemode/raft/RaftSet.hpp"
@@ -25,4 +26,6 @@ private:
 	OceanPlane m_waterplane;
 
 	entt::entity m_spawnerBox = entt::null;
+
+	void onMouseButtonInput(const MouseButtonEvent& event);
 };

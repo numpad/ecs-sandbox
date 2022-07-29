@@ -3,9 +3,13 @@
 #include "Graphics/GLState.hpp"
 #include "RenderObject/GBuffer.hpp"
 #include "Util/File.hpp"
+#include "Util/Math3d.hpp"
 #include "Util/Random.hpp"
 #include "ecs/components.hpp"
+#include "ecs/components/CGravity.hpp"
 #include "ecs/components/COrientation.hpp"
+#include "ecs/components/CPosition.hpp"
+#include "ecs/events/MouseButtonEvent.hpp"
 #include "ecs/systems/BillboardRenderSystem.hpp"
 #include "ecs/systems/DecalRenderSystem.hpp"
 #include "ecs/systems/IRenderSystem.hpp"
@@ -30,8 +34,9 @@ static glm::vec3 limitMag(glm::vec3 of, glm::vec3 to) {
 }
 
 bool MiniRaftScene::onCreate() {
+	m_engine->getDispatcher().sink<MouseButtonEvent>().connect<&MiniRaftScene::onMouseButtonInput>(this);
 	m_registry.set<entt::dispatcher>();
-
+	
 	m_camera = std::make_shared<Camera>(glm::vec3(-4.0f, 4.5f, -4.0f));
 	m_camera->setTarget(glm::vec3(0.0f));
 
@@ -45,20 +50,13 @@ bool MiniRaftScene::onCreate() {
 	m_rendersystems.push_back(billboardRenderSystem);
 	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera)); // needs to be rendered after OceanPlane
 	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
-	
-	// test some models
-	entt::entity e = m_registry.create();
-	m_registry.emplace<CPosition>(e, glm::vec3(-1.0f, 0.0f, 0.0f));
-	m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/rockA.obj"));
-
-	entt::entity e2 = m_registry.create();
-	m_registry.emplace<CPosition>(e2, glm::vec3(-1.0f, 0.0f, 0.0f));
-	m_registry.emplace<CModel>(e2, m_assetmanager.getMesh("res/models/raft/rockA.obj"));
 
 	return true;
 }
 
 void MiniRaftScene::onDestroy() {
+	m_engine->getDispatcher().sink<MouseButtonEvent>().disconnect<&MiniRaftScene::onMouseButtonInput>(this);
+
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [](IUpdateSystem* usys) {
 		delete usys;
 	});
@@ -137,7 +135,7 @@ void MiniRaftScene::onUpdate(float dt) {
 	});
 
 	// make entites float
-	m_registry.view<CPosition, CVelocity, CGravity>().each([](CPosition& cpos, CVelocity& cvel, auto& cgravity) {
+	m_registry.view<const CPosition, CVelocity, const CGravity>().each([](const CPosition& cpos, CVelocity& cvel, const auto& cgravity) {
 		const float WATER_HEIGHT = 0.0f - 0.05f; // TODO: something like oceanplane.getHeightAtPos(cpos.pos.xz);
 		if (cpos.pos.y < WATER_HEIGHT) {
 			const glm::vec3 drag = -limitMag(glm::normalize(cvel.vel) * 0.0008f, cvel.vel);
@@ -155,12 +153,32 @@ void MiniRaftScene::onRender() {
 		rsys->draw();
 	});
 
-	GLState state;
-	state.depth_test = true;
-	state.depth_write = true;
-	Engine::Instance->getGraphics().setState(state);
-
 	// render water
 	m_waterplane.draw(*m_camera);
 
 }
+
+/////////////
+// PRIVATE //
+/////////////
+
+void MiniRaftScene::onMouseButtonInput(const MouseButtonEvent& event) {
+	if (!event.is_down) return;
+
+	glm::vec2 mpos = Engine::Instance->getWindow().getNormalizedMousePosition();
+	m3d::ray ray = m_camera->raycast(mpos);
+	m3d::plane floor = m3d::plane(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	glm::vec3 pos = m3d::raycast(ray, floor);
+	constexpr static float GRID_SIZE = 0.375f;
+	pos.x = glm::floor(pos.x / GRID_SIZE) * GRID_SIZE;
+	pos.z = glm::floor(pos.z / GRID_SIZE) * GRID_SIZE;
+
+	for (int i = 0; i < 4; ++i) {
+		entt::entity e = m_registry.create();
+		m_registry.emplace<CPosition>(e, pos + glm::vec3(0.0f, 0.1f, 0.0f));
+		m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+		m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/floor.obj"));
+	}
+}
+
+
