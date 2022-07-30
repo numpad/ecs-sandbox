@@ -8,7 +8,7 @@ bool LayoutEditorScene::onCreate() {
 	updateFiles();
 	loadLayout(m_files.at(0));
 
-	lua_State* L = m_engine->getLuaState();
+	lua_State* L = Engine::Instance->getLuaState();
 
 	return true;
 }
@@ -152,8 +152,8 @@ void LayoutEditorScene::onUpdate(float dt) {
 	ImGui::End();
 
 	// switch to next scene
-	if (glfwGetKey(m_engine->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		m_engine->setActiveScene(new MainMenuScene());
+	if (glfwGetKey(Engine::Instance->window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		Engine::Instance->setActiveScene(new MainMenuScene());
 	}
 }
 
@@ -177,10 +177,10 @@ void LayoutEditorScene::updateFiles() {
 }
 
 void LayoutEditorScene::loadLayout(const std::string& filename) {
-	lua_State* L = m_engine->getLuaState();
+	lua_State* L = Engine::Instance->getLuaState();
 
 	// parse layout file
-	if (luaL_dofile(m_engine->getLuaState(), std::string("res/scripts/layout/" + filename).c_str())) {
+	if (luaL_dofile(Engine::Instance->getLuaState(), std::string("res/scripts/layout/" + filename).c_str())) {
 		const char* err = lua_tostring(L, -1);
 		fmt::print("Error loading layout:\n");
 		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n", err);

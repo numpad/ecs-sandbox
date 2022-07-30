@@ -272,7 +272,7 @@ void World::loadSystems() {
 
 	// create update systems
 	updateSystems.emplace_back(new TerrainCollisionSystem(registry, chunkedWorld));
-	updateSystems.emplace_back(new CharacterControllerSystem(registry, m_engine->getWindow(), &camera));
+	updateSystems.emplace_back(new CharacterControllerSystem(registry, m_engine->window, &camera));
 	updateSystems.emplace_back(new GravitySystem(registry, 0.000981f));
 	updateSystems.emplace_back(new RandomJumpSystem(registry, 0.003f));
 	updateSystems.push_back(wayfindSystem);

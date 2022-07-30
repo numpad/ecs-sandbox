@@ -34,7 +34,7 @@ static glm::vec3 limitMag(glm::vec3 of, glm::vec3 to) {
 }
 
 bool MiniRaftScene::onCreate() {
-	m_engine->getDispatcher().sink<MouseButtonEvent>().connect<&MiniRaftScene::onMouseButtonInput>(this);
+	Engine::Instance->dispatcher.sink<MouseButtonEvent>().connect<&MiniRaftScene::onMouseButtonInput>(this);
 	m_registry.set<entt::dispatcher>();
 	
 	m_camera = std::make_shared<Camera>(glm::vec3(-4.0f, 4.5f, -4.0f));
@@ -55,7 +55,7 @@ bool MiniRaftScene::onCreate() {
 }
 
 void MiniRaftScene::onDestroy() {
-	m_engine->getDispatcher().sink<MouseButtonEvent>().disconnect<&MiniRaftScene::onMouseButtonInput>(this);
+	Engine::Instance->dispatcher.sink<MouseButtonEvent>().disconnect<&MiniRaftScene::onMouseButtonInput>(this);
 
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [](IUpdateSystem* usys) {
 		delete usys;
@@ -100,7 +100,7 @@ void MiniRaftScene::onUpdate(float dt) {
 	}
 	m_registry.emplace_or_replace<CPosition>(m_spawnerBox, _px, _py, _pz);
 	m_registry.emplace_or_replace<COrientation>(m_spawnerBox, glm::vec3(1.0f, 0.0f, 0.0f), -0.4f);
-	m_registry.emplace_or_replace<CModel>(m_spawnerBox, m_assetmanager.getMesh("res/models/raft/boxOpen.obj"));
+	m_registry.emplace_or_replace<CModel>(m_spawnerBox, m_assetmanager.getMesh("res/models/raft/boxOpen.obj"), glm::vec3(0.9f));
 	
 	static float timer = 1.0f;
 	if ((timer += dt) > 0.06f) {
@@ -122,9 +122,9 @@ void MiniRaftScene::onUpdate(float dt) {
 			glm::vec3 rot = glm::normalize(glm::vec3(rnd(), rnd(), rnd()));
 			m_registry.emplace<COrientation>(e, rot, rnd() * glm::pi<float>() * 2.0f);
 			if ((i / 2) % 2 == 0)
-				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/barrel.obj"));
+				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/barrel.obj"), glm::vec3(0.5f));
 			else
-				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/box.obj"));
+				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/box.obj"), glm::vec3(0.6f));
 		}
 	}
 	
@@ -165,7 +165,7 @@ void MiniRaftScene::onRender() {
 void MiniRaftScene::onMouseButtonInput(const MouseButtonEvent& event) {
 	if (!event.is_down) return;
 
-	glm::vec2 mpos = Engine::Instance->getWindow().getNormalizedMousePosition();
+	glm::vec2 mpos = Engine::Instance->window.getNormalizedMousePosition();
 	m3d::ray ray = m_camera->raycast(mpos);
 	m3d::plane floor = m3d::plane(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
 	glm::vec3 pos = m3d::raycast(ray, floor);
@@ -177,7 +177,7 @@ void MiniRaftScene::onMouseButtonInput(const MouseButtonEvent& event) {
 		entt::entity e = m_registry.create();
 		m_registry.emplace<CPosition>(e, pos + glm::vec3(0.0f, 0.1f, 0.0f));
 		m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-		m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/floor.obj"));
+		m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/floor.obj"), glm::vec3(0.75f));
 	}
 }
 

@@ -21,7 +21,7 @@ Layout::Layout() {
 void Layout::draw() const {
 	GLState state;
 	state.blend = true;
-	Engine::Instance->getGraphics().setState(state);
+	Engine::Instance->graphics.setState(state);
 
 	glm::mat3 view = glm::mat3(1.0f);
 	drawChildren(m_layout, view);

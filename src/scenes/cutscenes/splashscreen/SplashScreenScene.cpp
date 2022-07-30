@@ -8,12 +8,12 @@
 ////////////
 
 bool SplashScreenScene::onCreate() {
-	m_engine->getDispatcher().sink<TextInputEvent>().connect<&SplashScreenScene::onKeyInput>(this);
+	Engine::Instance->dispatcher.sink<TextInputEvent>().connect<&SplashScreenScene::onKeyInput>(this);
 
 	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 1.0f));
 	m_camera->setTarget(glm::vec3(0.0f));
 
-	lua_State* L = m_engine->getLuaState();
+	lua_State* L = Engine::Instance->getLuaState();
 
 	if (luaL_dofile(L, "res/scripts/layout/splash.lua")) {
 		const char* err = lua_tostring(L, -1);
@@ -55,7 +55,7 @@ bool SplashScreenScene::onCreate() {
 }
 
 void SplashScreenScene::onDestroy() {
-	m_engine->getDispatcher().sink<TextInputEvent>().disconnect(this);
+	Engine::Instance->dispatcher.sink<TextInputEvent>().disconnect(this);
 
 	delete m_logoTexture;
 	delete m_profileTexture;
@@ -67,7 +67,7 @@ void SplashScreenScene::onUpdate(float dt) {
 
 	// switch to next scene
 	if (m_elapsedTime > 4.0f) {
-		m_engine->setActiveScene(new MainMenuScene{});
+		Engine::Instance->setActiveScene(new MainMenuScene{});
 	}
 }
 
@@ -76,7 +76,7 @@ void SplashScreenScene::onUpdate(float dt) {
 /////////////
 
 void SplashScreenScene::onKeyInput(const TextInputEvent& event) {
-	m_engine->setActiveScene(new MainMenuScene());
+	Engine::Instance->setActiveScene(new MainMenuScene());
 }
 
 void SplashScreenScene::onRender() {

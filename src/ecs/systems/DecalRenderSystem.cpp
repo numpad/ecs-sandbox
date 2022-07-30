@@ -31,7 +31,7 @@ void DecalRenderSystem::draw() {
 	decalState.depth_write = false;
 	decalState.depth_test = true;
 	decalState.cull_face = true;
-	Engine::Instance->getGraphics().setState(decalState);
+	Engine::Instance->graphics.setState(decalState);
 
 	// collect required buffer & shader data
 	m_shader.use();
@@ -43,7 +43,7 @@ void DecalRenderSystem::draw() {
 
 	GLint texture_slot = m_boundTextures.size(); // probably makes more sense to store this as GL_TEXTURE0
 	glActiveTexture(GL_TEXTURE0 + texture_slot);
-	glBindTexture(GL_TEXTURE_2D, Engine::Instance->getGBuffer().m_position->get_texture());
+	glBindTexture(GL_TEXTURE_2D, Engine::Instance->gbuffer.m_position->get_texture());
 	m_shader["uTexDepth"] = texture_slot;
 
 	// draw

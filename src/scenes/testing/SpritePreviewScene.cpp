@@ -12,7 +12,7 @@ bool SpritePreviewScene::onCreate() {
 	// load texture
 	reload();
 
-	lua_State* L = m_engine->getLuaState();
+	lua_State* L = Engine::Instance->getLuaState();
 
 	return true;
 }
@@ -48,8 +48,8 @@ void SpritePreviewScene::onUpdate(float dt) {
 	}
 
 	// switch to next scene
-	if (glfwGetKey(m_engine->getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		m_engine->setActiveScene(new MainMenuScene());
+	if (glfwGetKey(Engine::Instance->window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		Engine::Instance->setActiveScene(new MainMenuScene());
 	}
 }
 

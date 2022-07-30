@@ -45,7 +45,7 @@ ImageWidget::~ImageWidget() {
 void ImageWidget::draw(const glm::mat3& view, const glm::mat3& model) const {
 	m_shader.use();
 
-	glm::vec2 size = Engine::Instance->getWindow().getSize(); // TODO: this works, but for the wrong reasons
+	glm::vec2 size = Engine::Instance->window.getSize(); // TODO: this works, but for the wrong reasons
 	m_shader["uProjection"] = glm::ortho(0.0f, size.x, size.y, 0.0f);
 	m_shader["uView"] = glm::mat4(view);
 	m_shader["uModel"] = glm::mat4(model);

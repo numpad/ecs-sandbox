@@ -51,29 +51,11 @@ public:
 	void setActiveScene(IScene* scene);
 
 	// getters
-	Window& getWindow() {
-		return m_window;
-	}
-	static Window& getMainWindow() {
-		return *Engine::m_main_window;
-	}
 	lua_State* getLuaState() {
 		return m_lua;
 	}
 	IScene* getScene() {
 		return m_scene;
-	}
-	entt::dispatcher& getDispatcher() {
-		return m_dispatcher;
-	}
-	EngineConfig& getConfig() {
-		return m_config;
-	}
-	GBuffer& getGBuffer() {
-		return m_gbuffer;
-	}
-	Graphics& getGraphics() {
-		return m_graphics;
 	}
 
 	// singleton
@@ -109,4 +91,11 @@ private:
 	// lua helper functions
 	bool luastate_init();
 	void luastate_destroy();
+
+public:
+	Window& window = m_window;
+	GBuffer& gbuffer = m_gbuffer;
+	entt::dispatcher& dispatcher = m_dispatcher;
+	Graphics& graphics = m_graphics;
+	EngineConfig& config = m_config;
 };

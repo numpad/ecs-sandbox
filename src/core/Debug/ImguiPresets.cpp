@@ -373,7 +373,7 @@ void imguiEntitySpawn(entt::registry& registry, bool spawn, glm::vec3 atpos) {
 }
 
 void imguiRenderMenuBar(Engine* engine, entt::registry& registry, glm::vec3& crosspos, float msPerFrame) {
-	GLFWwindow* window = engine->getWindow();
+	GLFWwindow* window = engine->window;
 	if (ImGui::BeginMainMenuBar()) {
 		// Spawn entity
 		imguiEntitySpawn(registry, (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS), crosspos);

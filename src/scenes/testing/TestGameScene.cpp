@@ -25,7 +25,7 @@ inline glm::vec3 calcCamPos(GLFWwindow* window) {
 
 bool TestGameScene::onCreate() {
 	m_camera = std::make_shared<Camera>(vec3(0.f));
-	m_world = new World(m_engine, m_camera);
+	m_world = new World(Engine::Instance, m_camera);
 
 	m_world->load();
 
@@ -39,7 +39,7 @@ void TestGameScene::onDestroy() {
 
 void TestGameScene::onUpdate(float dt) {
 	// input
-	glm::vec2 normalizedMouse = m_engine->getWindow().getNormalizedMousePosition();
+	glm::vec2 normalizedMouse = Engine::Instance->window.getNormalizedMousePosition();
 
 	// orbit camera calculations
 	static glm::vec3 camtarget(0.0f);
@@ -54,7 +54,7 @@ void TestGameScene::onUpdate(float dt) {
 	glm::vec3 toTarget = (targetPos - camtarget) * camToTargetSpeed;
 	camtarget += toTarget;
 
-	glm::vec3 campos = targetPos + calcCamPos(m_engine->getWindow());
+	glm::vec3 campos = targetPos + calcCamPos(Engine::Instance->window);
 	m_camera->setPos(campos);
 	m_camera->setTarget(camtarget);
 
@@ -64,7 +64,7 @@ void TestGameScene::onUpdate(float dt) {
 	m3d::ray mcRay = m_world->getCamera()->raycast(normalizedMouse);
 	m3d::plane mcFloor(glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::vec3 crosspos = m3d::raycast(mcRay, mcFloor);
-	bool mouseRightDown = glfwGetMouseButton(m_engine->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+	bool mouseRightDown = glfwGetMouseButton(Engine::Instance->window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 
 	if (m_world->getRegistry().valid(worldCrosshair)) {
 		m_world->getRegistry().get<CPosition>(worldCrosshair).pos = crosspos;

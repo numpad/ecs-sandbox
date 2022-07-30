@@ -57,7 +57,7 @@ void ffi_TowerScene_spawnExplosionParticles(Engine* engine, glm::vec3 pos) {
 	constexpr float TWO_PI = glm::pi<float>() * 2.f;
 	static Random random_range(0.f, 1.f);
 	// ring
-	const float ring_particles = 24.f * engine->getConfig().particle_amount;
+	const float ring_particles = 24.f * engine->config.particle_amount;
 	for (float angle = 0.f; angle < TWO_PI; angle += TWO_PI / ring_particles) {
 		const glm::vec2 dir = m3d::angleToDirection(angle);
 
@@ -70,7 +70,7 @@ void ffi_TowerScene_spawnExplosionParticles(Engine* engine, glm::vec3 pos) {
 		m_registry.emplace<CDamageOverTime>(entity, 1, 0.5f);
 	}
 	// center
-	const float center_particles = 50.f * engine->getConfig().particle_amount;
+	const float center_particles = 50.f * engine->config.particle_amount;
 	for (float angle = 0.f; angle < TWO_PI; angle += TWO_PI / center_particles) {
 		glm::vec3 dir = glm::normalize(m3d::randomizeVec3(glm::vec3(0.f), 1.f));
 		dir.y = glm::abs(dir.y);
@@ -84,7 +84,7 @@ void ffi_TowerScene_spawnExplosionParticles(Engine* engine, glm::vec3 pos) {
 		m_registry.emplace<CDamageOverTime>(entity, 1, 0.5f);
 	}
 	// debris
-	const float debris_particles = 4.f * engine->getConfig().particle_amount;
+	const float debris_particles = 4.f * engine->config.particle_amount;
 	for (float angle = 0.f; angle < TWO_PI; angle += TWO_PI / debris_particles) {
 		glm::vec3 dir = glm::normalize(m3d::randomizeVec3(glm::vec3(0.f), 1.f));
 		dir.y = glm::abs(dir.y);
@@ -151,16 +151,16 @@ bool TowerScene::onCreate() {
 
 	m_registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().connect<&TowerScene::onEntityKilled>(this);
 	m_registry.ctx<entt::dispatcher>().sink<ExplosionEvent>().connect<&TowerScene::onBombExplodes>(this);
-	m_engine->getDispatcher().sink<MouseButtonEvent>().connect<&TowerScene::onMouseButtonInput>(this);
+	Engine::Instance->dispatcher.sink<MouseButtonEvent>().connect<&TowerScene::onMouseButtonInput>(this);
 
 	m_camera = std::make_shared<Camera>(glm::vec3(5.f, 5.f, 5.f));
 	m_camera->setTarget(glm::vec3(0.f));
 
 	// create players
 	m_players.push_back(
-	    ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 0.f, 0.f));
+	    ffi_TowerScene_spawnDefaultEntity(Engine::Instance, glm::vec3(-1.f, .5f, 0.f), glm::vec3(0.f), 0.f, 0.f));
 	m_players.push_back(
-	    ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(1.f, .5f, 0.f), glm::vec3(0.f), 0.f, 1.f));
+	    ffi_TowerScene_spawnDefaultEntity(Engine::Instance, glm::vec3(1.f, .5f, 0.f), glm::vec3(0.f), 0.f, 1.f));
 	m_registry.emplace<CKeyboardControllable>(m_players[0], 0.0007f, GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D,
 	                                          GLFW_KEY_X);
 	m_registry.emplace<CKeyboardControllable>(m_players[1], 0.0007f, GLFW_KEY_I, GLFW_KEY_K, GLFW_KEY_J, GLFW_KEY_L,
@@ -170,11 +170,11 @@ bool TowerScene::onCreate() {
 	m_registry.emplace<COrientedTexture>(m_players[1], 8, 0.f);
 
 	// build scene
-	ffi_TowerScene_spawnFloatingSword(m_engine, glm::vec3(0.0f, 0.6f, 0.0f));
+	ffi_TowerScene_spawnFloatingSword(Engine::Instance, glm::vec3(0.0f, 0.6f, 0.0f));
 	{
 		// create npc, and give him a brain
 		entt::entity npc =
-		    ffi_TowerScene_spawnDefaultEntity(m_engine, glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f), 0.0f, 1.0f);
+		    ffi_TowerScene_spawnDefaultEntity(Engine::Instance, glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f), 0.0f, 1.0f);
 		m_registry.emplace<COrientedTexture>(npc, 8, 0.f);
 
 		IsNearEntity* isNearPlayer = new IsNearEntity(m_players[0], 0.3f);
@@ -211,7 +211,7 @@ bool TowerScene::onCreate() {
 
 	m_terminal.update();
 
-	lua_State* L = m_engine->getLuaState();
+	lua_State* L = Engine::Instance->getLuaState();
 	if (luaL_dofile(L, "res/scripts/tower_scene.lua")) {
 		const char* err = lua_tostring(L, -1);
 		fmt::print(fmt::fg(fmt::terminal_color::red), "{}\n", err);
@@ -230,7 +230,7 @@ bool TowerScene::onCreate() {
 void TowerScene::onDestroy() {
 	m_registry.ctx<entt::dispatcher>().sink<KillEntityEvent>().disconnect(this);
 	m_registry.ctx<entt::dispatcher>().sink<ExplosionEvent>().disconnect(this);
-	m_engine->getDispatcher().sink<MouseButtonEvent>().disconnect(this);
+	Engine::Instance->dispatcher.sink<MouseButtonEvent>().disconnect(this);
 }
 
 void TowerScene::onUpdate(float dt) {
@@ -246,7 +246,7 @@ void TowerScene::onUpdate(float dt) {
 	static float timescale = 1.f;
 
 	static glm::vec3 crosspos = glm::vec3(0.0f);
-	imguiRenderMenuBar(m_engine, m_registry, crosspos, dt);
+	imguiRenderMenuBar(Engine::Instance, m_registry, crosspos, dt);
 	if (ImGui::Begin("Towers")) {
 		ImGui::Text("Camera");
 		ImGui::Text("Registry size: %ld", m_registry.size());
@@ -273,8 +273,8 @@ void TowerScene::onUpdate(float dt) {
 		dt_sum -= dt_max;
 		// spawn bomb at player pos so they dont camp, randomize time until next bomb a bit
 		dt_max = 3.f + bomb_random() * 1.4f;
-		// ffi_TowerScene_spawnBomb(m_engine, m_registry.get<CPosition>(m_players[0]).pos + glm::vec3(0.f, .5f, 0.f) +
-		// glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f)); ffi_TowerScene_spawnBomb(m_engine,
+		// ffi_TowerScene_spawnBomb(Engine::Instance, m_registry.get<CPosition>(m_players[0]).pos + glm::vec3(0.f, .5f, 0.f) +
+		// glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f)); ffi_TowerScene_spawnBomb(Engine::Instance,
 		// m_registry.get<CPosition>(m_players[1]).pos + glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f));
 	}
 
@@ -287,14 +287,14 @@ void TowerScene::onRender() {
 	terrainState.depth_write = true;
 	terrainState.depth_test = true;
 	terrainState.cull_face = true;
-	Engine::Instance->getGraphics().setState(terrainState);
+	Engine::Instance->graphics.setState(terrainState);
 
 	updateTerrainShader();
 	m_terrain.draw(&m_chunkshader);
 
 	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](auto& rsys) { rsys->draw(); });
 
-	imguiLuaJitConsole(m_engine->getLuaState());
+	imguiLuaJitConsole(Engine::Instance->getLuaState());
 
 	imguiGamepadInfo();
 }
@@ -313,7 +313,7 @@ void TowerScene::loadSystems() {
 
 	// create update systems
 	m_updatesystems.emplace_back(new DistanceFunctionCollisionSystem(m_registry, m_terrain));
-	m_updatesystems.emplace_back(new CharacterControllerSystem(m_registry, m_engine->getWindow(), &m_camera));
+	m_updatesystems.emplace_back(new CharacterControllerSystem(m_registry, Engine::Instance->window, &m_camera));
 	m_updatesystems.emplace_back(new TextureOrientationSystem(m_registry, m_camera));
 	m_updatesystems.emplace_back(new GravitySystem(m_registry, 0.000981f));
 	m_updatesystems.emplace_back(new PositionUpdateSystem(m_registry));
@@ -371,26 +371,26 @@ void TowerScene::onEntityKilled(const KillEntityEvent& event) {
 
 		// switch to main menu once a player won
 		if (m_players.size() == 1) {
-			m_engine->setActiveScene(new MainMenuScene());
+			Engine::Instance->setActiveScene(new MainMenuScene());
 		}
 	}
 }
 
 void TowerScene::onBombExplodes(const ExplosionEvent& event) {
 	// remove terrain
-	ffi_TowerScene_subDisk(m_engine, event.position, event.radius, 1.0f);
+	ffi_TowerScene_subDisk(Engine::Instance, event.position, event.radius, 1.0f);
 
 	// play sound
 	m_registry.ctx<entt::dispatcher>().enqueue<PlaySoundEvent>("res/audio/sfx/explode.wav",
 	                                                           1.3f - event.radius * 0.92f);
-	ffi_TowerScene_spawnExplosionParticles(m_engine, event.position);
+	ffi_TowerScene_spawnExplosionParticles(Engine::Instance, event.position);
 }
 
 void TowerScene::onMouseButtonInput(const MouseButtonEvent& event) {
 	if (!event.is_down)
 		return;
 
-	glm::vec2 mpos = m_engine->getWindow().getNormalizedMousePosition();
+	glm::vec2 mpos = Engine::Instance->window.getNormalizedMousePosition();
 	m3d::ray ray = m_camera->raycast(mpos);
 	float dist = m3d::raycast(m_terrain, ray.origin, ray.dir, 90.f);
 
@@ -401,13 +401,13 @@ void TowerScene::onMouseButtonInput(const MouseButtonEvent& event) {
 			const float angleOffset = Random(0.0f, glm::pi<float>() * 2.0f)();
 			for (float angle = 0.0f; angle <= glm::pi<float>() * 2.0f; angle += glm::pi<float>() * 0.5f) {
 				ffi_TowerScene_spawnBomb(
-				    m_engine, pos + glm::vec3(0.0f, 0.01f, 0.0f),
+				    Engine::Instance, pos + glm::vec3(0.0f, 0.01f, 0.0f),
 				    glm::vec3(glm::cos(angle + angleOffset) * -0.1f, 0.01f, glm::sin(angle + angleOffset) * -0.1f));
 			}
 		}
 		case GLFW_MOUSE_BUTTON_1:
-			ffi_TowerScene_spawnBomb(m_engine, pos, glm::vec3(0.f));
-			ffi_TowerScene_spawnDecal(m_engine, pos);
+			ffi_TowerScene_spawnBomb(Engine::Instance, pos, glm::vec3(0.f));
+			ffi_TowerScene_spawnDecal(Engine::Instance, pos);
 			break;
 		}
 	}

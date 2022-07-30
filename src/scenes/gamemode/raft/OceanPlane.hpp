@@ -41,9 +41,9 @@ public:
 		GLState waterState;
 		waterState.depth_test = true;
 		waterState.depth_write = true;
-		Engine::Instance->getGraphics().setState(waterState);
+		Engine::Instance->graphics.setState(waterState);
 
-		GBuffer& gbuffer = Engine::Instance->getGBuffer();
+		GBuffer& gbuffer = Engine::Instance->gbuffer;
 
 		glm::mat4 model = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(m_size.x, 1.0f, m_size.y)),
 		                                 glm::vec3(-0.5f, 0.0f, 0.5f));
@@ -53,7 +53,7 @@ public:
 		m_shader["uTime"] = (float)glfwGetTime();
 		m_shader["uSize"] = m_size;
 		m_shader["uBaseColor"] = m_baseColor;
-		m_shader["uScreenResolution"] = glm::vec2(Engine::Instance->getWindow().getSize());
+		m_shader["uScreenResolution"] = glm::vec2(Engine::Instance->window.getSize());
 		m_shader["uCameraPosition"] = camera.getPos();
 		m_shader["uDepthTexture"] = 0;
 		glActiveTexture(GL_TEXTURE0);
@@ -80,7 +80,7 @@ public:
 private:
 	Mesh* m_mesh;
 	sgl::shader m_shader;
-	glm::vec2 m_size = glm::vec2(6.0f);
+	glm::vec2 m_size = glm::vec2(12.0f);
 	glm::vec3 m_baseColor = glm::vec3(0.40, 0.53, 0.78);
 	const unsigned int m_planeSubdivisions = 18;
 };

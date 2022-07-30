@@ -4,11 +4,9 @@
 Engine* Engine::Instance = nullptr;
 
 static void callback_framebuffer_resized(GLFWwindow* window, int width, int height) {
-	Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
-
 	// resize viewport, gbuffer and cameras
 	glViewport(0, 0, width, height);
-	engine->getGBuffer().resize(width, height);
+	Engine::Instance->gbuffer.resize(width, height);
 	for (Camera* cam : Camera::CAMERAS) {
 		if (cam->windowAspectLocked) {
 			cam->setScreenSize(width, height);
@@ -16,44 +14,35 @@ static void callback_framebuffer_resized(GLFWwindow* window, int width, int heig
 		}
 	}
 
-	engine->getDispatcher().enqueue<WindowResizeEvent>(width, height);
+	Engine::Instance->dispatcher.enqueue<WindowResizeEvent>(width, height);
 }
 
 static void callback_window_close(GLFWwindow* window) {
-	Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
-
-	engine->getDispatcher().enqueue<WindowCloseEvent>();
+	Engine::Instance->dispatcher.enqueue<WindowCloseEvent>();
 }
 
 static void callback_joystick_connected(int joystick_id, int connected) {
-	Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(Engine::getMainWindow()));
-
-	engine->getDispatcher().enqueue<GamepadConnectedEvent>(joystick_id, connected == GLFW_CONNECTED);
+	Engine::Instance->dispatcher.enqueue<GamepadConnectedEvent>(joystick_id, connected == GLFW_CONNECTED);
 }
 
 static void callback_key_pressed(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(Engine::getMainWindow()));
-
 	// toggle debug ui
 	if (key == GLFW_KEY_I && action == GLFW_PRESS && (mods & GLFW_MOD_CONTROL)) {
-		engine->getConfig().imgui_enabled = !engine->getConfig().imgui_enabled;
+		Engine::Instance->config.imgui_enabled = !Engine::Instance->config.imgui_enabled;
 	}
 
-	engine->getDispatcher().enqueue<KeyEvent>(key, scancode, action, mods);
+	Engine::Instance->dispatcher.enqueue<KeyEvent>(key, scancode, action, mods);
 }
 
 static void callback_char_input(GLFWwindow* window, unsigned int codepoint) {
-	Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(Engine::getMainWindow()));
-	
-	engine->getDispatcher().enqueue<TextInputEvent>(codepoint);
+	Engine::Instance->dispatcher.enqueue<TextInputEvent>(codepoint);
 }
 
 static void callback_mouse_input(GLFWwindow* window, int button, int action, int mods) {
-	Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
 	double mx, my;
 	glfwGetCursorPos(window, &mx, &my);
 
-	engine->getDispatcher().enqueue<MouseButtonEvent>(button, action == GLFW_PRESS, mods,
+	Engine::Instance->dispatcher.enqueue<MouseButtonEvent>(button, action == GLFW_PRESS, mods,
 	                                                  glm::vec2(float(mx), float(my)));
 }
 
@@ -289,8 +278,6 @@ void Engine::switchScene() {
 	// set active scene (or null)
 	m_scene = m_next_scene;
 	m_next_scene = nullptr;
-	if (m_scene)
-		m_scene->m_engine = this;
 
 	// try and create new scene
 	if (m_scene) {

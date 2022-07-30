@@ -30,9 +30,9 @@ void DemoScene::onDestroy() {
 void DemoScene::onUpdate(float dt) {
 	static float angle = 0.0f;
 	static float dangle = 0.0f;
-	if (glfwGetKey(m_engine->getWindow(), GLFW_KEY_Q))
+	if (glfwGetKey(Engine::Instance->window, GLFW_KEY_Q))
 		dangle -= 0.035f;
-	if (glfwGetKey(m_engine->getWindow(), GLFW_KEY_E))
+	if (glfwGetKey(Engine::Instance->window, GLFW_KEY_E))
 		dangle += 0.035f;
 	angle += dangle;
 	dangle *= 0.84f;
@@ -62,7 +62,7 @@ void DemoScene::loadSystems() {
 
 	// create update systems
 	// m_updatesystems.emplace_back(new DistanceFunctionCollisionSystem(m_registry, m_terrain));
-	// m_updatesystems.emplace_back(new CharacterControllerSystem(m_registry, m_engine->getWindow(), &m_camera));
+	// m_updatesystems.emplace_back(new CharacterControllerSystem(m_registry, Engine::Instance->window, &m_camera));
 	m_updatesystems.emplace_back(new TextureOrientationSystem(m_registry, m_camera));
 	m_updatesystems.emplace_back(new GravitySystem(m_registry, 0.000981f));
 	m_updatesystems.emplace_back(new PositionUpdateSystem(m_registry));

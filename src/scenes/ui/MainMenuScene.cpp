@@ -58,19 +58,19 @@ void MainMenuScene::onRender() {
 			if (ImGui::Button("New Game", button_size)) {
 				switch (m_modeindex % m_modenames.size()) {
 				case 0:
-					m_engine->setActiveScene(new LayoutEditorScene());
+					Engine::Instance->setActiveScene(new LayoutEditorScene());
 					break;
 				case 1:
-					m_engine->setActiveScene(new TestGameScene());
+					Engine::Instance->setActiveScene(new TestGameScene());
 					break;
 				case 2:
-					m_engine->setActiveScene(new MiniRaftScene());
+					Engine::Instance->setActiveScene(new MiniRaftScene());
 					break;
 				case 3:
-					m_engine->setActiveScene(new TowerScene());
+					Engine::Instance->setActiveScene(new TowerScene());
 					break;
 				case 4:
-					m_engine->setActiveScene(new SpritePreviewScene());
+					Engine::Instance->setActiveScene(new SpritePreviewScene());
 					break;
 				};
 			}
@@ -100,7 +100,7 @@ void MainMenuScene::onRender() {
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(1);
 			if (ImGui::Button("Quit", button_size)) {
-				m_engine->quit();
+				Engine::Instance->quit();
 			}
 
 			ImGui::EndTable();

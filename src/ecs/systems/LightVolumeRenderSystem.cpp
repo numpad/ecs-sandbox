@@ -41,7 +41,7 @@ void LightVolumeRenderSystem::draw() {
 	glState.blend_src_alpha = GL_SRC_ALPHA;
 	glState.blend_dst_alpha = GL_ONE;
 
-	Engine::Instance->getGraphics().setState(glState);
+	Engine::Instance->graphics.setState(glState);
 	glDrawElementsInstanced(GL_TRIANGLES, m_triangleCount * 3, GL_UNSIGNED_SHORT, 0, count);
 }
 

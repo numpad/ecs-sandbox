@@ -80,7 +80,7 @@ void BillboardRenderSystem::draw() {
 		}
 	});
 	
-	if (Engine::Instance->getConfig().imgui_enabled) {
+	if (Engine::Instance->config.imgui_enabled) {
 		if (ImGui::Begin("textures")) {
 			using namespace ImGui;
 			static bool uDebugToggle;
@@ -113,7 +113,7 @@ void BillboardRenderSystem::draw() {
 	glState.depth_test = true;
 	glState.depth_write = true;
 	glState.cull_face = true;
-	Engine::Instance->getGraphics().setState(glState);
+	Engine::Instance->graphics.setState(glState);
 
 	// prepare shader
 	instanceShader["uView"] = camera->getView();

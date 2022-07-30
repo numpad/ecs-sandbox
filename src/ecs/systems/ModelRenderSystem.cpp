@@ -47,7 +47,7 @@ void ModelRenderSystem::draw() {
 	state.cull_face = true;
 	state.depth_test = true;
 	state.depth_write = true;
-	Engine::Instance->getGraphics().setState(state);
+	Engine::Instance->graphics.setState(state);
 	
 	m_shader.use();
 	m_shader["uProjection"] = camera->getProjection();
@@ -129,7 +129,7 @@ void ModelRenderSystem::updateBuffers() {
 	// collect meshes & transforms
 	m_meshTransforms.clear();
 	cregistry.view<const CPosition, const COrientation, const CModel>().each([this](const CPosition& cpos, const COrientation& corientation, const CModel& cmodel) {
-		const glm::mat4 modelMatrix = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), cpos.pos), corientation.amount, corientation.orientation), glm::vec3(0.75f));
+		const glm::mat4 modelMatrix = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), cpos.pos), corientation.amount, corientation.orientation), cmodel.size);
 		
 		_addMeshTransform(m_meshTransforms, cmodel.mesh, modelMatrix);
 	});
