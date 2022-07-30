@@ -31,7 +31,7 @@ public:
 	Texture* getTexture(std::string path);
 	TiledTexture* getTiledTexture(std::string path, unsigned int tiles_w, unsigned int tiles_h, int tile_x = 0,
 	                              int tile_y = 0);
-	
+
 	Mesh* getMesh(std::string path);
 	Model* getModel(std::string path);
 
@@ -56,5 +56,4 @@ private:
 
 	// load different formats
 	bool loadAudioWAV(std::string path);
-
 };

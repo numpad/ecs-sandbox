@@ -19,12 +19,9 @@ struct ObjLoaderFace {
 	ObjLoaderMaterial* mtl = nullptr;
 };
 
-
 class ObjLoader {
 public:
-
 	static Mesh* load(const fs::path& path_to_obj_file);
 
 private:
-
 };

@@ -28,7 +28,8 @@ void Layout::draw() const {
 }
 
 void Layout::resize(glm::vec2 size) {
-	if ((int)size.x == (int)m_size.x && (int)size.y == (int)m_size.y) return;
+	if ((int)size.x == (int)m_size.x && (int)size.y == (int)m_size.y)
+		return;
 
 	m_size = size;
 	YGNodeCalculateLayout(m_layout, size.x, size.y, YGDirectionLTR);

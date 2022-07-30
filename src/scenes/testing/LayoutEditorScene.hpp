@@ -23,7 +23,7 @@ private:
 	double m_elapsedTime = 0.0;
 
 	std::vector<std::string> m_files;
-	
+
 	Layout m_ui;
 	YGNodeRef m_selectedNode = nullptr;
 	void updateFiles();

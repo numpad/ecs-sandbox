@@ -60,7 +60,7 @@ Mesh* ObjLoader::load(const fs::path& path_to_obj_file) {
 		std::istringstream iss(line);
 		std::string keyword;
 		iss >> keyword;
-		
+
 		if (keyword == "v") {
 			float x, y, z;
 			iss >> x >> y >> z;

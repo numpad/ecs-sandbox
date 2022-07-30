@@ -31,13 +31,17 @@ public:
 		});
 
 		Benchmark b;
-		m_chunks.each([this](glm::ivec3 chunk_idx, ISignedDistanceBody*) { polygonize(chunk_idx); });
+		m_chunks.each([this](glm::ivec3 chunk_idx, ISignedDistanceBody*) {
+			polygonize(chunk_idx);
+		});
 		b.stop();
 		std::cout << "took " << b.ms() << "ms" << std::endl;
 	}
 	~DynamicTerrain() {
 		// TODO: delete all in m_chunks?
-		m_chunkmeshes.each([](glm::ivec3 chunk_idx, Mesh* mesh) { delete mesh; });
+		m_chunkmeshes.each([](glm::ivec3 chunk_idx, Mesh* mesh) {
+			delete mesh;
+		});
 	}
 
 	void draw(sgl::shader* chunkshader);

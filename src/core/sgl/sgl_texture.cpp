@@ -72,12 +72,12 @@ bool sgl::texture::load_file(const std::string& filename, bool flip_y) {
 		break;
 	};
 
-	const bool loaded = load(width, height, sgl::texture::internalformat::rgba, data, format, sgl::texture::datatype::u8);
+	const bool loaded =
+	    load(width, height, sgl::texture::internalformat::rgba, data, format, sgl::texture::datatype::u8);
 	stbi_image_free(data);
-	
+
 	return loaded;
 }
-
 
 void sgl::texture::resize(int width, int height) {
 	if (!width)

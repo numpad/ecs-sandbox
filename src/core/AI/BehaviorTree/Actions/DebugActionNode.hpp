@@ -18,10 +18,12 @@ protected:
 		if (m_stateIndex < m_states.size() - 1) {
 			m_stateIndex++;
 		}
-		
+
 		if (state == '?') {
-			if (rand() % 100 < 50) state = 's';
-			else                   state = '-';
+			if (rand() % 100 < 50)
+				state = 's';
+			else
+				state = '-';
 
 			fmt::print(fmt::emphasis::bold, "random:");
 		}

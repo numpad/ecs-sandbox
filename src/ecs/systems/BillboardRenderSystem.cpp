@@ -62,8 +62,9 @@ void BillboardRenderSystem::draw() {
 		// collect required entitiy textures to bind
 		const Texture* texture = bb.texture;
 		// check if opengl texture id is already bound
-		auto exists = std::find_if(boundTextures.begin(), boundTextures.end(),
-		                           [&](const auto& o) { return texture->getTexture() == o->getTexture(); });
+		auto exists = std::find_if(boundTextures.begin(), boundTextures.end(), [&](const auto& o) {
+			return texture->getTexture() == o->getTexture();
+		});
 
 		if (exists == boundTextures.end()) { // texture is not bound
 			this->aInstanceTextures.push_back(boundTextures.size());
@@ -79,7 +80,7 @@ void BillboardRenderSystem::draw() {
 			this->aInstanceTextures.push_back(std::distance(boundTextures.begin(), exists));
 		}
 	});
-	
+
 	if (Engine::Instance->config.imgui_enabled) {
 		if (ImGui::Begin("textures")) {
 			using namespace ImGui;
@@ -90,7 +91,8 @@ void BillboardRenderSystem::draw() {
 
 			int j = 0;
 			for (auto i : boundTextures) {
-				Image((void*)(uintptr_t)i->getTexture(), ImVec2(100.f, 100.f * i->getAspectRatio()), ImVec2(0, 1), ImVec2(1, 0));
+				Image((void*)(uintptr_t)i->getTexture(), ImVec2(100.f, 100.f * i->getAspectRatio()), ImVec2(0, 1),
+				      ImVec2(1, 0));
 				SameLine();
 				GLint b;
 				glActiveTexture(GL_TEXTURE0 + j);

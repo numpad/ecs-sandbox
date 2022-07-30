@@ -2,6 +2,4 @@
 
 struct RaftBlock {
 	int id;
-	
 };
-

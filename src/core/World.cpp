@@ -262,7 +262,9 @@ void World::loadSystems() {
 
 	// register a logging event system
 	logEventSystem = std::make_unique<LogSystem>(registry);
-	logEventSystem->setLogger([](const LogEvent& e) { std::cout << e.text << std::endl; });
+	logEventSystem->setLogger([](const LogEvent& e) {
+		std::cout << e.text << std::endl;
+	});
 
 	// initialize update and render systems
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(registry, camera);

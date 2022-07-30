@@ -19,5 +19,7 @@ public:
 	void update(float dt);
 
 private:
-	std::function<void(const LogEvent&)> logFunc = [](const LogEvent& e) { printf("log> %s\n", e.text.c_str()); };
+	std::function<void(const LogEvent&)> logFunc = [](const LogEvent& e) {
+		printf("log> %s\n", e.text.c_str());
+	};
 };

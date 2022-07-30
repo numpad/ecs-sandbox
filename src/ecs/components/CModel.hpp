@@ -6,4 +6,3 @@ struct CModel {
 	Mesh* mesh;
 	glm::vec3 size;
 };
-

@@ -5,10 +5,7 @@
 
 class LambdaActionNode : public INode {
 public:
-	LambdaActionNode(std::function<State(entt::registry&, const entt::entity& entity)> fn)
-		: m_function{fn}
-	{
-		
+	LambdaActionNode(std::function<State(entt::registry&, const entt::entity& entity)> fn) : m_function{fn} {
 	}
 
 protected:
@@ -18,5 +15,4 @@ protected:
 
 private:
 	std::function<State(entt::registry&, const entt::entity& entity)> m_function;
-
 };

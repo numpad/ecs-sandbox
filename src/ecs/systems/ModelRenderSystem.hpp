@@ -11,14 +11,12 @@ using MeshTransformMap = std::map<Mesh*, std::vector<glm::mat4>>;
 
 class ModelRenderSystem : public IRenderSystem {
 public:
-	
 	ModelRenderSystem(entt::registry& registry, std::shared_ptr<Camera> camera);
 	~ModelRenderSystem();
 
 	void draw() override;
 
 private:
-
 	// data for rendering
 	sgl::shader m_shader;
 	GLuint m_vao, m_vbo, m_mbo, m_ibo;
@@ -28,5 +26,4 @@ private:
 
 	void initializeBuffers();
 	void updateBuffers();
-
 };

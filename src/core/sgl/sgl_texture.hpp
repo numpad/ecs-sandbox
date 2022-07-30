@@ -92,13 +92,13 @@ public:
 
 	void set_filter(filter minmag);
 	void set_filter(filter min, filter mag);
-	
+
 	/**
 	 * @brief Load texture from memory.
 	 */
 	bool load(int width, int height, internalformat internal_format = internalformat::rgba, void* data = nullptr,
 	          format loader_format = format::rgba, datatype dtype = datatype::f32);
-	
+
 	/**
 	 * @brief Load texture from file.
 	 */

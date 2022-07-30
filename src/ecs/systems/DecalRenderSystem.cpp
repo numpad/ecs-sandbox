@@ -106,8 +106,9 @@ void DecalRenderSystem::collectInstanceData() {
 		                                 decal.size);
 
 		    const Texture* texture = decal.texture;
-		    auto exists = std::find_if(m_boundTextures.begin(), m_boundTextures.end(),
-		                               [&](const auto& o) { return texture->getTexture() == o->getTexture(); });
+		    auto exists = std::find_if(m_boundTextures.begin(), m_boundTextures.end(), [&](const auto& o) {
+			    return texture->getTexture() == o->getTexture();
+		    });
 
 		    if (exists == m_boundTextures.end()) { // texture is not bound
 			    m_aInstanceTextures.push_back(m_boundTextures.size());

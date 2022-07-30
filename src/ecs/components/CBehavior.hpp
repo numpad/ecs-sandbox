@@ -5,4 +5,3 @@
 struct CBehavior {
 	BehaviorTree* behavior;
 };
-

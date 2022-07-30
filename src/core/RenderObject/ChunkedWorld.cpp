@@ -45,7 +45,9 @@ void ChunkedWorld::update(ivec2 coords, Terrain* terrain) {
 }
 
 void ChunkedWorld::draw(sgl::shader& shader) {
-	chunkMeshes.each([&shader](int, int, Mesh* t) { t->draw(shader); });
+	chunkMeshes.each([&shader](int, int, Mesh* t) {
+		t->draw(shader);
+	});
 }
 
 void ChunkedWorld::polygonizeChunk(ivec2 coords) {

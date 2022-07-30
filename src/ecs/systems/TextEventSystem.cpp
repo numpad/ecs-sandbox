@@ -53,7 +53,10 @@ void TextEventSystem::update(float dt) {
 		};
 	}
 
-	textEvents.erase(std::remove_if(textEvents.begin(), textEvents.end(), [](auto& e) { return e.event.duration < 0; }),
+	textEvents.erase(std::remove_if(textEvents.begin(), textEvents.end(),
+	                                [](auto& e) {
+		                                return e.event.duration < 0;
+	                                }),
 	                 textEvents.end());
 }
 

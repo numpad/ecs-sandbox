@@ -153,7 +153,6 @@ bool AssetManager::loadTiledTexture(std::string path, unsigned int tiles_w, unsi
 	return true;
 }
 
-
 // model loading
 Mesh* AssetManager::getMesh(std::string path) {
 	auto mesh = meshes.find(path);
@@ -181,7 +180,6 @@ bool AssetManager::loadMesh(std::string path) {
 }
 
 bool AssetManager::loadModel(std::string path) {
-	
 }
 
 // audio loading

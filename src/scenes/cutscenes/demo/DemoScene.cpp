@@ -38,14 +38,18 @@ void DemoScene::onUpdate(float dt) {
 	dangle *= 0.84f;
 	m_camera->setPos(glm::vec3(glm::cos(angle) * 4.5f, 2.0f, glm::sin(angle) * 4.5f));
 	m_registry.ctx<entt::dispatcher>().update();
-	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto& usys) { usys->update(dt); });
+	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto& usys) {
+		usys->update(dt);
+	});
 }
 
 void DemoScene::onRender() {
 	updateTerrainShader();
 	m_chunk.draw(m_camera->getProjection(), m_camera->getView());
 
-	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](auto& rsys) { rsys->draw(); });
+	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](auto& rsys) {
+		rsys->draw();
+	});
 }
 
 /////////////
@@ -55,7 +59,9 @@ void DemoScene::onRender() {
 void DemoScene::loadSystems() {
 	// register a logging event system
 	m_logsystem = std::make_unique<LogSystem>(m_registry);
-	m_logsystem->setLogger([](const LogEvent& e) { std::cout << "DemoScene: " << e.text << std::endl; });
+	m_logsystem->setLogger([](const LogEvent& e) {
+		std::cout << "DemoScene: " << e.text << std::endl;
+	});
 
 	// initialize update and render systems
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(m_registry, m_camera);

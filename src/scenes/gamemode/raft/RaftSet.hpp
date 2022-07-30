@@ -7,7 +7,6 @@
 
 class RaftSet {
 public:
-
 	RaftSet() {
 		m_testblock = new RaftBlock();
 		m_testblock->id = 1;
@@ -16,15 +15,13 @@ public:
 			m_blocks.set(glm::ivec3(i, 0, i), m_testblock);
 		}
 	}
-	
+
 	~RaftSet() {
 		delete m_testblock;
 	}
 
-
 	SparseGrid3D<RaftBlock> m_blocks;
 
 private:
-	RaftBlock *m_testblock;
+	RaftBlock* m_testblock;
 };
-

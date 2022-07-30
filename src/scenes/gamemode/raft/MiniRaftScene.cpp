@@ -36,7 +36,7 @@ static glm::vec3 limitMag(glm::vec3 of, glm::vec3 to) {
 bool MiniRaftScene::onCreate() {
 	Engine::Instance->dispatcher.sink<MouseButtonEvent>().connect<&MiniRaftScene::onMouseButtonInput>(this);
 	m_registry.set<entt::dispatcher>();
-	
+
 	m_camera = std::make_shared<Camera>(glm::vec3(-4.0f, 4.5f, -4.0f));
 	m_camera->setTarget(glm::vec3(0.0f));
 
@@ -94,14 +94,14 @@ void MiniRaftScene::onUpdate(float dt) {
 	float _pz = lua_tonumber(L, -1);
 	lua_pop(L, 3);
 
-	
 	if (!m_registry.valid(m_spawnerBox)) {
 		m_spawnerBox = m_registry.create();
 	}
 	m_registry.emplace_or_replace<CPosition>(m_spawnerBox, _px, _py, _pz);
 	m_registry.emplace_or_replace<COrientation>(m_spawnerBox, glm::vec3(1.0f, 0.0f, 0.0f), -0.4f);
-	m_registry.emplace_or_replace<CModel>(m_spawnerBox, m_assetmanager.getMesh("res/models/raft/boxOpen.obj"), glm::vec3(0.9f));
-	
+	m_registry.emplace_or_replace<CModel>(m_spawnerBox, m_assetmanager.getMesh("res/models/raft/boxOpen.obj"),
+	                                      glm::vec3(0.9f));
+
 	static float timer = 1.0f;
 	if ((timer += dt) > 0.06f) {
 		timer = 0.0f;
@@ -117,7 +117,7 @@ void MiniRaftScene::onUpdate(float dt) {
 		if (i++ % 2 == 1) {
 			m_registry.emplace<CBillboard>(e, texture, glm::vec2(0.2f));
 			m_registry.emplace<CTextureRegion>(e, glm::floor(rnd() * 5.0f) * 16.0f,
-											   (9.0f + glm::floor(rnd() * 5.0f)) * 16.0f, 16.0f, 16.0f, 256, 256);
+			                                   (9.0f + glm::floor(rnd() * 5.0f)) * 16.0f, 16.0f, 16.0f, 256, 256);
 		} else {
 			glm::vec3 rot = glm::normalize(glm::vec3(rnd(), rnd(), rnd()));
 			m_registry.emplace<COrientation>(e, rot, rnd() * glm::pi<float>() * 2.0f);
@@ -127,7 +127,7 @@ void MiniRaftScene::onUpdate(float dt) {
 				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/box.obj"), glm::vec3(0.6f));
 		}
 	}
-	
+
 #endif
 
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto& usys) {
@@ -135,14 +135,15 @@ void MiniRaftScene::onUpdate(float dt) {
 	});
 
 	// make entites float
-	m_registry.view<const CPosition, CVelocity, const CGravity>().each([](const CPosition& cpos, CVelocity& cvel, const auto& cgravity) {
-		const float WATER_HEIGHT = 0.0f - 0.05f; // TODO: something like oceanplane.getHeightAtPos(cpos.pos.xz);
-		if (cpos.pos.y < WATER_HEIGHT) {
-			const glm::vec3 drag = -limitMag(glm::normalize(cvel.vel) * 0.0008f, cvel.vel);
-			const glm::vec3 buoyancy = glm::vec3(0.0f, 0.002f, 0.0f);
-			cvel.vel += drag + buoyancy;
-		}
-	});
+	m_registry.view<const CPosition, CVelocity, const CGravity>().each(
+	    [](const CPosition& cpos, CVelocity& cvel, const auto& cgravity) {
+		    const float WATER_HEIGHT = 0.0f - 0.05f; // TODO: something like oceanplane.getHeightAtPos(cpos.pos.xz);
+		    if (cpos.pos.y < WATER_HEIGHT) {
+			    const glm::vec3 drag = -limitMag(glm::normalize(cvel.vel) * 0.0008f, cvel.vel);
+			    const glm::vec3 buoyancy = glm::vec3(0.0f, 0.002f, 0.0f);
+			    cvel.vel += drag + buoyancy;
+		    }
+	    });
 }
 
 void MiniRaftScene::onRender() {
@@ -155,7 +156,6 @@ void MiniRaftScene::onRender() {
 
 	// render water
 	m_waterplane.draw(*m_camera);
-
 }
 
 /////////////
@@ -163,7 +163,8 @@ void MiniRaftScene::onRender() {
 /////////////
 
 void MiniRaftScene::onMouseButtonInput(const MouseButtonEvent& event) {
-	if (!event.is_down) return;
+	if (!event.is_down)
+		return;
 
 	glm::vec2 mpos = Engine::Instance->window.getNormalizedMousePosition();
 	m3d::ray ray = m_camera->raycast(mpos);
@@ -180,5 +181,3 @@ void MiniRaftScene::onMouseButtonInput(const MouseButtonEvent& event) {
 		m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/floor.obj"), glm::vec3(0.75f));
 	}
 }
-
-

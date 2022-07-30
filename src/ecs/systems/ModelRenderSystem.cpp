@@ -48,11 +48,11 @@ void ModelRenderSystem::draw() {
 	state.depth_test = true;
 	state.depth_write = true;
 	Engine::Instance->graphics.setState(state);
-	
+
 	m_shader.use();
 	m_shader["uProjection"] = camera->getProjection();
 	m_shader["uView"] = camera->getView();
-	
+
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_ibo);
 	glBindVertexArray(m_vao);
 	glMultiDrawArraysIndirect(GL_TRIANGLES, NULL, m_meshTransforms.size(), 0);
@@ -71,7 +71,7 @@ static inline void _addMeshTransform(MeshTransformMap& meshTransforms, Mesh* mes
 
 static inline GLuint _getMeshTransformCount(const MeshTransformMap& meshTransforms) {
 	GLuint count = 0;
-	
+
 	for (auto it = meshTransforms.begin(); it != meshTransforms.end(); ++it) {
 		count += it->second.size();
 	}
@@ -119,7 +119,6 @@ void ModelRenderSystem::initializeBuffers() {
 	glVertexAttribDivisor(4 + 1, 1);
 	glVertexAttribDivisor(4 + 2, 1);
 	glVertexAttribDivisor(4 + 3, 1);
-	
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -128,13 +127,15 @@ void ModelRenderSystem::initializeBuffers() {
 void ModelRenderSystem::updateBuffers() {
 	// collect meshes & transforms
 	m_meshTransforms.clear();
-	cregistry.view<const CPosition, const COrientation, const CModel>().each([this](const CPosition& cpos, const COrientation& corientation, const CModel& cmodel) {
-		const glm::mat4 modelMatrix = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), cpos.pos), corientation.amount, corientation.orientation), cmodel.size);
-		
-		_addMeshTransform(m_meshTransforms, cmodel.mesh, modelMatrix);
-	});
-	
-	
+	cregistry.view<const CPosition, const COrientation, const CModel>().each(
+	    [this](const CPosition& cpos, const COrientation& corientation, const CModel& cmodel) {
+		    const glm::mat4 modelMatrix = glm::scale(
+		        glm::rotate(glm::translate(glm::mat4(1.0f), cpos.pos), corientation.amount, corientation.orientation),
+		        cmodel.size);
+
+		    _addMeshTransform(m_meshTransforms, cmodel.mesh, modelMatrix);
+	    });
+
 	// order mesh vertices & produce indirect draw calls for gpu
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indirectData;
@@ -151,24 +152,25 @@ void ModelRenderSystem::updateBuffers() {
 		verticesOffset += it->first->vertices.size();
 		instancesOffset += it->second.size();
 	}
-	
+
 	// upload indirect draw calls
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_ibo);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, indirectData.size() * sizeof(GLuint), &indirectData[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-	
+
 	// upload mesh vertices
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
 	// upload model matrices
 	glBindBuffer(GL_ARRAY_BUFFER, m_mbo);
-	glBufferData(GL_ARRAY_BUFFER, _getMeshTransformCount(m_meshTransforms) * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, _getMeshTransformCount(m_meshTransforms) * sizeof(glm::mat4), nullptr,
+	             GL_DYNAMIC_DRAW);
 	GLintptr offset = 0;
 	for (auto it = m_meshTransforms.begin(); it != m_meshTransforms.end(); ++it) {
-		glBufferSubData(GL_ARRAY_BUFFER, offset * sizeof(glm::mat4), it->second.size() * sizeof(glm::mat4), it->second.data());
+		glBufferSubData(GL_ARRAY_BUFFER, offset * sizeof(glm::mat4), it->second.size() * sizeof(glm::mat4),
+		                it->second.data());
 		offset += it->second.size();
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-

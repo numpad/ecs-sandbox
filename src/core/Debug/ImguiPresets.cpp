@@ -10,7 +10,7 @@ void imguiEntityEdit(entt::registry& registry, entt::entity entity) {
 #define COMP_TOGGLE(C)                                                                                                 \
 	do {                                                                                                               \
 		bool has_##C = registry.try_get<C>(entity);                                                                    \
-		if (ImGui::Checkbox(#C, &has_##C)) {                                                                                  \
+		if (ImGui::Checkbox(#C, &has_##C)) {                                                                           \
 			if (!has_##C)                                                                                              \
 				registry.remove<C>(entity);                                                                            \
 			else                                                                                                       \

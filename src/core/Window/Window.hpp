@@ -27,7 +27,7 @@ public:
 	glm::ivec2 getMousePosition() const;
 	glm::vec2 getNormalizedMousePosition() const;
 	glm::ivec2 getSize() const;
-	
+
 	GLFWwindow* getWindow() const {
 		return this->glfw_window;
 	}

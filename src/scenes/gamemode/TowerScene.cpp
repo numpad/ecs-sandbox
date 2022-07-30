@@ -173,8 +173,8 @@ bool TowerScene::onCreate() {
 	ffi_TowerScene_spawnFloatingSword(Engine::Instance, glm::vec3(0.0f, 0.6f, 0.0f));
 	{
 		// create npc, and give him a brain
-		entt::entity npc =
-		    ffi_TowerScene_spawnDefaultEntity(Engine::Instance, glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f), 0.0f, 1.0f);
+		entt::entity npc = ffi_TowerScene_spawnDefaultEntity(Engine::Instance, glm::vec3(0.0f, 0.5f, 0.0f),
+		                                                     glm::vec3(0.0f), 0.0f, 1.0f);
 		m_registry.emplace<COrientedTexture>(npc, 8, 0.f);
 
 		IsNearEntity* isNearPlayer = new IsNearEntity(m_players[0], 0.3f);
@@ -273,13 +273,15 @@ void TowerScene::onUpdate(float dt) {
 		dt_sum -= dt_max;
 		// spawn bomb at player pos so they dont camp, randomize time until next bomb a bit
 		dt_max = 3.f + bomb_random() * 1.4f;
-		// ffi_TowerScene_spawnBomb(Engine::Instance, m_registry.get<CPosition>(m_players[0]).pos + glm::vec3(0.f, .5f, 0.f) +
-		// glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f)); ffi_TowerScene_spawnBomb(Engine::Instance,
+		// ffi_TowerScene_spawnBomb(Engine::Instance, m_registry.get<CPosition>(m_players[0]).pos + glm::vec3(0.f, .5f,
+		// 0.f) + glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f)); ffi_TowerScene_spawnBomb(Engine::Instance,
 		// m_registry.get<CPosition>(m_players[1]).pos + glm::vec3(0.f, .5f, 0.f), glm::vec3(0.f));
 	}
 
 	m_registry.ctx<entt::dispatcher>().update();
-	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto& usys) { usys->update(dt * timescale); });
+	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto& usys) {
+		usys->update(dt * timescale);
+	});
 }
 
 void TowerScene::onRender() {
@@ -292,7 +294,9 @@ void TowerScene::onRender() {
 	updateTerrainShader();
 	m_terrain.draw(&m_chunkshader);
 
-	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](auto& rsys) { rsys->draw(); });
+	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](auto& rsys) {
+		rsys->draw();
+	});
 
 	imguiLuaJitConsole(Engine::Instance->getLuaState());
 
@@ -306,7 +310,9 @@ void TowerScene::onRender() {
 void TowerScene::loadSystems() {
 	// register a logging event system
 	m_logsystem = std::make_unique<LogSystem>(m_registry);
-	m_logsystem->setLogger([](const LogEvent& e) { std::cout << "TOWERS: " << e.text << std::endl; });
+	m_logsystem->setLogger([](const LogEvent& e) {
+		std::cout << "TOWERS: " << e.text << std::endl;
+	});
 
 	// initialize update and render systems
 	auto billboardRenderSystem = std::make_shared<BillboardRenderSystem>(m_registry, m_camera);

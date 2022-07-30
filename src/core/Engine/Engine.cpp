@@ -43,7 +43,7 @@ static void callback_mouse_input(GLFWwindow* window, int button, int action, int
 	glfwGetCursorPos(window, &mx, &my);
 
 	Engine::Instance->dispatcher.enqueue<MouseButtonEvent>(button, action == GLFW_PRESS, mods,
-	                                                  glm::vec2(float(mx), float(my)));
+	                                                       glm::vec2(float(mx), float(my)));
 }
 
 ////////////
@@ -209,14 +209,14 @@ void Engine::run() {
 		if (m_config.imgui_enabled) {
 			if (ImGui::Begin("GBuffer")) {
 				const sgl::texture* preview_gbuffer_textures[] = {m_gbuffer.m_color, m_gbuffer.m_position,
-																  m_gbuffer.m_normal, m_gbuffer.m_depth};
+				                                                  m_gbuffer.m_normal, m_gbuffer.m_depth};
 				int iteration = 0;
 				for (const sgl::texture* preview_gbuffer : preview_gbuffer_textures) {
 					const float wwidth = ImGui::GetWindowWidth() * 0.47f; // meh
 					const float aspect = preview_gbuffer->get_height() / float(preview_gbuffer->get_width());
 
-					ImGui::Image((void*)(intptr_t)preview_gbuffer->get_texture(), ImVec2(wwidth, wwidth * aspect), ImVec2(0.0f, 1.0f),
-								 ImVec2(1.0f, 0.0f));
+					ImGui::Image((void*)(intptr_t)preview_gbuffer->get_texture(), ImVec2(wwidth, wwidth * aspect),
+					             ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
 
 					if (iteration++ % 2 == 0) {
 						ImGui::SameLine();

@@ -12,19 +12,19 @@ namespace fs = std::filesystem;
 
 class IAssets {
 public:
-
 	IAssets(const fs::path& rootDir) : m_rootDir{rootDir} {
 	}
 
-	template<typename T>
+	template <typename T>
 	T* load(const fs::path& relativePath) = delete;
 
-	template<>
+	template <>
 	Texture* load<Texture>(const fs::path& relativePath) {
 		auto texture = m_textures.find(relativePath);
 		// return asset if it exists
-		if (texture != m_textures.end()) return texture->second;
-		
+		if (texture != m_textures.end())
+			return texture->second;
+
 		// …otherwise load it
 		fs::path p = m_rootDir;
 		p += relativePath;
@@ -32,31 +32,27 @@ public:
 			fmt::print(fmt::fg(fmt::terminal_color::yellow), "[WRN] the file '{}' does not exist!\n", "TODO");
 			return nullptr;
 		}
-		
 
 		return new Texture();
 	}
 
-	template<typename T>
+	template <typename T>
 	void unload(const fs::path& relativePath = "") = delete;
 
-	template<>
+	template <>
 	void unload<Texture>(const fs::path& relativePath) {
 		// if relativePath is not set, remove all
 		if (relativePath.empty()) {
-			for (const auto &[path, texture] : m_textures) {
+			for (const auto& [path, texture] : m_textures) {
 				unload<Texture>(path);
 			}
-			
+
 			return;
 		}
-		
 	}
 
 private:
 	const fs::path& m_rootDir;
-	
+
 	std::unordered_map<fs::path, Texture*> m_textures;
-
 };
-
