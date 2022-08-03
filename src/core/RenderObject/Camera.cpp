@@ -22,7 +22,9 @@ void Camera::Init(GLFWwindow* window) {
 // PUBLIC //
 ////////////
 
-Camera::Camera(vec3 pos, float fov) : fov(fov), position(pos), targetpos(pos + vec3(0.f, 0.f, 1.f)) {
+Camera::Camera(vec3 pos, float fov) : targetpos(pos + vec3(0.f, 0.f, 1.f)) {
+	setFoV(fov);
+	setPos(pos);
 	CAMERAS.push_back(this);
 
 	int w, h;

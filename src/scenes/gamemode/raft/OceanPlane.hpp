@@ -80,7 +80,7 @@ public:
 private:
 	Mesh* m_mesh;
 	sgl::shader m_shader;
-	glm::vec2 m_size = glm::vec2(12.0f);
+	glm::vec2 m_size = glm::vec2(8.0f);
 	glm::vec3 m_baseColor = glm::vec3(0.40, 0.53, 0.78);
-	const unsigned int m_planeSubdivisions = 18;
+	const unsigned int m_planeSubdivisions = 24;
 };

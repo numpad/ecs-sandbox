@@ -47,7 +47,7 @@ public:
 		return this->dirToTarget;
 	};
 	inline float getFoV() const {
-		return this->fov;
+		return glm::degrees(this->fov);
 	};
 	inline int getScreenWidth() const {
 		return this->screen_width;

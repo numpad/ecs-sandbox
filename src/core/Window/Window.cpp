@@ -139,20 +139,7 @@ bool Window::create(int width, int height, FullscreenMode fullscreenMode) {
 	// glEnable(GL_SAMPLE_SHADING);
 	// glMinSampleShading(1.0f);
 
-	// depth test
-	glEnable(GL_DEPTH_TEST);
-	// glDepthFunc(GL_LEQUAL);
-
-	// blending
-	glEnable(GL_BLEND);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// face culling
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
-/* check if debug enabled */
-#if CFG_DEBUG
+#ifndef NDEBUG
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
