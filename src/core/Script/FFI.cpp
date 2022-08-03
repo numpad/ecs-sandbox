@@ -78,6 +78,9 @@ glm::vec3 FFI_vec3_normalize(glm::vec3 a) {
 
 // Yoga
 int LUA_YGNodeNew(lua_State* L) {
+	// TODO: don't call this every time. and don't change the global/default config.
+	YGConfigSetUseWebDefaults(YGConfigGetDefault(), true);
+
 	NodeID* ctx = new NodeID;
 	if (lua_isstring(L, -1)) {
 		ctx->id = std::string(lua_tostring(L, -1));

@@ -202,6 +202,7 @@ Yoga.enums = {
 function Yoga.parse(layout, name)
 	local root = Yoga.new(nil, name)
 
+	-- TODO: pairs does not define order of iteration. ipairs does, but only for arrays (= tables without keys)
 	for prop, value in pairs(layout) do
 		if type(value) == 'table' then
 			--print('<' .. prop .. '>')

@@ -1,18 +1,39 @@
 local Yoga = require('Yoga')
 
 local layout = Yoga.parse({
-	justifycontent = 'center',
-	alignitems     = 'flex-start',
+	flexdirection = "column",
+	maincontainer = {
+		flexdirection = "column-reverse",
+		justifycontent = "center",
+		maxwidth = '50%',
+		height = '100%',
+		padding = 20,
 
-	{
-		"container",
-		width = 280,
-		minheight = 300,
-	},
-	{
-		"logo",
-		width = 400,
-		height = 130,
+		logo = {
+			width = 400,
+			height = 130,
+		},
+		container = {
+			flexdirection = "column",
+			width = 280,
+
+			continue = {
+				width = '100%',
+				height = 40,
+			},
+			startgame = {
+				width = '100%',
+				height = 40,
+			},
+			settings = {
+				width = '100%',
+				height = 40,
+			},
+			quit = {
+				width = '100%',
+				height = 40,
+			},
+		},
 	},
 
 })
