@@ -19,6 +19,10 @@ Layout::Layout() {
 }
 
 void Layout::draw() const {
+	if (m_layout == nullptr) {
+		return;
+	}
+
 	GLState state;
 	state.blend = true;
 	Engine::Instance->graphics.setState(state);
@@ -28,8 +32,9 @@ void Layout::draw() const {
 }
 
 void Layout::resize(glm::vec2 size) {
-	if ((int)size.x == (int)m_size.x && (int)size.y == (int)m_size.y)
+	if (m_layout == nullptr) {
 		return;
+	}
 
 	m_size = size;
 	YGNodeCalculateLayout(m_layout, size.x, size.y, YGDirectionLTR);
@@ -37,7 +42,7 @@ void Layout::resize(glm::vec2 size) {
 
 void Layout::setLayout(YGNodeRef layout) {
 	m_layout = layout;
-	resize(glm::vec2(800.0f, 600.0f));
+	resize(glm::vec2(Engine::Instance->window.getSize()));
 }
 
 YGNodeRef Layout::getLayout() const {
@@ -82,8 +87,12 @@ void Layout::drawChildren(YGNodeRef node, glm::mat3 view) const {
 	glm::mat3 model = glm::scale(glm::mat3(1.0f), glm::vec2(w, h));
 
 	NodeID* nodeId = (NodeID*)YGNodeGetContext(node);
-	if (nodeId != nullptr && m_widgetMapping.find(nodeId->id) != m_widgetMapping.end()) {
-		m_widgetMapping.at(nodeId->id)->draw(view, model);
+	if (nodeId != nullptr) {
+		if (m_widgetMapping.find(nodeId->id) != m_widgetMapping.end()) {
+			m_widgetMapping.at(nodeId->id)->draw(view, model);
+		} else if (m_widgetMapping.find("*") != m_widgetMapping.end()) {
+			m_widgetMapping.at("*")->draw(view, model);
+		}
 	}
 
 	for (uint32_t i = 0; i < YGNodeGetChildCount(node); ++i) {

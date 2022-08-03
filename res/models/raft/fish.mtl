@@ -1,0 +1,11 @@
+# Created by Kenney (www.kenney.nl)
+
+newmtl foliageFall
+Kd 0.9056604 0.5133907 0.1580633
+
+newmtl metal
+Kd 0.7732289 0.7964044 0.9056604
+
+newmtl _defaultMat
+Kd 1 1 1
+
