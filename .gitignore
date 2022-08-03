@@ -16,4 +16,6 @@ compile_commands.json
 run.sh
 .vscode/
 .cache/
+vcpkg-manifest-install.log
+vcpkg_installed/
 
