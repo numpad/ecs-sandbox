@@ -47,8 +47,29 @@ bool MiniRaftScene::onCreate() {
 	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
 	
 	Benchmark b;
-	m_island.polygonize();
+	Vertex* rawvertices = m_island.polygonize();
+	std::vector<Vertex> vertices{rawvertices, rawvertices + (m_island.size.x * m_island.size.y * m_island.size.z * 8 * 12)};
+	m_islandMesh = new Mesh(vertices);
 	b.stop_and_print("marching cubes");
+
+	Random rnd(0.0f, 1.0f);
+	for (float i = 0.0f; i < glm::two_pi<float>(); i += glm::two_pi<float>() / 20.0f) {
+		float o = rnd() * 0.2f;
+		float x = cos(i + o);
+		float z = sin(i + o);
+		const float l = 2.8f + rnd() * 0.2f;
+		auto e = m_registry.create();
+		m_registry.emplace<CPosition>(e, glm::vec3(x * l, -0.04f, z * l));
+		
+		float model = rnd();
+		if (model < 0.5f) {
+			m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/rockA.obj"), glm::vec3(rnd() * 0.5f + 0.5f));
+		} else {
+			m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/rockB.obj"), glm::vec3(rnd() * 0.5f + 0.5f));
+		}
+
+		m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), rnd() * glm::two_pi<float>());
+	}
 
 	return true;
 }
@@ -65,12 +86,6 @@ void MiniRaftScene::onDestroy() {
 
 void MiniRaftScene::onUpdate(float dt) {
 #ifndef NDEBUG
-	static float _deleteTimer = 0.0f;
-	if ((_deleteTimer += dt) > 25.0f) {
-		_deleteTimer = 0.0f;
-		m_registry.clear();
-	}
-	
 	m3d::ray ray = m_camera->raycast(Engine::Instance->window.getNormalizedMousePosition());
 	m3d::plane floor = m3d::plane(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
 	glm::vec3 pos = m3d::raycast(ray, floor);
@@ -82,33 +97,6 @@ void MiniRaftScene::onUpdate(float dt) {
 	float _px = pos.x;
 	float _py = 0.0f;
 	float _pz = pos.z;
-
-	if (!m_registry.valid(m_spawnerBox)) {
-		m_spawnerBox = m_registry.create();
-
-		Random rnd(0.0f, 1.0f);
-		for (float i = 0.0f; i < glm::two_pi<float>(); i += glm::two_pi<float>() / 20.0f) {
-			float o = rnd() * 0.2f;
-			float x = cos(i + o);
-			float z = sin(i + o);
-			const float l = 2.8f + rnd() * 0.2f;
-			auto e = m_registry.create();
-			m_registry.emplace<CPosition>(e, glm::vec3(x * l, -0.04f, z * l));
-			
-			float model = rnd();
-			if (model < 0.5f) {
-				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/rockA.obj"), glm::vec3(rnd() * 0.5f + 0.5f));
-			} else {
-				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/rockB.obj"), glm::vec3(rnd() * 0.5f + 0.5f));
-			}
-
-			m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), rnd() * glm::two_pi<float>());
-		}
-	}
-	m_registry.emplace_or_replace<CPosition>(m_spawnerBox, _px, _py, _pz);
-	m_registry.emplace_or_replace<COrientation>(m_spawnerBox, glm::vec3(1.0f, 0.0f, 0.0f), -0.4f);
-	m_registry.emplace_or_replace<CModel>(m_spawnerBox, m_assetmanager.getMesh("res/models/raft/boxOpen.obj"),
-	                                      glm::vec3(0.9f));
 
 	static float timer = 1.0f;
 	if ((timer += dt) > 0.06f) {
@@ -151,7 +139,7 @@ void MiniRaftScene::onUpdate(float dt) {
 				const glm::vec3 buoyancy = glm::vec3(0.0f, 0.002f, 0.0f);
 				cvel.vel += drag + buoyancy;
 			}
-	    });
+	 	});
 }
 
 void MiniRaftScene::onRender() {

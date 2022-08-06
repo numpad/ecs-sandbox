@@ -77,28 +77,6 @@ void Mesh::destroy() {
 /////////////
 
 void Mesh::setupMesh() {
-	// prepare vertices
-	std::vector<GLfloat> rawvertices;
-	size_t rawvertexsize = sizeof(Vertex) - sizeof(vec2);
-	if (hasTexcoords) {
-		rawvertexsize += sizeof(vec2);
-	}
-	for (const Vertex& v : vertices) {
-		rawvertices.push_back(v.position.x);
-		rawvertices.push_back(v.position.y);
-		rawvertices.push_back(v.position.z);
-		rawvertices.push_back(v.normal.x);
-		rawvertices.push_back(v.normal.y);
-		rawvertices.push_back(v.normal.z);
-		rawvertices.push_back(v.color.x);
-		rawvertices.push_back(v.color.y);
-		rawvertices.push_back(v.color.z);
-		if (hasTexcoords) {
-			rawvertices.push_back(v.texcoords.x);
-			rawvertices.push_back(v.texcoords.y);
-		}
-	}
-
 	// send to gpu
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -106,25 +84,23 @@ void Mesh::setupMesh() {
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, rawvertices.size() * sizeof(GLfloat), &rawvertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 	if (hasIndices) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 	}
 	// position
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, rawvertexsize, (void*)offsetof(Vertex, position));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 	// normal
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, rawvertexsize, (void*)offsetof(Vertex, normal));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 	// color
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, rawvertexsize, (void*)offsetof(Vertex, color));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 	// texcoord
-	if (hasTexcoords) {
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, rawvertexsize, (void*)offsetof(Vertex, texcoords));
-	}
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texcoords));
 
 	glBindVertexArray(0);
 

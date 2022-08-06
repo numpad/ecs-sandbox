@@ -7,6 +7,7 @@
 #include "scenes/gamemode/raft/IslandTerrain.hpp"
 #include "scenes/gamemode/raft/RaftSet.hpp"
 #include "scenes/gamemode/raft/OceanPlane.hpp"
+#include "Assets/Mesh.hpp"
 #include <glm/glm.hpp>
 
 class MiniRaftScene : public IScene {
@@ -24,11 +25,10 @@ private:
 	std::vector<IUpdateSystem*> m_updatesystems;
 	std::vector<IRenderSystem*> m_rendersystems;
 
-	RaftSet m_raft;
 	OceanPlane m_waterplane;
 	IslandTerrain m_island{glm::ivec3(32)};
-
-	entt::entity m_spawnerBox = entt::null;
+	Mesh* m_islandMesh;
+	sgl::shader m_islandShader;
 
 	void onMouseButtonInput(const MouseButtonEvent& event);
 };

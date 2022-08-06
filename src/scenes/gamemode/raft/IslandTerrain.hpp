@@ -32,5 +32,8 @@ private:
 	void getCubeCornerOffsets(glm::vec3* positions) const;
 	void getCubeSurfaceValues(const size_t index, float* values) const;
 	int getCubeIndex(const size_t index, float* values) const;
+
+public:
+	const glm::ivec3& size = m_size;
 };
 
