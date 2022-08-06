@@ -26,7 +26,7 @@ private:
 
 	RaftSet m_raft;
 	OceanPlane m_waterplane;
-	IslandTerrain m_island = glm::ivec3(32);
+	IslandTerrain m_island{glm::ivec3(32)};
 
 	entt::entity m_spawnerBox = entt::null;
 

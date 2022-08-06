@@ -5,6 +5,7 @@
 #include "Util/File.hpp"
 #include "Util/Math3d.hpp"
 #include "Util/Random.hpp"
+#include "Util/Benchmark.hpp"
 #include "ecs/components.hpp"
 #include "ecs/components/CGravity.hpp"
 #include "ecs/components/COrientation.hpp"
@@ -45,6 +46,10 @@ bool MiniRaftScene::onCreate() {
 	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera)); // needs to be rendered after OceanPlane
 	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
 	
+	Benchmark b;
+	m_island.polygonize();
+	b.stop_and_print("marching cubes");
+
 	return true;
 }
 
@@ -82,11 +87,11 @@ void MiniRaftScene::onUpdate(float dt) {
 		m_spawnerBox = m_registry.create();
 
 		Random rnd(0.0f, 1.0f);
-		for (float i = 0.0f; i < glm::two_pi<float>(); i += glm::two_pi<float>() / 10.0f) {
+		for (float i = 0.0f; i < glm::two_pi<float>(); i += glm::two_pi<float>() / 20.0f) {
 			float o = rnd() * 0.2f;
 			float x = cos(i + o);
 			float z = sin(i + o);
-			const float l = 1.4f + rnd() * 0.2f;
+			const float l = 2.8f + rnd() * 0.2f;
 			auto e = m_registry.create();
 			m_registry.emplace<CPosition>(e, glm::vec3(x * l, -0.04f, z * l));
 			
@@ -99,20 +104,14 @@ void MiniRaftScene::onUpdate(float dt) {
 
 			m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), rnd() * glm::two_pi<float>());
 		}
-
-		entt::entity e = m_registry.create();
-		m_registry.emplace<CPosition>(e, glm::vec3(0.0f, 0.7f, 0.0f));
-		m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-		//m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/cannonBall.obj"), glm::vec3(0.3f));
 	}
 	m_registry.emplace_or_replace<CPosition>(m_spawnerBox, _px, _py, _pz);
 	m_registry.emplace_or_replace<COrientation>(m_spawnerBox, glm::vec3(1.0f, 0.0f, 0.0f), -0.4f);
 	m_registry.emplace_or_replace<CModel>(m_spawnerBox, m_assetmanager.getMesh("res/models/raft/boxOpen.obj"),
 	                                      glm::vec3(0.9f));
 
-	static int PHASE = 0;
 	static float timer = 1.0f;
-	if (PHASE == 0 && (timer += dt) > 0.06f) {
+	if ((timer += dt) > 0.06f) {
 		timer = 0.0f;
 		static Random rnd(0.0f, 1.0f);
 		const glm::vec2 rdir = glm::normalize(glm::vec2(_x, _y)) * _r;
@@ -142,54 +141,16 @@ void MiniRaftScene::onUpdate(float dt) {
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto& usys) {
 		usys->update(dt);
 	});
-	
-	static float TIMEOUT = 0.0f;
-	TIMEOUT += dt;
-	bool JUSTSWITCHED = false;
-	if (glfwGetKey(Engine::Instance->window, GLFW_KEY_F) == GLFW_PRESS && TIMEOUT > 1.0f) {
-		PHASE = (PHASE + 1) % 3;
-		TIMEOUT = 0.0f;
-		JUSTSWITCHED = true;
-	}
-	
-	if (PHASE == 1) {
-		m_camera->setFoV(m_camera->getFoV() + (42.0f - m_camera->getFoV()) * 0.14f);
-	} else {
-		if (TIMEOUT > 0.05f) {
-			m_camera->setFoV(m_camera->getFoV() + (32.0f - m_camera->getFoV()) * 0.19f);
-		}
-	}
 
 	m_registry.view<CPosition, CVelocity, const CGravity>().each(
-	    [JUSTSWITCHED](entt::entity entity, CPosition& cpos, CVelocity& cvel, const auto& cgravity) {
-			if (PHASE == 0) {
-				const glm::vec3 ator(0.0f, 0.7f, 0.0f);
-				const glm::vec3 d = ator - cpos.pos;
-				if (glm::length(d) < 0.6f) {
-					cvel.vel = cvel.vel * 0.2f + glm::reflect(cvel.vel, -glm::normalize(d)) * 0.8f;
-				} else {
-					cvel.vel += glm::normalize(d) * 0.0027f;
-				}
-			} else if (PHASE == 1) {
-				float rn = (static_cast<unsigned int>(entity) % 100) / 100.0f;
-				cvel.vel *= glm::vec3(0.96f, 0.5f, 0.96f);
-				if (cpos.pos.y < 1.0f + rn) {
-					cpos.pos.y += ((1.0f + rn) - cpos.pos.y) * 0.06f;
-				}
-			} else {
-				if (JUSTSWITCHED) {
-					cvel.vel.y = -0.01f;
-				}
-
-				// make entites float
-				const float WATER_HEIGHT = 0.0f - 0.05f; // TODO: something like oceanplane.getHeightAtPos(cpos.pos.xz);
-				if (cpos.pos.y < WATER_HEIGHT) {
-					const glm::vec3 drag = -limitMag(glm::normalize(cvel.vel) * 0.0008f, cvel.vel);
-					const glm::vec3 buoyancy = glm::vec3(0.0f, 0.002f, 0.0f);
-					cvel.vel += drag + buoyancy;
-				}
+	    [](entt::entity entity, CPosition& cpos, CVelocity& cvel, const auto& cgravity) {
+			// make entites float
+			const float WATER_HEIGHT = 0.0f - 0.05f; // TODO: something like oceanplane.getHeightAtPos(cpos.pos.xz);
+			if (cpos.pos.y < WATER_HEIGHT) {
+				const glm::vec3 drag = -limitMag(glm::normalize(cvel.vel) * 0.0008f, cvel.vel);
+				const glm::vec3 buoyancy = glm::vec3(0.0f, 0.002f, 0.0f);
+				cvel.vel += drag + buoyancy;
 			}
-			
 	    });
 }
 

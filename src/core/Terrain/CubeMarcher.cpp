@@ -238,9 +238,10 @@ int CubeMarcher::polygonizeCube(const ISignedDistanceFunction& sdf, vec3 cellSta
 		vertices[11] = interpolate(cell.points[3], cell.points[7], cell.values[3], cell.values[7]);
 
 	int tricount = 0;
-	for (int i = 0; TRIANGLE_TABLE[cubeindex][i] != -1; i += 3, ++tricount) {
-		vec3 p[3] = {vertices[TRIANGLE_TABLE[cubeindex][i]], vertices[TRIANGLE_TABLE[cubeindex][i + 1]],
-		             vertices[TRIANGLE_TABLE[cubeindex][i + 2]]};
+	const int* triangles = TRIANGLE_TABLE[cubeindex];
+	for (int i = 0; triangles[i] != -1; i += 3, ++tricount) {
+		vec3 p[3] = {vertices[triangles[i]], vertices[triangles[i + 1]],
+		             vertices[triangles[i + 2]]};
 		vec3 n = m3d::triangleCalcNormal(p);
 		for (int i = 0; i < 3; ++i) {
 			Vertex v;
