@@ -28,7 +28,7 @@ void AudioSystem::play_sound(const PlaySoundEvent& event) {
 
 	sgl::audio* sound = m_assetManager.getAudio(event.name);
 	if (!sound) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 		std::cerr << "[WARN] AudioSystem: Tried playing NULL audio, skipping..." << std::endl;
 #endif
 		return;

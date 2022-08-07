@@ -46,9 +46,14 @@ bool MiniRaftScene::onCreate() {
 	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera)); // needs to be rendered after OceanPlane
 	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
 	
+	m_islandShader.load("res/glsl/proto/terrain_vert.glsl", sgl::shader::VERTEX);
+	m_islandShader.load("res/glsl/proto/terrain_frag.glsl", sgl::shader::FRAGMENT);
+	m_islandShader.compile();
+	m_islandShader.link();
+
 	Benchmark b;
 	Vertex* rawvertices = m_island.polygonize();
-	std::vector<Vertex> vertices{rawvertices, rawvertices + (m_island.size.x * m_island.size.y * m_island.size.z * 8 * 12)};
+	std::vector<Vertex> vertices{rawvertices, rawvertices + (m_island.size.x * m_island.size.y * m_island.size.z * 12)};
 	m_islandMesh = new Mesh(vertices);
 	b.stop_and_print("marching cubes");
 
@@ -145,6 +150,22 @@ void MiniRaftScene::onUpdate(float dt) {
 void MiniRaftScene::onRender() {
 	glClearColor(0.1f, 0.0f, 0.24f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	GLState state;
+	state.depth_test = true;
+	state.depth_write = true;
+	Engine::Instance->graphics.setState(state);
+	m_islandShader["uProj"] = m_camera->getProjection();
+	m_islandShader["uView"] = m_camera->getView();
+	m_islandShader["uModel"] = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.3f, 0.0f));
+	m_islandShader["uTextureSide"] = 0;
+	m_islandShader["uTextureTopdown"] = 0;
+	m_islandShader["uTextureSideScale"] = 1.0f;
+	m_islandShader["uTextureTopdownScale"] = 1.0f;
+	static Texture* islandTexture = m_assetmanager.getTexture("res/images/textures/floor.png");
+	glActiveTexture(GL_TEXTURE0);
+	islandTexture->bind();
+	m_islandMesh->draw(m_islandShader);
 
 	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](auto& rsys) {
 		rsys->draw();

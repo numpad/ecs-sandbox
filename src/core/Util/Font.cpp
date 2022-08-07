@@ -9,7 +9,7 @@ sgl::shader* Font::defaultShader = nullptr;
 
 void Font::Init() {
 	if (Font::ft != nullptr) {
-#ifdef CFG_DEBUG
+#ifndef NDEBUG
 		printf("[ERR] FreeType: already initialized!\n");
 #endif
 		return;

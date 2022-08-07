@@ -1,7 +1,7 @@
 #include "sgl/sgl_attachment.hpp"
 
 sgl::attachment sgl::attachment::color(int i) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 	GLint max_colors;
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &max_colors);
 	if (i >= max_colors) {

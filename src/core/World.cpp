@@ -129,19 +129,19 @@ void World::load() {
 }
 
 void World::update() {
-#if CFG_DEBUG
+#ifndef NDEBUG
 	Benchmark update_benchmark;
 	static std::unordered_map<const char*, std::vector<double>> exec_time;
 #endif
 
 	for (auto& sys : updateSystems) {
-#if CFG_DEBUG
+#ifndef NDEBUG
 		update_benchmark.start();
 #endif
 
 		sys->update(1.f / 60.f);
 
-#if CFG_DEBUG
+#ifndef NDEBUG
 		update_benchmark.stop();
 		if (exec_time.find(typeid(*sys).name()) == exec_time.end()) {
 			exec_time[typeid(*sys).name()] = std::vector<double>();
@@ -150,7 +150,7 @@ void World::update() {
 #endif
 	}
 
-#if CFG_DEBUG
+#ifndef NDEBUG
 	if (ImGui::Begin("Systems")) {
 		using namespace ImGui;
 		static int vals = 60;
@@ -188,7 +188,7 @@ void World::update() {
 	ImGui::End();
 #endif
 
-#if CFG_DEBUG
+#ifndef NDEBUG
 	if (!registry.valid(player) && this->is_loaded()) {
 		spawnPlayer();
 		registry.ctx<entt::dispatcher>().trigger<LogEvent>("World: respawned player because debug is enabled.",
@@ -310,7 +310,7 @@ void World::setupFloor() {
 		                                                   LogEvent::LOG);
 		this->chunkedWorld->polygonizeChunk(ivec2(x, y));
 	});
-#if CFG_DEBUG
+#ifndef NDEBUG
 	double endtime = glfwGetTime();
 	registry.ctx<entt::dispatcher>().trigger<LogEvent>(
 	    "World: Generated chunks in " + std::to_string(endtime - starttime) + "s.", LogEvent::LOG);

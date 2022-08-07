@@ -4,7 +4,6 @@ uniform sampler2D uTextureSide;
 uniform sampler2D uTextureTopdown;
 uniform float uTextureSideScale;
 uniform float uTextureTopdownScale;
-uniform float uTime;
 
 in vec3 vPos;
 in vec3 vNormal;

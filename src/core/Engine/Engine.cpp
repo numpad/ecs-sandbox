@@ -60,7 +60,7 @@ Engine::Engine(EngineConfig config) : m_config(config) {
 }
 
 bool Engine::initialize() {
-#if CFG_DEBUG
+#ifndef NDEBUG
 	const char* cfg_debug_state = "DEBUG";
 #else
 	const char* cfg_debug_state = "Release build";

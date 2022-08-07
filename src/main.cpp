@@ -53,9 +53,7 @@
 
 #include <scenes/cutscenes/splashscreen/SplashScreenScene.hpp>
 
-#if CFG_DEBUG
-	#include <Debug/ImguiPresets.hpp>
-#endif
+#include <Debug/ImguiPresets.hpp>
 
 int main(int, char**) {
 

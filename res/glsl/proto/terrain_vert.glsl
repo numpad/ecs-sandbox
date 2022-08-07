@@ -13,8 +13,8 @@ out vec3 vNormal;
 flat out uvec2 vTexture;
 
 void main() {
-	vPos = aPos;
-	vNormal = aNormal;
+	vPos = (uModel * vec4(aPos, 1.0)).xyz;
+	vNormal = mat3(transpose(inverse(uModel))) * aNormal;
 	vTexture = uvec2(floor(aTexture));
 	gl_Position = uProj * uView * uModel * vec4(aPos, 1.0);
 }

@@ -15,7 +15,7 @@ static constexpr int TRIANGLE_TABLE[256][16] = {
 class IslandTerrain {
 public:
 	
-	IslandTerrain(glm::ivec3 size);
+	IslandTerrain(glm::ivec3 size, float scale = 1.0f);
 	~IslandTerrain();
 
 	void set(const glm::ivec3 pos, const float val);
@@ -25,7 +25,7 @@ public:
 
 private:
 	glm::ivec3 m_size;
-	glm::vec3 m_scale{1.0f};
+	glm::vec3 m_scale;
 	float* m_grid = nullptr;
 	float m_surface = 0.0f;
 	

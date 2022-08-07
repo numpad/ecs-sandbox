@@ -17,11 +17,19 @@ static inline glm::vec3 interpolate(const glm::vec3 p1, const glm::vec3 p2, floa
 // PUBLIC //
 ////////////
 
-IslandTerrain::IslandTerrain(glm::ivec3 size) : m_size{size} {
+IslandTerrain::IslandTerrain(glm::ivec3 size, float scale) : m_size{size}, m_scale{scale} {
 	m_grid = new float[size.x * size.y * size.z];
 
-	for (int i = 0; i < size.x * size.y * size.z; ++i) {
-		m_grid[i] = rand() % 20 - 10;
+	for (int x = 0; x < size.x; ++x) {
+		for (int y = 0; y < size.y; ++y) {
+			for (int z = 0; z < size.z; ++z) {
+				glm::ivec3 p(x, y, z);
+				glm::vec3 pos(p);
+				glm::vec3 center = glm::vec3(size) * 0.5f;
+				float d = glm::length(pos - center) / (float)size.x;
+				m_grid[ptoi(p, size)] = (d * 2.0f - 1.0f) * 10.0f;
+			}
+		}
 	}
 }
 
@@ -40,7 +48,7 @@ float IslandTerrain::get(const glm::ivec3 pos) const {
 }
 
 Vertex* IslandTerrain::polygonize() {
-	Vertex* vertices = new Vertex[m_size.x * m_size.y * m_size.z * 8 * 12];
+	Vertex* vertices = new Vertex[m_size.x * m_size.y * m_size.z * 12];
 	size_t vertices_produced = -1;
 	
 	glm::vec3 cornerOffsets[8];
@@ -80,10 +88,11 @@ Vertex* IslandTerrain::polygonize() {
 
 					for (int j = 0; j < 3; ++j) {
 						Vertex v;
-						v.position = facePositions[0];
+						v.position = facePositions[j];
 						v.normal = normal;
 						
 						vertices[++vertices_produced] = v;
+						assert(vertices_produced < m_size.x * m_size.y * m_size.z * 12);
 					}
 				}
 			}

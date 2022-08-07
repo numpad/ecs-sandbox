@@ -85,7 +85,7 @@ bool Texture::loadMemory(unsigned char* data, int width, int height, int channel
 
 	if (this->isFlagSet(Texture::Flags::GEN_MIPMAPS)) {
 		glGenerateMipmap(GL_TEXTURE_2D);
-#if CFG_DEBUG
+#ifndef NDEBUG
 		printf("[LOG] Texture: GEN_MIPMAPS flag is set! Generating...\n");
 #endif
 	}
@@ -109,7 +109,7 @@ bool Texture::loadTexture(const Texture& texture) {
 // destroying data
 
 void Texture::destroy() {
-#if CFG_DEBUG
+#ifndef NDEBUG
 	printf("[LOG] Texture: deleted texture @%u\n", texture);
 #endif
 
@@ -187,7 +187,7 @@ bool Texture::isFlagSet(Flags flag) {
 void Texture::create() {
 	glGenTextures(1, &texture);
 
-#if CFG_DEBUG
+#ifndef NDEBUG
 	printf("[LOG] Texture: created @%u\n", texture);
 #endif
 
