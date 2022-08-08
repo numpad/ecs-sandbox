@@ -20,7 +20,9 @@ BillboardRenderSystem::~BillboardRenderSystem() {
 }
 
 void BillboardRenderSystem::update(float dt) {
-
+	// TODO: this is no longer needed if we discard pixels in the shader (or do blending right?)
+	//       the drawback is that transparency is no longer working, but this should be fine.
+	// TODO: maybe add a separate draw call & sort for semi-transparent billboards?
 	// depthsort
 	registry.sort<CPosition>([this](const auto& lhs, const auto& rhs) {
 		constexpr glm::vec3 noY(1.0f, 0.0f, 1.0f);

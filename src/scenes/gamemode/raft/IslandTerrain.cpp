@@ -1,5 +1,6 @@
 #include "scenes/gamemode/raft/IslandTerrain.hpp"
 #include "Util/Math3d.hpp"
+#include "Auburn/FastNoiseLite.h"
 
 ////////////
 // INLINE //
@@ -20,14 +21,18 @@ static inline glm::vec3 interpolate(const glm::vec3 p1, const glm::vec3 p2, floa
 IslandTerrain::IslandTerrain(glm::ivec3 size, float scale) : m_size{size}, m_scale{scale} {
 	m_grid = new float[size.x * size.y * size.z];
 
+	FastNoiseLite noise;
+	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 	for (int x = 0; x < size.x; ++x) {
-		for (int y = 0; y < size.y; ++y) {
-			for (int z = 0; z < size.z; ++z) {
+		for (int z = 0; z < size.z; ++z) {
+			glm::vec2 pos(static_cast<float>(x), static_cast<float>(z));
+			float height = noise.GetNoise(pos.x * 15.0f, pos.y * 15.0f)
+						   * noise.GetNoise(pos.x * 5.0f, pos.y * 5.0f)
+						   * noise.GetNoise(pos.x * 2.5f, pos.y * 2.5f)
+				           * m_size.y;
+			for (int y = 0; y < size.y; ++y) {
 				glm::ivec3 p(x, y, z);
-				glm::vec3 pos(p);
-				glm::vec3 center = glm::vec3(size) * 0.5f;
-				float d = glm::length(pos - center) / (float)size.x;
-				m_grid[ptoi(p, size)] = (d * 2.0f - 1.0f) * 10.0f;
+				m_grid[ptoi(p, size)] = (height * 0.3f) - y + 0.5f;
 			}
 		}
 	}
@@ -47,9 +52,12 @@ float IslandTerrain::get(const glm::ivec3 pos) const {
 	return m_grid[index];
 }
 
-Vertex* IslandTerrain::polygonize() {
-	Vertex* vertices = new Vertex[m_size.x * m_size.y * m_size.z * 12];
-	size_t vertices_produced = -1;
+size_t IslandTerrain::getMaxVertexCount() const {
+	return (m_size.x * m_size.y * m_size.z * 12);
+}
+
+void IslandTerrain::polygonize(Vertex* vertices, size_t& vertices_produced) {
+	vertices_produced = 0;
 	
 	glm::vec3 cornerOffsets[8];
 	getCubeCornerOffsets(cornerOffsets);
@@ -82,24 +90,26 @@ Vertex* IslandTerrain::polygonize() {
 				if (edges & 2048) positions[11] = interpolate(pf + cornerOffsets[3], pf + cornerOffsets[7], surfaceValues[3], surfaceValues[7], m_surface);
 
 				const int* triangles = TRIANGLE_TABLE[cubeIndex];
-				for (int i = 0; triangles[i] != -1; i += 3) {
-					glm::vec3 facePositions[3] = {positions[triangles[i]], positions[triangles[i+1]], positions[triangles[i+2]]};
-					glm::vec3 normal = m3d::triangleCalcNormal(facePositions);
+				for (int faceIndex = 0; triangles[faceIndex] != -1; faceIndex += 3) {
+					const glm::vec3 facePositions[3] = {
+						positions[triangles[faceIndex+2]],
+						positions[triangles[faceIndex+1]],
+						positions[triangles[faceIndex+0]]
+					};
+					const glm::vec3 normal = m3d::triangleCalcNormal(facePositions);
 
 					for (int j = 0; j < 3; ++j) {
 						Vertex v;
 						v.position = facePositions[j];
 						v.normal = normal;
 						
-						vertices[++vertices_produced] = v;
-						assert(vertices_produced < m_size.x * m_size.y * m_size.z * 12);
+						vertices[vertices_produced++] = v;
+						assert(vertices_produced < getMaxVertexCount());
 					}
 				}
 			}
 		}
 	}
-
-	return vertices;
 }
 
 /////////////

@@ -179,7 +179,7 @@ bool solve_ballistic_arc_lateral(vec3 proj_pos, float lateral_speed, vec3 target
 	return true;
 }
 
-vec3 triangleCalcNormal(vec3* triangle) {
+vec3 triangleCalcNormal(const vec3* triangle) {
 	vec3 a = triangle[0], b = triangle[1], c = triangle[2];
 
 	vec3 ba = (a - b), ca = (a - c);

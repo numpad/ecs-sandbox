@@ -41,6 +41,7 @@ public:
 		GLState waterState;
 		waterState.depth_test = true;
 		waterState.depth_write = true;
+		waterState.blend = true; // transparency?
 		Engine::Instance->graphics.setState(waterState);
 
 		GBuffer& gbuffer = Engine::Instance->gbuffer;

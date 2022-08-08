@@ -47,6 +47,7 @@ include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/imgui/include/imgui/backends
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/yoga")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/glm")
 include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/cereal/include/")
+include_directories (SYSTEM "${PROJECT_LIBRARY_DIR}/Auburn/include")
 
 file (GLOB_RECURSE source_files
 	"${PROJECT_BASE_SRC}/*.cpp"

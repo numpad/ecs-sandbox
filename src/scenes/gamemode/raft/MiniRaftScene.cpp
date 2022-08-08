@@ -32,8 +32,8 @@ bool MiniRaftScene::onCreate() {
 	m_registry.set<entt::dispatcher>();
 	Engine::Instance->dispatcher.sink<MouseButtonEvent>().connect<&MiniRaftScene::onMouseButtonInput>(this);
 
-	m_camera = std::make_shared<Camera>(glm::vec3(3.0f, 4.5f, -5.0f));
-	m_camera->setTarget(glm::vec3(0.0f, 0.1f, 0.0f));
+	m_camera = std::make_shared<Camera>(glm::vec3(6.0f, 5.5f, -6.0f));
+	m_camera->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	/* update systems */
 	BillboardRenderSystem* billboardRenderSystem = new BillboardRenderSystem(m_registry, m_camera);
@@ -52,9 +52,13 @@ bool MiniRaftScene::onCreate() {
 	m_islandShader.link();
 
 	Benchmark b;
-	Vertex* rawvertices = m_island.polygonize();
-	std::vector<Vertex> vertices{rawvertices, rawvertices + (m_island.size.x * m_island.size.y * m_island.size.z * 12)};
+	// TODO: use rawvertices directly, currently copying the same array twice. (rawvertices → vertices → new Mesh)
+	Vertex* rawvertices = new Vertex[m_island.getMaxVertexCount()];
+	size_t vertices_produced;
+	m_island.polygonize(rawvertices, vertices_produced);
+	std::vector<Vertex> vertices{rawvertices, rawvertices + vertices_produced};
 	m_islandMesh = new Mesh(vertices);
+	delete[] rawvertices;
 	b.stop_and_print("marching cubes");
 
 	Random rnd(0.0f, 1.0f);
@@ -81,6 +85,7 @@ bool MiniRaftScene::onCreate() {
 
 void MiniRaftScene::onDestroy() {
 	Engine::Instance->dispatcher.sink<MouseButtonEvent>().disconnect<&MiniRaftScene::onMouseButtonInput>(this);
+	delete m_islandMesh;
 
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [](IUpdateSystem* usys) {
 		delete usys;
@@ -90,47 +95,6 @@ void MiniRaftScene::onDestroy() {
 }
 
 void MiniRaftScene::onUpdate(float dt) {
-#ifndef NDEBUG
-	m3d::ray ray = m_camera->raycast(Engine::Instance->window.getNormalizedMousePosition());
-	m3d::plane floor = m3d::plane(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-	glm::vec3 pos = m3d::raycast(ray, floor);
-	
-	static Random rnd(-1.0f, 1.0f);
-	float _x = rnd();
-	float _y = -1;
-	float _r = (rnd() * 0.5f + 0.5f) * 0.04f + 0.012f;
-	float _px = pos.x;
-	float _py = 0.0f;
-	float _pz = pos.z;
-
-	static float timer = 1.0f;
-	if ((timer += dt) > 0.06f) {
-		timer = 0.0f;
-		static Random rnd(0.0f, 1.0f);
-		const glm::vec2 rdir = glm::normalize(glm::vec2(_x, _y)) * _r;
-		Texture* texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
-		entt::entity e = m_registry.create();
-		m_registry.emplace<CPosition>(e, glm::vec3(_px, _py, _pz));
-		m_registry.emplace<CVelocity>(e, glm::vec3(rdir.x, 0.03f, rdir.y));
-		m_registry.emplace<CGravity>(e);
-
-		static int i = 0;
-		if (i++ % 2 == 1) {
-			m_registry.emplace<CBillboard>(e, texture, glm::vec2(0.2f));
-			m_registry.emplace<CTextureRegion>(e, glm::floor(rnd() * 5.0f) * 16.0f,
-			                                   (9.0f + glm::floor(rnd() * 5.0f)) * 16.0f, 16.0f, 16.0f, 256, 256);
-		} else {
-			glm::vec3 rot = glm::normalize(glm::vec3(rnd(), rnd(), rnd()));
-			m_registry.emplace<COrientation>(e, rot, rnd() * glm::pi<float>() * 2.0f);
-			if ((i / 2) % 2 == 0)
-				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/barrel.obj"), glm::vec3(0.5f));
-			else
-				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/box.obj"), glm::vec3(0.6f));
-		}
-	}
-
-#endif
-
 	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [dt](auto& usys) {
 		usys->update(dt);
 	});
@@ -154,17 +118,19 @@ void MiniRaftScene::onRender() {
 	GLState state;
 	state.depth_test = true;
 	state.depth_write = true;
+	state.cull_face = true;
 	Engine::Instance->graphics.setState(state);
 	m_islandShader["uProj"] = m_camera->getProjection();
 	m_islandShader["uView"] = m_camera->getView();
-	m_islandShader["uModel"] = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.3f, 0.0f));
+	m_islandShader["uModel"] = glm::translate(glm::mat4(1.0f), glm::vec3(-4.0f, 0.0f, -4.0f));
 	m_islandShader["uTextureSide"] = 0;
 	m_islandShader["uTextureTopdown"] = 0;
-	m_islandShader["uTextureSideScale"] = 1.0f;
-	m_islandShader["uTextureTopdownScale"] = 1.0f;
+	m_islandShader["uTextureSideScale"] = 4.0f;
+	m_islandShader["uTextureTopdownScale"] = 4.0f;
 	static Texture* islandTexture = m_assetmanager.getTexture("res/images/textures/floor.png");
 	glActiveTexture(GL_TEXTURE0);
 	islandTexture->bind();
+	islandTexture->setWrapMode(Texture::WrapMode::REPEAT);
 	m_islandMesh->draw(m_islandShader);
 
 	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](auto& rsys) {
@@ -183,18 +149,44 @@ void MiniRaftScene::onMouseButtonInput(const MouseButtonEvent& event) {
 	if (!event.is_down)
 		return;
 
+	// write mouse position on floor into `pos`
 	glm::vec2 mpos = Engine::Instance->window.getNormalizedMousePosition();
 	m3d::ray ray = m_camera->raycast(mpos);
 	m3d::plane floor = m3d::plane(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
 	glm::vec3 pos = m3d::raycast(ray, floor);
-	constexpr static float GRID_SIZE = 0.375f;
-	pos.x = glm::floor(pos.x / GRID_SIZE) * GRID_SIZE;
-	pos.z = glm::floor(pos.z / GRID_SIZE) * GRID_SIZE;
 
-	for (int i = 0; i < 4; ++i) {
-		entt::entity e = m_registry.create();
-		m_registry.emplace<CPosition>(e, pos + glm::vec3(0.0f, 0.1f, 0.0f));
-		m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-		m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/floor.obj"), glm::vec3(0.75f));
+	if (event.button == GLFW_MOUSE_BUTTON_RIGHT) {
+		constexpr static float GRID_SIZE = 0.375f;
+		pos.x = glm::floor(pos.x / GRID_SIZE) * GRID_SIZE;
+		pos.z = glm::floor(pos.z / GRID_SIZE) * GRID_SIZE;
+
+		for (int i = 0; i < 4; ++i) {
+			entt::entity e = m_registry.create();
+			m_registry.emplace<CPosition>(e, pos + glm::vec3(0.0f, 0.1f, 0.0f));
+			m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+			m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/floor.obj"), glm::vec3(0.75f));
+		}
+	} else {
+		static Random rnd(0.0f, 1.0f);
+		for (int i = 0; i < 4; ++i) {
+			entt::entity e = m_registry.create();
+			m_registry.emplace<CPosition>(e, pos + glm::vec3(0.0f, 0.2f, 0.0f));
+			m_registry.emplace<CVelocity>(e, glm::vec3(rnd() * 2.0f - 1.0f, 1.75f, rnd() * 2.0f - 1.0f) * 0.01f);
+			m_registry.emplace<CGravity>(e);
+
+			const float rndModel = rnd();
+			if (rndModel < 1.0f / 3.0f) {
+				m_registry.emplace<COrientation>(e, glm::normalize(glm::vec3(rnd() - 0.5f, rnd() - 0.5f, rnd() - 0.5f)), rnd() * glm::two_pi<float>());
+				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/barrel.obj"), glm::vec3(0.75f));
+			} else if (rndModel < 2.0f / 3.0f) {
+				m_registry.emplace<COrientation>(e, glm::normalize(glm::vec3(rnd() - 0.5f, rnd() - 0.5f, rnd() - 0.5f)), rnd() * glm::two_pi<float>());
+				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/barrel.obj"), glm::vec3(0.75f));
+			} else {
+				static Texture* texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
+				m_registry.emplace<CBillboard>(e, texture, glm::vec2(0.2f));
+				m_registry.emplace<CTextureRegion>(e, glm::floor(rnd() * 5.0f) * 16.0f,
+			                                   (9.0f + glm::floor(rnd() * 5.0f)) * 16.0f, 16.0f, 16.0f, 256, 256);
+			}
+		}
 	}
 }

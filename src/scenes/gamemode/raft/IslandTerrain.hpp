@@ -21,7 +21,8 @@ public:
 	void set(const glm::ivec3 pos, const float val);
 	float get(const glm::ivec3 pos) const;
 
-	Vertex* polygonize();
+	size_t getMaxVertexCount() const;
+	void polygonize(Vertex* vertices, size_t& vertices_produced);
 
 private:
 	glm::ivec3 m_size;

@@ -58,7 +58,7 @@ float ballistic_range(float speed, float gravity, float initial_height);
 bool solve_ballistic_arc_lateral(glm::vec3 proj_pos, float lateral_speed, glm::vec3 target_pos, float max_height,
                                  glm::vec3& fire_velocity, float& gravity);
 
-vec3 triangleCalcNormal(vec3* triangle);
+vec3 triangleCalcNormal(const vec3* triangle);
 
 float lightVolumeRadius(vec3 lightColor, float constant = 1.0f, float linear = 0.7f, float quadratic = 1.8f);
 } // namespace m3d
