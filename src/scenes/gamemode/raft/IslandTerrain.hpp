@@ -15,22 +15,21 @@ static constexpr int TRIANGLE_TABLE[256][16] = {
 class IslandTerrain {
 public:
 	
-	IslandTerrain(glm::ivec3 size, float scale = 1.0f);
+	IslandTerrain(glm::ivec3 size);
 	~IslandTerrain();
 
 	void set(const glm::ivec3 pos, const float val);
 	float get(const glm::ivec3 pos) const;
 
 	size_t getMaxVertexCount() const;
-	void polygonize(Vertex* vertices, size_t& vertices_produced);
+	void polygonize(Vertex* vertices, size_t& vertices_produced, const glm::vec3 scale = glm::vec3(1.0f));
 
 private:
 	glm::ivec3 m_size;
-	glm::vec3 m_scale;
 	float* m_grid = nullptr;
 	float m_surface = 0.0f;
 	
-	void getCubeCornerOffsets(glm::vec3* positions) const;
+	void getCubeCornerOffsets(glm::vec3* positions, const glm::vec3 scale) const;
 	void getCubeSurfaceValues(const size_t index, float* values) const;
 	int getCubeIndex(const size_t index, float* values) const;
 

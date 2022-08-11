@@ -55,11 +55,12 @@ bool MiniRaftScene::onCreate() {
 	// TODO: use rawvertices directly, currently copying the same array twice. (rawvertices → vertices → new Mesh)
 	Vertex* rawvertices = new Vertex[m_island.getMaxVertexCount()];
 	size_t vertices_produced;
-	m_island.polygonize(rawvertices, vertices_produced);
+	m_island.polygonize(rawvertices, vertices_produced, glm::vec3(0.2f));
 	std::vector<Vertex> vertices{rawvertices, rawvertices + vertices_produced};
 	m_islandMesh = new Mesh(vertices);
 	delete[] rawvertices;
 	b.stop_and_print("marching cubes");
+	fmt::print(" → used {} / {} vertices\n", vertices_produced, m_island.getMaxVertexCount());
 
 	Random rnd(0.0f, 1.0f);
 	for (float i = 0.0f; i < glm::two_pi<float>(); i += glm::two_pi<float>() / 20.0f) {
@@ -180,7 +181,7 @@ void MiniRaftScene::onMouseButtonInput(const MouseButtonEvent& event) {
 				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/barrel.obj"), glm::vec3(0.75f));
 			} else if (rndModel < 2.0f / 3.0f) {
 				m_registry.emplace<COrientation>(e, glm::normalize(glm::vec3(rnd() - 0.5f, rnd() - 0.5f, rnd() - 0.5f)), rnd() * glm::two_pi<float>());
-				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/barrel.obj"), glm::vec3(0.75f));
+				m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/box.obj"), glm::vec3(0.75f));
 			} else {
 				static Texture* texture = m_assetmanager.getTexture("res/images/textures/dungeon.png");
 				m_registry.emplace<CBillboard>(e, texture, glm::vec2(0.2f));

@@ -26,7 +26,7 @@ private:
 	std::vector<IRenderSystem*> m_rendersystems;
 
 	OceanPlane m_waterplane;
-	IslandTerrain m_island{glm::ivec3(41, 12, 41), 0.2f};
+	IslandTerrain m_island{glm::ivec3(41, 12, 41)};
 	Mesh* m_islandMesh;
 	sgl::shader m_islandShader;
 

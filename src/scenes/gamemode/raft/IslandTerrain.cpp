@@ -3,7 +3,7 @@
 #include "Auburn/FastNoiseLite.h"
 
 ////////////
-// INLINE //
+// STATIC //
 ////////////
 
 static inline size_t ptoi(const glm::ivec3 p, const glm::ivec3 size) {
@@ -18,7 +18,7 @@ static inline glm::vec3 interpolate(const glm::vec3 p1, const glm::vec3 p2, floa
 // PUBLIC //
 ////////////
 
-IslandTerrain::IslandTerrain(glm::ivec3 size, float scale) : m_size{size}, m_scale{scale} {
+IslandTerrain::IslandTerrain(glm::ivec3 size) : m_size{size} {
 	m_grid = new float[size.x * size.y * size.z];
 
 	FastNoiseLite noise;
@@ -56,17 +56,18 @@ size_t IslandTerrain::getMaxVertexCount() const {
 	return (m_size.x * m_size.y * m_size.z * 12);
 }
 
-void IslandTerrain::polygonize(Vertex* vertices, size_t& vertices_produced) {
+void IslandTerrain::polygonize(Vertex* vertices, size_t& vertices_produced, const glm::vec3 scale) {
 	vertices_produced = 0;
 	
 	glm::vec3 cornerOffsets[8];
-	getCubeCornerOffsets(cornerOffsets);
-
+	getCubeCornerOffsets(cornerOffsets, scale);
+	
+	#pragma omp parallel for 
 	for (int x = 0; x < m_size.x - 1; ++x) {
 		for (int y = 0; y < m_size.y - 1; ++y) {
 			for (int z = 0; z < m_size.z - 1; ++z) {
 				const glm::ivec3 p(x, y, z);
-				glm::vec3 pf(static_cast<float>(x) * m_scale.x, static_cast<float>(y) * m_scale.y, static_cast<float>(z) * m_scale.z);
+				const glm::vec3 pf(static_cast<float>(x) * scale.x, static_cast<float>(y) * scale.y, static_cast<float>(z) * scale.z);
 				const size_t i = ptoi(p, m_size);
 				
 				float surfaceValues[8];
@@ -116,15 +117,15 @@ void IslandTerrain::polygonize(Vertex* vertices, size_t& vertices_produced) {
 // PRIVATE //
 /////////////
 
-void IslandTerrain::getCubeCornerOffsets(glm::vec3* positions) const {
-	positions[0] = glm::vec3(     0.0f,       0.0f,       0.0f);
-	positions[1] = glm::vec3(m_scale.x,       0.0f,       0.0f);
-	positions[2] = glm::vec3(m_scale.x,       0.0f,  m_scale.z);
-	positions[3] = glm::vec3(     0.0f,       0.0f,  m_scale.z);
-	positions[4] = glm::vec3(     0.0f,  m_scale.y,       0.0f);
-	positions[5] = glm::vec3(m_scale.x,  m_scale.y,       0.0f);
-	positions[6] = glm::vec3(m_scale.x,  m_scale.y,  m_scale.z);
-	positions[7] = glm::vec3(     0.0f,  m_scale.y,  m_scale.z);
+void IslandTerrain::getCubeCornerOffsets(glm::vec3* positions, const glm::vec3 scale) const {
+	positions[0] = glm::vec3(   0.0f,     0.0f,     0.0f);
+	positions[1] = glm::vec3(scale.x,     0.0f,     0.0f);
+	positions[2] = glm::vec3(scale.x,     0.0f,  scale.z);
+	positions[3] = glm::vec3(   0.0f,     0.0f,  scale.z);
+	positions[4] = glm::vec3(   0.0f,  scale.y,     0.0f);
+	positions[5] = glm::vec3(scale.x,  scale.y,     0.0f);
+	positions[6] = glm::vec3(scale.x,  scale.y,  scale.z);
+	positions[7] = glm::vec3(   0.0f,  scale.y,  scale.z);
 }
 
 void IslandTerrain::getCubeSurfaceValues(const size_t index, float* values) const {
