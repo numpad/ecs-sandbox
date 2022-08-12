@@ -1,3 +1,4 @@
+#include <GL/gl3w.h>
 #include "scenes/gamemode/raft/MiniRaftScene.hpp"
 #include "Assets/Loaders/ObjLoader.hpp"
 #include "Graphics/GLState.hpp"
@@ -35,17 +36,6 @@ bool MiniRaftScene::onCreate() {
 	m_camera = std::make_shared<Camera>(glm::vec3(6.0f, 5.5f, -6.0f));
 	m_camera->setTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 
-	/* update systems */
-	BillboardRenderSystem* billboardRenderSystem = new BillboardRenderSystem(m_registry, m_camera);
-	m_updatesystems.emplace_back(new GravitySystem(m_registry, 0.000981f));
-	m_updatesystems.emplace_back(new PositionUpdateSystem(m_registry));
-	m_updatesystems.emplace_back(billboardRenderSystem);
-	/* render systems */
-	m_rendersystems.emplace_back(new ModelRenderSystem(m_registry, m_camera));
-	m_rendersystems.push_back(billboardRenderSystem);
-	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera)); // needs to be rendered after OceanPlane
-	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
-	
 	m_islandShader.load("res/glsl/proto/terrain_vert.glsl", sgl::shader::VERTEX);
 	m_islandShader.load("res/glsl/proto/terrain_frag.glsl", sgl::shader::FRAGMENT);
 	m_islandShader.compile();
@@ -57,29 +47,30 @@ bool MiniRaftScene::onCreate() {
 	size_t vertices_produced;
 	m_island.polygonize(rawvertices, vertices_produced, glm::vec3(0.2f));
 	std::vector<Vertex> vertices{rawvertices, rawvertices + vertices_produced};
+
 	m_islandMesh = new Mesh(vertices);
 	delete[] rawvertices;
 	b.stop_and_print("marching cubes");
 	fmt::print(" → used {} / {} vertices\n", vertices_produced, m_island.getMaxVertexCount());
 
-	Random rnd(0.0f, 1.0f);
-	for (float i = 0.0f; i < glm::two_pi<float>(); i += glm::two_pi<float>() / 20.0f) {
-		float o = rnd() * 0.2f;
-		float x = cos(i + o);
-		float z = sin(i + o);
-		const float l = 2.8f + rnd() * 0.2f;
-		auto e = m_registry.create();
-		m_registry.emplace<CPosition>(e, glm::vec3(x * l, -0.04f, z * l));
-		
-		float model = rnd();
-		if (model < 0.5f) {
-			m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/rockA.obj"), glm::vec3(rnd() * 0.5f + 0.5f));
-		} else {
-			m_registry.emplace<CModel>(e, m_assetmanager.getMesh("res/models/raft/rockB.obj"), glm::vec3(rnd() * 0.5f + 0.5f));
-		}
+	// Lights
+	entt::entity light0 = m_registry.create(),
+		         light1 = m_registry.create();
+	m_registry.emplace<CPosition>(light0, glm::vec3(2.0f, 0.0f, 0.5f));
+	m_registry.emplace<CPointLight>(light0, 0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
+	m_registry.emplace<CPosition>(light1, glm::vec3(2.0f, 0.0f, 1.0f));
+	m_registry.emplace<CPointLight>(light1, 0.5f, glm::vec3(0.0f, 1.0f, 0.4f));
 
-		m_registry.emplace<COrientation>(e, glm::vec3(0.0f, 1.0f, 0.0f), rnd() * glm::two_pi<float>());
-	}
+	/* update systems */
+	BillboardRenderSystem* billboardRenderSystem = new BillboardRenderSystem(m_registry, m_camera);
+	m_updatesystems.emplace_back(new GravitySystem(m_registry, 0.000981f));
+	m_updatesystems.emplace_back(new PositionUpdateSystem(m_registry));
+	m_updatesystems.emplace_back(billboardRenderSystem);
+	/* render systems */
+	m_rendersystems.emplace_back(new ModelRenderSystem(m_registry, m_camera));
+	m_rendersystems.push_back(billboardRenderSystem);
+	m_rendersystems.emplace_back(new DecalRenderSystem(m_registry, m_camera)); // needs to be rendered after OceanPlane
+	m_rendersystems.emplace_back(new LightVolumeRenderSystem(m_registry, m_camera));
 
 	return true;
 }
@@ -88,11 +79,9 @@ void MiniRaftScene::onDestroy() {
 	Engine::Instance->dispatcher.sink<MouseButtonEvent>().disconnect<&MiniRaftScene::onMouseButtonInput>(this);
 	delete m_islandMesh;
 
-	std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [](IUpdateSystem* usys) {
-		delete usys;
-	});
+	std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](IRenderSystem* rsys) { delete rsys; });
 	// TODO: double-freeing billboardRenderSystem
-	// std::for_each(m_rendersystems.begin(), m_rendersystems.end(), [](IRenderSystem* rsys) { delete rsys; });
+	//std::for_each(m_updatesystems.begin(), m_updatesystems.end(), [](IUpdateSystem* usys) { delete usys; });
 }
 
 void MiniRaftScene::onUpdate(float dt) {

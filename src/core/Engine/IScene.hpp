@@ -1,7 +1,5 @@
 #pragma once
 
-#include <World.hpp>
-
 class Engine;
 
 class IScene {

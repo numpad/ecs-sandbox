@@ -9,7 +9,6 @@
 
 #include <Util/Random.hpp>
 #include <Util/Blackboard.hpp>
-#include <World.hpp>
 #include <Engine/Engine.hpp>
 
 void imguiEntityEdit(entt::registry& registry, entt::entity entity);

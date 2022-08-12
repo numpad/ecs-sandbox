@@ -61,15 +61,12 @@ void MainMenuScene::onRender() {
 					Engine::Instance->setActiveScene(new LayoutEditorScene());
 					break;
 				case 1:
-					Engine::Instance->setActiveScene(new TestGameScene());
-					break;
-				case 2:
 					Engine::Instance->setActiveScene(new MiniRaftScene());
 					break;
-				case 3:
+				case 2:
 					Engine::Instance->setActiveScene(new TowerScene());
 					break;
-				case 4:
+				case 3:
 					Engine::Instance->setActiveScene(new SpritePreviewScene());
 					break;
 				};

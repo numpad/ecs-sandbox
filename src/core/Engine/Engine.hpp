@@ -5,6 +5,7 @@
 
 #include <iostream>
 
+#include <entt/entt.hpp>
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <glm/glm.hpp>

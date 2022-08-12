@@ -30,7 +30,6 @@
 #include <ecs/components.hpp>
 #include <ecs/systems.hpp>
 #include <ecs/events.hpp>
-#include <World.hpp>
 
 #include <Terrain/SignedDistTerrain.hpp>
 #include <Terrain/ChunkedTerrain.hpp>

@@ -1,4 +1,5 @@
 #include <yoga/YGNode.h>
+#include <GL/gl3w.h>
 #include "scenes/testing/LayoutEditorScene.hpp"
 #include "core/UI/DebugWidget.hpp"
 #include "core/Util/File.hpp"

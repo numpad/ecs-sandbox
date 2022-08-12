@@ -90,6 +90,11 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE freetype)
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE fmt::fmt-header-only)
 
+# openmp
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+	target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
+endif()
 
 # OpenGL
 set (OpenGL_GL_PREFERENCE GLVND)

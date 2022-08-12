@@ -42,27 +42,16 @@ IslandTerrain::~IslandTerrain() {
 	delete[] m_grid;
 }
 
-void IslandTerrain::set(const glm::ivec3 pos, const float val) {
-	const size_t index = ptoi(pos, m_size);
-	m_grid[index] = val;
-}
-
-float IslandTerrain::get(const glm::ivec3 pos) const {
-	const size_t index = ptoi(pos, m_size);
-	return m_grid[index];
-}
-
 size_t IslandTerrain::getMaxVertexCount() const {
 	return (m_size.x * m_size.y * m_size.z * 12);
 }
 
 void IslandTerrain::polygonize(Vertex* vertices, size_t& vertices_produced, const glm::vec3 scale) {
-	vertices_produced = 0;
+	vertices_produced = getMaxVertexCount();
 	
 	glm::vec3 cornerOffsets[8];
 	getCubeCornerOffsets(cornerOffsets, scale);
 	
-	#pragma omp parallel for 
 	for (int x = 0; x < m_size.x - 1; ++x) {
 		for (int y = 0; y < m_size.y - 1; ++y) {
 			for (int z = 0; z < m_size.z - 1; ++z) {
@@ -104,8 +93,8 @@ void IslandTerrain::polygonize(Vertex* vertices, size_t& vertices_produced, cons
 						v.position = facePositions[j];
 						v.normal = normal;
 						
-						vertices[vertices_produced++] = v;
-						assert(vertices_produced < getMaxVertexCount());
+						vertices[i * 12 + faceIndex + j] = v;
+						assert(vertices_produced <= getMaxVertexCount());
 					}
 				}
 			}

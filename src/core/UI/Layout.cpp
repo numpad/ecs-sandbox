@@ -4,7 +4,6 @@
 #include "UI/Layout.hpp"
 #include "UI/IWidget.hpp"
 #include "UI/NodeID.hpp"
-#include "World.hpp"
 #include "Engine/Engine.hpp"
 
 ////////////

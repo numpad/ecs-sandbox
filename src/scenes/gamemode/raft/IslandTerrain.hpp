@@ -18,9 +18,6 @@ public:
 	IslandTerrain(glm::ivec3 size);
 	~IslandTerrain();
 
-	void set(const glm::ivec3 pos, const float val);
-	float get(const glm::ivec3 pos) const;
-
 	size_t getMaxVertexCount() const;
 	void polygonize(Vertex* vertices, size_t& vertices_produced, const glm::vec3 scale = glm::vec3(1.0f));
 
