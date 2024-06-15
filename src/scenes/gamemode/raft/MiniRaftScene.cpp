@@ -22,8 +22,8 @@
 #include <fmt/core.h>
 #include <glm/ext/scalar_constants.hpp>
 #include <imgui.h>
-#include <luajit/lua.h>
-#include <luajit/lauxlib.h>
+#include <luajit-2.1/lua.h>
+#include <luajit-2.1/lauxlib.h>
 
 static inline glm::vec3 limitMag(glm::vec3 of, glm::vec3 to) {
 	return glm::normalize(of) * glm::min(glm::length(to), glm::length(of));

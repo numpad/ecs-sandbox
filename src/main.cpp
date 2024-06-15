@@ -48,7 +48,7 @@
 #include <Util/Benchmark.hpp>
 #include <Util/Blackboard.hpp>
 
-#include <luajit/lua.hpp>
+#include <luajit-2.1/lua.hpp>
 
 #include <scenes/cutscenes/splashscreen/SplashScreenScene.hpp>
 
