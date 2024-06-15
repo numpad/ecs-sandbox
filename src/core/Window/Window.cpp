@@ -133,8 +133,8 @@ bool Window::create(int width, int height, FullscreenMode fullscreenMode) {
 		fmt::print(fmt::fg(fmt::terminal_color::red), "gl3wInit() failed.\n");
 		return false;
 	}
-	fmt::print(fmt::fg(fmt::terminal_color::green), "OpenGL {} with GLSL {}\n", glGetString(GL_VERSION),
-	           glGetString(GL_SHADING_LANGUAGE_VERSION));
+	//fmt::print(fmt::fg(fmt::terminal_color::green), "OpenGL {} with GLSL {}\n", glGetString(GL_VERSION),
+	//           glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 	// msaa
 	// glEnable(GL_MULTISAMPLE);
