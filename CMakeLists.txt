@@ -83,8 +83,9 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenAL\:\:OpenAL)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE luajit-5.1)
 
 # freetype2
-find_package(freetype CONFIG REQUIRED)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE freetype)
+find_package(Freetype REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${FREETYPE_LIBRARIES})
+include_directories(${FREETYPE_INCLUDE_DIRS})
 
 # fmt
 find_package(fmt CONFIG REQUIRED)
